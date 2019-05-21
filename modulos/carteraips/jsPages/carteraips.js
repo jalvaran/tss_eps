@@ -55,26 +55,31 @@ $('#CmbBusquedas').bind('change', function() {
 */
 document.getElementById('BtnMuestraMenuLateral').click();
 
-
-function RegistrarIPSUsuario(){
-    var idUsuario=document.getElementById('TxtUsuarioSeleccionado').value;
-   
-        if($('#ips').val()==null || $('#ips').val()==''){
-              alertify.alert("por favor seleccione una o varias ips");          
-              return;
-        } 
-   
-    document.getElementById('btnAsigarIPS').disabled=true;
+function getInfoForm(){
+          
+    var form_data = new FormData();
+    form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
+    form_data.append('UpCartera', $('#UpCartera').prop('files')[0]);
     
+    
+    return form_data;
+}
+/**
+ * Verifica Si ya fue cargado el archivo a subir
+ * @returns {undefined}
+ */
+function VerifiqueFechaCargue(){
+    var FechaCorteCartera=document.getElementById('FechaCorteCartera').value; 
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
     var form_data = new FormData();
         form_data.append('Accion', 1);
-        form_data.append('idUsuario', idUsuario);
+        form_data.append('FechaCorteCartera', FechaCorteCartera);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
         
-        form_data.append('ips', $('#ips').val());
-      
-    $.ajax({
-        //async:false,
-        url: './procesadores/usuarios.process.php',
+        $.ajax({
+        url: './procesadores/carteraips.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -82,46 +87,32 @@ function RegistrarIPSUsuario(){
         data: form_data,
         type: 'post',
         success: function(data){
-            var respuestas = data.split(';'); 
-           if(respuestas[0]==="OK"){
-                
+           var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){  //SI no existe 
+               
                 alertify.success(respuestas[1]);
-                ListaIPSAsignar(idUsuario);
-            }else if(respuestas[0]==="E1"){
-                alertify.error(respuestas[1]);
+                EnviarCartera();
+            }else if(respuestas[0]==="E1"){ //Si existe debe pedir o no actualizacion
+                alertify.confirm(respuestas[1],
+                        function (e) {
+                            if (e) {
+
+                                alertify.success("Actualizar Archivo");                    
+                                EnviarCartera();
+                            }else{
+                                alertify.error("Se canceló el proceso");
+                                
+                                return;
+                            }
+                        });
+                document.getElementById('BtnSubir').disabled=false;
+                return;      
                 
             }else{
                 
                 alertify.alert(data);
                 
             }
-            document.getElementById('btnAsigarIPS').disabled=false;
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            document.getElementById('btnAsigarIPS').disabled=false;
-            alert(xhr.status);
-            alert(thrownError);
-          }
-      })
-}
-
-function EliminarItem(Tabla,idItem){
-    var idUsuario=document.getElementById('TxtUsuarioSeleccionado').value;    
-    var form_data = new FormData();
-        form_data.append('Accion', 2);
-        form_data.append('Tabla', Tabla);
-        form_data.append('idItem', idItem);
-        $.ajax({
-        url: './procesadores/usuarios.process.php',
-        //dataType: 'json',
-        cache: false,
-        contentType: false,
-        processData: false,
-        data: form_data,
-        type: 'post',
-        success: function(data){
-            alertify.error(data);
-            ListaIPSAsignar(idUsuario);
             
         },
         error: function (xhr, ajaxOptions, thrownError) {
@@ -130,3 +121,326 @@ function EliminarItem(Tabla,idItem){
           }
       });
 }
+
+/**
+ * Se envia el archivo para almacenarlo
+ * @returns {undefined}
+ */
+function EnviarCartera(){
+    document.getElementById('BtnSubir').disabled=true;
+    document.getElementById('BtnSubir').value="Subiendo...";
+    var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
+    var UpCartera=document.getElementById('UpCartera').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
+          alertify.alert("por favor seleccione una fecha");   
+          document.getElementById('BtnSubir').disabled=false;
+          document.getElementById('BtnSubir').value="Ejecutar";
+          document.getElementById('FechaCorteCartera').style.backgroundColor="pink";
+          return;
+    }else{
+        document.getElementById('FechaCorteCartera').style.backgroundColor="white";
+    }
+    
+    if($('#UpCartera').val()==null || $('#UpCartera').val()==''){
+          alertify.alert("por favor seleccione un archivo");
+          document.getElementById('BtnSubir').disabled=false;
+          document.getElementById('BtnSubir').value="Ejecutar";
+          document.getElementById('UpCartera').style.backgroundColor="pink";
+          return;
+    }else{
+        document.getElementById('UpCartera').style.backgroundColor="white";
+    }
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 2);
+        form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('UpCartera', $('#UpCartera').prop('files')[0]);
+      
+    $.ajax({
+        //async:false,
+        url: './procesadores/carteraips.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){                
+                alertify.success(respuestas[1]);
+                EnviarArchivoATemporal();
+            }else if(respuestas[0]==="E1"){
+                alertify.alert(respuestas[1]);
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById('BtnSubir').disabled=false;
+            document.getElementById('BtnSubir').value="Ejecutar";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function EnviarArchivoATemporal(){
+    
+    var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
+          alertify.alert("por favor seleccione una fecha");   
+          document.getElementById('BtnSubir').disabled=false;
+          document.getElementById('BtnSubir').value="Ejecutar";
+          document.getElementById('FechaCorteCartera').style.backgroundColor="pink";
+          return;
+    }else{
+        document.getElementById('FechaCorteCartera').style.backgroundColor="white";
+    }
+        
+    var form_data = new FormData();
+        form_data.append('Accion', 3);
+        form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+         
+    $.ajax({
+        //async:false,
+        url: './procesadores/carteraips.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){                
+                alertify.success(respuestas[1]);
+                VerifiqueFacturasExistentes();
+            }else if(respuestas[0]==="E1"){
+                alertify.alert(respuestas[1]);
+                BorrarTemporales();
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+                return;                
+            }else{
+                BorrarTemporales();
+                alertify.alert(data);
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById('BtnSubir').disabled=false;
+            document.getElementById('BtnSubir').value="Ejecutar";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function VerifiqueFacturasExistentes(){
+    
+    var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
+          alertify.alert("por favor seleccione una fecha");   
+          document.getElementById('BtnSubir').disabled=false;
+          document.getElementById('BtnSubir').value="Ejecutar";
+          document.getElementById('FechaCorteCartera').style.backgroundColor="pink";
+          return;
+    }else{
+        document.getElementById('FechaCorteCartera').style.backgroundColor="white";
+    }
+        
+    var form_data = new FormData();
+        form_data.append('Accion', 4);
+        form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+         
+    $.ajax({
+        //async:false,
+        url: './procesadores/carteraips.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){                
+                alertify.success(respuestas[1]);
+                InserteRegistrosNuevos();
+            }else if(respuestas[0]==="E1"){
+                alertify.alert(respuestas[1]);
+                BorrarTemporales();
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+                return;                
+            }else{
+                BorrarTemporales();
+                alertify.alert(data);
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            BorrarTemporales();
+            document.getElementById('BtnSubir').disabled=false;
+            document.getElementById('BtnSubir').value="Ejecutar";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function InserteRegistrosNuevos(){
+    
+    var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
+          alertify.alert("por favor seleccione una fecha");   
+          document.getElementById('BtnSubir').disabled=false;
+          document.getElementById('BtnSubir').value="Ejecutar";
+          document.getElementById('FechaCorteCartera').style.backgroundColor="pink";
+          return;
+    }else{
+        document.getElementById('FechaCorteCartera').style.backgroundColor="white";
+    }
+        
+    var form_data = new FormData();
+        form_data.append('Accion', 5);
+        form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+         
+    $.ajax({
+        //async:false,
+        url: './procesadores/carteraips.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){                
+                alertify.success(respuestas[1]);
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+                //InserteRegistrosNuevos();
+            }else if(respuestas[0]==="E1"){
+                BorrarTemporales();
+                alertify.alert(respuestas[1]);
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+                return;                
+            }else{
+                BorrarTemporales();
+                alertify.alert(data);
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            BorrarTemporales();
+            document.getElementById('BtnSubir').disabled=false;
+            document.getElementById('BtnSubir').value="Ejecutar";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function BorrarTemporales(){
+    
+    var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
+          alertify.alert("por favor seleccione una fecha");   
+          document.getElementById('BtnSubir').disabled=false;
+          document.getElementById('BtnSubir').value="Ejecutar";
+          document.getElementById('FechaCorteCartera').style.backgroundColor="pink";
+          return;
+    }else{
+        document.getElementById('FechaCorteCartera').style.backgroundColor="white";
+    }
+        
+    var form_data = new FormData();
+        form_data.append('Accion', 6);
+        form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+         
+    $.ajax({
+        //async:false,
+        url: './procesadores/carteraips.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){                
+                alertify.success(respuestas[1]);
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+                //InserteRegistrosNuevos();
+            }else if(respuestas[0]==="E1"){
+                alertify.alert(respuestas[1]);
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById('BtnSubir').disabled=false;
+            document.getElementById('BtnSubir').value="Ejecutar";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+$('#CmbIPS').select2();
+$('#CmbEPS').select2();

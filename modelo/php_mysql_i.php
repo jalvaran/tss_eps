@@ -85,7 +85,7 @@ public function QueryExterno($sql,$ip,$User,$Pass,$db,$VectorCon){
 public function VaciarTabla($tabla)
   {		
 	$tabla=$this->normalizar($tabla);
-	$sql="TRUNCATE `$tabla`";
+	$sql="TRUNCATE $tabla";
 	
 	$this->Query($sql) or die('no se pudo vaciar la tabla $tabla: ' . $this->mysqli->error);	
 		
