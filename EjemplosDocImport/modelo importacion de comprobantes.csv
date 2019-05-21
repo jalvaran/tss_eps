@@ -1,0 +1,7 @@
+CentroCosto;Tercero;CuentaPUC;NombreCuenta;Debito;Credito;Concepto;NumDocSoporte
+1;900298074;1105;Caja;50000;0;DSADSA;321321
+1;900704258;1110;Bancos;0;50000;DSADSAD;3213213
+1;900298074;1435;Mercanc?as no fabricadas por la empresa;0;25000;ajuste por error;NA
+1;900298074;1105;Caja;25000;0;por error;NA
+1;900704258;1435;Mercanc?as no fabricadas por la empresa;2000000;0;por error de valor en el costo total de compra;na
+1;900704258;1105;Caja;0;2000000;para compeltar gasto compra inventario;na

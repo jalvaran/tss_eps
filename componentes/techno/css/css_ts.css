@@ -1,0 +1,173 @@
+/*
+CSS propio de Techno Soluciones
+*/
+
+ul,
+li {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+#container {
+  
+  background: #fefefe;
+  
+}
+
+input {
+  padding: 10px 10px;
+  border: 1px solid #d5d9da;
+  border-radius: 5px;
+  box-shadow: 0 0 5px #e8e9eb inset;
+  
+  /* 400 (#container) - 40 (li margins) -  10 (span paddings) - 20 (input paddings) - 2 (input borders) */
+  font-size: 1em;
+  outline: 0;
+  /* remove webkit focus styles */
+}
+input:focus {
+  border: 1px solid #b9d4e9;
+  border-top-color: #b6d5ea;
+  border-bottom-color: #b8d4ea;
+  box-shadow: 0 0 5px #b9d4e9;
+}
+
+#pswd_info {
+  position: absolute;
+  bottom: -75px;
+  bottom: -115px\9;
+  /* IE Specific */
+  right: 55px;
+  width: 250px;
+  padding: 15px;
+  background: #fefefe;
+  font-size: .875em;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px #ccc;
+  border: 1px solid #ddd;
+}
+#pswd_info h4 {
+  margin: 0 0 10px 0;
+  padding: 0;
+  font-weight: normal;
+}
+#pswd_info::before {
+  content: "\25B2";
+  position: absolute;
+  top: -12px;
+  left: 45%;
+  font-size: 14px;
+  line-height: 14px;
+  color: #ddd;
+  text-shadow: none;
+  display: block;
+}
+.invalid {
+ 
+  padding-left: 22px;
+  line-height: 24px;
+  color: #ec3f41;
+}
+.valid {
+  
+  padding-left: 22px;
+  line-height: 24px;
+  color: #3a7d34;
+}
+#pswd_info {
+  display: none;
+}
+
+
+.clearfix:before,
+.clearfix:after,
+.container_12:before,
+.container_12:after {
+  content: '.';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  width: 0;
+  height: 0;
+}
+
+.clearfix:after,
+.container_12:after {
+  clear: both;
+}
+
+/*
+  The following zoom:1 rule is specifically for IE6 + IE7.
+  Move to separate stylesheet if invalid CSS is a problem.
+*/
+
+.clearfix,
+.container_12 {
+  zoom: 1;
+}
+
+/*links*/
+
+a {
+	text-decoration: none;
+	color: inherit;
+	outline: none;
+	transition: 0.5s ease;
+	-o-transition: 0.5s ease;
+	-webkit-transition: 0.5s ease;
+}
+
+a:hover {
+	color: #d9c381;
+	
+}
+
+.tab-content:after {
+	clear: both;
+}
+
+.col3 a:hover {
+	color: #d9c381;
+}
+.div-tabs  {
+	text-align: center;
+}
+
+.div-tabs .clear {
+}
+.div-tabs a.gal  {
+	margin-top: 52px;
+	
+	margin-bottom: 23px;
+}
+
+.div-tabs a.gal img {
+	border: 1px solid #f7f8ed;
+	border-radius: 500px;
+}
+
+a.gal {
+	display: block;
+	position: relative;
+	
+	
+}
+
+a.gal span {
+	transition: 0.5s ease;
+	-o-transition: 0.5s ease;
+	-webkit-transition: 0.5s ease;
+	display: block;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background: url(../../../images/magnify.png) -100% center no-repeat;
+}
+
+a.gal:hover span {
+	background-position: center center;
+}

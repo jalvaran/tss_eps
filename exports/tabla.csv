@@ -1,0 +1,6 @@
+"idLibroDiario";"Fecha";"Tipo_Documento_Intero";"Num_Documento_Interno";"Tercero_Identificacion";"CuentaPUC";"NombreCuenta";"Detalle";"Debito";"Credito";"Neto";"idCentroCosto";"idEmpresa";"idSucursal";"Estado";"idUsuario"
+"30816";"2019-04-17";"FacturaCompra";"30";"900298074";"143501";"Mercancias No Fabricadas por la Empresa";"Compras";"575606.19";"0";"575606.19";"1";"1";"1";"";"3"
+"30817";"2019-04-17";"FacturaCompra";"30";"900298074";"24080503";"Impuestos del 5%";"Compras";"17497.43";"0";"17497.43";"1";"1";"1";"";"3"
+"30818";"2019-04-17";"FacturaCompra";"30";"900298074";"110505";" Caja general";"Compras";"0";"213841.62";"-213841.62";"1";"1";"1";"";"3"
+"30819";"2019-04-17";"FacturaCompra";"30";"900298074";"143501";"Mercancias No Fabricadas por la Empresa";"DevolucionCompras";"0";"362799";"-362799";"1";"1";"1";"";"3"
+"30820";"2019-04-17";"FacturaCompra";"30";"900298074";"24080503";"Impuestos del 5%";"DevolucionCompras";"0";"16463";"-16463";"1";"1";"1";"";"3"
