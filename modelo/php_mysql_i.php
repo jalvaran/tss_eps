@@ -96,7 +96,7 @@ public function VaciarTabla($tabla)
 ///////////////////////////////////////////////////////////////////
 
     public function update($tabla,$campo, $value, $condicion){
-	$sql="UPDATE `$tabla` SET `$campo` = '$value' $condicion";
+	$sql="UPDATE $tabla SET `$campo` = '$value' $condicion";
 	$this->Query($sql) or die('no se pudo actualizar el registro en la $tabla: ' . $this->mysqli->error);
     }
     

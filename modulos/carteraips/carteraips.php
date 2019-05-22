@@ -76,7 +76,7 @@ $css->PageInit($myTitulo);
     $css->CerrarDiv();
     print("<br><br><br><br><br><br><br>");
     $css->CrearDiv("DivProgress", "col-md-12", "center", 1, 1);
-        $css->ProgressBar("PgProgresoUp", "LyProgresoCMG", "", 0, 0, 100, 0, "0%", "", "");
+        $css->ProgressBar("PgProgresoUp", "LyProgresoUP", "", 0, 0, 100, 0, "0%", "", "");
     $css->CerrarDiv();
     $css->CrearDiv("DivProcess", "col-md-12", "center", 1, 1);
     

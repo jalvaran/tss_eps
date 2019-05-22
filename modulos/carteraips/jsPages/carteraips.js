@@ -40,8 +40,9 @@ function MuestraOcultaXID(id){
  * @returns {undefined}
  */
 function LimpiarDivs(){
-    document.getElementById('DivItemsCompra').innerHTML='';
-    document.getElementById('DivTotalesCompra').innerHTML='';
+    document.getElementById('DivProcess').innerHTML='';
+    
+    //document.getElementById('DivTotalesCompra').innerHTML='';
 }
 
 /*
@@ -69,6 +70,7 @@ function getInfoForm(){
  * @returns {undefined}
  */
 function VerifiqueFechaCargue(){
+    
     var FechaCorteCartera=document.getElementById('FechaCorteCartera').value; 
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
@@ -89,10 +91,12 @@ function VerifiqueFechaCargue(){
         success: function(data){
            var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){  //SI no existe 
-               
+                $('.progress-bar').css('width','20%').attr('aria-valuenow', 20);  
+                document.getElementById('LyProgresoUP').innerHTML="20%";
                 alertify.success(respuestas[1]);
                 EnviarCartera();
             }else if(respuestas[0]==="E1"){ //Si existe debe pedir o no actualizacion
+                LimpiarDivs();
                 alertify.confirm(respuestas[1],
                         function (e) {
                             if (e) {
@@ -109,13 +113,14 @@ function VerifiqueFechaCargue(){
                 return;      
                 
             }else{
-                
+                LimpiarDivs();
                 alertify.alert(data);
                 
             }
             
         },
         error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
             alert(xhr.status);
             alert(thrownError);
           }
@@ -127,6 +132,8 @@ function VerifiqueFechaCargue(){
  * @returns {undefined}
  */
 function EnviarCartera(){
+    document.getElementById("DivProcess").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
     document.getElementById('BtnSubir').disabled=true;
     document.getElementById('BtnSubir').value="Subiendo...";
     var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
@@ -172,16 +179,19 @@ function EnviarCartera(){
         type: 'post',
         success: function(data){
             var respuestas = data.split(';'); 
-           if(respuestas[0]==="OK"){                
+           if(respuestas[0]==="OK"){   
+               $('.progress-bar').css('width','40%').attr('aria-valuenow', 40);  
+                document.getElementById('LyProgresoUP').innerHTML="40%";
                 alertify.success(respuestas[1]);
                 EnviarArchivoATemporal();
             }else if(respuestas[0]==="E1"){
+                LimpiarDivs();
                 alertify.alert(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
-                
+                LimpiarDivs();
                 alertify.alert(data);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
@@ -189,6 +199,7 @@ function EnviarCartera(){
             
         },
         error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
             document.getElementById('BtnSubir').disabled=false;
             document.getElementById('BtnSubir').value="Ejecutar";
             alert(xhr.status);
@@ -230,16 +241,20 @@ function EnviarArchivoATemporal(){
         type: 'post',
         success: function(data){
             var respuestas = data.split(';'); 
-           if(respuestas[0]==="OK"){                
+           if(respuestas[0]==="OK"){   
+                $('.progress-bar').css('width','60%').attr('aria-valuenow', 60);  
+                document.getElementById('LyProgresoUP').innerHTML="60%";
                 alertify.success(respuestas[1]);
                 VerifiqueFacturasExistentes();
             }else if(respuestas[0]==="E1"){
+                LimpiarDivs();
                 alertify.alert(respuestas[1]);
                 BorrarTemporales();
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
+                LimpiarDivs();
                 BorrarTemporales();
                 alertify.alert(data);
                 document.getElementById('BtnSubir').disabled=false;
@@ -248,6 +263,7 @@ function EnviarArchivoATemporal(){
             
         },
         error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
             document.getElementById('BtnSubir').disabled=false;
             document.getElementById('BtnSubir').value="Ejecutar";
             alert(xhr.status);
@@ -290,16 +306,21 @@ function VerifiqueFacturasExistentes(){
         type: 'post',
         success: function(data){
             var respuestas = data.split(';'); 
-           if(respuestas[0]==="OK"){                
+           if(respuestas[0]==="OK"){  
+               
+               $('.progress-bar').css('width','80%').attr('aria-valuenow', 80);  
+                document.getElementById('LyProgresoUP').innerHTML="80%";
                 alertify.success(respuestas[1]);
                 InserteRegistrosNuevos();
             }else if(respuestas[0]==="E1"){
+                LimpiarDivs();
                 alertify.alert(respuestas[1]);
                 BorrarTemporales();
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
+                LimpiarDivs();
                 BorrarTemporales();
                 alertify.alert(data);
                 document.getElementById('BtnSubir').disabled=false;
@@ -309,6 +330,7 @@ function VerifiqueFacturasExistentes(){
         },
         error: function (xhr, ajaxOptions, thrownError) {
             BorrarTemporales();
+            LimpiarDivs();
             document.getElementById('BtnSubir').disabled=false;
             document.getElementById('BtnSubir').value="Ejecutar";
             alert(xhr.status);
@@ -351,19 +373,24 @@ function InserteRegistrosNuevos(){
         type: 'post',
         success: function(data){
             var respuestas = data.split(';'); 
-           if(respuestas[0]==="OK"){                
+           if(respuestas[0]==="OK"){ 
+               LimpiarDivs();
+               $('.progress-bar').css('width','100%').attr('aria-valuenow', 100);  
+                document.getElementById('LyProgresoUP').innerHTML="100%";
                 alertify.success(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 //InserteRegistrosNuevos();
             }else if(respuestas[0]==="E1"){
                 BorrarTemporales();
+                LimpiarDivs();
                 alertify.alert(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
                 BorrarTemporales();
+                LimpiarDivs();
                 alertify.alert(data);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
@@ -372,6 +399,7 @@ function InserteRegistrosNuevos(){
         },
         error: function (xhr, ajaxOptions, thrownError) {
             BorrarTemporales();
+            LimpiarDivs();
             document.getElementById('BtnSubir').disabled=false;
             document.getElementById('BtnSubir').value="Ejecutar";
             alert(xhr.status);

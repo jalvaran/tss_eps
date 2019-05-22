@@ -73,7 +73,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $obCon->VaciarTabla("$db.temporalcarguecarteraips");
             $keyArchivo=$obCon->getKeyCarteraIPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $obCon->LeerArchivo($keyArchivo,$FechaCorteCartera,$CmbIPS,$idUser);
-            print("OK");
+            print("OK;Archivo cargado");
         break; //fin caso 3   
     
         case 4://Verificar si hay facturas repetidas y si las hay las reemplaza y las lleva al registro de actualizaciones
@@ -83,9 +83,18 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyCarteraIPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
+            $sql="UPDATE $db.carteracargadaips cips INNER JOIN $db.temporalcarguecarteraips t ON cips.NumeroFactura=t.NumeroFactura SET cips.FlagUpdate=1  "
+                    . "WHERE cips.ValorDocumento<>t.ValorDocumento or cips.ValorGlosaInicial<>t.ValorGlosaInicial or cips.ValorGlosaAceptada<>t.ValorGlosaAceptada or"
+                    . " cips.ValorGlosaConciliada<>t.ValorGlosaConciliada or cips.ValorDescuentoBdua<>t.ValorDescuentoBdua or cips.ValorAnticipos<>t.ValorAnticipos"
+                    . " or cips.ValorRetencion<>t.ValorRetencion or cips.ValorTotalpagar<>t.ValorTotalpagar or cips.FechaHasta<>t.FechaHasta"
+                    . " or cips.NumeroCuentaGlobal<>t.NumeroCuentaGlobal or cips.NumeroRadicado<>t.NumeroRadicado or cips.FechaRadicado<>t.FechaRadicado"
+                    . " or cips.TipoNegociacion<>t.TipoNegociacion or cips.NumeroContrato<>t.NumeroContrato or cips.DiasPactados<>t.DiasPactados"
+                    . " or cips.TipoRegimen<>t.TipoRegimen ;";
+            $obCon->Query($sql);
             $sql="INSERT INTO $db.`actualizacioncarteracargadaips` 
-                    SELECT * FROM $db.`carteracargadaips` as t1 WHERE EXISTS 
-                    (SELECT 1 FROM $db.`temporalcarguecarteraips` as t2 WHERE t1.`NumeroFactura`=t2.`NumeroFactura`); ";
+                    SELECT * FROM $db.`carteracargadaips` as t1 WHERE t1.FlagUpdate=1";
+            $obCon->Query($sql);
+            $sql="UPDATE $db.carteracargadaips SET FlagUpdate=0 WHERE FlagUpdate=1";
             $obCon->Query($sql);
             print("OK;Analisis de Actualizaciones de Facturas Completo");
         break; //fin caso 4  
@@ -97,9 +106,11 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyCarteraIPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $sql="REPLACE INTO $db.`carteracargadaips` 
+            
+            $sql="REPLACE INTO $db.`carteracargadaips`  
                     SELECT * FROM $db.`temporalcarguecarteraips`; ";
             $obCon->Query($sql);
+            
             print("OK;Registros realizados correctamente");
         break; //fin caso 5
     
@@ -111,7 +122,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $obCon->VaciarTabla("$db.temporalcarguecarteraips");
-            $obCon->BorraReg("$db.controlcarguesips", "nombre", $keyArchivo);
+            $obCon->BorraReg("$db.controlcarguesips", "NombreCargue", $keyArchivo);
             print("OK;Temporales Borrados");
         break; //fin caso 5
         
