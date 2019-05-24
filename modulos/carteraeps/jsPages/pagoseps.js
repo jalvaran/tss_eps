@@ -1,6 +1,6 @@
 /**
- * Controlador para cartera
- * JULIAN ALVARAN 2019-05-20
+ * Controlador para pagos EPS
+ * JULIAN ALVARAN 2019-05-24
  * TECHNO SOLUCIONES SAS 
  * 
  */
@@ -68,7 +68,7 @@ function getInfoForm(){
 
 function ConfirmarCarga(){
     var EPS=$('#select2-CmbEPS-container').text();
-    alertify.confirm('Está seguro que desea Cargar la Cartera de la EPS:<br> <strong>'+EPS+'</strong>',
+    alertify.confirm('Está seguro que desea Cargar los Pagos de la EPS:<br> <strong>'+EPS+'</strong>',
         function (e) {
             if (e) {
 
@@ -98,7 +98,7 @@ function VerifiqueFechaCargue(){
         form_data.append('CmbIPS', CmbIPS);
         
         $.ajax({
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/pagoseps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -187,7 +187,7 @@ function EnviarCartera(){
       
     $.ajax({
         //async:false,
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/pagoseps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -227,14 +227,14 @@ function EnviarCartera(){
 
 
 function CalcularTotalLineasArchivo(){
-    document.getElementById('DivMensajes').innerHTML="Obteniendo Numero de Registros en el archivo";
+    document.getElementById('DivMensajes').innerHTML="Obteniendo Número de Registros en el archivo";
     document.getElementById('BtnSubir').disabled=true;
     document.getElementById('BtnSubir').value="Subiendo...";
     var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
     var UpCartera=document.getElementById('UpCartera').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
-    var Separador=document.getElementById('CmbSeparador').value;
+    
     
     if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
           alertify.alert("por favor seleccione una fecha");   
@@ -261,12 +261,12 @@ function CalcularTotalLineasArchivo(){
         form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
-        form_data.append('Separador', Separador);
+        
         form_data.append('UpCartera', $('#UpCartera').prop('files')[0]);
       
     $.ajax({
         //async:false,
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/pagoseps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -281,7 +281,7 @@ function CalcularTotalLineasArchivo(){
                 var TotalLineas=respuestas[2];
                 alertify.success(respuestas[1]);
                 document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+respuestas[1];
-                EnviarArchivoATemporal(TotalLineas);
+                //EnviarArchivoATemporal(TotalLineas);
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
                 alertify.alert(respuestas[1]);
@@ -334,7 +334,7 @@ function EnviarArchivoATemporal(TotalLineas,LineaActual=0){
          
     $.ajax({
         //async:false,
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/pagoseps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -409,7 +409,7 @@ function CopiarAlHistorialCargas(){
          
     $.ajax({
         //async:false,
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/pagoseps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -478,7 +478,7 @@ function InserteRegistrosNuevos(){
          
     $.ajax({
         //async:false,
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/pagoseps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -548,7 +548,7 @@ function BorrarTemporales(){
          
     $.ajax({
         //async:false,
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/pagoseps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,

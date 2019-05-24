@@ -20,7 +20,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo'";
@@ -40,7 +40,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $obCon->VaciarTabla("$db.temporalcarguecarteraeps");
@@ -50,19 +50,27 @@ if( !empty($_REQUEST["Accion"]) ){
             if(!empty($_FILES['UpCartera']['name'])){
                 
                 $info = new SplFileInfo($_FILES['UpCartera']['name']);
-                $Extension=($info->getExtension());                
-                $carpeta="../../../soportes/813001952/";
-                if (!file_exists($carpeta)) {
-                    mkdir($carpeta, 0777);
+                $Extension=($info->getExtension());
+                
+                   
+                if($Extension=="xls" or $Extension=="xlsx"){
+                    $carpeta="../../../soportes/813001952/";
+                    if (!file_exists($carpeta)) {
+                        mkdir($carpeta, 0777);
+                    }
+                    opendir($carpeta);                
+                    $destino=$carpeta.$keyArchivo.".".$Extension;
+                    $NombreArchivo=$keyArchivo.".".$Extension;
+                    move_uploaded_file($_FILES['UpCartera']['tmp_name'],$destino);
+                }else{
+                    print("E1;La Extension: $Extension No está permitida");
+                    exit();
                 }
-                opendir($carpeta);                
-                $destino=$carpeta.$keyArchivo.".".$Extension;
-                $NombreArchivo=$keyArchivo.".".$Extension;
-                move_uploaded_file($_FILES['UpCartera']['tmp_name'],$destino);
             }else{
                 print("E1;No se envió ningún archivo");
                 exit();
             }
+            
             $obCon->RegistreArchivo($keyArchivo,$CmbEPS,$CmbIPS,$NombreArchivo,$destino,$Extension,$idUser);
             print("OK;Archivo Recibido");            
             
@@ -78,13 +86,13 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
-            $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
-            if($DatosEPS["ID"]==1){
-                $LineaActual=$obCon->LeerArchivoSAS($keyArchivo,$FechaCorteCartera,$CmbIPS,$LineaActual,$Separador,$idUser);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
+            if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==1){
+                $LineaActual=$obCon->LeerPagosEPS($keyArchivo,$FechaCorteCartera,$CmbIPS,$LineaActual,$CmbEPS,$idUser);
+            }else{
+                print("E1;Opción no disponible");
             }
-            if($DatosEPS["ID"]==2){
-                $LineaActual=$obCon->LeerArchivoMutual($keyArchivo,$FechaCorteCartera,$CmbIPS,$LineaActual,$Separador,$idUser);
-            }
+            
             print("OK;Archivo cargado;$LineaActual");
         break; //fin caso 3   
     
@@ -92,7 +100,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $sql="UPDATE $db.historial_carteracargada_eps cips INNER JOIN $db.temporalcarguecarteraeps t ON cips.NumeroFactura=t.NumeroFactura SET t.FlagUpdate=1  "
@@ -111,7 +119,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $sql="UPDATE $db.temporalcarguecarteraeps cips INNER JOIN $db.carteraeps t ON cips.NumeroFactura=t.NumeroFactura SET cips.FlagUpdate=1;";
@@ -128,7 +136,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $obCon->VaciarTabla("$db.temporalcarguecarteraeps");
@@ -136,12 +144,12 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;Temporales Borrados");
         break; //fin caso 5
     
-        case 7://Devuelve el numero de lineas del archivo
+        case 7://Devuelve el numero de lineas y hojas del archivo
             
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $Separador=$obCon->normalizar($_REQUEST["Separador"]);
+            
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
@@ -149,8 +157,8 @@ if( !empty($_REQUEST["Accion"]) ){
             if($DatosEPS["ID"]==2){
                 $NumeroColumnasEncabezado=51;
             }
-            $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
-            $NumLineasArchivo=$obCon->CalcularNumeroRegistros($keyArchivo,$CmbIPS,$Separador,$NumeroColumnasEncabezado,$CmbEPS,$idUser);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
+            $NumLineasArchivo=$obCon->obtengaHojasFilas($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
             //$NumLineasArchivo=50;
             print("OK;El archivo contiene ".$NumLineasArchivo." Lineas;$NumLineasArchivo");
         break; //fin caso 7  
