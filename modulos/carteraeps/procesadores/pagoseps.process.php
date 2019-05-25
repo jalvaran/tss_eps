@@ -53,7 +53,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $Extension=($info->getExtension());
                 
                    
-                if($Extension=="xls" or $Extension=="xlsx" or $Extension=="csv"){
+                if($Extension=="xls" or $Extension=="xlsx"){
                     $carpeta="../../../soportes/813001952/";
                     if (!file_exists($carpeta)) {
                         mkdir($carpeta, 0777);

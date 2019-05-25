@@ -507,6 +507,9 @@ class CarteraEPS extends conexion{
             $objPHPExcel->setActiveSheetIndex($h);
             $columnas = $objPHPExcel->setActiveSheetIndex($h)->getHighestColumn();
             $filas = $objPHPExcel->setActiveSheetIndex($h)->getHighestRow();
+            if($columnas<>'IU'){
+                exit("E1;No se ha recibido el archivo correcto para los <strong>pagos de ASMET SAS</strong>");
+            }
             print("$hojas, $filas, $columnas<br>");
             for ($i=0;$i<=$filas;$i++){
                 $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
