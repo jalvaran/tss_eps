@@ -200,7 +200,7 @@ function EnviarCartera(){
                $('.progress-bar').css('width','40%').attr('aria-valuenow', 40);  
                 document.getElementById('LyProgresoUP').innerHTML="40%";
                 alertify.success(respuestas[1]);
-                CalcularTotalLineasArchivo();
+                GuardePagosEnTemporal();
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
                 alertify.alert(respuestas[1]);
@@ -225,9 +225,15 @@ function EnviarCartera(){
       })
 }
 
+function ObtengaHora(){
+    var f=new Date();
+    var cad=f.getHours()+":"+f.getMinutes()+":"+f.getSeconds(); 
+    return (cad)
+}
 
-function CalcularTotalLineasArchivo(){
-    document.getElementById('DivMensajes').innerHTML="Obteniendo Número de Registros en el archivo";
+function GuardePagosEnTemporal(){
+    var Hora = ObtengaHora();
+    document.getElementById('DivMensajes').innerHTML="Iniciando Registros en la tabla temporal " + Hora;
     document.getElementById('BtnSubir').disabled=true;
     document.getElementById('BtnSubir').value="Subiendo...";
     var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
@@ -280,7 +286,8 @@ function CalcularTotalLineasArchivo(){
                 document.getElementById('LyProgresoUP').innerHTML="40%";
                 var TotalLineas=respuestas[2];
                 alertify.success(respuestas[1]);
-                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+respuestas[1];
+                Hora = ObtengaHora();
+                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+respuestas[1]+" "+Hora;
                 //EnviarArchivoATemporal(TotalLineas);
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
@@ -289,8 +296,9 @@ function CalcularTotalLineasArchivo(){
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
-                LimpiarDivs();
-                document.getElementById('DivMensajes').innerHTML=data;
+                //LimpiarDivs();
+                var Hora = ObtengaHora();
+                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+data+" "+Hora;
                 //alertify.alert(data);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";

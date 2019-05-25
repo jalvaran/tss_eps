@@ -43,7 +43,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $obCon->VaciarTabla("$db.temporalcarguecarteraeps");
+            $obCon->VaciarTabla("$db.pagos_asmet_temporal");
             $destino='';
             
             $Extension="";
@@ -53,7 +53,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $Extension=($info->getExtension());
                 
                    
-                if($Extension=="xls" or $Extension=="xlsx"){
+                if($Extension=="xls" or $Extension=="xlsx" or $Extension=="csv"){
                     $carpeta="../../../soportes/813001952/";
                     if (!file_exists($carpeta)) {
                         mkdir($carpeta, 0777);
@@ -144,24 +144,30 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;Temporales Borrados");
         break; //fin caso 5
     
-        case 7://Devuelve el numero de lineas y hojas del archivo
+        case 7://Guarda los archivos en la temporal
             
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            
+            $Separador=2;
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
-            $NumeroColumnasEncabezado=52;// 51 para mutual y 52 para sas
-            if($DatosEPS["ID"]==2){
-                $NumeroColumnasEncabezado=51;
-            }
             $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
-            $NumLineasArchivo=$obCon->obtengaHojasFilas($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
-            //$NumLineasArchivo=50;
-            print("OK;El archivo contiene ".$NumLineasArchivo." Lineas;$NumLineasArchivo");
-        break; //fin caso 7  
+            if($DatosEPS["ID"]==1){                
+                $obCon->GuardePagosASMETSASEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
+            }
+            if($DatosEPS["ID"]==2){                
+                $obCon->GuardePagosASMETMutualEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
+            }
+            
+            if($DatosEPS["ID"]>2 ){                
+                exit("E1;EPS no ompatible");
+                
+            }
+            
+            print("OK;El archivo Se guardó en la tabla temporal correctamente");
+        break; //fin caso 7
         
     }
     

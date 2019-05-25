@@ -335,7 +335,7 @@ class CarteraEPS extends conexion{
     }
     
     
-    public function obtengaHojasFilas($keyArchivo,$idIPS,$idEPS,$idUser) {
+    public function GuardePagosASMETMutualEnTemporal($keyArchivo,$idIPS,$idEPS,$idUser) {
         require_once('../../../librerias/Excel/PHPExcel.php');
         require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
@@ -343,8 +343,9 @@ class CarteraEPS extends conexion{
         $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo' AND idUser='$idUser'";
         $Consulta=$this->Query($sql);
         $DatosUpload=$this->FetchArray($Consulta);
-        
+        $FechaActual=date("Y-m-d");
         $RutaArchivo=$DatosUpload["RutaArchivo"];
+        $Soporte=$DatosUpload["RutaArchivo"];
         if($DatosUpload["ExtensionArchivo"]=="xlsx"){
             $objReader = PHPExcel_IOFactory::createReader('Excel2007');
         }else if($DatosUpload["ExtensionArchivo"]=="xls"){
@@ -355,15 +356,249 @@ class CarteraEPS extends conexion{
         
         //$objReader = new PHPExcel_Reader_Excel2007();
         $objPHPExcel = $objReader->load($RutaArchivo);   
-        $objPHPExcel->setActiveSheetIndex(0);
-        
-        $columnas = $objPHPExcel->setActiveSheetIndex(0)->getHighestColumn();
-        $filas = $objPHPExcel->setActiveSheetIndex(0)->getHighestRow();
         $hojas=$objPHPExcel->getSheetCount();
-        $DatosArchivo[0]["Filas"]=$filas;
-        $DatosArchivo[0]["Columnas"]=$columnas;
-        $DatosArchivo[0]["Hojas"]=$hojas;
-        print(json_encode($DatosArchivo));
+                 
+        $objFecha = new PHPExcel_Shared_Date();      
+        
+        
+        $hojas=$objPHPExcel->getSheetCount();
+        
+        date_default_timezone_set('UTC'); //establecemos la hora local
+        $Proceso="";
+        $DescripcionProceso="";
+        $Estado="";
+        $Cuenta="";
+        $Banco="";
+        for ($h=0;$h<$hojas;$h++){
+            $objPHPExcel->setActiveSheetIndex($h);
+            $columnas = $objPHPExcel->setActiveSheetIndex($h)->getHighestColumn();
+            $filas = $objPHPExcel->setActiveSheetIndex($h)->getHighestRow();
+        
+            for ($i=10;$i<=$filas;$i++){
+                $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
+                $FilaB=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
+                if($FilaA=='' or $FilaA=='Fecha' or $FilaA=='Proveedor :'){
+
+                    continue; 
+
+                }
+                if($FilaA=='Proceso :'){
+                    $c=0;
+                    $Cols=['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P'];
+                    $Proceso=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
+                    $DescripcionProceso=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getCalculatedValue();
+                    $Estado=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getCalculatedValue();
+                    $Cuenta=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getCalculatedValue();
+                    if($Cuenta==""){
+                        $Cuenta=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getCalculatedValue();
+                    }
+                    $Banco=$objPHPExcel->getActiveSheet()->getCell('O'.$i)->getCalculatedValue();
+                    continue;
+                }
+                
+                    $data=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue());
+                    $FechaPago=date("Y-m-d",$data); 
+                    $_DATOS_EXCEL[$i]['Nit_IPS'] = $idIPS;
+                    $_DATOS_EXCEL[$i]['Nit_EPS'] = $idEPS;
+                    $_DATOS_EXCEL[$i]['Proceso']=$Proceso;
+                    $_DATOS_EXCEL[$i]['DescripcionProceso']=$DescripcionProceso;
+                    $_DATOS_EXCEL[$i]['Estado']=$Estado;
+                    $_DATOS_EXCEL[$i]['Cuenta']=$Cuenta;
+                    $_DATOS_EXCEL[$i]['Banco']=$Banco;
+                    $_DATOS_EXCEL[$i]['FechaPagoFactura']=$FechaPago;
+
+
+                    $c=0;
+                    $_DATOS_EXCEL[$i]['NumeroPago']= $objPHPExcel->getActiveSheet()->getCell($Cols[$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['TipoOperacion'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['NumeroFactura'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['ValorBrutoPagar'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['ValorDescuento'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['ValorIva'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['ValorRetefuente'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['ValorReteiva'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+
+                    $_DATOS_EXCEL[$i]['ValorReteica'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['ValorOtrasRetenciones'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['ValorCruces'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['ValorAnticipos'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['ValorTotal'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$i]['ValorTranferido'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+
+                    $_DATOS_EXCEL[$i]['Regional'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+
+                    $_DATOS_EXCEL[$i]['llaveCompuesta'] = "";
+                    $_DATOS_EXCEL[$i]['idUser'] = $idUser;
+                    $_DATOS_EXCEL[$i]['Soporte'] = $Soporte;
+                    $_DATOS_EXCEL[$i]['FechaRegistro'] = $FechaActual;
+                    $_DATOS_EXCEL[$i]['FechaActualizacion'] = $FechaActual;
+
+            } 
+        
+        }
+        
+        $sql= "INSERT INTO $db.`pagos_asmet_temporal` ( `Nit_IPS`, `Nit_EPS`,`Proceso`, `DescripcionProceso`, `Estado`, `Cuenta`, `Banco`, `FechaPagoFactura`, `NumeroPago`, `TipoOperacion`, `NumeroFactura`, `ValorBrutoPagar`, `ValorDescuento`, `ValorIva`, `ValorRetefuente`, `ValorReteiva`, `ValorReteica`, `ValorOtrasRetenciones`, `ValorCruces`, `ValorAnticipos`, `ValorTotal`, `ValorTranferido`, `Regional`, `llaveCompuesta`, `idUser`, `Soporte`, `FechaRegistro`, `FechaActualizacion`) VALUES ";
+        $i=0;    
+        foreach($_DATOS_EXCEL as $campo => $valor){
+            $i++;
+            $sql.="('";
+            foreach ($valor as $campo2 => $valor2){
+                $campo2 == "FechaActualizacion" ? $sql.= $valor2."')," : $sql.= $valor2."','";
+            }
+            
+            if($i==1000){
+                
+                $sql=substr($sql, 0, -1);
+                //print($sql);
+                $this->Query($sql);
+                $sql= "INSERT INTO $db.`pagos_asmet_temporal` ( `Nit_IPS`, `Nit_EPS`,`Proceso`, `DescripcionProceso`, `Estado`, `Cuenta`, `Banco`, `FechaPagoFactura`, `NumeroPago`, `TipoOperacion`, `NumeroFactura`, `ValorBrutoPagar`, `ValorDescuento`, `ValorIva`, `ValorRetefuente`, `ValorReteiva`, `ValorReteica`, `ValorOtrasRetenciones`, `ValorCruces`, `ValorAnticipos`, `ValorTotal`, `ValorTranferido`, `Regional`, `llaveCompuesta`, `idUser`, `Soporte`, `FechaRegistro`, `FechaActualizacion`) VALUES ";
+        
+                $i=0;
+            }    
+            
+        }   
+        $sql=substr($sql, 0, -1);
+        $this->Query($sql);
+        unset($objPHPExcel);
+        unset($_DATOS_EXCEL);
+        unset($sql);
+    }
+    
+    
+ 
+    public function GuardePagosASMETSASEnTemporal($keyArchivo,$idIPS,$idEPS,$idUser) {
+        require_once('../../../librerias/Excel/PHPExcel.php');
+        require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
+        $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
+        $db=$DatosIPS["DataBase"];
+        $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo' AND idUser='$idUser'";
+        $Consulta=$this->Query($sql);
+        
+        $DatosUpload=$this->FetchArray($Consulta);
+        $FechaActual=date("Y-m-d");
+        $RutaArchivo=$DatosUpload["RutaArchivo"];
+        $Soporte=$DatosUpload["RutaArchivo"];
+        if($DatosUpload["ExtensionArchivo"]=="xlsx"){
+            $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+        }else if($DatosUpload["ExtensionArchivo"]=="xls"){
+            $objReader = PHPExcel_IOFactory::createReader('Excel5');
+        }else{
+            exit("Solo se permiten archivos con extension xls o xlsx, ext: ".$DatosUpload["ExtensionArchivo"]);
+        }
+        
+        //$objReader = new PHPExcel_Reader_Excel2007();
+        $objPHPExcel = $objReader->load($RutaArchivo);   
+        $hojas=$objPHPExcel->getSheetCount();
+                 
+        $objFecha = new PHPExcel_Shared_Date();      
+        
+        
+        $hojas=$objPHPExcel->getSheetCount();
+        
+        date_default_timezone_set('UTC'); //establecemos la hora local
+        $Proceso="";
+        $DescripcionProceso="";
+        $Estado="";
+        $Cuenta="";
+        $Banco="";
+        
+        for ($h=0;$h<$hojas;$h++){
+            
+            $objPHPExcel->setActiveSheetIndex($h);
+            $columnas = $objPHPExcel->setActiveSheetIndex($h)->getHighestColumn();
+            $filas = $objPHPExcel->setActiveSheetIndex($h)->getHighestRow();
+            print("$hojas, $filas, $columnas<br>");
+            for ($i=0;$i<=$filas;$i++){
+                $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
+                $FilaB=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
+                
+                if($FilaB=='Proceso :'){
+                    $c=0;
+                    $Cols=['C','E','F','H','J','L','M','O','P','S','T','V','Z','AE','AI'];
+                    $Proceso=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getCalculatedValue();
+                    $DescripcionProceso=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getCalculatedValue();
+                    $Estado=$objPHPExcel->getActiveSheet()->getCell('N'.$i)->getCalculatedValue();
+                    $Cuenta=$objPHPExcel->getActiveSheet()->getCell('R'.$i)->getCalculatedValue();
+                    
+                    $Banco=$objPHPExcel->getActiveSheet()->getCell('AD'.$i)->getCalculatedValue();
+                    continue;
+                }
+                
+                $cell = $objPHPExcel->getActiveSheet()->getCell('A'.$i);
+                if(!PHPExcel_Shared_Date::isDateTime($cell)){
+                    continue;
+                }
+                    $data=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue());
+                    $FechaPago=date("Y-m-d",$data); 
+                    $_DATOS_EXCEL[$h][$i]['Nit_IPS'] = $idIPS;
+                    $_DATOS_EXCEL[$h][$i]['Nit_EPS'] = $idEPS;
+                    $_DATOS_EXCEL[$h][$i]['Proceso']=$Proceso;
+                    $_DATOS_EXCEL[$h][$i]['DescripcionProceso']=$DescripcionProceso;
+                    $_DATOS_EXCEL[$h][$i]['Estado']=$Estado;
+                    $_DATOS_EXCEL[$h][$i]['Cuenta']=$Cuenta;
+                    $_DATOS_EXCEL[$h][$i]['Banco']=$Banco;
+                    $_DATOS_EXCEL[$h][$i]['FechaPagoFactura']=$FechaPago;
+
+
+                    $c=0;
+                    $_DATOS_EXCEL[$h][$i]['NumeroPago']= $objPHPExcel->getActiveSheet()->getCell($Cols[$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['TipoOperacion'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['NumeroFactura'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['ValorBrutoPagar'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['ValorDescuento'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['ValorIva'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['ValorRetefuente'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['ValorReteiva'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+
+                    $_DATOS_EXCEL[$h][$i]['ValorReteica'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['ValorOtrasRetenciones'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['ValorCruces'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['ValorAnticipos'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['ValorTotal'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+                    $_DATOS_EXCEL[$h][$i]['ValorTranferido'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+
+                    $_DATOS_EXCEL[$h][$i]['Regional'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
+
+                    $_DATOS_EXCEL[$h][$i]['llaveCompuesta'] = "";
+                    $_DATOS_EXCEL[$h][$i]['idUser'] = $idUser;
+                    $_DATOS_EXCEL[$h][$i]['Soporte'] = $Soporte;
+                    $_DATOS_EXCEL[$h][$i]['FechaRegistro'] = $FechaActual;
+                    $_DATOS_EXCEL[$h][$i]['FechaActualizacion'] = $FechaActual;
+
+            } 
+        
+        }
+        
+        $sql= "INSERT INTO $db.`pagos_asmet_temporal` ( `Nit_IPS`, `Nit_EPS`,`Proceso`, `DescripcionProceso`, `Estado`, `Cuenta`, `Banco`, `FechaPagoFactura`, `NumeroPago`, `TipoOperacion`, `NumeroFactura`, `ValorBrutoPagar`, `ValorDescuento`, `ValorIva`, `ValorRetefuente`, `ValorReteiva`, `ValorReteica`, `ValorOtrasRetenciones`, `ValorCruces`, `ValorAnticipos`, `ValorTotal`, `ValorTranferido`, `Regional`, `llaveCompuesta`, `idUser`, `Soporte`, `FechaRegistro`, `FechaActualizacion`) VALUES ";
+        
+        foreach($_DATOS_EXCEL as $campo1 => $valor1){
+            $i=0;
+            foreach($valor1 as $campo => $valor){
+                $i++;
+                $sql.="('";
+                foreach ($valor as $campo2 => $valor2){
+                    $campo2 == "FechaActualizacion" ? $sql.= $valor2."')," : $sql.= $valor2."','";
+                }
+
+                if($i==1000){
+
+                    $sql=substr($sql, 0, -1);
+                    //print($sql);
+                    $this->Query($sql);
+                    $sql= "INSERT INTO $db.`pagos_asmet_temporal` ( `Nit_IPS`, `Nit_EPS`,`Proceso`, `DescripcionProceso`, `Estado`, `Cuenta`, `Banco`, `FechaPagoFactura`, `NumeroPago`, `TipoOperacion`, `NumeroFactura`, `ValorBrutoPagar`, `ValorDescuento`, `ValorIva`, `ValorRetefuente`, `ValorReteiva`, `ValorReteica`, `ValorOtrasRetenciones`, `ValorCruces`, `ValorAnticipos`, `ValorTotal`, `ValorTranferido`, `Regional`, `llaveCompuesta`, `idUser`, `Soporte`, `FechaRegistro`, `FechaActualizacion`) VALUES ";
+
+                    $i=0;
+                }    
+
+            }   
+        }
+        $sql=substr($sql, 0, -1);
+        $this->Query($sql);
+        unset($objPHPExcel);
+        unset($_DATOS_EXCEL);
+        unset($sql);
+            
+        
     }
     
     //Fin Clases
