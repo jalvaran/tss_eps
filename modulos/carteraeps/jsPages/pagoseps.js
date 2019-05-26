@@ -6,65 +6,17 @@
  */
 
 /**
- * Cierra una ventana modal
- * @param {type} idModal
- * @returns {undefined}
- */
-function CierraModal(idModal) {
-    $("#"+idModal).modal('hide');//ocultamos el modal
-    $('body').removeClass('modal-open');//eliminamos la clase del body para poder hacer scroll
-    $('.modal-backdrop').remove();//eliminamos el backdrop del modal
-}
-
-
-/**
- * Muestra u oculta un elemento por su id
- * @param {type} id
- * @returns {undefined}
- */
-
-function MuestraOcultaXID(id){
-    
-    var estado=document.getElementById(id).style.display;
-    if(estado=="none" | estado==""){
-        document.getElementById(id).style.display="block";
-    }
-    if(estado=="block"){
-        document.getElementById(id).style.display="none";
-    }
-    
-}
-
-/**
  * Limpia los divs de la compra despues de guardar
  * @returns {undefined}
  */
 function LimpiarDivs(){
     document.getElementById('DivProcess').innerHTML='';
-    
+    BorrarTemporales();
     //document.getElementById('DivTotalesCompra').innerHTML='';
 }
 
-/*
-$('#CmbBusquedas').bind('change', function() {
-    
-    document.getElementById('CodigoBarras').value = document.getElementById('CmbBusquedas').value;
-    BusquePrecioVentaCosto();
-    
-});
-
-*/
 document.getElementById('BtnMuestraMenuLateral').click();
 
-function getInfoForm(){
-          
-    var form_data = new FormData();
-    form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
-    form_data.append('UpCartera', $('#UpCartera').prop('files')[0]);
-    
-    
-    return form_data;
-}
 
 function ConfirmarCarga(){
     var EPS=$('#select2-CmbEPS-container').text();
@@ -203,12 +155,14 @@ function EnviarCartera(){
                 GuardePagosEnTemporal();
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
+                BorrarTemporales();
                 alertify.alert(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
                 LimpiarDivs();
+                BorrarTemporales();
                 alertify.alert(data);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
@@ -291,15 +245,16 @@ function GuardePagosEnTemporal(){
                 InserteRegistrosNuevos();
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
+                BorrarTemporales();
                 alertify.alert(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
-                //LimpiarDivs();
+                LimpiarDivs();
                 var Hora = ObtengaHora();
                 document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+data+" "+Hora;
-                //alertify.alert(data);
+                BorrarTemporales();
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
             }
@@ -307,6 +262,7 @@ function GuardePagosEnTemporal(){
         },
         error: function (xhr, ajaxOptions, thrownError) {
             LimpiarDivs();
+            BorrarTemporales();
             document.getElementById('BtnSubir').disabled=false;
             document.getElementById('BtnSubir').value="Ejecutar";
             alert(xhr.status);
