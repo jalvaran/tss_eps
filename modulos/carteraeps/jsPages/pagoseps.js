@@ -10,8 +10,8 @@
  * @returns {undefined}
  */
 function LimpiarDivs(){
-    document.getElementById('DivProcess').innerHTML='';
-    BorrarTemporales();
+    document.getElementById('DivProcess').innerHTML='Error al procesar la información';
+    
     //document.getElementById('DivTotalesCompra').innerHTML='';
 }
 
@@ -375,7 +375,7 @@ function BorrarTemporales(){
         success: function(data){
             var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){                
-                alertify.success(respuestas[1]);
+                alertify.error(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 //InserteRegistrosNuevos();

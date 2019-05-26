@@ -343,7 +343,7 @@ class CarteraEPS extends conexion{
         $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo' AND idUser='$idUser'";
         $Consulta=$this->Query($sql);
         $DatosUpload=$this->FetchArray($Consulta);
-        $FechaActual=date("Y-m-d");
+        $FechaActual=date("Y-m-d H:i:s");
         $RutaArchivo=$DatosUpload["RutaArchivo"];
         $Soporte=$DatosUpload["RutaArchivo"];
         if($DatosUpload["ExtensionArchivo"]=="xlsx"){
@@ -373,7 +373,10 @@ class CarteraEPS extends conexion{
             $objPHPExcel->setActiveSheetIndex($h);
             $columnas = $objPHPExcel->setActiveSheetIndex($h)->getHighestColumn();
             $filas = $objPHPExcel->setActiveSheetIndex($h)->getHighestRow();
-        
+            if($columnas<>'P'){
+                exit('E1;<h3>No se recibió el archivo de <strong>Pagos de la EPS ASMET Mutual</strong></h3>');
+            }
+            
             for ($i=10;$i<=$filas;$i++){
                 $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
                 $FilaB=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
@@ -427,7 +430,7 @@ class CarteraEPS extends conexion{
 
                     $_DATOS_EXCEL[$i]['Regional'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
 
-                    $_DATOS_EXCEL[$i]['llaveCompuesta'] = "";
+                    $_DATOS_EXCEL[$i]['llaveCompuesta'] = $keyArchivo;
                     $_DATOS_EXCEL[$i]['idUser'] = $idUser;
                     $_DATOS_EXCEL[$i]['Soporte'] = $Soporte;
                     $_DATOS_EXCEL[$i]['FechaRegistro'] = $FechaActual;
@@ -475,7 +478,7 @@ class CarteraEPS extends conexion{
         $Consulta=$this->Query($sql);
         
         $DatosUpload=$this->FetchArray($Consulta);
-        $FechaActual=date("Y-m-d");
+        $FechaActual=date("Y-m-d H:i:s");
         $RutaArchivo=$DatosUpload["RutaArchivo"];
         $Soporte=$DatosUpload["RutaArchivo"];
         if($DatosUpload["ExtensionArchivo"]=="xlsx"){
@@ -562,7 +565,7 @@ class CarteraEPS extends conexion{
 
                     $_DATOS_EXCEL[$h][$i]['Regional'] = $objPHPExcel->getActiveSheet()->getCell($Cols[++$c].$i)->getCalculatedValue();
 
-                    $_DATOS_EXCEL[$h][$i]['llaveCompuesta'] = "";
+                    $_DATOS_EXCEL[$h][$i]['llaveCompuesta'] = $keyArchivo;
                     $_DATOS_EXCEL[$h][$i]['idUser'] = $idUser;
                     $_DATOS_EXCEL[$h][$i]['Soporte'] = $Soporte;
                     $_DATOS_EXCEL[$h][$i]['FechaRegistro'] = $FechaActual;
