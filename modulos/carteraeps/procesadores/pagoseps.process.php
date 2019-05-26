@@ -75,46 +75,7 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;Archivo Recibido");            
             
         break; //fin caso 2
-          
-        case 3://Lee el archivo y lo sube a la temporal
-            
-            $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
-            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
-            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $LineaActual=$obCon->normalizar($_REQUEST["LineaActual"]);
-            $Separador=$obCon->normalizar($_REQUEST["Separador"]);
-            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
-            $db=$DatosIPS["DataBase"];
-            $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
-            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
-            if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==1){
-                $LineaActual=$obCon->LeerPagosEPS($keyArchivo,$FechaCorteCartera,$CmbIPS,$LineaActual,$CmbEPS,$idUser);
-            }else{
-                print("E1;Opción no disponible");
-            }
-            
-            print("OK;Archivo cargado;$LineaActual");
-        break; //fin caso 3   
-    
-        case 4://LLevar elos registros nuevos en la temporal al historial de cargas
-            $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
-            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
-            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
-            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
-            $db=$DatosCargas["DataBase"];
-            $sql="UPDATE $db.historial_carteracargada_eps cips INNER JOIN $db.temporalcarguecarteraeps t ON cips.NumeroFactura=t.NumeroFactura SET t.FlagUpdate=1  "
-                    . "WHERE cips.NumeroFactura=t.NumeroFactura and cips.NumeroOperacion=t.NumeroOperacion and cips.FechaFactura=t.FechaFactura and"
-                    . " cips.TipoOperacion=t.TipoOperacion ;";
-            $obCon->Query($sql);
-            $sql="INSERT INTO $db.`historial_carteracargada_eps` 
-                    SELECT * FROM $db.`temporalcarguecarteraeps` as t1 WHERE t1.FlagUpdate=0";
-            $obCon->Query($sql);
-            $sql="UPDATE $db.temporalcarguecarteraeps SET FlagUpdate=0";
-            $obCon->Query($sql);
-            print("OK;Registros nuevos copiados al historial");
-        break; //fin caso 4  
-    
+             
         case 5://Insertar facturas nuevas
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
@@ -122,11 +83,16 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $sql="UPDATE $db.temporalcarguecarteraeps cips INNER JOIN $db.carteraeps t ON cips.NumeroFactura=t.NumeroFactura SET cips.FlagUpdate=1;";
+            $sql="UPDATE $db.pagos_asmet_temporal t1 INNER JOIN $db.pagos_asmet t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  
+                    WHERE t1.Proceso=t2.Proceso AND t1.Estado=t2.Estado AND t1.FechaPagoFactura=t2.FechaPagoFactura AND t1.NumeroPago=t2.NumeroPago;";
             $obCon->Query($sql);
+            $sql="INSERT INTO $db.`pagos_asmet` ( `Nit_IPS`, `Nit_EPS`,`Proceso`, `DescripcionProceso`, `Estado`, `Cuenta`, `Banco`, `FechaPagoFactura`, `NumeroPago`, `TipoOperacion`, `NumeroFactura`, `ValorBrutoPagar`, `ValorDescuento`, `ValorIva`, `ValorRetefuente`, `ValorReteiva`, `ValorReteica`, `ValorOtrasRetenciones`, `ValorCruces`, `ValorAnticipos`, `ValorTotal`, `ValorTranferido`, `Regional`, `llaveCompuesta`, `idUser`, `Soporte`, `FechaRegistro`, `FechaActualizacion`) 
+                   SELECT `Nit_IPS`, `Nit_EPS`,`Proceso`, `DescripcionProceso`, `Estado`, `Cuenta`, `Banco`, `FechaPagoFactura`, `NumeroPago`, `TipoOperacion`, `NumeroFactura`, `ValorBrutoPagar`, `ValorDescuento`, `ValorIva`, `ValorRetefuente`, `ValorReteiva`, `ValorReteica`, `ValorOtrasRetenciones`, `ValorCruces`, `ValorAnticipos`, `ValorTotal`, `ValorTranferido`, `Regional`, `llaveCompuesta`, `idUser`, `Soporte`, `FechaRegistro`, `FechaActualizacion`
+                  FROM $db.`pagos_asmet_temporal` as t1 WHERE t1.FlagUpdate=0;
+                    
+                    ";
+            //print($sql);
             
-            $sql="INSERT INTO $db.`carteraeps` (`NitEPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`idUser`,`FechaRegistro`,`FechaActualizacion`) 
-                    SELECT `Nit_EPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`idUser`,`FechaRegistro`,`FechaActualizacion` FROM $db.`temporalcarguecarteraeps` as t1 WHERE t1.FlagUpdate=0 GROUP BY NumeroFactura";
             $obCon->Query($sql);
             
             print("OK;Registros realizados correctamente");

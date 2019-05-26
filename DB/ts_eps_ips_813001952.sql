@@ -217,6 +217,7 @@ DROP TABLE IF EXISTS `pagos_asmet`;
 CREATE TABLE `pagos_asmet` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `Nit_IPS` bigint(20) NOT NULL COMMENT 'Número de identificación del prestador de servicios de salud',
+  `Nit_EPS` bigint(20) NOT NULL,
   `Proceso` int(10) NOT NULL COMMENT 'Número del proceso',
   `DescripcionProceso` varchar(100) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Descripcion del Proceso',
   `Estado` varchar(30) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Estado de Pago',
@@ -284,12 +285,14 @@ CREATE TABLE `pagos_asmet_temporal` (
   `Soporte` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
   `FechaRegistro` datetime NOT NULL COMMENT 'Fecha que se hace el registro',
   `FechaActualizacion` datetime NOT NULL COMMENT 'Fecha que se actualiza el registro',
+  `FlagUpdate` int(1) NOT NULL,
   `Sync` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   KEY `NumeroFactura` (`NumeroFactura`),
   KEY `Estado` (`Estado`),
   KEY `NumeroPago` (`NumeroPago`),
   KEY `TipoOperacion` (`TipoOperacion`),
-  KEY `llaveCompuesta` (`llaveCompuesta`)
+  KEY `llaveCompuesta` (`llaveCompuesta`),
+  KEY `FlagUpdate` (`FlagUpdate`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Pagos realizados por ASMET';
 
 
@@ -399,4 +402,4 @@ CREATE TABLE `temporalcarguecarteraips` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo temporal de cargues cartera ips';
 
 
--- 2019-05-25 23:13:13
+-- 2019-05-26 08:21:19

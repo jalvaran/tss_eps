@@ -510,7 +510,7 @@ class CarteraEPS extends conexion{
             if($columnas<>'IU'){
                 exit("E1;No se ha recibido el archivo correcto para los <strong>pagos de ASMET SAS</strong>");
             }
-            print("$hojas, $filas, $columnas<br>");
+            //print("$hojas, $filas, $columnas<br>");
             for ($i=0;$i<=$filas;$i++){
                 $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
                 $FilaB=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
