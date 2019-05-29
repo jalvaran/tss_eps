@@ -117,9 +117,11 @@ if( !empty($_REQUEST["Accion"]) ){
             $sql="UPDATE $db.temporalcarguecarteraeps cips INNER JOIN $db.carteraeps t ON cips.NumeroFactura=t.NumeroFactura SET cips.FlagUpdate=1;";
             $obCon->Query($sql);
             
-            $sql="INSERT INTO $db.`carteraeps` (`NitEPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`idUser`,`FechaRegistro`,`FechaActualizacion`) 
-                    SELECT `Nit_EPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`idUser`,`FechaRegistro`,`FechaActualizacion` FROM $db.`temporalcarguecarteraeps` as t1 WHERE t1.FlagUpdate=0 GROUP BY NumeroFactura";
+            $sql="INSERT INTO $db.`carteraeps` (`NitEPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`ValorMenosImpuestos`,`idUser`,`FechaRegistro`,`FechaActualizacion`) 
+                    SELECT `Nit_EPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`ValorMenosImpuestos`,`idUser`,`FechaRegistro`,`FechaActualizacion` 
+                    FROM $db.`temporalcarguecarteraeps` as t1 WHERE t1.FlagUpdate=0 AND t1.TipoOperacion<>2525 AND t1.TipoOperacion<>2528 AND t1.TipoOperacion<>2512 AND t1.TipoOperacion<>829 AND t1.TipoOperacion<>0  GROUP BY NumeroFactura";
             $obCon->Query($sql);
+            
             
             print("OK;Registros realizados correctamente");
         break; //fin caso 5

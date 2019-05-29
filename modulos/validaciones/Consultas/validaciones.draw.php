@@ -388,6 +388,9 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Radicado</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Radicado</strong>", 1);
                     $css->ColTabla("<strong>Valor</strong>", 1);
+                    $css->ColTabla("<strong>Valor Menos Impuestos</strong>", 1);
+                    $css->ColTabla("<strong>Total Pagos</strong>", 1);
+                    $css->ColTabla("<strong>Total Anticipos</strong>", 1);
                     $css->ColTabla("<strong>Acciones</strong>", 1);
                 $css->CierraFilaTabla();
                 
@@ -395,12 +398,30 @@ if( !empty($_REQUEST["Accion"]) ){
                 while($DatosFactura=$obCon->FetchAssoc($Consulta)){
                     $css->FilaTabla(14);
                         $idItem=$DatosFactura["ID"];
+                        $NumeroFactura=$DatosFactura["NumeroFactura"];
                         $css->ColTabla($DatosFactura["NumeroContrato"], 1);
                         $css->ColTabla($DatosFactura["NumeroFactura"], 1);
                         $css->ColTabla($DatosFactura["FechaFactura"], 1);
                         $css->ColTabla($DatosFactura["NumeroRadicado"], 1);
                         $css->ColTabla($DatosFactura["FechaRadicado"], 1);
                         $css->ColTabla(number_format($DatosFactura["ValorDocumento"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["ValorMenosImpuestos"]), 1,'R');
+                        print("<td>");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',4)", "style=cursor:pointer;");
+                            
+                                print(number_format($DatosFactura["TotalPagos"]));
+                            $css->CerrarDiv();
+                            
+                        print("</td>");
+                        
+                        print("<td>");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',5)", "style=cursor:pointer;");
+                            
+                                print(number_format($DatosFactura["TotalAnticipos"]));
+                            $css->CerrarDiv();
+                            
+                        print("</td>");
+                        
                         print("<td style='text-align:center'>");
                             print('<a id="BtnVer_'.$idItem.'" href="#" onclick="DibujeFactura('.$idItem.');"><i class="fa fa-fw fa-eye"></i></a>');
                         print("</td>");
@@ -409,6 +430,96 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
             
         break; //Fin caso 3
+        
+        case 4://Muestra los pagos de una factura
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Pagos Realizados a la Factura No. $NumeroFactura</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Fecha de Pago</strong>", 1);
+                    $css->ColTabla("<strong>Numero de Pago</strong>", 1);
+                    $css->ColTabla("<strong>Tipo de Operacion</strong>", 1);
+                    $css->ColTabla("<strong>Valor Bruto A Pagar</strong>", 1);
+                    $css->ColTabla("<strong>Descuento</strong>", 1);
+                    $css->ColTabla("<strong>IVA</strong>", 1);
+                    $css->ColTabla("<strong>ReteFuente</strong>", 1);
+                    $css->ColTabla("<strong>ReteIVA</strong>", 1);
+                    $css->ColTabla("<strong>ReteICA</strong>", 1);
+                    $css->ColTabla("<strong>Otras Retenciones</strong>", 1);
+                    $css->ColTabla("<strong>Anticipos</strong>", 1);
+                    $css->ColTabla("<strong>Valor Transferido</strong>", 1);
+                    $css->ColTabla("<strong>Proceso</strong>", 1);
+                    $css->ColTabla("<strong>Banco</strong>", 1);
+                $css->CierraFilaTabla();
+                $sql="SELECT * FROM $db.pagos_asmet WHERE NumeroFactura='$NumeroFactura'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla($DatosPagos["FechaPagoFactura"], 1);
+                        $css->ColTabla($DatosPagos["NumeroPago"], 1);
+                        $css->ColTabla($DatosPagos["TipoOperacion"], 1);
+                        $css->ColTabla(number_format($DatosPagos["ValorBrutoPagar"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorDescuento"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorIva"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorRetefuente"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorReteiva"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorReteica"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorOtrasRetenciones"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorAnticipos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorTranferido"]), 1,'R');
+                        $css->ColTabla($DatosPagos["Proceso"]." ".$DatosPagos["DescripcionProceso"], 1);
+                        $css->ColTabla($DatosPagos["Banco"]." ".$DatosPagos["Cuenta"], 1);
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+        break;//Fin caso 4
+        
+        case 5://Muestra los pagos de una factura
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Anticipos Realizados a la Factura No. $NumeroFactura</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                   
+                    $css->ColTabla("<strong>Numero de Anticipo</strong>", 1);
+                    $css->ColTabla("<strong>Radicado</strong>", 1);
+                    $css->ColTabla("<strong>Valor Factura</strong>", 1);
+                    $css->ColTabla("<strong>Valor Menos Impuestos</strong>", 1);
+                    $css->ColTabla("<strong>Valor Saldo</strong>", 1);
+                    $css->ColTabla("<strong>Valor Anticipado</strong>", 1);
+                    
+                $css->CierraFilaTabla();
+                $sql="SELECT * FROM $db.anticipos_asmet WHERE NumeroFactura='$NumeroFactura'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                       
+                        $css->ColTabla($DatosPagos["NumeroAnticipo"], 1);
+                        $css->ColTabla($DatosPagos["NumeroRadicado"], 1);
+                        $css->ColTabla(number_format($DatosPagos["ValorFactura"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorMenosImpuestos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorSaldo"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorAnticipado"]), 1,'R');
+                        
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+        break;//Fin caso 5
         
     }
     
