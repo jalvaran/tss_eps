@@ -9,8 +9,8 @@
  * TxtTabla, TxtCondicion,TxtOrdenNombreColumna,TxtOrdenTabla,TxtLimit,TxtPage,tabla
  * 
  */
-$myPage="pagoseps.php";
-$myTitulo="Pagos EPS";
+$myPage="anticiposeps.php";
+$myTitulo="Anticipos Realizados por la EPS";
 include_once("../../sesiones/php_control_usuarios.php");
 include_once("../../constructores/paginas_constructor.php");
 
@@ -29,7 +29,7 @@ $css->PageInit($myTitulo);
     
     $css->CrearDiv("", "col-md-12", "left", 1, 1); 
         $css->h3("", "", "", "");
-                print("<strong>Cargar Pagos de EPS</strong>");
+                print("<strong>Cargar los Anticipos realizados por la EPS</strong>");
         $css->Ch3();
     $css->CerrarDiv(); 
     
@@ -60,7 +60,7 @@ $css->PageInit($myTitulo);
     
     
     $css->CrearDiv("", "col-md-2", "center", 1, 1);
-        print("<strong>Pagos hasta:</strong><br>");
+        print("<strong>Anticipos hasta:</strong><br>");
         $css->input("date", "FechaCorteCartera", "form-control", "FechaCorteCartera", "", date("Y-m-d"), "Fecha Corte Cartera", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
         
     $css->CerrarDiv();
@@ -71,7 +71,8 @@ $css->PageInit($myTitulo);
     $css->CerrarDiv();
     
     $css->CrearDiv("", "col-md-2", "center", 1, 1);
-        
+        print("<strong>Número de Anticipo:</strong><br>");
+        $css->input("text", "NumeroAnticipo", "form-control", "NumeroAnticipo", "", "", "Anticipo", "off", "", "");
         print("<strong>Enviar:</strong><br>");
         $css->CrearBotonEvento("BtnSubir", "Ejecutar", 1, "onclick", "ConfirmarCarga()", "verde", "");
     $css->CerrarDiv();

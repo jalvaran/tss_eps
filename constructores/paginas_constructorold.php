@@ -1551,7 +1551,7 @@ class PageConstruct extends html_estruct_class{
                             if($DatosCamposAsociados["ID"]>0){
                                 $TablaAsociada=$DatosCamposAsociados["TablaAsociada"];
                                 $CampoAsociado=$DatosCamposAsociados["CampoAsociado"];
-                                $this->select($value, "form-control", "CmbInserts", $Titulo, "", "", "");
+                                $this->select($value, "form-control", "CmbInserts", "", "", "", "");
                                     $this->option("", "", "Seleccione una opción", "", "", "");
                                             print("Seleccione una opción");
                                         $this->Coption();
@@ -1671,7 +1671,7 @@ class PageConstruct extends html_estruct_class{
                             if($DatosCamposAsociados["ID"]>0){
                                 $TablaAsociada=$DatosCamposAsociados["TablaAsociada"];
                                 $CampoAsociado=$DatosCamposAsociados["CampoAsociado"];
-                                $this->select($value, "form-control", "CmbInserts", $Titulo, "", "", "");
+                                $this->select($value, "form-control", "CmbInserts", "", "", "", "");
                                     $this->option("", "", "Seleccione una opción", "", "", "");
                                             print("Seleccione una opción");
                                         $this->Coption();
@@ -1900,45 +1900,6 @@ class PageConstruct extends html_estruct_class{
             print('<script src="../../componentes/jsexcel/external/FileSaver.js"></script>');
             print('<script src="../../componentes/jsexcel/external/jszip.js"></script>');
             print('<script src="../../componentes/jsexcel/scripts/excel-gen.js"></script>');
-        }
-        
-        
-        public function TabInit() {
-            print('<div class="nav-tabs-custom">
-                    <ul class="nav nav-tabs">');
-        }
-        
-        public function TabLabel($id,$Title,$Ref,$Active=0,$js='') {
-            $Class="";
-            if($Active==1){
-                $Class='class="active"';
-            }
-            print('<li '.$Class.'><a id='.$id.' href="#'.$Ref.'" data-toggle="tab" '.$js.'>'.$Title.'</a></li>');
-        }
-        
-        
-        public function TabInitEnd() {
-            print('</ul>');
-        }
-        
-        
-        public function TabContentInit() {
-            print('<div class="tab-content">');
-        }
-        
-        public function TabContentEnd() {
-            print('</div>');
-        }
-        
-        public function TabPaneInit($Ref,$Active='') {
-            if($Active==1){
-                $Active='active';
-            }
-            print('<div class="tab-pane '.$Active.'" id="'.$Ref.'">');
-        }
-        
-        public function TabPaneEnd() {
-            print('</div>');
         }
         
         //////////////////////////////////FIN

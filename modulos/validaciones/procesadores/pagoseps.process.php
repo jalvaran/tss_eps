@@ -7,21 +7,20 @@ if (!isset($_SESSION['username'])){
 }
 $idUser=$_SESSION['idUser'];
 
-include_once("../clases/anticiposeps.class.php");
+include_once("../clases/carteraeps.class.php");
 
 if( !empty($_REQUEST["Accion"]) ){
-    $obCon = new AnticiposEPS($idUser);
+    $obCon = new CarteraEPS($idUser);
     
     switch ($_REQUEST["Accion"]) {
         
         case 1: //Verificar si ya se cargó
-            //print('OK;Verificando que no se haya cargado el archivo previamente');
-            //exit();
+            print('OK;Verificando que no se haya cargado el archivo previamente');
+            exit();
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $NumeroAnticipo=$obCon->normalizar($_REQUEST["NumeroAnticipo"]);
-            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS,$NumeroAnticipo);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo'";
@@ -41,12 +40,10 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $NumeroAnticipo=$obCon->normalizar($_REQUEST["NumeroAnticipo"]);
-            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS,$NumeroAnticipo);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
-            
             $db=$DatosCargas["DataBase"];
-            $obCon->VaciarTabla("$db.temporal_anticipos_asmet");
+            $obCon->VaciarTabla("$db.pagos_asmet_temporal");
             $destino='';
             
             $Extension="";
@@ -74,7 +71,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 exit();
             }
             
-            $obCon->RegistreArchivo($keyArchivo,$CmbEPS,$CmbIPS,$NombreArchivo,$destino,$Extension,$idUser,$NumeroAnticipo);
+            $obCon->RegistreArchivo($keyArchivo,$CmbEPS,$CmbIPS,$NombreArchivo,$destino,$Extension,$idUser);
             print("OK;Archivo Recibido");            
             
         break; //fin caso 2
@@ -83,17 +80,19 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $NumeroAnticipo=$obCon->normalizar($_REQUEST["NumeroAnticipo"]);
-            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS,$NumeroAnticipo);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $sql="UPDATE $db.temporal_anticipos_asmet t1 INNER JOIN $db.anticipos_asmet t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  
-                    WHERE t1.ValorAnticipado=t2.ValorAnticipado AND t1.NumeroAnticipo=t2.NumeroAnticipo ;";
+            $sql="UPDATE $db.pagos_asmet_temporal t1 INNER JOIN $db.pagos_asmet t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  
+                    WHERE t1.Proceso=t2.Proceso AND t1.Estado=t2.Estado AND t1.FechaPagoFactura=t2.FechaPagoFactura AND t1.NumeroPago=t2.NumeroPago;";
             $obCon->Query($sql);
-           $sql= "INSERT INTO $db.`anticipos_asmet` ( `Nit_IPS`, `NumeroAnticipo`,`DescripcionNC`, `NumeroFactura`, `ValorFactura`, `ValorReteiva`, `ValorRetefuente`, `ValorMenosImpuestos`, `ValorSaldo`, `ValorAnticipado`,  `NumeroRadicado`, `Soporte`, `idUser`, `FechaRegistro`, `keyFile`) "
-                   . " SELECT  `Nit_IPS`, `NumeroAnticipo`,`DescripcionNC`, `NumeroFactura`, `ValorFactura`, `ValorReteiva`, `ValorRetefuente`, `ValorMenosImpuestos`, `ValorSaldo`, `ValorAnticipado`,  `NumeroRadicado`, `Soporte`, `idUser`, `FechaRegistro`, `keyFile` "
-                   . "FROM $db.temporal_anticipos_asmet WHERE FlagUpdate=0";
-        
+            $sql="INSERT INTO $db.`pagos_asmet` ( `Nit_IPS`, `Nit_EPS`,`Proceso`, `DescripcionProceso`, `Estado`, `Cuenta`, `Banco`, `FechaPagoFactura`, `NumeroPago`, `TipoOperacion`, `NumeroFactura`, `ValorBrutoPagar`, `ValorDescuento`, `ValorIva`, `ValorRetefuente`, `ValorReteiva`, `ValorReteica`, `ValorOtrasRetenciones`, `ValorCruces`, `ValorAnticipos`, `ValorTotal`, `ValorTranferido`, `Regional`, `llaveCompuesta`, `idUser`, `Soporte`, `FechaRegistro`, `FechaActualizacion`) 
+                   SELECT `Nit_IPS`, `Nit_EPS`,`Proceso`, `DescripcionProceso`, `Estado`, `Cuenta`, `Banco`, `FechaPagoFactura`, `NumeroPago`, `TipoOperacion`, `NumeroFactura`, `ValorBrutoPagar`, `ValorDescuento`, `ValorIva`, `ValorRetefuente`, `ValorReteiva`, `ValorReteica`, `ValorOtrasRetenciones`, `ValorCruces`, `ValorAnticipos`, `ValorTotal`, `ValorTranferido`, `Regional`, `llaveCompuesta`, `idUser`, `Soporte`, `FechaRegistro`, `FechaActualizacion`
+                  FROM $db.`pagos_asmet_temporal` as t1 WHERE t1.FlagUpdate=0;
+                    
+                    ";
+            //print($sql);
+            
             $obCon->Query($sql);
             
             print("OK;Registros realizados correctamente");
@@ -103,11 +102,10 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $NumeroAnticipo=$obCon->normalizar($_REQUEST["NumeroAnticipo"]);
-            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS,$NumeroAnticipo);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $obCon->VaciarTabla("$db.temporal_anticipos_asmet");
+            $obCon->VaciarTabla("$db.pagos_asmet_temporal");
             $obCon->BorraReg("$db.controlcargueseps", "NombreCargue", $keyArchivo);
             print("OK;Temporales Borrados");
         break; //fin caso 5
@@ -117,17 +115,18 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            
             $Separador=2;
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
-            $NumeroAnticipo=$obCon->normalizar($_REQUEST["NumeroAnticipo"]);
-            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS,$NumeroAnticipo);
-            if($DatosEPS["ID"]<=2){                
-                $obCon->GuardeAnticiposASMETEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser,$NumeroAnticipo);
+            $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
+            if($DatosEPS["ID"]==1){                
+                $obCon->GuardePagosASMETSASEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
             }
-                        
+            if($DatosEPS["ID"]==2){                
+                $obCon->GuardePagosASMETMutualEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
+            }
+            
             if($DatosEPS["ID"]>2 ){                
                 exit("E1;EPS no ompatible");
                 

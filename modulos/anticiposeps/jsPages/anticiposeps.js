@@ -43,14 +43,26 @@ function VerifiqueFechaCargue(){
     var FechaCorteCartera=document.getElementById('FechaCorteCartera').value; 
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
+    var NumeroAnticipo=document.getElementById('NumeroAnticipo').value;
     var form_data = new FormData();
         form_data.append('Accion', 1);
         form_data.append('FechaCorteCartera', FechaCorteCartera);
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
+        form_data.append('NumeroAnticipo', NumeroAnticipo);
         
+        if($('#NumeroAnticipo').val()==null || $('#NumeroAnticipo').val()==''){
+            alertify.alert("por favor digite el número del anticipo");   
+            document.getElementById('BtnSubir').disabled=false;
+            document.getElementById('BtnSubir').value="Ejecutar";
+            document.getElementById('NumeroAnticipo').style.backgroundColor="pink";
+            return;
+        }else{
+            document.getElementById('NumeroAnticipo').style.backgroundColor="white";
+        }
+    
         $.ajax({
-        url: './procesadores/pagoseps.process.php',
+        url: './procesadores/anticiposeps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -109,7 +121,17 @@ function EnviarCartera(){
     var UpCartera=document.getElementById('UpCartera').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
+    var NumeroAnticipo=document.getElementById('NumeroAnticipo').value;
     
+    if($('#NumeroAnticipo').val()==null || $('#NumeroAnticipo').val()==''){
+          alertify.alert("por favor digite el número del anticipo");   
+          document.getElementById('BtnSubir').disabled=false;
+          document.getElementById('BtnSubir').value="Ejecutar";
+          document.getElementById('NumeroAnticipo').style.backgroundColor="pink";
+          return;
+    }else{
+        document.getElementById('NumeroAnticipo').style.backgroundColor="white";
+    }
     if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
           alertify.alert("por favor seleccione una fecha");   
           document.getElementById('BtnSubir').disabled=false;
@@ -119,7 +141,6 @@ function EnviarCartera(){
     }else{
         document.getElementById('FechaCorteCartera').style.backgroundColor="white";
     }
-    
     if($('#UpCartera').val()==null || $('#UpCartera').val()==''){
           alertify.alert("por favor seleccione un archivo");
           document.getElementById('BtnSubir').disabled=false;
@@ -135,11 +156,12 @@ function EnviarCartera(){
         form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
+        form_data.append('NumeroAnticipo', NumeroAnticipo);
         form_data.append('UpCartera', $('#UpCartera').prop('files')[0]);
       
     $.ajax({
         //async:false,
-        url: './procesadores/pagoseps.process.php',
+        url: './procesadores/anticiposeps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -194,7 +216,7 @@ function GuardePagosEnTemporal(){
     var UpCartera=document.getElementById('UpCartera').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
-    
+    var NumeroAnticipo=document.getElementById('NumeroAnticipo').value;
     
     if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
           alertify.alert("por favor seleccione una fecha");   
@@ -221,12 +243,12 @@ function GuardePagosEnTemporal(){
         form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
-        
+        form_data.append('NumeroAnticipo', NumeroAnticipo);
         form_data.append('UpCartera', $('#UpCartera').prop('files')[0]);
       
     $.ajax({
         //async:false,
-        url: './procesadores/pagoseps.process.php',
+        url: './procesadores/anticiposeps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -276,6 +298,7 @@ function InserteRegistrosNuevos(){
     var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
+    var NumeroAnticipo=document.getElementById('NumeroAnticipo').value;
     
     if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
           alertify.alert("por favor seleccione una fecha");   
@@ -292,10 +315,10 @@ function InserteRegistrosNuevos(){
         form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
-         
+        form_data.append('NumeroAnticipo', NumeroAnticipo);
     $.ajax({
         //async:false,
-        url: './procesadores/pagoseps.process.php',
+        url: './procesadores/anticiposeps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -346,7 +369,7 @@ function BorrarTemporales(){
     var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
-    
+    var NumeroAnticipo=document.getElementById('NumeroAnticipo').value;
     if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
           alertify.alert("por favor seleccione una fecha");   
           document.getElementById('BtnSubir').disabled=false;
@@ -362,10 +385,10 @@ function BorrarTemporales(){
         form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
-         
+        form_data.append('NumeroAnticipo', NumeroAnticipo);
     $.ajax({
         //async:false,
-        url: './procesadores/pagoseps.process.php',
+        url: './procesadores/anticiposeps.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
