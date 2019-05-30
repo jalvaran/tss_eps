@@ -252,4 +252,85 @@ function VerHistorialFactura(NumeroFactura,Accion){
       });
 }
 
+
+function MuestrePagadasSR(Page=1){
+    document.getElementById("DivPagasSinRelacion").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    var Busqueda=document.getElementById('TxtBusquedas').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 7);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('Page', Page);
+        form_data.append('Busqueda', Busqueda);
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivPagasSinRelacion').innerHTML=data;
+           $('#CmbPagePagasSR').select2();
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+function CambiePaginaPagadasSR(Page=""){
+    
+    if(Page==""){
+        Page = document.getElementById('CmbPagePagasSR').value;
+    }
+    MuestrePagadasSR(Page);
+}
+
+
+
+function EditarFactura(NumeroFactura){
+    MuestraXID('BntModalAcciones');
+    AbreModal('ModalAcciones');
+    document.getElementById("DivFrmModalAcciones").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 8);        
+        form_data.append('NumeroFactura', NumeroFactura);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivFrmModalAcciones').innerHTML=data;
+           
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+
 document.getElementById('TabCuentas1').click();

@@ -131,8 +131,14 @@ if( !empty($_REQUEST["Accion"]) ){
                 while($DatosFactura=$obCon->FetchAssoc($Consulta)){
                     $css->FilaTabla(14);
                         $idItem=$DatosFactura["ID"];
+                        $NumeroFactura=$DatosFactura["NumeroFactura"];
                         $css->ColTabla($DatosFactura["NumeroContrato"], 1);
-                        $css->ColTabla($DatosFactura["NumeroFactura"], 1);
+                        print("<td>");
+                           
+                            print('<span id="BtnEditar_'.$idItem.'"  onclick="EditarFactura('.$NumeroFactura.');" style=cursor:pointer> '.$DatosFactura["NumeroFactura"].' <i class="fa fa-fw fa-edit"></i></span>');
+                        print("</td>");
+                        
+                        
                         $css->ColTabla($DatosFactura["FechaFactura"], 1);
                         $css->ColTabla($DatosFactura["NumeroRadicado"], 1);
                         $css->ColTabla($DatosFactura["FechaRadicado"], 1);
@@ -146,7 +152,7 @@ if( !empty($_REQUEST["Accion"]) ){
             
         break; //Fin caso 1
         
-        case 2: //Dibuja las facturas que tiene la eps pero no la EPS
+        case 2: //Dibuja las facturas que tiene la eps pero no la IPS
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
             //Paginacion
@@ -391,6 +397,9 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Valor Menos Impuestos</strong>", 1);
                     $css->ColTabla("<strong>Total Pagos</strong>", 1);
                     $css->ColTabla("<strong>Total Anticipos</strong>", 1);
+                    $css->ColTabla("<strong>Total Glosa Inicial</strong>", 1);
+                    $css->ColTabla("<strong>Total Glosa A Favor</strong>", 1);
+                    $css->ColTabla("<strong>Total Glosa en Contra</strong>", 1);
                     $css->ColTabla("<strong>Acciones</strong>", 1);
                 $css->CierraFilaTabla();
                 
@@ -418,6 +427,30 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',5)", "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalAnticipos"]));
+                            $css->CerrarDiv();
+                            
+                        print("</td>");
+                        
+                        print("<td>");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',6)", "style=cursor:pointer;");
+                            
+                                print(number_format($DatosFactura["TotalGlosaInicial"]));
+                            $css->CerrarDiv();
+                            
+                        print("</td>");
+                        
+                        print("<td>");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',6)", "style=cursor:pointer;");
+                            
+                                print(number_format($DatosFactura["TotalGlosaFavor"]));
+                            $css->CerrarDiv();
+                            
+                        print("</td>");
+                        
+                        print("<td>");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',6)", "style=cursor:pointer;");
+                            
+                                print(number_format($DatosFactura["TotalGlosaContra"]));
                             $css->CerrarDiv();
                             
                         print("</td>");
@@ -494,7 +527,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CierraFilaTabla();
                 
                 $css->FilaTabla(14);
-                   
+                    $css->ColTabla("<strong>Referencia</strong>", 1);
                     $css->ColTabla("<strong>Numero de Anticipo</strong>", 1);
                     $css->ColTabla("<strong>Radicado</strong>", 1);
                     $css->ColTabla("<strong>Valor Factura</strong>", 1);
@@ -507,7 +540,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $Consulta=$obCon->Query($sql);
                 while($DatosPagos=$obCon->FetchAssoc($Consulta)){
                      $css->FilaTabla(14);
-                       
+                        $css->ColTabla($DatosPagos["DescripcionNC"], 1);
                         $css->ColTabla($DatosPagos["NumeroAnticipo"], 1);
                         $css->ColTabla($DatosPagos["NumeroRadicado"], 1);
                         $css->ColTabla(number_format($DatosPagos["ValorFactura"]), 1,'R');
@@ -520,6 +553,229 @@ if( !empty($_REQUEST["Accion"]) ){
                 
             $css->CerrarTabla();
         break;//Fin caso 5
+        
+        case 6://Muestra las glosas
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Glosas Realizadas a la Factura No. $NumeroFactura</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Sede</strong>", 1);
+                    $css->ColTabla("<strong>Fecha del Radicado</strong>", 1);
+                    $css->ColTabla("<strong>Número del Radicado</strong>", 1);
+                    
+                    $css->ColTabla("<strong>Total del Documento</strong>", 1);
+                    $css->ColTabla("<strong>Valor Total Glosa</strong>", 1);
+                    $css->ColTabla("<strong>Valor Glosa Favor</strong>", 1);
+                    $css->ColTabla("<strong>Valor Glosa Contra</strong>", 1);
+                    $css->ColTabla("<strong>Valor Pendiente Resolver</strong>", 1);
+                    
+                    
+                $css->CierraFilaTabla();
+                $sql="SELECT * FROM $db.glosaseps_asmet WHERE NumeroFactura='$NumeroFactura'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla(($DatosPagos["Sede"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["FechaRadicado"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NumeroRadicado"]), 1,'L');
+                        $css->ColTabla(number_format($DatosPagos["ValorFactura"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorTotalGlosa"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorGlosaFavor"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorGlosaContra"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorPendienteResolver"]), 1,'R');
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+        break;//Fin caso 6
+        
+        
+        case 7: //Dibuja las facturas que tiene la eps pero no la IPS
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
+            //Paginacion
+            if(isset($_REQUEST['Page'])){
+                $NumPage=$obCon->normalizar($_REQUEST['Page']);
+            }else{
+                $NumPage=1;
+            }
+            $Condicional=" ";
+            if(isset($_REQUEST['Busqueda'])){
+                $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
+                if($Busqueda<>''){
+                    $Condicional=" WHERE NumeroContrato like '$Busqueda%' or NumeroFactura like '%$Busqueda%' ";
+                }
+                
+            }
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $statement=" $db.`vista_facturas_pagadas_no_relacionadas` $Condicional ";
+            if(isset($_REQUEST['st'])){
+
+                $statement= urldecode($_REQUEST['st']);
+                //print($statement);
+            }
+            
+            $limit = 50;
+            $startpoint = ($NumPage * $limit) - $limit;
+            $VectorST = explode("LIMIT", $statement);
+            $statement = $VectorST[0]; 
+            $query = "SELECT COUNT(*) as `num`,SUM(ValorTranferido) AS Total FROM {$statement}";
+            $row = $obCon->FetchArray($obCon->Query($query));
+            $ResultadosTotales = $row['num'];
+            $Total=$row['Total'];
+            $st_reporte=$statement;
+            $Limit=" LIMIT $startpoint,$limit";
+            
+            $query="SELECT * ";
+            $Consulta=$obCon->Query("$query FROM $statement $Limit");
+            
+            $css->CrearTabla();
+            
+            
+                $css->FilaTabla(16);
+                    print("<td style='text-align:center'>");
+                        print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
+                    print("</td>");
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Total:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan='2' style='text-align:center'>");
+                        $st1= urlencode($st_reporte);
+                        //$css->CrearImageLink("ProcesadoresJS/GeneradorCSVReportesCartera.php?Opcion=1&sp=$Separador&st=$st1", "../images/csv.png", "_blank", 50, 50);
+
+                    print("</td>");
+                //$css->CierraFilaTabla();
+                
+                $st= urlencode($st_reporte);
+                    if($ResultadosTotales>$limit){
+
+                        //$css->FilaTabla(14);
+                            
+                            $TotalPaginas= ceil($ResultadosTotales/$limit);
+                            print("<td  style=text-align:center>");
+                            //print("<strong>Página: </strong>");
+                            
+                            print('<div class="input-group" style=width:180px>');
+                            if($NumPage>1){
+                                $NumPage1=$NumPage-1;
+                            print('<span class="input-group-addon" onclick=CambiePaginaPagadasSR('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-left"></i></span>');
+                            }
+                            $FuncionJS="onchange=CambiePaginaPagadasSR();";
+                            $css->select("CmbPagePagasSR", "form-control", "CmbPagePagasSR", "", "", $FuncionJS, "");
+                            
+                                for($p=1;$p<=$TotalPaginas;$p++){
+                                    if($p==$NumPage){
+                                        $sel=1;
+                                    }else{
+                                        $sel=0;
+                                    }
+                                    
+                                    $css->option("", "", "", $p, "", "",$sel);
+                                        print($p);
+                                    $css->Coption();
+                                    
+                                }
+
+                            $css->Cselect();
+                            if($ResultadosTotales>($startpoint+$limit)){
+                                $NumPage1=$NumPage+1;
+                            print('<span class="input-group-addon" onclick=CambiePaginaPagadasSR('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-right" ></i></span>');
+                            }
+                            print("<div>");
+                            print("</td>");
+                            
+                            
+                           $css->CierraFilaTabla(); 
+                        }
+                      
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Proceso</strong>", 1);
+                    $css->ColTabla("<strong>Fecha Pago Factura</strong>", 1);                    
+                    $css->ColTabla("<strong>Cuenta</strong>", 1);                    
+                    $css->ColTabla("<strong>Número Pago</strong>", 1);
+                    $css->ColTabla("<strong>Tipo de Operacion</strong>", 1);
+                    $css->ColTabla("<strong>Número Factura</strong>", 1);
+                    $css->ColTabla("<strong>Valor Bruto a Pagar</strong>", 1);                    
+                    $css->ColTabla("<strong>Valor Tranferido</strong>", 1);
+                    $css->ColTabla("<strong>Regional</strong>", 1);
+                    $css->ColTabla("<strong>Acciones</strong>", 1);
+                $css->CierraFilaTabla();
+                
+                
+                while($DatosFactura=$obCon->FetchAssoc($Consulta)){
+                    $css->FilaTabla(14);
+                        $idItem=$DatosFactura["ID"];
+                        $css->ColTabla($DatosFactura["Proceso"]." ".$DatosFactura["DescripcionProceso"], 1);
+                        $css->ColTabla($DatosFactura["FechaPagoFactura"], 1);
+                        
+                        
+                        $css->ColTabla($DatosFactura["Banco"]." ".$DatosFactura["Cuenta"], 1);
+                        $css->ColTabla($DatosFactura["NumeroPago"], 1);
+                        $css->ColTabla($DatosFactura["TipoOperacion"], 1);
+                        $css->ColTabla($DatosFactura["NumeroFactura"], 1);
+                        
+                        $css->ColTabla(number_format($DatosFactura["ValorBrutoPagar"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["ValorTranferido"]), 1,'R');
+                        $css->ColTabla($DatosFactura["Regional"], 1);
+                        print("<td style='text-align:center'>");
+                            print('<a id="BtnVer_'.$idItem.'" href="#" onclick="DibujeFactura('.$idItem.');"><i class="fa fa-fw fa-eye"></i></a>');
+                        print("</td>");
+                    $css->CierraFilaTabla();
+                }
+            $css->CerrarTabla();
+            
+        break; //Fin caso 7
+        
+        case 8://Dibuje el formulario para editar una factura de la ips
+            
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            
+            $css->CrearTabla();
+            
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Factura a Editar</strong>", 1);
+                    $css->ColTabla("<strong>Factura Nueva</strong>", 1);
+                    $css->ColTabla("<strong>Observaciones</strong>", 1);
+                    $css->ColTabla("<strong>Acciones</strong>", 1);
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    print("<td>");
+                        $css->input("text", "TxtNumeroFacturaEdit", "form-control", "TxtNumeroFacturaEdit", "$NumeroFactura", "$NumeroFactura", "Factura a Editar", "off", "", "");
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->input("text", "TxtFacturaNueva", "form-control", "TxtFacturaNueva", "", "", "Factura Nueva", "off", "", "");
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->textarea("TxtObservacionesEdicioFactura", "form-control", "TxtObservacionesEdicioFactura", "", "Observaciones", "", "");
+                        $css->Ctextarea();
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->CrearBotonEvento("BtnEjecutar", "Actualizar", 1, "onclick", "EnviarFacturaEditar()", "rojo", "");
+             
+                    print("</td>");
+                $css->CierraFilaTabla();
+            $css->CerrarTabla();
+            
+            
+            
+            
+            
+        break; //Fin caso 8
         
     }
     

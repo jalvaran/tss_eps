@@ -69,9 +69,10 @@ $css->PageInit($myTitulo);
     $css->CrearDiv("", "col-md-12", "center", 1, 1);   
         
         $css->TabInit();
-            $css->TabLabel("TabCuentas1", "Facturas sin Relacion IPS", "Tab_1", 1,"onclick=MuestreFacturasNRIPS()");
-            $css->TabLabel("TabCuentas2", "Facturas sin Relacion EPS", "Tab_2",0,"onclick=MuestreFacturasNREPS()");
-            $css->TabLabel("TabCuentas3", "Cruce de Cartera", "Tab_3",0,"onclick=MuestreCruce()");          
+            $css->TabLabel("TabCuentas1", "Facturas sin Relación IPS", "Tab_1", 1,"onclick=MuestreFacturasNRIPS()");
+            $css->TabLabel("TabCuentas2", "Facturas sin Relación EPS", "Tab_2",0,"onclick=MuestreFacturasNREPS()");
+            $css->TabLabel("TabCuentas3", "Facturas Pagadas Sin Relación", "Tab_3",0,"onclick=MuestrePagadasSR()");  
+            $css->TabLabel("TabCuentas4", "Cruce de Cartera", "Tab_4",0,"onclick=MuestreCruce()"); 
         $css->TabInitEnd();
         $css->TabContentInit();
         
@@ -99,6 +100,18 @@ $css->PageInit($myTitulo);
         
         $css->TabPaneEnd();
         $css->TabPaneInit("Tab_3");
+            /*
+             * Contenido de Cruce de cartera Factura por factura
+             * 
+             */
+             
+            $css->CrearDiv("DivPagasSinRelacion", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            
+        $css->TabPaneEnd();
+        
+        $css->TabPaneInit("Tab_4");
             /*
              * Contenido de Cruce de cartera Factura por factura
              * 
