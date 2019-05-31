@@ -65,14 +65,23 @@ $css->PageInit($myTitulo);
          print('<span class="input-group-addon"><i class="fa fa-fw fa-search"></i></span>
               </div>');
     $css->CerrarDiv();
+    
+    $css->CrearDiv("DivProgress", "col-md-12", "center", 1, 1);
+        print("<br><br><br>");
+        $css->ProgressBar("PgProgresoUp", "LyProgresoUP", "", 0, 0, 100, 0, "0%", "", "");
+    $css->CerrarDiv();
+    $css->CrearDiv("DivMensajes", "col-md-12", "center", 1, 1);
+    
+    $css->CerrarDiv();
+    
     print("<br><br><br><br>");
     $css->CrearDiv("", "col-md-12", "center", 1, 1);   
         
         $css->TabInit();
-            $css->TabLabel("TabCuentas1", "Facturas sin Relación IPS", "Tab_1", 1,"onclick=MuestreFacturasNRIPS()");
-            $css->TabLabel("TabCuentas2", "Facturas sin Relación EPS", "Tab_2",0,"onclick=MuestreFacturasNREPS()");
-            $css->TabLabel("TabCuentas3", "Facturas Pagadas Sin Relación", "Tab_3",0,"onclick=MuestrePagadasSR()");  
-            $css->TabLabel("TabCuentas4", "Cruce de Cartera", "Tab_4",0,"onclick=MuestreCruce()"); 
+            $css->TabLabel("TabCuentas1", "<strong >Facturas sin Relación IPS</strong>", "Tab_1", 1,"onclick=MuestreFacturasNRIPS()");
+            $css->TabLabel("TabCuentas2", "<strong >Facturas sin Relación EPS</strong>", "Tab_2",0,"onclick=MuestreFacturasNREPS()");
+            $css->TabLabel("TabCuentas3", "<strong >Facturas Pagadas Sin Relación</strong>", "Tab_3",0,"onclick=MuestrePagadasSR()");  
+            $css->TabLabel("TabCuentas4", "<strong >Cruce de Cartera</strong>", "Tab_4",0,"onclick=MuestreCruce()"); 
         $css->TabInitEnd();
         $css->TabContentInit();
         

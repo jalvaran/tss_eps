@@ -63,14 +63,16 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td style='text-align:center'>");
                         print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
                     print("</td>");
-                    print("<td colspan=3 style='text-align:center'>");
+                    print("<td colspan=5 style='text-align:center'>");
                         print("<strong>Total:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
                     print("</td>");
                     
-                    print("<td colspan='2' style='text-align:center'>");
-                        $st1= urlencode($st_reporte);
-                        //$css->CrearImageLink("ProcesadoresJS/GeneradorCSVReportesCartera.php?Opcion=1&sp=$Separador&st=$st1", "../images/csv.png", "_blank", 50, 50);
-
+                    print("<td colspan='1' style='text-align:center'>");
+                        print("<strong>Subir Actualizaciones de Facturas Masivas</strong>");
+                        print('<div class="input-group">');
+                            $css->input("file", "UpActualizaciones", "form-control", "UpActualizaciones", "Actualización de Facturas Por Excel", "Subir Actualizaciónes masivas", "Subir Actualizaciónes masivas", "off", "", "");
+                        print('<span id="BtnSubirActualizacionesMasivas" class="input-group-addon" style="cursor:pointer;background-color:orange" onclick="ConfirmarCarga()"><i class="fa fa-fw fa-upload" style=color:white></i></span>
+                                </div>');
                     print("</td>");
                 //$css->CierraFilaTabla();
                 

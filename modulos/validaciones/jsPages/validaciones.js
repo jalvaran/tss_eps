@@ -299,7 +299,7 @@ function CambiePaginaPagadasSR(Page=""){
 
 
 function EditarFactura(NumeroFactura){
-    MuestraXID('BntModalAcciones');
+    OcultaXID('BntModalAcciones');
     AbreModal('ModalAcciones');
     document.getElementById("DivFrmModalAcciones").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
     var CmbEPS=document.getElementById('CmbEPS').value;
@@ -332,5 +332,359 @@ function EditarFactura(NumeroFactura){
       });
 }
 
+
+function EnviarFacturaEditar(){
+    
+    
+    document.getElementById('BtnEjecutar').disabled=true;
+    document.getElementById('BtnEjecutar').value="Enviando...";
+    var TxtNumeroFacturaEdit=document.getElementById('TxtNumeroFacturaEdit').value;
+    var TxtFacturaNueva=document.getElementById('TxtFacturaNueva').value;
+    var TxtObservacionesEdicioFactura=document.getElementById('TxtObservacionesEdicioFactura').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    if($('#TxtNumeroFacturaEdit').val()==null || $('#TxtNumeroFacturaEdit').val()==''){
+          alertify.alert("por favor digite la factura que va a editar");   
+          document.getElementById('BtnEjecutar').disabled=false;
+          document.getElementById('BtnEjecutar').value="Ejecutar";
+          document.getElementById('TxtNumeroFacturaEdit').style.backgroundColor="pink";
+          return;
+    }else{
+        document.getElementById('TxtNumeroFacturaEdit').style.backgroundColor="white";
+    }
+    
+    if($('#TxtFacturaNueva').val()==null || $('#TxtFacturaNueva').val()==''){
+          alertify.alert("por favor digite la factura que reemplazará la anterior");
+          document.getElementById('BtnEjecutar').disabled=false;
+          document.getElementById('BtnEjecutar').value="Ejecutar";
+          document.getElementById('TxtFacturaNueva').style.backgroundColor="pink";
+          return;
+    }else{
+        document.getElementById('TxtFacturaNueva').style.backgroundColor="white";
+    }
+    
+    if($('#TxtObservacionesEdicioFactura').val()==null || $('#TxtObservacionesEdicioFactura').val()==''){
+          alertify.alert("por favor digite las observaciones");
+          document.getElementById('BtnEjecutar').disabled=false;
+          document.getElementById('BtnEjecutar').value="Ejecutar";
+          document.getElementById('TxtObservacionesEdicioFactura').style.backgroundColor="pink";
+          return;
+    }else{
+        document.getElementById('TxtObservacionesEdicioFactura').style.backgroundColor="white";
+    }
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 1);
+        form_data.append('TxtNumeroFacturaEdit', TxtNumeroFacturaEdit);
+        form_data.append('TxtFacturaNueva', TxtFacturaNueva);
+        form_data.append('TxtObservacionesEdicioFactura', TxtObservacionesEdicioFactura);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+       
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                CierraModal("ModalAcciones");
+                document.getElementById('TabCuentas1').click();
+                alertify.success(respuestas[1]);
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                document.getElementById('BtnEjecutar').disabled=false;
+                document.getElementById('BtnEjecutar').value="Ejecutar";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('BtnEjecutar').disabled=false;
+                document.getElementById('BtnEjecutar').value="Ejecutar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById('BtnEjecutar').disabled=false;
+            document.getElementById('BtnEjecutar').value="Ejecutar";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function ConfirmarCarga(){
+    var UpActualizaciones=document.getElementById('UpActualizaciones').value;
+    if(UpActualizaciones==""){
+        alertify.alert("No se ha subido ningún archivo");
+        return;
+    }
+    alertify.confirm('Está seguro que desea Realizar ésta actualización?',
+        function (e) {
+            if (e) {
+
+                alertify.success("Subiendo Archivo");                    
+                InicieCarga();
+            }else{
+                alertify.error("Se canceló el proceso");
+
+                return;
+            }
+        });
+}
+
+
+function InicieCarga(){
+    var idDivOutput="DivFacturasIPS";
+    var idBoton="BtnSubirActualizacionesMasivas";
+    
+    document.getElementById(idBoton).disabled=true;
+    
+    
+    var UpActualizaciones=document.getElementById('UpActualizaciones').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    
+    
+    if($('#UpActualizaciones').val()==null || $('#UpActualizaciones').val()==''){
+          alertify.alert("por favor seleccione un archivo");
+          document.getElementById(idBoton).disabled=false;
+          
+          document.getElementById('UpActualizaciones').style.backgroundColor="pink";
+          return;
+    }else{
+        document.getElementById('UpActualizaciones').style.backgroundColor="white";
+    }
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 2);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('UpActualizaciones', $('#UpActualizaciones').prop('files')[0]);
+      
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               $('.progress-bar').css('width','20%').attr('aria-valuenow', 20);  
+                document.getElementById('LyProgresoUP').innerHTML="20%";
+                var RutaArchivo=respuestas[2];
+                var Extension=respuestas[3];
+                alertify.success(respuestas[1]);
+                LeaArchivo(RutaArchivo,Extension);
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                document.getElementById(idBoton).disabled=false;
+                document.getElementById('TabCuentas1').click();
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                document.getElementById('TabCuentas1').click();
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById('TabCuentas1').click();
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function LeaArchivo(RutaArchivo,Extension){
+    var idDivOutput="DivFacturasIPS";
+    var idBoton="BtnSubirActualizacionesMasivas";
+    
+    document.getElementById(idBoton).disabled=true;
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 3);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('RutaArchivo', RutaArchivo);
+        form_data.append('Extension', Extension);
+      
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               $('.progress-bar').css('width','50%').attr('aria-valuenow', 50);  
+                document.getElementById('LyProgresoUP').innerHTML="50%";
+                alertify.success(respuestas[1]);
+                ValidarRegistros();
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                document.getElementById(idBoton).disabled=false;
+                document.getElementById('TabCuentas1').click();
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                document.getElementById('TabCuentas1').click();
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById('TabCuentas1').click();
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function ValidarRegistros(){
+    var idDivOutput="DivFacturasIPS";
+    var idBoton="BtnSubirActualizacionesMasivas";
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 4);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+      
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               $('.progress-bar').css('width','70%').attr('aria-valuenow', 70);  
+                document.getElementById('LyProgresoUP').innerHTML="70%";
+                alertify.success(respuestas[1]);
+                ActualizarFacturasDesdeTemporal();
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById('TabCuentas1').click();
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function ActualizarFacturasDesdeTemporal(){
+    var idDivOutput="DivFacturasIPS";
+    var idBoton="BtnSubirActualizacionesMasivas";
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 5);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+      
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               $('.progress-bar').css('width','100%').attr('aria-valuenow', 100);  
+                document.getElementById('LyProgresoUP').innerHTML="100%";
+                alertify.success(respuestas[1]);
+                document.getElementById('TabCuentas1').click();
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById('TabCuentas1').click();
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
 
 document.getElementById('TabCuentas1').click();
