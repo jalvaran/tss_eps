@@ -396,12 +396,18 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Radicado</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Radicado</strong>", 1);
                     $css->ColTabla("<strong>Valor</strong>", 1);
+                    $css->ColTabla("<strong>Impuestos</strong>", 1);
                     $css->ColTabla("<strong>Valor Menos Impuestos</strong>", 1);
                     $css->ColTabla("<strong>Total Pagos</strong>", 1);
                     $css->ColTabla("<strong>Total Anticipos</strong>", 1);
                     $css->ColTabla("<strong>Total Glosa Inicial</strong>", 1);
                     $css->ColTabla("<strong>Total Glosa A Favor</strong>", 1);
                     $css->ColTabla("<strong>Total Glosa en Contra</strong>", 1);
+                    $css->ColTabla("<strong>Glosa por Conciliar</strong>", 1);
+                    $css->ColTabla("<strong>Otros Descuentos</strong>", 1);
+                    $css->ColTabla("<strong>Saldo Según EPS</strong>", 1);
+                    $css->ColTabla("<strong>Saldo Según IPS</strong>", 1);
+                    $css->ColTabla("<strong>Diferencia</strong>", 1);
                     $css->ColTabla("<strong>Acciones</strong>", 1);
                 $css->CierraFilaTabla();
                 
@@ -416,6 +422,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla($DatosFactura["NumeroRadicado"], 1);
                         $css->ColTabla($DatosFactura["FechaRadicado"], 1);
                         $css->ColTabla(number_format($DatosFactura["ValorDocumento"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["Impuestos"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["ValorMenosImpuestos"]), 1,'R');
                         print("<td>");
                             $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',4)", "style=cursor:pointer;");
@@ -456,7 +463,21 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->CerrarDiv();
                             
                         print("</td>");
+                        $css->ColTabla(number_format($DatosFactura["GlosaXConciliar"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["OtrosDescuentos"]), 1,'R');
                         
+                        print("<td style=text-align:center;font-size:18px>");
+                           print(number_format($DatosFactura["ValorSegunEPS"]));
+                           $idBoton="btnConciliarXEPS_$idItem";
+                           $css->CrearBotonEvento("btnConciliarXEPS_$idItem", "Conciliar Según Valor EPS", 1, "onclick", "ConciliarFactura(`$idBoton`,`$NumeroFactura`,`1`)", "verde", "");
+                        print("</td>");
+                        print("<td style=text-align:center;font-size:18px> ");
+                           print(number_format($DatosFactura["ValorSegunIPS"]));
+                           $idBoton="btnConciliarXIPS_$idItem";
+                           $css->CrearBotonEvento("btnConciliarXIPS_$idItem", "Conciliar Según Valor IPS", 1, "onclick", "ConciliarFactura(`$idBoton`,`$NumeroFactura`,`2`)", "naranja", "");
+                        print("</td>");
+                        
+                        $css->ColTabla(number_format($DatosFactura["Diferencia"]), 1,'R');
                         print("<td style='text-align:center'>");
                             print('<a id="BtnVer_'.$idItem.'" href="#" onclick="DibujeFactura('.$idItem.');"><i class="fa fa-fw fa-eye"></i></a>');
                         print("</td>");

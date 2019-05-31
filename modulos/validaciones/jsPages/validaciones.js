@@ -687,4 +687,60 @@ function ActualizarFacturasDesdeTemporal(){
       })
 }
 
+
+function ConciliarFactura(idBoton,NumeroFactura,TipoConciliacion){
+    document.getElementById(idBoton).disabled=true; 
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 6);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('NumeroFactura', NumeroFactura);
+        form_data.append('TipoConciliacion', TipoConciliacion);
+      
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               
+                alertify.success(respuestas[1]);
+                
+                document.getElementById(idBoton).disabled=false;
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById('TabCuentas1').click();
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
 document.getElementById('TabCuentas1').click();

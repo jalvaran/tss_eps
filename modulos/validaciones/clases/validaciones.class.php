@@ -121,6 +121,57 @@ class ValidacionesEPS extends conexion{
         unset($sql);
     }
     
+    public function MarcarConciliacionXEPS($db,$NumeroFactura,$idUser,$TipoConciliacion) {
+        if($TipoConciliacion==1){
+            $Tabla1="carteraeps";
+            $Tabla2="carteracargadaips";
+        }else{
+            $Tabla2="carteraeps";
+            $Tabla1="carteracargadaips";
+        }
+        
+        $sql="UPDATE $db.$Tabla1 SET ConciliadoXEPS=1 WHERE NumeroFactura='$NumeroFactura' ";
+        $this->Query($sql);
+        
+        $sql="UPDATE $db.$Tabla2 SET ConciliadoXEPS=0 WHERE NumeroFactura='$NumeroFactura' ";
+        $this->Query($sql);
+    }
+    
+    public function MarcarConciliacionXIPS($db,$NumeroFactura,$idUser,$TipoConciliacion) {
+        if($TipoConciliacion==1){
+            $Tabla1="carteraeps";
+            $Tabla2="carteracargadaips";
+        }else{
+            $Tabla2="carteraeps";
+            $Tabla1="carteracargadaips";
+        }
+        
+        $sql="UPDATE $db.$Tabla1 SET ConciliadoXIPS=1 WHERE NumeroFactura='$NumeroFactura' ";
+        $this->Query($sql);
+        
+        $sql="UPDATE $db.$Tabla2 SET ConciliadoXIPS=0 WHERE NumeroFactura='$NumeroFactura' ";
+        $this->Query($sql);
+                
+    }
+    
+    public function RegistreConciliacionUsuario($db,$idUser,$NumeroFactura,$TipoConciliacion) {
+        $sql="SELECT NumeroContrato FROM $db.carteraeps WHERE NumeroFactura='$NumeroFactura'";
+        $Consulta=$this->Query($sql);
+        $DatosContrato= $this->FetchAssoc($Consulta);
+        $Contrato=$DatosContrato["NumeroContrato"];
+        $key="$Contrato $NumeroFactura";
+        $FechaRegistro=date("Y-m-d H:i:s");
+        $Datos["ID"]=$key;
+        $Datos["NumeroFactura"]=$NumeroFactura;
+        $Datos["NumeroContrato"]=$Contrato;
+        $Datos["TipoConciliacion"]=$TipoConciliacion;
+        $Datos["idUser"]=$idUser;
+        $Datos["FechaRegistro"]=$FechaRegistro;
+        
+        $sql=$this->getSQLReeplace("$db.registro_conciliaciones_ips_eps", $Datos);
+        $this->Query($sql);
+        
+    }
     
     
     //Fin Clases

@@ -111,7 +111,32 @@ if( !empty($_REQUEST["Accion"]) ){
             $sql="INSERT INTO $db.registro_actualizacion_facturas SELECT * FROM $db.temporal_actualizacion_facturas";
             $obCon->Query($sql);
             print("OK;Facturas Actualizadas");
-        break;
+        break; //Fin caso 5
+    
+        case 6://Se recibe una conciliacion sobre una factura
+            
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $TipoConciliacion=$obCon->normalizar($_REQUEST["TipoConciliacion"]);
+            $sql="SELECT TipoUser FROM usuarios WHERE idUsuarios='$idUser'";
+            $Consulta=$obCon->Query($sql);
+            $DatosUsuario=$obCon->FetchAssoc($Consulta);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            if($DatosUsuario["TipoUser"]=='administrador' or $DatosUsuario["TipoUser"]=='eps'){
+                $obCon->MarcarConciliacionXEPS($db, $NumeroFactura, $idUser, $TipoConciliacion);
+            }
+            if($DatosUsuario["TipoUser"]=='ips'){
+                $obCon->MarcarConciliacionXIPS($db, $NumeroFactura, $idUser, $TipoConciliacion);
+            }
+            $Conciliacion="EPS";
+            if($TipoConciliacion==2){
+                $Conciliacion="IPS";
+            }
+            $obCon->RegistreConciliacionUsuario($db, $idUser, $NumeroFactura, $Conciliacion);
+            print("OK;Facturas Actualizadas");
+        break; //Fin caso 5
             
         
     }

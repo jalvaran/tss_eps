@@ -30,7 +30,7 @@ class PageConstruct extends html_estruct_class{
                 print($Titulo);
                 $this->Ctitle();
                 if($CssFramework==1){
-                    print('<link rel="stylesheet" href="../../componentes/bootstrap/dist/css/bootstrap.min.css">');
+                    print('<link rel="stylesheet" href="../../componentes/bootstrap/dist/css/bootstrap.css">');
 
                 }
                 print("<link rel='shortcut icon' href='../../images/technoIco.ico'>");
@@ -789,7 +789,7 @@ class PageConstruct extends html_estruct_class{
         //print('<div class="panel panel-default">');
         //print('<div class="panel-heading">'.$Titulo.'</div>');
         print('<div class="panel-heading">');
-        print('<table width="'.$Ancho.'" class="table table-striped table-bordered table-hover" id="'.$id.'" '.$js.'>');
+        print('<table width="'.$Ancho.'" class="table table-striped table-bordered table-hover table-responsive" id="'.$id.'" '.$js.'>');
     }
     /**
      * Cabecera para las tablas
