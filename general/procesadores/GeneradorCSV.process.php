@@ -76,6 +76,32 @@ if(isset($_REQUEST["Opcion"])){
             $obCon->Query($sql);
             print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$Tabla.csv' target='_top' style='text-align:center;position: absolute;top:50%;left:50%;padding:5px;' onclick=document.getElementById('DivImagenDescargarTablaDB').style.display='none';><h1>Descargar: </h1><img src='../../images/descargar3.png'></img></a></div>");
             break;
+            
+            case 2: //Exportar CSV directamente
+                
+            if(file_exists($Link)){
+                unlink($Link);
+            }
+            
+            $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
+            $db=$obCon->normalizar($_REQUEST["db"]);
+            $Condicion="";
+            
+            $Separador=";";
+            $NumPage="";
+            $limit="";
+            $startpoint="";
+            
+            
+            $sqlColumnas="SELECT 'ID','NumeroFactura','FechaFactura','NumeroRadicado','FechaRadicado','NumeroContrato','ValorDocumento','ValorMenosImpuestos','Impuestos','OtrosDescuentos','TotalPagos','TotalAnticipos','TotalGlosaInicial','TotalGlosaFavor','TotalGlosaContra','GlosaXConciliar','ValorSegunEPS','ValorSegunIPS','Diferencia' ";
+            
+            $sqlColumnas.=" UNION ALL ";
+            
+            $sql=$sqlColumnas." SELECT * FROM $db.$Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
+            
+            $obCon->Query($sql);
+            print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$Tabla.csv' target='_top' ><h1>Descargar </h1></a></div>");
+            break;//Fin caso 2
         
         }
 }else{

@@ -341,6 +341,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     print("<td colspan='2' style='text-align:center'>");
                         $st1= urlencode($st_reporte);
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_cruce_cartera_asmet','')", "verde", "");
                         //$css->CrearImageLink("ProcesadoresJS/GeneradorCSVReportesCartera.php?Opcion=1&sp=$Separador&st=$st1", "../images/csv.png", "_blank", 50, 50);
 
                     print("</td>");
@@ -469,12 +470,12 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("<td style=text-align:center;font-size:18px>");
                            print(number_format($DatosFactura["ValorSegunEPS"]));
                            $idBoton="btnConciliarXEPS_$idItem";
-                           $css->CrearBotonEvento("btnConciliarXEPS_$idItem", "Conciliar Según Valor EPS", 1, "onclick", "ConciliarFactura(`$idBoton`,`$NumeroFactura`,`1`)", "verde", "");
+                           //$css->CrearBotonEvento("btnConciliarXEPS_$idItem", "Conciliar Según Valor EPS", 1, "onclick", "ConciliarFactura(`$idBoton`,`$NumeroFactura`,`1`)", "verde", "");
                         print("</td>");
                         print("<td style=text-align:center;font-size:18px> ");
                            print(number_format($DatosFactura["ValorSegunIPS"]));
                            $idBoton="btnConciliarXIPS_$idItem";
-                           $css->CrearBotonEvento("btnConciliarXIPS_$idItem", "Conciliar Según Valor IPS", 1, "onclick", "ConciliarFactura(`$idBoton`,`$NumeroFactura`,`2`)", "naranja", "");
+                           //$css->CrearBotonEvento("btnConciliarXIPS_$idItem", "Conciliar Según Valor IPS", 1, "onclick", "ConciliarFactura(`$idBoton`,`$NumeroFactura`,`2`)", "naranja", "");
                         print("</td>");
                         
                         $css->ColTabla(number_format($DatosFactura["Diferencia"]), 1,'R');

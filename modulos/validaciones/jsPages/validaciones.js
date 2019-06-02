@@ -743,4 +743,48 @@ function ConciliarFactura(idBoton,NumeroFactura,TipoConciliacion){
       })
 }
 
+
+function ExportarExcel(db,Tabla,st){
+    var idBoton="BtnExportarExcelCruce";
+    document.getElementById(idBoton).disabled=true; 
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    
+    var form_data = new FormData();
+        form_data.append('Opcion', 2); //Obtengo el total de filas
+        
+        form_data.append('Tabla', Tabla);
+        form_data.append('db', db);
+        form_data.append('st', st);
+              
+    $.ajax({
+        
+        url: '../../general/procesadores/GeneradorCSV.process.php',
+        
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            document.getElementById(idBoton).disabled=false; 
+               console.log(data)
+                
+            document.getElementById("DivMensajes").innerHTML=data;
+                
+           
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
 document.getElementById('TabCuentas1').click();

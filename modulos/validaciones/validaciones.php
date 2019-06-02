@@ -138,7 +138,7 @@ $css->PageInit($myTitulo);
     print("<br><br><br><br><br><br><br><br><br><br>");
 $css->PageFin();
 print('<script src="jsPages/validaciones.js"></script>');  //script propio de la pagina
-
+//$css->AgregaJS();
 $css->Cbody();
 $css->Chtml();
 
