@@ -1242,7 +1242,7 @@ CREATE TABLE `configuracion_general` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 INSERT INTO `configuracion_general` (`ID`, `Descripcion`, `Valor`, `Updated`, `Sync`) VALUES
-(1,	'RUTA PARA EXPORTAR TABLAS EN CSV',	'../../htdocs/ts5/exports/tabla.csv',	'2019-01-13 14:04:49',	'2019-01-13 09:04:49'),
+(1,	'RUTA PARA EXPORTAR TABLAS EN CSV',	'../../htdocs/ts_eps/exports/tabla.csv',	'2019-06-02 15:39:40',	'2019-01-13 09:04:49'),
 (2,	'Valor por defecto si se imprime o no al momento de realizar una factura pos',	'1',	'2019-03-18 12:44:40',	'2019-03-18 07:44:40'),
 (3,	'Determina si se debe pedir autorizacion para retornar un item en pos',	'1',	'2019-03-18 13:20:26',	'2019-03-18 08:20:26'),
 (4,	'Determina si se debe pedir autorizacion para elimininar un item en pos',	'1',	'2019-03-18 13:27:46',	'2019-03-18 08:27:46'),
@@ -1393,7 +1393,9 @@ CREATE TABLE `menu` (
 INSERT INTO `menu` (`ID`, `Nombre`, `idCarpeta`, `Pagina`, `Target`, `Estado`, `Image`, `CSS_Clase`, `Orden`, `Updated`, `Sync`) VALUES
 (1,	'Administrar',	1,	'Admin.php',	'_BLANK',	1,	'admin.png',	'fa fa-share',	1,	'2019-05-20 15:02:31',	'0000-00-00 00:00:00'),
 (2,	'Cargue de Cartera IPS',	1,	'MnuIPS.php',	'_BLANK',	1,	'cuentasxcobrar.png',	'fa fa-share',	1,	'2019-05-20 15:02:31',	'0000-00-00 00:00:00'),
-(3,	'Cargue de Cartera EPS',	1,	'MnuEPS.php',	'_BLANK',	1,	'tesoreria.png',	'fa fa-share',	1,	'2019-05-20 15:02:31',	'0000-00-00 00:00:00');
+(3,	'Cargue de Cartera EPS',	1,	'MnuEPS.php',	'_BLANK',	1,	'tesoreria.png',	'fa fa-share',	1,	'2019-05-20 15:02:31',	'0000-00-00 00:00:00'),
+(4,	'Validación de Facturas',	1,	'MnuValidaciones.php',	'_BLANK',	1,	'validacion.png',	'fa fa-share',	1,	'2019-05-20 15:02:31',	'0000-00-00 00:00:00'),
+(5,	'Tickets',	1,	'MnuTickets.php',	'_BLANK',	1,	'tickets.png',	'fa fa-share',	1,	'2019-06-01 19:23:19',	'0000-00-00 00:00:00');
 
 DROP TABLE IF EXISTS `menu_carpetas`;
 CREATE TABLE `menu_carpetas` (
@@ -1409,7 +1411,11 @@ INSERT INTO `menu_carpetas` (`ID`, `Ruta`, `Updated`, `Sync`) VALUES
 (2,	'../',	'2019-05-20 14:17:13',	'0000-00-00 00:00:00'),
 (3,	'../modulos/administrador/',	'2019-05-20 14:17:15',	'0000-00-00 00:00:00'),
 (4,	'../modulos/carteraips/',	'2019-05-20 14:17:15',	'0000-00-00 00:00:00'),
-(5,	'../modulos/carteraeps/',	'2019-05-20 14:17:15',	'0000-00-00 00:00:00');
+(5,	'../modulos/carteraeps/',	'2019-05-20 14:17:15',	'0000-00-00 00:00:00'),
+(6,	'../modulos/glosaseps/',	'2019-05-20 14:17:15',	'0000-00-00 00:00:00'),
+(7,	'../modulos/anticiposeps/',	'2019-05-20 14:17:15',	'0000-00-00 00:00:00'),
+(8,	'../modulos/validaciones/',	'2019-05-20 14:17:15',	'0000-00-00 00:00:00'),
+(9,	'../modulos/tickets/',	'2019-05-20 14:17:15',	'0000-00-00 00:00:00');
 
 DROP TABLE IF EXISTS `menu_pestanas`;
 CREATE TABLE `menu_pestanas` (
@@ -1436,8 +1442,8 @@ INSERT INTO `menu_pestanas` (`ID`, `Nombre`, `idMenu`, `Orden`, `Estado`, `Updat
 (10,	'Cotizaciones',	2,	2,	CONV('0', 2, 10) + 0,	'2019-05-21 10:32:47',	'2019-01-13 09:12:43'),
 (11,	'Remisiones',	2,	3,	CONV('0', 2, 10) + 0,	'2019-05-21 10:32:47',	'2019-01-13 09:12:43'),
 (12,	'Carga de Archivos',	3,	1,	CONV('1', 2, 10) + 0,	'2019-05-23 12:51:15',	'2019-01-13 09:12:43'),
-(13,	'Compras',	5,	1,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43'),
-(14,	'Egresos',	6,	1,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43'),
+(13,	'Validaciones',	4,	1,	CONV('1', 2, 10) + 0,	'2019-05-29 03:37:38',	'2019-01-13 09:12:43'),
+(14,	'Tickets',	5,	1,	CONV('1', 2, 10) + 0,	'2019-06-01 19:20:23',	'2019-01-13 09:12:43'),
 (15,	'Cuentas X Pagar',	11,	1,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43'),
 (16,	'Financieros',	17,	1,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43'),
 (17,	'Auxiliares',	17,	2,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43'),
@@ -1470,7 +1476,6 @@ INSERT INTO `menu_pestanas` (`ID`, `Nombre`, `idMenu`, `Orden`, `Estado`, `Updat
 (44,	'Reservas',	29,	1,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43'),
 (45,	'Modelos',	30,	1,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43'),
 (46,	'Documentos',	31,	1,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43'),
-(47,	'Ordenes de Compra',	5,	2,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43'),
 (48,	'Colaboradores',	20,	1,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43'),
 (49,	'Ingresos',	23,	1,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43');
 
@@ -1499,7 +1504,11 @@ INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`,
 (2,	'usuarios',	2,	3,	1,	'usuarios',	1,	'onclick=\"SeleccioneTablaDB(`usuarios`)\";',	'usuarios.php',	'_BLANK',	1,	'usuarios.png',	1,	'2019-05-20 15:12:11',	'0000-00-00 00:00:00'),
 (3,	'Cargue de Cartera',	9,	4,	2,	'',	1,	'',	'carteraips.php',	'_SELF',	1,	'cuentasxpagar.png',	1,	'2019-05-20 15:12:11',	'0000-00-00 00:00:00'),
 (4,	'Cargue de Cartera EPS',	12,	5,	2,	'',	1,	'',	'carteraeps.php',	'_SELF',	1,	'tesoreria.png',	1,	'2019-05-23 12:51:52',	'0000-00-00 00:00:00'),
-(5,	'Cargar Pagos EPS',	12,	5,	2,	'',	1,	'',	'pagoseps.php',	'_SELF',	1,	'pago.jpg',	2,	'2019-05-23 12:51:52',	'0000-00-00 00:00:00');
+(5,	'Cargar Pagos EPS',	12,	5,	2,	'',	1,	'',	'pagoseps.php',	'_SELF',	1,	'pago.jpg',	2,	'2019-05-23 12:51:52',	'0000-00-00 00:00:00'),
+(6,	'Cargar Glosas EPS',	12,	6,	2,	'',	1,	'',	'glosaseps.php',	'_SELF',	1,	'ar.png',	2,	'2019-05-23 12:51:52',	'0000-00-00 00:00:00'),
+(7,	'Cargar Anticipos EPS',	12,	7,	2,	'',	1,	'',	'anticiposeps.php',	'_SELF',	1,	'anticipos.png',	4,	'2019-05-27 22:55:48',	'0000-00-00 00:00:00'),
+(8,	'Validacion de facturas',	13,	8,	4,	'',	1,	'',	'validaciones.php',	'_SELF',	1,	'anticipos.png',	1,	'2019-05-27 22:55:48',	'0000-00-00 00:00:00'),
+(9,	'Tickets',	14,	9,	5,	'',	1,	'',	'tickets.php',	'_SELF',	1,	'tickets.png',	1,	'2019-06-01 19:21:56',	'0000-00-00 00:00:00');
 
 DROP TABLE IF EXISTS `paginas_bloques`;
 CREATE TABLE `paginas_bloques` (
@@ -1512,6 +1521,11 @@ CREATE TABLE `paginas_bloques` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
+INSERT INTO `paginas_bloques` (`ID`, `TipoUsuario`, `Pagina`, `Habilitado`, `Updated`, `Sync`) VALUES
+(1,	'ips',	'Menu.php',	'SI',	'2019-05-31 05:11:35',	'0000-00-00 00:00:00'),
+(2,	'ips',	'MnuIPS.php',	'SI',	'2019-05-31 05:12:20',	'0000-00-00 00:00:00'),
+(3,	'ips',	'MnuValidaciones.php',	'SI',	'2019-05-31 05:13:05',	'0000-00-00 00:00:00'),
+(4,	'ips',	'validaciones.php',	'SI',	'2019-05-31 05:13:36',	'0000-00-00 00:00:00');
 
 DROP TABLE IF EXISTS `relacion_usuarios_ips`;
 CREATE TABLE `relacion_usuarios_ips` (
@@ -1571,6 +1585,59 @@ INSERT INTO `tablas_campos_control` (`ID`, `NombreTabla`, `Campo`, `Visible`, `E
 (11,	'empresapro',	'ActividadesEconomicas',	0,	1,	0,	'administrador',	3,	'2019-01-13 14:14:12',	'2019-01-13 09:14:12'),
 (12,	'empresapro',	'WEB',	0,	1,	0,	'administrador',	3,	'2019-01-13 14:14:12',	'2019-01-13 09:14:12');
 
+DROP TABLE IF EXISTS `tickets`;
+CREATE TABLE `tickets` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `FechaApertura` datetime NOT NULL,
+  `Asunto` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
+  `Estado` int(11) NOT NULL,
+  `idUsuarioSolicitante` int(11) NOT NULL,
+  `idUsuarioAsignado` int(11) NOT NULL,
+  `FechaCierre` datetime NOT NULL,
+  `idUsuarioCierra` datetime NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+INSERT INTO `tickets` (`ID`, `FechaApertura`, `Asunto`, `Estado`, `idUsuarioSolicitante`, `idUsuarioAsignado`, `FechaCierre`, `idUsuarioCierra`) VALUES
+(1,	'2019-06-01 12:00:00',	'PROBLEMA CON FACTURA 1',	1,	3,	0,	'0000-00-00 00:00:00',	'0000-00-00 00:00:00');
+
+DROP TABLE IF EXISTS `tickets_adjuntos`;
+CREATE TABLE `tickets_adjuntos` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `Ruta` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
+  `idMensaje` bigint(20) NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+
+DROP TABLE IF EXISTS `tickets_estados`;
+CREATE TABLE `tickets_estados` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `Estado` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+INSERT INTO `tickets_estados` (`ID`, `Estado`) VALUES
+(1,	'ABIERTO'),
+(2,	'ENVIADO'),
+(3,	'ASIGNADO'),
+(4,	'LEIDO POR USUARIO ASIGNAD0'),
+(5,	'RESPONDIDO X USUARIO ASIGNADO'),
+(6,	'RESPONDIDO X USUARIO REMITENTE'),
+(7,	'ARCHIVADO'),
+(8,	'CERRADO'),
+(9,	'ELIMINADO');
+
+DROP TABLE IF EXISTS `tickets_mensajes`;
+CREATE TABLE `tickets_mensajes` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `Mensaje` text COLLATE utf8_spanish_ci NOT NULL,
+  `Estado` int(11) NOT NULL,
+  `idUser` int(11) NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+
 DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE `usuarios` (
   `idUsuarios` int(11) NOT NULL AUTO_INCREMENT,
@@ -1593,7 +1660,7 @@ INSERT INTO `usuarios` (`idUsuarios`, `Nombre`, `Apellido`, `Identificacion`, `T
 (1,	'TECHNO ',	'SOLUCIONES',	'900833180',	'3177740609',	'admin',	'techno',	'administrador',	'info@technosoluciones.com',	'SUPERVISOR',	'SI',	'2019-04-27 15:38:18',	'2019-04-27 10:38:18'),
 (2,	'ADMINISTRADOR',	'SOFTCONTECH',	'1',	'1',	'administrador',	'technosoluciones',	'operador',	'no@no.com',	'SUPERVISOR',	'SI',	'2019-05-20 14:08:25',	'2019-01-13 09:14:14'),
 (3,	'JULIAN ANDRES',	'ALVARAN',	'94481747',	'3177740609',	'jalvaran',	'pirlo1985',	'administrador',	'jalvaran@gmail.com',	'SUPERVISOR',	'SI',	'2019-04-08 20:35:50',	'2019-04-08 15:35:50'),
-(4,	'WILSON',	'ALBERTO MOSQUERA',	'1',	'318 5658225',	'wamc',	'61320',	'comercial',	'no',	'ADMINISTRADOR',	'SI',	'2019-05-20 14:08:18',	'2019-01-13 09:14:14'),
+(4,	'WILSON',	'ALBERTO MOSQUERA',	'1',	'318 5658225',	'wamc',	'61320',	'ips',	'no',	'ADMINISTRADOR',	'SI',	'2019-05-31 04:52:18',	'2019-01-13 09:14:14'),
 (5,	'JUANITO ',	'VALENCIA',	'94223333',	'321321',	'juanito',	'8c02d2185406bb495a360a32f7de61e3',	'ese',	'juanito@gmail.com',	'IPS',	'SI',	'2019-05-20 15:25:35',	'0000-00-00 00:00:00'),
 (6,	'ALIMANA',	'VERGARA',	'900189323',	'FDFDS',	'alimana',	'9ea21e0afc298b73d21c98bf157a2e5a',	'dasd',	'JALVARAN@gmail.com',	'dsads',	'SI',	'2019-05-20 15:27:57',	'0000-00-00 00:00:00');
 
@@ -1620,7 +1687,14 @@ CREATE TABLE `usuarios_tipo` (
 
 INSERT INTO `usuarios_tipo` (`ID`, `Tipo`, `Updated`, `Sync`) VALUES
 (1,	'administrador',	'2019-01-13 14:14:14',	'2019-01-13 09:14:14'),
-(2,	'operador',	'2019-01-13 14:14:14',	'2019-01-13 09:14:14'),
-(3,	'comercial',	'2019-01-13 14:14:14',	'2019-01-13 09:14:14');
+(2,	'eps',	'2019-05-31 04:51:32',	'2019-01-13 09:14:14'),
+(3,	'ips',	'2019-05-31 04:51:32',	'2019-01-13 09:14:14');
 
--- 2019-05-25 23:13:37
+DROP VIEW IF EXISTS `vista_tickets`;
+CREATE TABLE `vista_tickets` (`ID` bigint(20), `FechaApertura` datetime, `Asunto` varchar(200), `Estado` int(11), `idUsuarioSolicitante` int(11), `idUsuarioAsignado` int(11), `FechaCierre` datetime, `idUsuarioCierra` datetime, `NombreSolicitante` varchar(45), `ApellidoSolicitante` varchar(45), `NombreAsignado` varchar(45), `ApellidoAsignado` varchar(45));
+
+
+DROP TABLE IF EXISTS `vista_tickets`;
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vista_tickets` AS select `t1`.`ID` AS `ID`,`t1`.`FechaApertura` AS `FechaApertura`,`t1`.`Asunto` AS `Asunto`,`t1`.`Estado` AS `Estado`,`t1`.`idUsuarioSolicitante` AS `idUsuarioSolicitante`,`t1`.`idUsuarioAsignado` AS `idUsuarioAsignado`,`t1`.`FechaCierre` AS `FechaCierre`,`t1`.`idUsuarioCierra` AS `idUsuarioCierra`,(select `usuarios`.`Nombre` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioSolicitante`)) AS `NombreSolicitante`,(select `usuarios`.`Apellido` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioSolicitante`)) AS `ApellidoSolicitante`,(select `usuarios`.`Nombre` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioAsignado`)) AS `NombreAsignado`,(select `usuarios`.`Apellido` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioAsignado`)) AS `ApellidoAsignado` from `tickets` `t1`;
+
+-- 2019-06-02 17:18:15
