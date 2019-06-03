@@ -329,7 +329,7 @@ public function ActualizaRegistro($tabla,$campo, $value, $filtro, $idItem,$Proce
 public function ShowColums($Tabla){
     
     
-    $sql="SHOW COLUMNS FROM `$Tabla`;";
+    $sql="SHOW COLUMNS FROM $Tabla;";
     $Results=$this->Query($sql);
     $i=0;
     while($Columnas = $this->FetchArray($Results) ){

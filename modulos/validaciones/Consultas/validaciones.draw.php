@@ -63,10 +63,12 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td style='text-align:center'>");
                         print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
                     print("</td>");
-                    print("<td colspan=5 style='text-align:center'>");
+                    print("<td colspan=4 style='text-align:center'>");
                         print("<strong>Total:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
                     print("</td>");
-                    
+                    print("<td>");
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_facturas_sr_ips','')", "verde", "");
+                    print("</td>");
                     print("<td colspan='1' style='text-align:center'>");
                         print("<strong>Subir Actualizaciones de Facturas Masivas</strong>");
                         print('<div class="input-group">');
@@ -209,8 +211,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     print("<td colspan='2' style='text-align:center'>");
                         $st1= urlencode($st_reporte);
-                        //$css->CrearImageLink("ProcesadoresJS/GeneradorCSVReportesCartera.php?Opcion=1&sp=$Separador&st=$st1", "../images/csv.png", "_blank", 50, 50);
-
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_facturas_sr_eps','')", "verde", "");
                     print("</td>");
                 //$css->CierraFilaTabla();
                 
@@ -335,7 +336,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td style='text-align:center'>");
                         print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
                     print("</td>");
-                    print("<td colspan=3 style='text-align:center'>");
+                    print("<td colspan=8 style='text-align:center'>");
                         print("<strong>Total:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
                     print("</td>");
                     
@@ -670,14 +671,12 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td style='text-align:center'>");
                         print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
                     print("</td>");
-                    print("<td colspan=1 style='text-align:center'>");
+                    print("<td colspan=6 style='text-align:center'>");
                         print("<strong>Total:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
                     print("</td>");
                     
-                    print("<td colspan='2' style='text-align:center'>");
-                        $st1= urlencode($st_reporte);
-                        //$css->CrearImageLink("ProcesadoresJS/GeneradorCSVReportesCartera.php?Opcion=1&sp=$Separador&st=$st1", "../images/csv.png", "_blank", 50, 50);
-
+                   print("<td>");
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_facturas_pagadas_no_relacionadas','')", "verde", "");
                     print("</td>");
                 //$css->CierraFilaTabla();
                 

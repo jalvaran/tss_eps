@@ -93,8 +93,13 @@ if(isset($_REQUEST["Opcion"])){
             $startpoint="";
             
             
-            $sqlColumnas="SELECT 'ID','NumeroFactura','FechaFactura','NumeroRadicado','FechaRadicado','NumeroContrato','ValorDocumento','ValorMenosImpuestos','Impuestos','OtrosDescuentos','TotalPagos','TotalAnticipos','TotalGlosaInicial','TotalGlosaFavor','TotalGlosaContra','GlosaXConciliar','ValorSegunEPS','ValorSegunIPS','Diferencia' ";
-            
+            $sqlColumnas="SELECT  ";
+            $Columnas=$obCon->ShowColums($db.".".$Tabla);
+            //print_r($Columnas);
+            foreach ($Columnas["Field"] as $key => $value) {
+                $sqlColumnas.="'$value',";
+            }
+            $sqlColumnas=substr($sqlColumnas, 0, -1);
             $sqlColumnas.=" UNION ALL ";
             
             $sql=$sqlColumnas." SELECT * FROM $db.$Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";

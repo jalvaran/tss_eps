@@ -745,6 +745,8 @@ function ConciliarFactura(idBoton,NumeroFactura,TipoConciliacion){
 
 
 function ExportarExcel(db,Tabla,st){
+    //document.getElementById("DivMensajes").innerHTML="Exportando...";
+    document.getElementById("DivMensajes").innerHTML='<div id="GifProcess">Exportando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
     var idBoton="BtnExportarExcelCruce";
     document.getElementById(idBoton).disabled=true; 
     
