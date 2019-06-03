@@ -363,7 +363,9 @@ if( !empty($_REQUEST["Accion"]) ){
 
             $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
             $DivTablas=$obCon->normalizar($_REQUEST["DivTablas"]);
+            
             $ColumnasVisibles=$obCon->getColumnasVisibles($Tabla, "");
+            
             $ColumnasDisponibles=$obCon->getColumnasDisponibles($Tabla, "");
             $TipoCajaOpciones="hidden";
             /**
@@ -587,7 +589,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->CrearBotonEvento("BtnNuevoRegistroTabla", "Agregar Registro", 1, "onclick", "DibujaFormularioNuevoRegistro(`$Tabla`,`$DivTablas`)", "azulclaro", "");
                 }
                 
-                if($DatosControlTablas["Exportar"]<>0){
+                if($DatosControlTablas["Exportar"]<>0 or $DatosControlTablas["Exportar"]==''){
                     $css->CrearBotonEvento("BtnExportarTablaCSV", "Exportar a CSV (;)", 1, "onclick", "ExportarTablaDBCSV(`$Tabla`)", "verde", "");
                     $css->CrearBotonEvento("BtnExportarTablaCSV", "Exportar a CSV (,)", 1, "onclick", "ExportarTablaDBCSV(`$Tabla`,`,`)", "verde", "");
                 }

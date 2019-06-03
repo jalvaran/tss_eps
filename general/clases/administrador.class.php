@@ -11,6 +11,7 @@ class Administrador extends conexion{
      */
     public function getColumnasVisibles($Tabla,$vector){
         unset($Columnas);
+       
         $Columnas= $this->ShowColums($Tabla);
         
         $i=0;
