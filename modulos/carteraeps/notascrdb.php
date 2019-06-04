@@ -29,7 +29,7 @@ $css->PageInit($myTitulo);
     
     $css->CrearDiv("", "col-md-12", "left", 1, 1); 
         $css->h3("", "", "", "");
-                print("<strong>Cargar Notas Credito y Debito de ASMET</strong>");
+                print("<strong>Cargar Notas Crédito y Débito</strong>");
         $css->Ch3();
     $css->CerrarDiv(); 
     

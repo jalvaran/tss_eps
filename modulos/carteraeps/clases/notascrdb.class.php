@@ -173,7 +173,8 @@ class NotasCRBD extends conexion{
         $this->Query($sql);
         
         $objPHPExcel->disconnectWorksheets();// Good to disconnect
-        $objPHPExcel->garbageCollect(); // Add this too
+        $objPHPExcel->garbageCollect(); 
+        clearstatcache();
         unset($objPHPExcel);
         unset($Dato);
         unset($objFecha);
@@ -182,6 +183,7 @@ class NotasCRBD extends conexion{
         unset($value);
         unset($key);
         unset($ColumnasTabla);
+        
         
     }
     
