@@ -402,6 +402,8 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Valor Menos Impuestos</strong>", 1);
                     $css->ColTabla("<strong>Total Pagos</strong>", 1);
                     $css->ColTabla("<strong>Total Anticipos</strong>", 1);
+                    $css->ColTabla("<strong>Total Copagos</strong>", 1);
+                    $css->ColTabla("<strong>Total Devoluciones</strong>", 1);
                     $css->ColTabla("<strong>Total Glosa Inicial</strong>", 1);
                     $css->ColTabla("<strong>Total Glosa A Favor</strong>", 1);
                     $css->ColTabla("<strong>Total Glosa en Contra</strong>", 1);
@@ -438,6 +440,22 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',5)", "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalAnticipos"]));
+                            $css->CerrarDiv();
+                            
+                        print("</td>");
+                        
+                        print("<td>");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',9)", "style=cursor:pointer;");
+                            
+                                print(number_format($DatosFactura["TotalCopagos"]));
+                            $css->CerrarDiv();
+                            
+                        print("</td>");
+                        
+                        print("<td>");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',10)", "style=cursor:pointer;");
+                            
+                                print(number_format($DatosFactura["TotalDevoluciones"]));
                             $css->CerrarDiv();
                             
                         print("</td>");
@@ -799,6 +817,84 @@ if( !empty($_REQUEST["Accion"]) ){
             
             
         break; //Fin caso 8
+    
+        case 9://Muestra los copagos realizados a una factura
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Copagos Realizados a la Factura No. $NumeroFactura</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Tipo de Operación</strong>", 1);
+                    $css->ColTabla("<strong>Número de Transacción</strong>", 1);
+                    $css->ColTabla("<strong>Fecha</strong>", 1);                    
+                    $css->ColTabla("<strong>Sucursal</strong>", 1);
+                    $css->ColTabla("<strong>Número de Referencia</strong>", 1);
+                    $css->ColTabla("<strong>Valor del Copago</strong>", 1);
+                    
+                    
+                    
+                $css->CierraFilaTabla();
+                $sql="SELECT * FROM $db.notas_dv_cr WHERE NumeroFactura='$NumeroFactura' AND TipoOperacion='2258'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla(($DatosPagos["TipoOperacion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NumeroTransaccion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["FechaTransaccion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NombreSucursal"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["C51"]), 1,'L');
+                        $css->ColTabla(number_format($DatosPagos["Valor"]), 1,'R');
+                        
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+        break;//Fin caso 9
+        
+        case 10://Muestra los devoluciones realizados a una factura
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Devoluciones Realizadas a la Factura No. $NumeroFactura</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Tipo de Operación</strong>", 1);
+                    $css->ColTabla("<strong>Número de Transacción</strong>", 1);
+                    $css->ColTabla("<strong>Fecha</strong>", 1);                    
+                    $css->ColTabla("<strong>Sucursal</strong>", 1);
+                    $css->ColTabla("<strong>Número de Referencia</strong>", 1);
+                    $css->ColTabla("<strong>Valor del Copago</strong>", 1);
+                    
+                    
+                    
+                $css->CierraFilaTabla();
+                $sql="SELECT * FROM $db.notas_dv_cr WHERE NumeroFactura='$NumeroFactura' AND TipoOperacion='2259'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla(($DatosPagos["TipoOperacion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NumeroTransaccion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["FechaTransaccion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NombreSucursal"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["C51"]), 1,'L');
+                        $css->ColTabla(number_format($DatosPagos["Valor"]), 1,'R');
+                        
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+        break;//Fin caso 10
         
     }
     
