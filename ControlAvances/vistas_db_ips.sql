@@ -20,6 +20,8 @@ SELECT t1.ID,t1.NumeroFactura,t1.FechaFactura,t1.NumeroRadicado,t1.FechaRadicado
         (SELECT IFNULL((SELECT SUM(ValorTotalGlosa) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t1.NumeroFactura ),0)) AS TotalGlosaInicial,
         (SELECT IFNULL((SELECT SUM(ValorGlosaFavor) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t1.NumeroFactura ),0)) AS TotalGlosaFavor,
         (SELECT IFNULL((SELECT SUM(ValorGlosaContra) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t1.NumeroFactura ),0)) AS TotalGlosaContra,
+        (SELECT IFNULL((SELECT SUM(Valor) FROM notas_dv_cr WHERE notas_dv_cr.NumeroFactura=t1.NumeroFactura AND notas_dv_cr.TipoOperacion='2258' ),0)) AS TotalCopagos,
+        (SELECT IFNULL((SELECT SUM(Valor) FROM notas_dv_cr WHERE notas_dv_cr.NumeroFactura=t1.NumeroFactura AND notas_dv_cr.TipoOperacion='2259' ),0)) AS TotalDevoluciones,
         ((SELECT TotalGlosaInicial)-(SELECT TotalGlosaFavor)-(SELECT TotalGlosaContra) ) AS GlosaXConciliar,
         (t1.ValorDocumento-(SELECT Impuestos)- (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT OtrosDescuentos)) AS ValorSegunEPS,
         t1.ValorTotalpagar as ValorSegunIPS,((SELECT ValorSegunEPS)-(SELECT ValorSegunIPS)) AS Diferencia

@@ -45,6 +45,7 @@ print("<br>");
             $css->TabLabel("TabCuentas2", "<strong >Historial Glosas EPS</strong>", "Tab_2",0,"onclick=HistorialGlosas()");
             $css->TabLabel("TabCuentas3", "<strong >Historial de Pagos ASMET</strong>", "Tab_3",0,"onclick=CargarHistorialPagos()");  
             $css->TabLabel("TabCuentas4", "<strong >Anticipos Cargados</strong>", "Tab_4",0,"onclick=HistorialAnticipos()"); 
+            $css->TabLabel("TabCuentas5", "<strong >Historial de Notas Crédito y Débito</strong>", "Tab_5",0,"onclick=HistorialNotas()"); 
         $css->TabInitEnd();
         $css->TabContentInit();
         
@@ -89,6 +90,17 @@ print("<br>");
 
             $css->CerrarDiv();
             $css->CrearDiv("DivControlCargue", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            
+        $css->TabPaneEnd();
+        
+        $css->TabPaneInit("Tab_5");
+                         
+            $css->CrearDiv("DivOpcionesHistorialNotas", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            $css->CrearDiv("DivHistorialNotas", "", "center", 1, 1);
 
             $css->CerrarDiv();
             

@@ -24,6 +24,11 @@ function HistorialAnticipos(){
     var dbIPS=document.getElementById('CmbIPS').value; 
     SeleccioneTablaDB(dbIPS+`.anticipos_asmet`,`DivControlCargue`,`DivOpcionesControlCargue`)
 }
+
+function HistorialNotas(){
+    var dbIPS=document.getElementById('CmbIPS').value; 
+    SeleccioneTablaDB(dbIPS+`.notas_dv_cr`,`DivHistorialNotas`,`DivOpcionesHistorialNotas`)
+}
 document.getElementById('BtnMuestraMenuLateral').click();
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();
