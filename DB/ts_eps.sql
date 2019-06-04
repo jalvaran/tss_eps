@@ -1508,7 +1508,10 @@ INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`,
 (6,	'Cargar Glosas EPS',	12,	6,	2,	'',	1,	'',	'glosaseps.php',	'_SELF',	1,	'ar.png',	2,	'2019-05-23 12:51:52',	'0000-00-00 00:00:00'),
 (7,	'Cargar Anticipos EPS',	12,	7,	2,	'',	1,	'',	'anticiposeps.php',	'_SELF',	1,	'anticipos.png',	4,	'2019-05-27 22:55:48',	'0000-00-00 00:00:00'),
 (8,	'Validacion de facturas',	13,	8,	4,	'',	1,	'',	'validaciones.php',	'_SELF',	1,	'anticipos.png',	1,	'2019-05-27 22:55:48',	'0000-00-00 00:00:00'),
-(9,	'Tickets',	14,	9,	5,	'',	1,	'',	'tickets.php',	'_SELF',	1,	'tickets.png',	1,	'2019-06-01 19:21:56',	'0000-00-00 00:00:00');
+(9,	'Tickets',	14,	9,	5,	'',	1,	'',	'tickets.php',	'_SELF',	1,	'tickets.png',	1,	'2019-06-01 19:21:56',	'0000-00-00 00:00:00'),
+(10,	'Administrador',	9,	4,	2,	'',	1,	'',	'adminCarteraIPS.php',	'_SELF',	1,	'admin.png',	1,	'2019-05-20 15:12:11',	'0000-00-00 00:00:00'),
+(11,	'Administrador EPS',	12,	5,	2,	'',	1,	'',	'adminCarteraEPS.php',	'_SELF',	1,	'admin.png',	6,	'2019-06-04 10:26:23',	'0000-00-00 00:00:00'),
+(12,	'Cargar Notas Credito y Debito EPS',	12,	5,	2,	'',	1,	'',	'notascrdb.php',	'_SELF',	1,	'Anticipos.png',	5,	'2019-05-23 12:51:52',	'0000-00-00 00:00:00');
 
 DROP TABLE IF EXISTS `paginas_bloques`;
 CREATE TABLE `paginas_bloques` (
@@ -1583,7 +1586,11 @@ INSERT INTO `tablas_campos_control` (`ID`, `NombreTabla`, `Campo`, `Visible`, `E
 (9,	'empresapro',	'TipoDocumento',	0,	1,	0,	'administrador',	3,	'2019-01-13 14:14:12',	'2019-01-13 09:14:12'),
 (10,	'empresapro',	'MatriculoMercantil',	0,	1,	0,	'administrador',	3,	'2019-01-13 14:14:12',	'2019-01-13 09:14:12'),
 (11,	'empresapro',	'ActividadesEconomicas',	0,	1,	0,	'administrador',	3,	'2019-01-13 14:14:12',	'2019-01-13 09:14:12'),
-(12,	'empresapro',	'WEB',	0,	1,	0,	'administrador',	3,	'2019-01-13 14:14:12',	'2019-01-13 09:14:12');
+(12,	'empresapro',	'WEB',	0,	1,	0,	'administrador',	3,	'2019-01-13 14:14:12',	'2019-01-13 09:14:12'),
+(13,	'ts_eps_ips_813001952.carteracargadaips',	'NumeroCuentaGlobal',	0,	1,	1,	'administrador',	3,	'2019-06-03 16:57:51',	'0000-00-00 00:00:00'),
+(14,	'ts_eps_ips_813001952.carteracargadaips',	'NumeroRadicado',	0,	1,	1,	'administrador',	3,	'2019-06-03 16:57:52',	'0000-00-00 00:00:00'),
+(15,	'ts_eps_ips_813001952.carteracargadaips',	'FechaRadicado',	0,	1,	1,	'administrador',	3,	'2019-06-03 16:57:53',	'0000-00-00 00:00:00'),
+(16,	'ts_eps_ips_813001952.carteracargadaips',	'TipoNegociacion',	0,	1,	1,	'administrador',	3,	'2019-06-03 16:57:54',	'0000-00-00 00:00:00');
 
 DROP TABLE IF EXISTS `tickets`;
 CREATE TABLE `tickets` (
@@ -1697,4 +1704,4 @@ CREATE TABLE `vista_tickets` (`ID` bigint(20), `FechaApertura` datetime, `Asunto
 DROP TABLE IF EXISTS `vista_tickets`;
 CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vista_tickets` AS select `t1`.`ID` AS `ID`,`t1`.`FechaApertura` AS `FechaApertura`,`t1`.`Asunto` AS `Asunto`,`t1`.`Estado` AS `Estado`,`t1`.`idUsuarioSolicitante` AS `idUsuarioSolicitante`,`t1`.`idUsuarioAsignado` AS `idUsuarioAsignado`,`t1`.`FechaCierre` AS `FechaCierre`,`t1`.`idUsuarioCierra` AS `idUsuarioCierra`,(select `usuarios`.`Nombre` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioSolicitante`)) AS `NombreSolicitante`,(select `usuarios`.`Apellido` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioSolicitante`)) AS `ApellidoSolicitante`,(select `usuarios`.`Nombre` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioAsignado`)) AS `NombreAsignado`,(select `usuarios`.`Apellido` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioAsignado`)) AS `ApellidoAsignado` from `tickets` `t1`;
 
--- 2019-06-02 17:18:15
+-- 2019-06-04 13:15:40

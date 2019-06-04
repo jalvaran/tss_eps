@@ -874,7 +874,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Fecha</strong>", 1);                    
                     $css->ColTabla("<strong>Sucursal</strong>", 1);
                     $css->ColTabla("<strong>Número de Referencia</strong>", 1);
-                    $css->ColTabla("<strong>Valor del Copago</strong>", 1);
+                    $css->ColTabla("<strong>Valor de la Devolución</strong>", 1);
                     
                     
                     
