@@ -121,7 +121,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyCarteraIPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $obCon->VaciarTabla("$db.temporalcarguecarteraips");
+            //$obCon->VaciarTabla("$db.temporalcarguecarteraips");
             $obCon->BorraReg("$db.controlcarguesips", "NombreCargue", $keyArchivo);
             print("OK;Temporales Borrados");
         break; //fin caso 5

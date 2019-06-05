@@ -62,7 +62,7 @@ class CarteraIPS extends conexion{
         $columnas = $objPHPExcel->setActiveSheetIndex(0)->getHighestColumn();
         $filas = $objPHPExcel->setActiveSheetIndex(0)->getHighestRow();
         //print("<br>Columnas $columnas<br>");
-        if($columnas<>'S'){
+        if($columnas<>'V'){
             exit("E1;El archivo recibido no corresponde al formato de <strong>cartera de IPS</strong>");
         }
         date_default_timezone_set('UTC'); //establecemos la hora local
@@ -92,7 +92,10 @@ class CarteraIPS extends conexion{
                 $_DATOS_EXCEL[$i]['ValorAnticipos'] = $objPHPExcel->getActiveSheet()->getCell('Q'.$i)->getCalculatedValue();
                 
                 $_DATOS_EXCEL[$i]['ValorRetencion'] = $objPHPExcel->getActiveSheet()->getCell('R'.$i)->getCalculatedValue();
-                $_DATOS_EXCEL[$i]['ValorTotalpagar'] = $objPHPExcel->getActiveSheet()->getCell('S'.$i)->getCalculatedValue();
+                $_DATOS_EXCEL[$i]['Copagos'] = $objPHPExcel->getActiveSheet()->getCell('S'.$i)->getCalculatedValue();
+                $_DATOS_EXCEL[$i]['Devoluciones'] = $objPHPExcel->getActiveSheet()->getCell('T'.$i)->getCalculatedValue();
+                $_DATOS_EXCEL[$i]['Pagos'] = $objPHPExcel->getActiveSheet()->getCell('U'.$i)->getCalculatedValue();
+                $_DATOS_EXCEL[$i]['ValorTotalpagar'] = $objPHPExcel->getActiveSheet()->getCell('V'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['FechaHasta'] = $FechaCorte;
                 $_DATOS_EXCEL[$i]['Soporte'] = $Soporte;
                 $_DATOS_EXCEL[$i]['idUser'] = $idUser;
@@ -105,12 +108,12 @@ class CarteraIPS extends conexion{
         $sql="";
         
         foreach($_DATOS_EXCEL as $campo => $valor){
-            $sql= "INSERT INTO $db.temporalcarguecarteraips (FechaFactura,FechaRadicado,NitEPS,NitIPS,NumeroFactura,NumeroCuentaGlobal,NumeroRadicado,TipoNegociacion,NumeroContrato,DiasPactados,TipoRegimen,ValorDocumento,ValorGlosaInicial,ValorGlosaAceptada,ValorGlosaConciliada,ValorDescuentoBdua,ValorAnticipos,ValorRetencion,ValorTotalpagar,FechaHasta,Soporte,idUser,FechaRegistro,FechaActualizacion)  VALUES ('";
+            $sql= "INSERT INTO $db.temporalcarguecarteraips (FechaFactura,FechaRadicado,NitEPS,NitIPS,NumeroFactura,NumeroCuentaGlobal,NumeroRadicado,TipoNegociacion,NumeroContrato,DiasPactados,TipoRegimen,ValorDocumento,ValorGlosaInicial,ValorGlosaAceptada,ValorGlosaConciliada,ValorDescuentoBdua,ValorAnticipos,ValorRetencion,Copagos,Devoluciones,Pagos,ValorTotalpagar,FechaHasta,Soporte,idUser,FechaRegistro,FechaActualizacion)  VALUES ('";
             foreach ($valor as $campo2 => $valor2){
                 $campo2 == "FechaActualizacion" ? $sql.= $valor2."');" : $sql.= $valor2."','";
             }
             
-                
+            //print($sql);    
             $this->Query($sql);
         }    
         

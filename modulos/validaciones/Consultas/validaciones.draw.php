@@ -319,7 +319,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $startpoint = ($NumPage * $limit) - $limit;
             $VectorST = explode("LIMIT", $statement);
             $statement = $VectorST[0]; 
-            $query = "SELECT COUNT(*) as `num`,SUM(ValorDocumento) AS Total FROM {$statement}";
+            $query = "SELECT COUNT(*) as `num`,SUM(ValorSegunEPS) AS Total FROM {$statement}";
             $row = $obCon->FetchArray($obCon->Query($query));
             $ResultadosTotales = $row['num'];
             $Total=$row['Total'];
@@ -337,7 +337,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
                     print("</td>");
                     print("<td colspan=8 style='text-align:center'>");
-                        print("<strong>Total:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
+                        print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
                     print("</td>");
                     
                     print("<td colspan='2' style='text-align:center'>");
