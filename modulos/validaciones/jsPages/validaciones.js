@@ -789,4 +789,50 @@ function ExportarExcel(db,Tabla,st){
       })
 }
 
+
+function VerConsolidadoFactura(NumeroFactura){
+    OcultaXID('BntModalAcciones');
+    AbreModal('ModalAcciones');
+    document.getElementById("DivFrmModalAcciones").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 11);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('NumeroFactura', NumeroFactura);
+        
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivFrmModalAcciones').innerHTML=data;
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+function ExportarTablaToExcel(idTabla){
+    excel = new ExcelGen({
+        "src_id": idTabla,
+        "src": null,
+        "show_header": true,
+        "type": "table|normal"
+    });
+    excel.generate();
+}
+
 document.getElementById('TabCuentas1').click();

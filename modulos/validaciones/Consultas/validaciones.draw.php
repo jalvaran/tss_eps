@@ -420,8 +420,15 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->FilaTabla(14);
                         $idItem=$DatosFactura["ID"];
                         $NumeroFactura=$DatosFactura["NumeroFactura"];
+                        
+                        
                         $css->ColTabla($DatosFactura["NumeroContrato"], 1);
-                        $css->ColTabla($DatosFactura["NumeroFactura"], 1);
+                        print("<td>");
+                            $css->div("", "", "", "", "", "onclick=VerConsolidadoFactura('$NumeroFactura',11)", "style=cursor:pointer;");
+                                print(($DatosFactura["NumeroFactura"]));
+                            $css->CerrarDiv();
+                            
+                        print("</td>");
                         $css->ColTabla($DatosFactura["FechaFactura"], 1);
                         $css->ColTabla($DatosFactura["NumeroRadicado"], 1);
                         $css->ColTabla($DatosFactura["FechaRadicado"], 1);
@@ -895,6 +902,242 @@ if( !empty($_REQUEST["Accion"]) ){
                 
             $css->CerrarTabla();
         break;//Fin caso 10
+        
+        case 11://Muestra el consolidado de movimientos de una factura
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $css->CrearBotonEvento("BtnExportar", "Exportar", 1, "onclick", "ExportarTablaToExcel('TblResumenFactura')", "verde", "");
+            $css->CrearTabla('TblResumenFactura');
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Consolidado de la Factura No. $NumeroFactura</strong>", 14,'C');
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>INFORMACIÓN GENERAL</strong>", 14,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Fecha</strong>", 1);
+                    $css->ColTabla("<strong>Contrato</strong>", 1);
+                                   
+                    $css->ColTabla("<strong>Fecha Radicado</strong>", 1);
+                    $css->ColTabla("<strong>Número del radicado</strong>", 1);
+                    $css->ColTabla("<strong>Valor Factura</strong>", 1);
+                $css->CierraFilaTabla();
+                
+                $sql="SELECT * FROM $db.vista_cruce_cartera_asmet WHERE NumeroFactura='$NumeroFactura' ";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla(($DatosPagos["FechaFactura"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NumeroContrato"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["FechaRadicado"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NumeroRadicado"]), 1,'L');                        
+                        $css->ColTabla(number_format($DatosPagos["ValorDocumento"]), 1,'R');
+                        
+                    $css->CierraFilaTabla();
+                }
+                
+                /*
+                 * Anticipos
+                 */
+                $css->FilaTabla(16);
+                    $css->ColTabla("_____FIN DE INFORMACION DE INFORMACION GENERAL", 14,'C');
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Anticipos Realizados a la Factura No. $NumeroFactura</strong>", 14,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Referencia</strong>", 1);
+                    $css->ColTabla("<strong>Numero de Anticipo</strong>", 1);
+                    $css->ColTabla("<strong>Radicado</strong>", 1);
+                    $css->ColTabla("<strong>Valor Factura</strong>", 1);
+                    $css->ColTabla("<strong>Valor Menos Impuestos</strong>", 1);
+                    $css->ColTabla("<strong>Valor Saldo</strong>", 1);
+                    $css->ColTabla("<strong>Valor Anticipado</strong>", 1);
+                    
+                $css->CierraFilaTabla();
+                $sql="SELECT * FROM $db.anticipos_asmet WHERE NumeroFactura='$NumeroFactura'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla($DatosPagos["DescripcionNC"], 1);
+                        $css->ColTabla($DatosPagos["NumeroAnticipo"], 1);
+                        $css->ColTabla($DatosPagos["NumeroRadicado"], 1);
+                        $css->ColTabla(number_format($DatosPagos["ValorFactura"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorMenosImpuestos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorSaldo"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorAnticipado"]), 1,'R');
+                        
+                    $css->CierraFilaTabla();
+                }
+                
+                /*
+                 * Copagos
+                 */
+                 $css->FilaTabla(16);
+                    $css->ColTabla("_____FIN DE INFORMACION DE ANTICIPOS", 14,'C');
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Copagos Realizados a la Factura No. $NumeroFactura</strong>", 14,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Tipo de Operación</strong>", 1);
+                    $css->ColTabla("<strong>Número de Transacción</strong>", 1);
+                    $css->ColTabla("<strong>Fecha</strong>", 1);                    
+                    $css->ColTabla("<strong>Sucursal</strong>", 1);
+                    $css->ColTabla("<strong>Número de Referencia</strong>", 1);
+                    $css->ColTabla("<strong>Valor del Copago</strong>", 1);
+                    
+                    
+                    
+                $css->CierraFilaTabla();
+                $sql="SELECT * FROM $db.notas_dv_cr WHERE NumeroFactura='$NumeroFactura' AND TipoOperacion='2258'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla(($DatosPagos["TipoOperacion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NumeroTransaccion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["FechaTransaccion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NombreSucursal"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["C51"]), 1,'L');
+                        $css->ColTabla(number_format($DatosPagos["Valor"]), 1,'R');
+                        
+                    $css->CierraFilaTabla();
+                }
+                
+                /*
+                 * Devoluciones
+                 */
+                 $css->FilaTabla(16);
+                    $css->ColTabla("_____FIN DE INFORMACION DE COPAGOS", 14,'C');
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Devoluciones Realizadas a la Factura No. $NumeroFactura</strong>", 14,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Tipo de Operación</strong>", 1);
+                    $css->ColTabla("<strong>Número de Transacción</strong>", 1);
+                    $css->ColTabla("<strong>Fecha</strong>", 1);                    
+                    $css->ColTabla("<strong>Sucursal</strong>", 1);
+                    $css->ColTabla("<strong>Número de Referencia</strong>", 1);
+                    $css->ColTabla("<strong>Valor de la Devolución</strong>", 1);
+                    
+                    
+                    
+                $css->CierraFilaTabla();
+                $sql="SELECT * FROM $db.notas_dv_cr WHERE NumeroFactura='$NumeroFactura' AND TipoOperacion='2259'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla(($DatosPagos["TipoOperacion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NumeroTransaccion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["FechaTransaccion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NombreSucursal"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["C51"]), 1,'L');
+                        $css->ColTabla(number_format($DatosPagos["Valor"]), 1,'R');
+                        
+                    $css->CierraFilaTabla();
+                }
+                
+                /*
+                 * Glosas
+                 */
+                 $css->FilaTabla(16);
+                    $css->ColTabla("_____FIN DE INFORMACION DE DEVOLUCIONES", 14,'C');
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Glosas Realizadas a la Factura No. $NumeroFactura</strong>", 14,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Sede</strong>", 1);
+                    $css->ColTabla("<strong>Fecha del Radicado</strong>", 1);
+                    $css->ColTabla("<strong>Número del Radicado</strong>", 1);
+                    
+                    $css->ColTabla("<strong>Total del Documento</strong>", 1);
+                    $css->ColTabla("<strong>Valor Total Glosa</strong>", 1);
+                    $css->ColTabla("<strong>Valor Glosa Favor</strong>", 1);
+                    $css->ColTabla("<strong>Valor Glosa Contra</strong>", 1);
+                    $css->ColTabla("<strong>Valor Pendiente Resolver</strong>", 1);
+                    
+                    
+                $css->CierraFilaTabla();
+                $sql="SELECT * FROM $db.glosaseps_asmet WHERE NumeroFactura='$NumeroFactura'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla(($DatosPagos["Sede"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["FechaRadicado"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NumeroRadicado"]), 1,'L');
+                        $css->ColTabla(number_format($DatosPagos["ValorFactura"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorTotalGlosa"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorGlosaFavor"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorGlosaContra"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorPendienteResolver"]), 1,'R');
+                    $css->CierraFilaTabla();
+                }
+                
+                
+                /*
+                 * Pagos
+                 */
+                 $css->FilaTabla(16);
+                    $css->ColTabla("_____FIN DE INFORMACION DE GLOSAS", 14,'C');
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Pagos </strong>", 14,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Fecha de Pago</strong>", 1);
+                    $css->ColTabla("<strong>Numero de Pago</strong>", 1);
+                    $css->ColTabla("<strong>Tipo de Operacion</strong>", 1);
+                    $css->ColTabla("<strong>Valor Bruto A Pagar</strong>", 1);
+                    $css->ColTabla("<strong>Descuento</strong>", 1);
+                    $css->ColTabla("<strong>IVA</strong>", 1);
+                    $css->ColTabla("<strong>ReteFuente</strong>", 1);
+                    $css->ColTabla("<strong>ReteIVA</strong>", 1);
+                    $css->ColTabla("<strong>ReteICA</strong>", 1);
+                    $css->ColTabla("<strong>Otras Retenciones</strong>", 1);
+                    $css->ColTabla("<strong>Anticipos</strong>", 1);
+                    $css->ColTabla("<strong>Valor Transferido</strong>", 1);
+                    $css->ColTabla("<strong>Proceso</strong>", 1);
+                    $css->ColTabla("<strong>Banco</strong>", 1);
+                $css->CierraFilaTabla();
+                $sql="SELECT * FROM $db.pagos_asmet WHERE NumeroFactura='$NumeroFactura'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla($DatosPagos["FechaPagoFactura"], 1);
+                        $css->ColTabla($DatosPagos["NumeroPago"], 1);
+                        $css->ColTabla($DatosPagos["TipoOperacion"], 1);
+                        $css->ColTabla(number_format($DatosPagos["ValorBrutoPagar"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorDescuento"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorIva"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorRetefuente"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorReteiva"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorReteica"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorOtrasRetenciones"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorAnticipos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorTranferido"]), 1,'R');
+                        $css->ColTabla($DatosPagos["Proceso"]." ".$DatosPagos["DescripcionProceso"], 1);
+                        $css->ColTabla($DatosPagos["Banco"]." ".$DatosPagos["Cuenta"], 1);
+                    $css->CierraFilaTabla();
+                }
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("_____FIN DE INFORMACION DE PAGOS", 14,'C');
+                $css->CierraFilaTabla();
+                
+                
+            $css->CerrarTabla();
+        break;//Fin caso 11
         
     }
     

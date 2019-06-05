@@ -26,6 +26,9 @@ CREATE TABLE `actualizacioncarteracargadaips` (
   `ValorDescuentoBdua` double(15,2) NOT NULL COMMENT 'Valor del Descuento en Adress ',
   `ValorAnticipos` double(15,2) NOT NULL COMMENT 'Valor de los anticipos a IPS',
   `ValorRetencion` double(15,2) NOT NULL COMMENT 'Valor de las rentencionede de la factura',
+  `Copagos` double(15,2) NOT NULL,
+  `Devoluciones` double(15,2) NOT NULL,
+  `Pagos` double(15,2) NOT NULL,
   `ValorTotalpagar` double(15,2) NOT NULL COMMENT 'Valor total a pagar',
   `FechaHasta` date NOT NULL COMMENT 'Fecha hasta donde esta la relacion de la cartera ',
   `Soporte` varchar(200) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Documento que soporta el cargue ',
@@ -33,6 +36,8 @@ CREATE TABLE `actualizacioncarteracargadaips` (
   `FechaRegistro` datetime NOT NULL COMMENT 'Fecha que se hace el registro ',
   `FechaActualizacion` datetime NOT NULL COMMENT 'Fecha que se actualiza el registro ',
   `FlagUpdate` int(11) NOT NULL,
+  `ConciliadoXIPS` int(1) NOT NULL,
+  `ConciliadoXEPS` int(11) NOT NULL,
   `Sync` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`ID`),
   KEY `NumeroFactura` (`NumeroFactura`),
@@ -86,6 +91,9 @@ CREATE TABLE `carteracargadaips` (
   `ValorDescuentoBdua` double(15,2) NOT NULL COMMENT 'Valor del Descuento en Adress ',
   `ValorAnticipos` double(15,2) NOT NULL COMMENT 'Valor de los anticipos a IPS',
   `ValorRetencion` double(15,2) NOT NULL COMMENT 'Valor de las rentencionede de la factura',
+  `Copagos` double(15,2) NOT NULL,
+  `Devoluciones` double(15,2) NOT NULL,
+  `Pagos` double(15,2) NOT NULL,
   `ValorTotalpagar` double(15,2) NOT NULL COMMENT 'Valor total a pagar',
   `FechaHasta` date NOT NULL COMMENT 'Fecha hasta donde esta la relacion de la cartera ',
   `Soporte` varchar(200) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Documento que soporta el cargue ',
@@ -583,6 +591,9 @@ CREATE TABLE `temporalcarguecarteraips` (
   `ValorDescuentoBdua` double(15,2) NOT NULL COMMENT 'Valor del Descuento en Adress',
   `ValorAnticipos` double(15,2) NOT NULL COMMENT 'Valor de los anticipos a IPS',
   `ValorRetencion` double(15,2) NOT NULL COMMENT 'Valor de las rentencionede de la factura',
+  `Copagos` double(15,2) NOT NULL,
+  `Devoluciones` double(15,2) NOT NULL,
+  `Pagos` double(15,2) NOT NULL,
   `ValorTotalpagar` double(15,2) NOT NULL COMMENT 'Valor total a pagar',
   `FechaHasta` date NOT NULL COMMENT 'Fecha hasta donde esta la relacion de la cartera',
   `Soporte` varchar(200) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Documento que soporta el cargue',
@@ -590,6 +601,8 @@ CREATE TABLE `temporalcarguecarteraips` (
   `FechaRegistro` datetime NOT NULL COMMENT 'Fecha que se hace el registro"',
   `FechaActualizacion` datetime NOT NULL COMMENT 'Fecha que se actualiza el registro',
   `FlagUpdate` int(11) NOT NULL,
+  `ConciliadoXIPS` int(1) NOT NULL,
+  `ConciliadoXEPS` int(11) NOT NULL,
   `Sync` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   UNIQUE KEY `NumeroFactura` (`NumeroFactura`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo temporal de cargues cartera ips';
@@ -801,4 +814,4 @@ CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vista_facturas_sr_eps` AS 
 DROP TABLE IF EXISTS `vista_facturas_sr_ips`;
 CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vista_facturas_sr_ips` AS select `t1`.`ID` AS `ID`,`t1`.`NitEPS` AS `NitEPS`,`t1`.`NitIPS` AS `NitIPS`,`t1`.`NumeroFactura` AS `NumeroFactura`,`t1`.`FechaFactura` AS `FechaFactura`,`t1`.`NumeroCuentaGlobal` AS `NumeroCuentaGlobal`,`t1`.`NumeroRadicado` AS `NumeroRadicado`,`t1`.`FechaRadicado` AS `FechaRadicado`,`t1`.`TipoNegociacion` AS `TipoNegociacion`,`t1`.`NumeroContrato` AS `NumeroContrato`,`t1`.`DiasPactados` AS `DiasPactados`,`t1`.`TipoRegimen` AS `TipoRegimen`,`t1`.`ValorDocumento` AS `ValorDocumento`,`t1`.`ValorGlosaInicial` AS `ValorGlosaInicial`,`t1`.`ValorGlosaAceptada` AS `ValorGlosaAceptada`,`t1`.`ValorGlosaConciliada` AS `ValorGlosaConciliada`,`t1`.`ValorDescuentoBdua` AS `ValorDescuentoBdua`,`t1`.`ValorAnticipos` AS `ValorAnticipos`,`t1`.`ValorRetencion` AS `ValorRetencion`,`t1`.`ValorTotalpagar` AS `ValorTotalpagar`,`t1`.`FechaHasta` AS `FechaHasta`,`t1`.`Soporte` AS `Soporte`,`t1`.`idUser` AS `idUser`,`t1`.`FechaRegistro` AS `FechaRegistro`,`t1`.`FechaActualizacion` AS `FechaActualizacion`,`t1`.`FlagUpdate` AS `FlagUpdate`,`t1`.`Sync` AS `Sync` from `carteracargadaips` `t1` where (not(exists(select 1 from `carteraeps` `t2` where (`t1`.`NumeroFactura` = `t2`.`NumeroFactura`))));
 
--- 2019-06-04 13:15:21
+-- 2019-06-05 04:19:58
