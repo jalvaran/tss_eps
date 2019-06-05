@@ -925,6 +925,9 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Fecha Radicado</strong>", 1);
                     $css->ColTabla("<strong>Número del radicado</strong>", 1);
                     $css->ColTabla("<strong>Valor Factura</strong>", 1);
+                    $css->ColTabla("<strong>Impuestos</strong>", 1);
+                    $css->ColTabla("<strong>Valor Menos Impuestos</strong>", 1);
+                    $css->ColTabla("<strong>Total a Pagar</strong>", 1);
                 $css->CierraFilaTabla();
                 
                 $sql="SELECT * FROM $db.vista_cruce_cartera_asmet WHERE NumeroFactura='$NumeroFactura' ";
@@ -936,7 +939,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla(($DatosPagos["FechaRadicado"]), 1,'L');
                         $css->ColTabla(($DatosPagos["NumeroRadicado"]), 1,'L');                        
                         $css->ColTabla(number_format($DatosPagos["ValorDocumento"]), 1,'R');
-                        
+                        $css->ColTabla(number_format($DatosPagos["Impuestos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorMenosImpuestos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorSegunEPS"]), 1,'R');
                     $css->CierraFilaTabla();
                 }
                 
