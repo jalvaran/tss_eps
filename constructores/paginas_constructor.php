@@ -494,7 +494,7 @@ class PageConstruct extends html_estruct_class{
         print('<!-- /.content-wrapper -->
             <footer class="main-footer">
               <div class="pull-right hidden-xs">
-                <b>Version</b> 2.0
+                <b>Version</b> 1.0
               </div>
               <strong>Copyright &copy; 2006-'.$anio.' <a href="http://technosoluciones.com.co">Techno Soluciones SAS</a>.</strong> All rights
               reserved.

@@ -25,9 +25,14 @@ $DatosUsuario=$obCon->FetchAssoc($DatosUsuario);
 $TipoUser=$DatosUsuario["TipoUser"];
 
 $css->PageInit($myTitulo);
+    $css->Modal("ModalAcciones", "TS5", "", 1);
+        $css->div("DivFrmModalAcciones", "", "", "", "", "", "");
+        $css->Cdiv();        
+    $css->CModal("BntModalAcciones", "onclick=SeleccioneAccionFormularios()", "button", "Guardar");
+    
 print("<br>");
    $css->section("", "content", "", "");
-   $css->CrearDiv("", "col-md-3", "center", 1, 1);
+   $css->CrearDiv("", "col-md-4", "center", 1, 1);
         $sql="SELECT r.idIPS,i.Nombre,i.DataBase FROM relacion_usuarios_ips r INNER JOIN ips i ON i.NIT=r.idIPS WHERE idUsuario='$idUser' ";
         $Consulta=$obCon->Query($sql);
         
@@ -39,11 +44,36 @@ print("<br>");
             }
         $css->Cselect();
     $css->CerrarDiv();    
+    $css->CrearDiv("", "col-md-4", "center", 1, 1);
+        $css->select("CmbEPS", "form-control", "CmbEPS", "EPS", "", "", "");
+           
+            $css->option("", "", "", 1, "", "");
+                print("ASMET");
+            $css->Coption();
+           
+        $css->Cselect();
+    $css->CerrarDiv();
+    
+    $css->CrearDiv("", "col-md-4", "center", 1, 1);
+        print('<br><div class="input-group">');
+        $css->input("text", "TxtBusquedas", "form-control", "TxtBusquedas", "", "", "Buscar Factura o Contrato", "", "", "onchange=BuscarFactura()");
+
+
+         print('<span class="input-group-addon"><i class="fa fa-fw fa-search"></i></span>
+              </div>');
+    $css->CerrarDiv();
     print("<br><br><br><br>");
+    $css->CrearDiv("DivProgress", "col-md-12", "center", 1, 1);
+        print("<br><br><br>");
+        $css->ProgressBar("PgProgresoUp", "LyProgresoUP", "", 0, 0, 100, 0, "0%", "", "");
+    $css->CerrarDiv();
+    $css->CrearDiv("DivMensajes", "col-md-12", "center", 1, 1);
+    
+    $css->CerrarDiv();
    $css->TabInit();
             $css->TabLabel("TabCuentas1", "<strong >Cartera cargada IPS</strong>", "Tab_1", 1,"onclick=CargarAdminCarteraIPS()");
             $css->TabLabel("TabCuentas2", "<strong >Historial de Actualizacion a la cartera IPS</strong>", "Tab_2",0,"onclick=CargarAdminHistorialActualizacionesCarteraIPS()");
-            $css->TabLabel("TabCuentas3", "<strong >Facturas sin relacionar en ASMET</strong>", "Tab_3",0,"onclick=CargarAdminSinRelacionarASMET()");  
+            $css->TabLabel("TabCuentas3", "<strong >Facturas sin relacionar en ASMET</strong>", "Tab_3",0,"onclick=MuestreFacturasNRIPS()");  
             $css->TabLabel("TabCuentas4", "<strong >Control de Cargas</strong>", "Tab_4",0,"onclick=CargarAdminControlCargueIPS()"); 
         $css->TabInitEnd();
         $css->TabContentInit();
@@ -97,7 +127,7 @@ print("<br>");
 $css->PageFin();
 
 print('<script src="jsPages/adminCarteraIPS.js"></script>');  //script propio de la pagina
-
+print('<script src="jsPages/validaciones.js"></script>');  //script propio de la pagina
 
 $css->Cbody();
 $css->Chtml();
