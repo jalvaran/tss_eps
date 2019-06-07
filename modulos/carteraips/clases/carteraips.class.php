@@ -62,8 +62,8 @@ class CarteraIPS extends conexion{
         $columnas = $objPHPExcel->setActiveSheetIndex(0)->getHighestColumn();
         $filas = $objPHPExcel->setActiveSheetIndex(0)->getHighestRow();
         //print("<br>Columnas $columnas<br>");
-        if($columnas<>'V'){
-            exit("E1;El archivo recibido no corresponde al formato de <strong>cartera de IPS</strong>");
+        if($columnas<>'W'){
+            exit("E1;El archivo recibido no corresponde al formato de <strong>cartera de IPS $columnas</strong>");
         }
         date_default_timezone_set('UTC'); //establecemos la hora local
         for ($i=2;$i<=$filas;$i++){

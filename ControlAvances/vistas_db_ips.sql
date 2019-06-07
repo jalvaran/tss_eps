@@ -12,8 +12,9 @@ WHERE NOT EXISTS (SELECT 1 FROM carteracargadaips t2 WHERE t1.NumeroFactura=t2.N
 
 DROP VIEW IF EXISTS `vista_cruce_cartera_asmet`;
 CREATE VIEW vista_cruce_cartera_asmet AS 
-SELECT t1.ID,t1.NumeroFactura,t1.FechaFactura,t1.NumeroRadicado,t1.FechaRadicado,t1.NumeroContrato,t1.ValorDocumento,
-        t2.ValorMenosImpuestos,(t1.ValorDocumento-t2.ValorMenosImpuestos) as Impuestos,
+SELECT t1.ID,t1.NumeroFactura,t1.FechaFactura,t1.NumeroRadicado,t1.FechaRadicado,t2.NumeroContrato,t1.ValorDocumento,
+        (SELECT IFNULL((SELECT MAX(ValorMenosImpuestos) FROM historial_carteracargada_eps WHERE historial_carteracargada_eps.NumeroFactura=t1.NumeroFactura),0)) AS ValorMenosImpuestos1,
+        (t1.ValorDocumento-(SELECT ValorMenosImpuestos1)) as Impuestos,
         '0' as OtrosDescuentos,
         (SELECT IFNULL((SELECT SUM(ValorTranferido) FROM pagos_asmet WHERE pagos_asmet.NumeroFactura=t1.NumeroFactura ),0)) AS TotalPagos,
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos_asmet WHERE anticipos_asmet.NumeroFactura=t1.NumeroFactura ),0)) AS TotalAnticipos,

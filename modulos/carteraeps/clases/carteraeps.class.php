@@ -338,6 +338,7 @@ class CarteraEPS extends conexion{
     public function GuardePagosASMETMutualEnTemporal($keyArchivo,$idIPS,$idEPS,$idUser) {
         require_once('../../../librerias/Excel/PHPExcel.php');
         require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
+        //print("Clase Pagos Mutual");
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
         $db=$DatosIPS["DataBase"];
         $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo' AND idUser='$idUser'";
@@ -369,6 +370,7 @@ class CarteraEPS extends conexion{
         $Estado="";
         $Cuenta="";
         $Banco="";
+        $Cols=['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P'];
         for ($h=0;$h<$hojas;$h++){
             $objPHPExcel->setActiveSheetIndex($h);
             $columnas = $objPHPExcel->setActiveSheetIndex($h)->getHighestColumn();
@@ -398,7 +400,10 @@ class CarteraEPS extends conexion{
                     $Banco=$objPHPExcel->getActiveSheet()->getCell('O'.$i)->getCalculatedValue();
                     continue;
                 }
-                
+                    $cell = $objPHPExcel->getActiveSheet()->getCell('A'.$i);
+                    if(!PHPExcel_Shared_Date::isDateTime($cell)){
+                        continue;
+                    }
                     $data=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue());
                     $FechaPago=date("Y-m-d",$data); 
                     $_DATOS_EXCEL[$i]['Nit_IPS'] = $idIPS;

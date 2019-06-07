@@ -83,7 +83,7 @@ class NotasCRBD extends conexion{
             $filas = $objPHPExcel->setActiveSheetIndex($h)->getHighestRow();
           
             if($columnas<>'CS'){
-                exit('E1;<h3>No se recibió el archivo de <strong>Pagos de la EPS ASMET Mutual</strong></h3>');
+                exit('E1;<h3>No se recibió el archivo de <strong>Notas Débito y Crédito de la EPS ASMET Mutual</strong></h3>');
             }
             $sql= "INSERT INTO $db.`temporal_notas_dv_cr` ( ";
             foreach ($ColumnasTabla["Field"] as $key => $value) {

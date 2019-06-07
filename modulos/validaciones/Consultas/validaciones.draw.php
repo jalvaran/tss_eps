@@ -434,7 +434,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla($DatosFactura["FechaRadicado"], 1);
                         $css->ColTabla(number_format($DatosFactura["ValorDocumento"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["Impuestos"]), 1,'R');
-                        $css->ColTabla(number_format($DatosFactura["ValorMenosImpuestos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["ValorMenosImpuestos1"]), 1,'R');
                         print("<td>");
                             $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',4)", "style=cursor:pointer;");
                             
@@ -940,7 +940,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla(($DatosPagos["NumeroRadicado"]), 1,'L');                        
                         $css->ColTabla(number_format($DatosPagos["ValorDocumento"]), 1,'R');
                         $css->ColTabla(number_format($DatosPagos["Impuestos"]), 1,'R');
-                        $css->ColTabla(number_format($DatosPagos["ValorMenosImpuestos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosPagos["ValorMenosImpuestos1"]), 1,'R');
                         $css->ColTabla(number_format($DatosPagos["ValorSegunEPS"]), 1,'R');
                     $css->CierraFilaTabla();
                 }
