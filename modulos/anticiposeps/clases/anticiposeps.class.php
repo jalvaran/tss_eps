@@ -136,7 +136,7 @@ class AnticiposEPS extends conexion{
                         //print($sql);
 
                         $this->Query($sql);
-                        $sql= "INSERT INTO $db.`temporal_anticipos_asmet` ( `Nit_IPS`,`NumeroAnticipo`, `DescripcionNC`, `NumeroFactura`, `ValorFactura`, `ValorReteiva`, `ValorRetefuente`, `ValorMenosImpuestos`, `ValorSaldo`, `ValorAnticipado`, `NumeroAnticipo`,  `Soporte`, `idUser`, `FechaRegistro`, `keyFile`) VALUES ";
+                        $sql= "INSERT INTO $db.`temporal_anticipos_asmet` ( `Nit_IPS`,`NumeroAnticipo`, `DescripcionNC`, `NumeroFactura`, `ValorFactura`, `ValorReteiva`, `ValorRetefuente`, `ValorMenosImpuestos`, `ValorSaldo`, `ValorAnticipado`, `NumeroRadicado`,  `Soporte`, `idUser`, `FechaRegistro`, `keyFile`) VALUES ";
 
                         $i=0;
                     }    

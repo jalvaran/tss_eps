@@ -36,7 +36,7 @@ print("<br>");
         $sql="SELECT r.idIPS,i.Nombre,i.DataBase FROM relacion_usuarios_ips r INNER JOIN ips i ON i.NIT=r.idIPS WHERE idUsuario='$idUser' ";
         $Consulta=$obCon->Query($sql);
         
-        $css->select("CmbIPS", "form-control", "CmbIPS", "IPS", "", "", "");
+        $css->select("CmbIPS", "form-control", "CmbIPS", "IPS", "", "onchange=CargarAdminCarteraIPS()", "");
             while($DatosIPS=$obCon->FetchAssoc($Consulta)){
                 $css->option("", "", "", $DatosIPS["DataBase"], "", "");
                     print($DatosIPS["Nombre"].$DatosIPS["idIPS"]);

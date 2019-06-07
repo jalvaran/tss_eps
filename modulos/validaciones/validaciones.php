@@ -36,8 +36,8 @@ $css->PageInit($myTitulo);
     
     $css->CrearDiv("", "col-md-4", "center", 1, 1);
         $sql="SELECT * FROM ips i INNER JOIN relacion_usuarios_ips ri ON ri.idIPS=i.NIT WHERE ri.idUsuario='$idUser' ";
-    
-        $css->select("CmbIPS", "form-control", "CmbIPS", "IPS", "", "", "");
+     
+        $css->select("CmbIPS", "form-control", "CmbIPS", "IPS", "", "onchange=MuestreFacturasNRIPS()", "");
             $Consulta=$obCon->Query($sql);
             while($DatosIPS=$obCon->FetchAssoc($Consulta)){
                 $css->option("", "", "", $DatosIPS["NIT"], "", "");
