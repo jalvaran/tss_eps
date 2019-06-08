@@ -9,11 +9,11 @@ if(file_exists("../../../modelo/php_conexion.php")){
  * 2018-09-26
  */
         
-class NotasCRBD extends conexion{
+class CarteraXEdades extends conexion{
     
     public function getKeyArchivo($FechaCorteCartera,$CmbIPS,$CmbEPS) {
         $Fecha= str_replace("-", "", $FechaCorteCartera);
-        return("notas_cr_db_".$CmbEPS."_".$CmbIPS."_".$Fecha);
+        return("cuentasxpagar_".$CmbEPS."_".$CmbIPS."_".$Fecha);
     }
     
        
@@ -35,7 +35,7 @@ class NotasCRBD extends conexion{
         
     }
     
-    public function GuardeNotasEnTemporal($keyArchivo,$idIPS,$idEPS,$idUser) {
+    public function GuardeArchivoEnTemporal($keyArchivo,$idIPS,$idEPS,$idUser) {
         require_once('../../../librerias/Excel/PHPExcel.php');
         require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
@@ -75,17 +75,17 @@ class NotasCRBD extends conexion{
                 'CA','CB','CC','CD','CE','CF','CG','CH','CI','CJ','CK','CL','CM','CN','CO','CP','CQ','CR','CS','CT','CU','CV','CW','CX','CY','CZ',
                 'DA','DB','DC','DD','DE','DF','DG','DH','DI','DJ','DK','DL','DM','DN','DO','DP','DQ','DR','DS','DT','DU','DV','DW','DX','DY','DZ'];
         
-        $ColumnasTabla= $this->ShowColums($db.".temporal_notas_dv_cr");
+        $ColumnasTabla= $this->ShowColums($db.".temporal_carteraxedades");
         
         for ($h=0;$h<$hojas;$h++){
             $objPHPExcel->setActiveSheetIndex($h);
             $columnas = $objPHPExcel->setActiveSheetIndex($h)->getHighestColumn();
             $filas = $objPHPExcel->setActiveSheetIndex($h)->getHighestRow();
           
-            if($columnas<>'CS' AND $columnas<>'CT'){
-                exit('E1;<h3>No se recibió el archivo de <strong>Notas Débito y Crédito de la EPS ASMET Mutual</strong></h3>');
+            if($columnas<>'O'){
+                exit('E1;<h3>No se recibió el archivo de <strong>La Cartera por Edades de la EPS ASMET Mutual, Ultima Columna: $columnas</strong></h3>');
             }
-            $sql= "INSERT INTO $db.`temporal_notas_dv_cr` ( ";
+            $sql= "INSERT INTO $db.`temporal_carteraxedades` ( ";
             foreach ($ColumnasTabla["Field"] as $key => $value) {
                 $sql.="`$value`,";
             }
@@ -95,7 +95,7 @@ class NotasCRBD extends conexion{
             for ($i=1;$i<=$filas;$i++){
                 $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
                 
-                if($FilaA==''){
+                if(!is_numeric($FilaA)){
 
                     continue; 
 
@@ -111,19 +111,23 @@ class NotasCRBD extends conexion{
                     
                     $c=$c+1;
                     $Dato=$objPHPExcel->getActiveSheet()->getCell($Cols[$c].$i)->getCalculatedValue();
-                    if($value=="FechaTransaccion" or $value=="FechaValidacionImpuesto" or $value=="FechaTasa" or $value=="C55" or $value=="C56" or $value=="C73"){
+                    //if($value=="FechaTransaccion" or $value=="FechaValidacionImpuesto" or $value=="FechaTasa" or $value=="C55" or $value=="C56" or $value=="C73"){
                         $cell = $objPHPExcel->getActiveSheet()->getCell($Cols[$c].$i);
                         if(PHPExcel_Shared_Date::isDateTime($cell)){
                             $Dato=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell($Cols[$c].$i)->getValue());
+                            $Dato = date('Y-m-d', $Dato);
+                            /*
                             if($value=="FechaValidacionImpuesto"){
                                 $Dato = date('Y-m-d H:i:s', $Dato);
                             }else{
                                 $Dato = date('Y-m-d', $Dato);
                             }
+                             * 
+                             */
                             
                         }
                         
-                    }
+                    //}
                     
                     if($value=="Soporte"){
                         $Dato=$Soporte;
@@ -142,7 +146,7 @@ class NotasCRBD extends conexion{
                     }
                     
                     if($value=="FlagUpdate"){
-                        $Dato="";
+                        $Dato="0";
                     }
                     $Dato= str_replace("'", "", $Dato);
                     $sql.="'$Dato',";
@@ -155,7 +159,7 @@ class NotasCRBD extends conexion{
                     $sql=substr($sql, 0, -1);
                     //print($sql);
                     $this->Query($sql);
-                    $sql= "INSERT INTO $db.`temporal_notas_dv_cr` ( ";
+                    $sql= "INSERT INTO $db.`temporal_carteraxedades` ( ";
                     foreach ($ColumnasTabla["Field"] as $key => $value) {
                         $sql.="`$value`,";
                     }

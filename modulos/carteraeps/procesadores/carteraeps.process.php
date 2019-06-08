@@ -157,6 +157,21 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;El archivo contiene ".$NumLineasArchivo." Lineas;$NumLineasArchivo");
         break; //fin caso 7  
         
+        case 8://Actualiza la Cartera
+            $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
+            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosCargas["DataBase"];
+            $sql="UPDATE $db.carteraeps t1 
+            SET t1.ValorOriginal=(SELECT MAX(ValorOriginal) FROM $db.historial_carteracargada_eps WHERE t1.NumeroFactura=historial_carteracargada_eps.NumeroFactura),
+            t1.ValorMenosImpuestos=(SELECT MAX(ValorMenosImpuestos) FROM $db.historial_carteracargada_eps WHERE t1.NumeroFactura=historial_carteracargada_eps.NumeroFactura);";
+            $obCon->Query($sql);
+                        
+            print("OK;Registros Actualizados correctamente");
+        break; //fin caso 8
+        
     }
     
     

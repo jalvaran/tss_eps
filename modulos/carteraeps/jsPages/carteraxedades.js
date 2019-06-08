@@ -1,39 +1,9 @@
 /**
- * Controlador para cartera
- * JULIAN ALVARAN 2019-05-20
+ * Controlador para cartera x edades
+ * JULIAN ALVARAN 2019-05-24
  * TECHNO SOLUCIONES SAS 
  * 
  */
-
-/**
- * Cierra una ventana modal
- * @param {type} idModal
- * @returns {undefined}
- */
-function CierraModal(idModal) {
-    $("#"+idModal).modal('hide');//ocultamos el modal
-    $('body').removeClass('modal-open');//eliminamos la clase del body para poder hacer scroll
-    $('.modal-backdrop').remove();//eliminamos el backdrop del modal
-}
-
-
-/**
- * Muestra u oculta un elemento por su id
- * @param {type} id
- * @returns {undefined}
- */
-
-function MuestraOcultaXID(id){
-    
-    var estado=document.getElementById(id).style.display;
-    if(estado=="none" | estado==""){
-        document.getElementById(id).style.display="block";
-    }
-    if(estado=="block"){
-        document.getElementById(id).style.display="none";
-    }
-    
-}
 
 /**
  * Limpia los divs de la compra despues de guardar
@@ -45,34 +15,16 @@ function LimpiarDivs(){
     //document.getElementById('DivTotalesCompra').innerHTML='';
 }
 
-/*
-$('#CmbBusquedas').bind('change', function() {
-    
-    document.getElementById('CodigoBarras').value = document.getElementById('CmbBusquedas').value;
-    BusquePrecioVentaCosto();
-    
-});
-
-*/
 document.getElementById('BtnMuestraMenuLateral').click();
 
-function getInfoForm(){
-          
-    var form_data = new FormData();
-    form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
-    form_data.append('UpCartera', $('#UpCartera').prop('files')[0]);
-    
-    
-    return form_data;
-}
 
 function ConfirmarCarga(){
     var EPS=$('#select2-CmbEPS-container').text();
-    alertify.confirm('Está seguro que desea Cargar la Cartera de la EPS:<br> <strong>'+EPS+'</strong>',
+    alertify.confirm('Está seguro que desea Cargar este archivo </strong>',
         function (e) {
             if (e) {
 
-                alertify.success("Actualizar Archivo");                    
+                alertify.success("Cargando Archivo");                    
                 VerifiqueFechaCargue();
             }else{
                 alertify.error("Se canceló el proceso");
@@ -98,7 +50,7 @@ function VerifiqueFechaCargue(){
         form_data.append('CmbIPS', CmbIPS);
         
         $.ajax({
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/carteraxedades.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -108,8 +60,8 @@ function VerifiqueFechaCargue(){
         success: function(data){
            var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){  //SI no existe 
-                $('.progress-bar').css('width','20%').attr('aria-valuenow', 20);  
-                document.getElementById('LyProgresoUP').innerHTML="20%";
+                $('.progress-bar').css('width','10%').attr('aria-valuenow', 10);  
+                document.getElementById('LyProgresoUP').innerHTML="10%";
                 alertify.success(respuestas[1]);
                 EnviarCartera();
             }else if(respuestas[0]==="E1"){ //Si existe debe pedir o no actualizacion
@@ -187,7 +139,7 @@ function EnviarCartera(){
       
     $.ajax({
         //async:false,
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/carteraxedades.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -197,18 +149,20 @@ function EnviarCartera(){
         success: function(data){
             var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){   
-               $('.progress-bar').css('width','40%').attr('aria-valuenow', 40);  
-                document.getElementById('LyProgresoUP').innerHTML="40%";
+               $('.progress-bar').css('width','30%').attr('aria-valuenow', 30);  
+                document.getElementById('LyProgresoUP').innerHTML="30%";
                 alertify.success(respuestas[1]);
-                CalcularTotalLineasArchivo();
+                GuardeEnTemporal();
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
+                BorrarTemporales();
                 alertify.alert(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
                 LimpiarDivs();
+                BorrarTemporales();
                 alertify.alert(data);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
@@ -225,16 +179,23 @@ function EnviarCartera(){
       })
 }
 
+function ObtengaHora(){
+    var f=new Date();
+    var cad=f.getHours()+":"+f.getMinutes()+":"+f.getSeconds(); 
+    return (cad)
+}
 
-function CalcularTotalLineasArchivo(){
-    document.getElementById('DivMensajes').innerHTML="Obteniendo Numero de Registros en el archivo";
+function GuardeEnTemporal(){
+    
+    var Hora = ObtengaHora();
+    document.getElementById('DivMensajes').innerHTML="Iniciando Registros en la tabla temporal " + Hora;
     document.getElementById('BtnSubir').disabled=true;
     document.getElementById('BtnSubir').value="Subiendo...";
     var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
     var UpCartera=document.getElementById('UpCartera').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
-    var Separador=document.getElementById('CmbSeparador').value;
+    
     
     if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
           alertify.alert("por favor seleccione una fecha");   
@@ -261,12 +222,12 @@ function CalcularTotalLineasArchivo(){
         form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
-        form_data.append('Separador', Separador);
+        
         form_data.append('UpCartera', $('#UpCartera').prop('files')[0]);
       
     $.ajax({
         //async:false,
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/carteraxedades.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -276,175 +237,33 @@ function CalcularTotalLineasArchivo(){
         success: function(data){
             var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){   
-               $('.progress-bar').css('width','40%').attr('aria-valuenow', 40);  
-                document.getElementById('LyProgresoUP').innerHTML="40%";
-                var TotalLineas=respuestas[2];
-                alertify.success(respuestas[1]);
-                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+respuestas[1];
-                EnviarArchivoATemporal(TotalLineas);
-            }else if(respuestas[0]==="E1"){
-                LimpiarDivs();
-                alertify.alert(respuestas[1]);
-                document.getElementById('BtnSubir').disabled=false;
-                document.getElementById('BtnSubir').value="Ejecutar";
-                return;                
-            }else{
-                LimpiarDivs();
-                document.getElementById('DivMensajes').innerHTML=data;
-                //alertify.alert(data);
-                document.getElementById('BtnSubir').disabled=false;
-                document.getElementById('BtnSubir').value="Ejecutar";
-            }
-            
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            LimpiarDivs();
-            document.getElementById('BtnSubir').disabled=false;
-            document.getElementById('BtnSubir').value="Ejecutar";
-            alert(xhr.status);
-            alert(thrownError);
-          }
-      })
-}
-
-
-function EnviarArchivoATemporal(TotalLineas,LineaActual=0){
-    
-    var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
-    var CmbEPS=document.getElementById('CmbEPS').value;
-    var CmbIPS=document.getElementById('CmbIPS').value;
-    var Separador=document.getElementById('CmbSeparador').value;
-    if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
-          alertify.alert("por favor seleccione una fecha");   
-          document.getElementById('BtnSubir').disabled=false;
-          document.getElementById('BtnSubir').value="Ejecutar";
-          document.getElementById('FechaCorteCartera').style.backgroundColor="pink";
-          return;
-    }else{
-        document.getElementById('FechaCorteCartera').style.backgroundColor="white";
-    }
-        
-    var form_data = new FormData();
-        form_data.append('Accion', 3);
-        form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
-        form_data.append('CmbEPS', CmbEPS);
-        form_data.append('CmbIPS', CmbIPS);
-        form_data.append('Separador', Separador);
-        form_data.append('LineaActual', LineaActual);
-         
-    $.ajax({
-        //async:false,
-        url: './procesadores/carteraeps.process.php',
-        //dataType: 'json',
-        cache: false,
-        contentType: false,
-        processData: false,
-        data: form_data,
-        type: 'post',
-        success: function(data){
-            var respuestas = data.split(';'); 
-           if(respuestas[0]==="OK"){   
-                $('.progress-bar').css('width','60%').attr('aria-valuenow', 60);  
-                document.getElementById('LyProgresoUP').innerHTML="60%";
-                
-                LineaActual=parseFloat(respuestas[2]);
-                
-                if(LineaActual>=TotalLineas){
-                    document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Carga a Temporal Terminada en la linea "+LineaActual+" de un total de: "+TotalLineas;
-                    CopiarAlHistorialCargas();
-                    
-                }else{
-                    document.getElementById('DivMensajes').innerHTML=LineaActual+" Lineas Cargandas de un total de: "+TotalLineas;
-                    EnviarArchivoATemporal(TotalLineas,LineaActual);
-                }
-                
-            }else if(respuestas[0]==="E1"){
-                LimpiarDivs();
-                alertify.alert(respuestas[1]);
-                BorrarTemporales();
-                document.getElementById('BtnSubir').disabled=false;
-                document.getElementById('BtnSubir').value="Ejecutar";
-                return;                
-            }else{
-                LimpiarDivs();
-                BorrarTemporales();
-                document.getElementById('DivMensajes').innerHTML=data;
-                document.getElementById('BtnSubir').disabled=false;
-                document.getElementById('BtnSubir').value="Ejecutar";
-            }
-            
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            LimpiarDivs();
-            document.getElementById('BtnSubir').disabled=false;
-            document.getElementById('BtnSubir').value="Ejecutar";
-            alert(xhr.status);
-            alert(thrownError);
-          }
-      })
-}
-
-
-function CopiarAlHistorialCargas(){
-    document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Empezando Copia al historial de Cargas";
-    var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
-    var CmbEPS=document.getElementById('CmbEPS').value;
-    var CmbIPS=document.getElementById('CmbIPS').value;
-    
-    if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
-          alertify.alert("por favor seleccione una fecha");   
-          document.getElementById('BtnSubir').disabled=false;
-          document.getElementById('BtnSubir').value="Ejecutar";
-          document.getElementById('FechaCorteCartera').style.backgroundColor="pink";
-          return;
-    }else{
-        document.getElementById('FechaCorteCartera').style.backgroundColor="white";
-    }
-        
-    var form_data = new FormData();
-        form_data.append('Accion', 4);
-        form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
-        form_data.append('CmbEPS', CmbEPS);
-        form_data.append('CmbIPS', CmbIPS);
-         
-    $.ajax({
-        //async:false,
-        url: './procesadores/carteraeps.process.php',
-        //dataType: 'json',
-        cache: false,
-        contentType: false,
-        processData: false,
-        data: form_data,
-        type: 'post',
-        success: function(data){
-            var respuestas = data.split(';'); 
-           if(respuestas[0]==="OK"){  
-               
                $('.progress-bar').css('width','80%').attr('aria-valuenow', 80);  
                 document.getElementById('LyProgresoUP').innerHTML="80%";
+                var TotalLineas=respuestas[2];
                 alertify.success(respuestas[1]);
-                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+respuestas[1];
+                Hora = ObtengaHora();
+                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+respuestas[1]+" "+Hora;
                 InserteRegistrosNuevos();
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
-                //alertify.alert(respuestas[1]);
-                document.getElementById('DivMensajes').innerHTML=respuestas[1];
                 BorrarTemporales();
+                alertify.alert(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
                 LimpiarDivs();
+                var Hora = ObtengaHora();
+                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+data+" "+Hora;
                 BorrarTemporales();
-                document.getElementById('DivMensajes').innerHTML=data;
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
             }
             
         },
         error: function (xhr, ajaxOptions, thrownError) {
-            BorrarTemporales();
             LimpiarDivs();
+            BorrarTemporales();
             document.getElementById('BtnSubir').disabled=false;
             document.getElementById('BtnSubir').value="Ejecutar";
             alert(xhr.status);
@@ -452,7 +271,6 @@ function CopiarAlHistorialCargas(){
           }
       })
 }
-
 
 function InserteRegistrosNuevos(){
     document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Iniciando Registros en la Cartera de la EPS";
@@ -478,77 +296,7 @@ function InserteRegistrosNuevos(){
          
     $.ajax({
         //async:false,
-        url: './procesadores/carteraeps.process.php',
-        //dataType: 'json',
-        cache: false,
-        contentType: false,
-        processData: false,
-        data: form_data,
-        type: 'post',
-        success: function(data){
-            var respuestas = data.split(';'); 
-           if(respuestas[0]==="OK"){ 
-              // LimpiarDivs();
-               $('.progress-bar').css('width','90%').attr('aria-valuenow', 90);  
-                document.getElementById('LyProgresoUP').innerHTML="90%";
-                //document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Proceso Terminado";
-                alertify.success(respuestas[1]);
-                document.getElementById('BtnSubir').disabled=false;
-                document.getElementById('BtnSubir').value="Ejecutar";
-                ActualizarCarteraEPSASMET();
-            }else if(respuestas[0]==="E1"){
-                BorrarTemporales();
-                LimpiarDivs();
-                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+respuestas[1];
-                document.getElementById('BtnSubir').disabled=false;
-                document.getElementById('BtnSubir').value="Ejecutar";
-                return;                
-            }else{
-                BorrarTemporales();
-                LimpiarDivs();
-                document.getElementById('DivMensajes').innerHTML=data;
-                document.getElementById('BtnSubir').disabled=false;
-                document.getElementById('BtnSubir').value="Ejecutar";
-            }
-            
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            BorrarTemporales();
-            LimpiarDivs();
-            document.getElementById('BtnSubir').disabled=false;
-            document.getElementById('BtnSubir').value="Ejecutar";
-            alert(xhr.status);
-            alert(thrownError);
-          }
-      })
-}
-
-
-function ActualizarCarteraEPSASMET(){
-    document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Iniciando Actualizacion de la Cartera de la EPS";
-    var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
-    var CmbEPS=document.getElementById('CmbEPS').value;
-    var CmbIPS=document.getElementById('CmbIPS').value;
-    
-    if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
-          alertify.alert("por favor seleccione una fecha");   
-          document.getElementById('BtnSubir').disabled=false;
-          document.getElementById('BtnSubir').value="Ejecutar";
-          document.getElementById('FechaCorteCartera').style.backgroundColor="pink";
-          return;
-    }else{
-        document.getElementById('FechaCorteCartera').style.backgroundColor="white";
-    }
-        
-    var form_data = new FormData();
-        form_data.append('Accion', 8);
-        form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
-        form_data.append('CmbEPS', CmbEPS);
-        form_data.append('CmbIPS', CmbIPS);
-         
-    $.ajax({
-        //async:false,
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/carteraxedades.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -565,7 +313,7 @@ function ActualizarCarteraEPSASMET(){
                 alertify.success(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
-                //InserteRegistrosNuevos();
+                
             }else if(respuestas[0]==="E1"){
                 BorrarTemporales();
                 LimpiarDivs();
@@ -592,6 +340,7 @@ function ActualizarCarteraEPSASMET(){
           }
       })
 }
+
 
 function BorrarTemporales(){
     
@@ -617,7 +366,7 @@ function BorrarTemporales(){
          
     $.ajax({
         //async:false,
-        url: './procesadores/carteraeps.process.php',
+        url: './procesadores/carteraxedades.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -627,7 +376,7 @@ function BorrarTemporales(){
         success: function(data){
             var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){                
-                alertify.success(respuestas[1]);
+                alertify.error(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 //InserteRegistrosNuevos();
