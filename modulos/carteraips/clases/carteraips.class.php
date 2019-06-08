@@ -118,7 +118,17 @@ class CarteraIPS extends conexion{
         }    
         
         $errores=0;
-
+        $objPHPExcel->disconnectWorksheets();// Good to disconnect
+        $objPHPExcel->garbageCollect(); 
+        clearstatcache();
+        unset($objPHPExcel);
+        unset($_DATOS_EXCEL);
+        unset($objFecha);
+        unset($sql);
+        unset($Cols);
+        unset($value);
+        //unset($key);
+        unset($ColumnasTabla);
         //print($DatosUpload["Soporte"]);
     }
     //Fin Clases

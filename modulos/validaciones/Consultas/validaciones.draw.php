@@ -1144,6 +1144,155 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
         break;//Fin caso 11
         
+        
+        case 12: //Dibuja el consolidado de la informacion
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
+            //Paginacion
+            if(isset($_REQUEST['Page'])){
+                $NumPage=$obCon->normalizar($_REQUEST['Page']);
+            }else{
+                $NumPage=1;
+            }
+            $Condicional=" ";
+            if(isset($_REQUEST['Busqueda'])){
+                $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
+                if($Busqueda<>''){
+                    $Condicional=" WHERE NumeroContrato like '$Busqueda%' ";
+                }
+                
+            }
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $statement=" $db.`vista_resumen_cruce_cartera_asmet` $Condicional ";
+            if(isset($_REQUEST['st'])){
+
+                $statement= urldecode($_REQUEST['st']);
+                //print($statement);
+            }
+            
+            $limit = 50;
+            $startpoint = ($NumPage * $limit) - $limit;
+            $VectorST = explode("LIMIT", $statement);
+            $statement = $VectorST[0]; 
+            $query = "SELECT COUNT(*) as `num`,SUM(ValorSegunEPS) AS Total FROM {$statement}";
+            $row = $obCon->FetchArray($obCon->Query($query));
+            $ResultadosTotales = $row['num'];
+            $Total=$row['Total'];
+            $st_reporte=$statement;
+            $Limit=" LIMIT $startpoint,$limit";
+            
+            $query="SELECT * ";
+            $Consulta=$obCon->Query("$query FROM $statement $Limit");
+            
+            $css->CrearTabla();
+            
+            
+                $css->FilaTabla(16);
+                    print("<td style='text-align:center'>");
+                        print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
+                    print("</td>");
+                    print("<td colspan=8 style='text-align:center'>");
+                        print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan='2' style='text-align:center'>");
+                        $st1= urlencode($st_reporte);
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_resumen_cruce_cartera_asmet','')", "verde", "");
+                        //$css->CrearImageLink("ProcesadoresJS/GeneradorCSVReportesCartera.php?Opcion=1&sp=$Separador&st=$st1", "../images/csv.png", "_blank", 50, 50);
+
+                    print("</td>");
+                //$css->CierraFilaTabla();
+                
+                $st= urlencode($st_reporte);
+                    if($ResultadosTotales>$limit){
+
+                        //$css->FilaTabla(14);
+                            
+                            $TotalPaginas= ceil($ResultadosTotales/$limit);
+                            print("<td  style=text-align:center>");
+                            //print("<strong>Página: </strong>");
+                            
+                            print('<div class="input-group" style=width:180px>');
+                            if($NumPage>1){
+                                $NumPage1=$NumPage-1;
+                            print('<span class="input-group-addon" onclick=CambiePaginaConsolidado('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-left"></i></span>');
+                            }
+                            $FuncionJS="onchange=CambiePaginaConsolidado();";
+                            $css->select("CmbPageConsolidado", "form-control", "CmbPageConsolidado", "", "", $FuncionJS, "");
+                            
+                                for($p=1;$p<=$TotalPaginas;$p++){
+                                    if($p==$NumPage){
+                                        $sel=1;
+                                    }else{
+                                        $sel=0;
+                                    }
+                                    
+                                    $css->option("", "", "", $p, "", "",$sel);
+                                        print($p);
+                                    $css->Coption();
+                                    
+                                }
+
+                            $css->Cselect();
+                            if($ResultadosTotales>($startpoint+$limit)){
+                                $NumPage1=$NumPage+1;
+                            print('<span class="input-group-addon" onclick=CambiePaginaConsolidado('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-right" ></i></span>');
+                            }
+                            print("<div>");
+                            print("</td>");
+                            
+                            
+                           $css->CierraFilaTabla(); 
+                        }
+                      
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Contrato</strong>", 1);                    
+                    $css->ColTabla("<strong>Total Facturas</strong>", 1);
+                    $css->ColTabla("<strong>Total Impuestos</strong>", 1);
+                    $css->ColTabla("<strong>Total Valor Menos Impuestos</strong>", 1);
+                    $css->ColTabla("<strong>Total Pagos</strong>", 1);
+                    $css->ColTabla("<strong>Total Anticipos</strong>", 1);
+                    $css->ColTabla("<strong>Total Copagos</strong>", 1);
+                    $css->ColTabla("<strong>Total Devoluciones</strong>", 1);
+                    $css->ColTabla("<strong>Total Glosa Inicial</strong>", 1);
+                    $css->ColTabla("<strong>Total Glosa A Favor</strong>", 1);
+                    $css->ColTabla("<strong>Total Glosa en Contra</strong>", 1);
+                    $css->ColTabla("<strong>Total Glosa por Conciliar</strong>", 1);
+                    $css->ColTabla("<strong>Total Otros Descuentos</strong>", 1);
+                    $css->ColTabla("<strong>Saldo Según EPS</strong>", 1);
+                    
+                $css->CierraFilaTabla();
+                
+                
+                while($DatosFactura=$obCon->FetchAssoc($Consulta)){
+                    $css->FilaTabla(14);
+                        
+                        
+                        $css->ColTabla($DatosFactura["NumeroContrato"], 1);                       
+                        
+                        $css->ColTabla(number_format($DatosFactura["TotalFacturas"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["Impuestos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalMenosImpuestos"]), 1,'R');
+                        
+                        $css->ColTabla(number_format($DatosFactura["TotalPagos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalAnticipos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalCopagos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalDevoluciones"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalGlosaInicial"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalGlosaFavor"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalGlosaContra"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalGlosaXConciliar"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalOtrosDescuentos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["ValorSegunEPS"]), 1,'R');
+                    $css->CierraFilaTabla();
+                }
+            $css->CerrarTabla();
+            
+        break; //Fin caso 12
     }
     
     

@@ -331,7 +331,17 @@ class CarteraEPS extends conexion{
         
         $errores=0;
 
-        //print($DatosUpload["Soporte"]);
+        $objPHPExcel->disconnectWorksheets();// Good to disconnect
+        $objPHPExcel->garbageCollect(); 
+        clearstatcache();
+        unset($objPHPExcel);
+        unset($_DATOS_EXCEL);
+        unset($objFecha);
+        unset($sql);
+        unset($Cols);
+        unset($value);
+        unset($key);
+        unset($ColumnasTabla);
     }
     
     
@@ -467,9 +477,17 @@ class CarteraEPS extends conexion{
         }   
         $sql=substr($sql, 0, -1);
         $this->Query($sql);
+        $objPHPExcel->disconnectWorksheets();// Good to disconnect
+        $objPHPExcel->garbageCollect(); 
+        clearstatcache();
         unset($objPHPExcel);
         unset($_DATOS_EXCEL);
+        unset($objFecha);
         unset($sql);
+        unset($Cols);
+        unset($value);
+        unset($key);
+        unset($ColumnasTabla);
     }
     
     
@@ -605,9 +623,17 @@ class CarteraEPS extends conexion{
         }
         $sql=substr($sql, 0, -1);
         $this->Query($sql);
+        $objPHPExcel->disconnectWorksheets();// Good to disconnect
+        $objPHPExcel->garbageCollect(); 
+        clearstatcache();
         unset($objPHPExcel);
         unset($_DATOS_EXCEL);
+        unset($objFecha);
         unset($sql);
+        unset($Cols);
+        unset($value);
+        unset($key);
+        unset($ColumnasTabla);
             
         
     }

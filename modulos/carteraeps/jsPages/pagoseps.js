@@ -10,7 +10,7 @@
  * @returns {undefined}
  */
 function LimpiarDivs(){
-    document.getElementById('DivProcess').innerHTML='Error al procesar la información';
+    document.getElementById('DivProcess').innerHTML='';
     
     //document.getElementById('DivTotalesCompra').innerHTML='';
 }

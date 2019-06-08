@@ -83,12 +83,14 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $sql="UPDATE $db.temporal_notas_dv_cr t1 INNER JOIN $db.notas_dv_cr t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  
-                    WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion AND t1.C51=t2.C51;";
+            $TablaReal="$db.notas_db_cr_2";
+            $TablaTemporal="$db.temporal_notas_db_cr_2";
+            $sql="UPDATE $TablaTemporal t1 INNER JOIN $TablaReal t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  
+                    WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion AND t1.NumeroAutorizacion=t2.NumeroAutorizacion AND t1.NumeroTransaccion =t2.NumeroTransaccion ;";
             $obCon->Query($sql);
-            $sql="INSERT INTO $db.`notas_dv_cr`  
+            $sql="INSERT INTO $TablaReal  
                    SELECT *
-                  FROM $db.`temporal_notas_dv_cr` as t1 WHERE t1.FlagUpdate=0;
+                  FROM $TablaTemporal as t1 WHERE t1.FlagUpdate=0;
                     
                     ";
             //print($sql);
@@ -105,7 +107,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $obCon->VaciarTabla("$db.temporal_notas_dv_cr");
+            $obCon->VaciarTabla("$db.temporal_notas_db_cr_2");
             $obCon->BorraReg("$db.controlcargueseps", "NombreCargue", $keyArchivo);
             print("OK;Temporales Borrados");
         break; //fin caso 5
@@ -121,7 +123,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
             if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){                
-                $obCon->GuardeNotasEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
+                $obCon->GuardeNotasEnTemporal2($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
             }
                         
             if($DatosEPS["ID"]>2 ){                

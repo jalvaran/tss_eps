@@ -146,11 +146,18 @@ class AnticiposEPS extends conexion{
         }
         $sql=substr($sql, 0, -1);
         $this->Query($sql);
+        
+        $objPHPExcel->disconnectWorksheets();// Good to disconnect
+        $objPHPExcel->garbageCollect(); 
+        clearstatcache();
         unset($objPHPExcel);
         unset($_DATOS_EXCEL);
+        unset($objFecha);
         unset($sql);
-        unset($ValorInsert);
-        unset($VectoValor);
+        unset($Cols);
+        unset($value);
+        unset($key);
+        unset($ColumnasTabla);
             
         
     }

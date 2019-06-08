@@ -82,7 +82,7 @@ $css->PageInit($myTitulo);
             $css->TabLabel("TabCuentas2", "<strong >Facturas sin Relación EPS</strong>", "Tab_2",0,"onclick=MuestreFacturasNREPS()");
             $css->TabLabel("TabCuentas3", "<strong >Facturas Pagadas Sin Relación</strong>", "Tab_3",0,"onclick=MuestrePagadasSR()");  
             $css->TabLabel("TabCuentas4", "<strong >Cruce de Cartera</strong>", "Tab_4",0,"onclick=MuestreCruce()"); 
-            //$css->TabLabel("TabCuentas5", "<strong >Consolidado por Factura</strong>", "Tab_5",0,""); 
+            $css->TabLabel("TabCuentas5", "<strong >Informe Consolidado</strong>", "Tab_5",0,"onclick=MuestreConsolidado()"); 
         $css->TabInitEnd();
         $css->TabContentInit();
         
@@ -132,7 +132,7 @@ $css->PageInit($myTitulo);
             $css->CerrarDiv();
             
         $css->TabPaneEnd();
-        /*
+        
         $css->TabPaneInit("Tab_5");
             
              
@@ -142,8 +142,7 @@ $css->PageInit($myTitulo);
             
         $css->TabPaneEnd();
         
-         * 
-         */
+        
         
         
     $css->CerrarDiv();
