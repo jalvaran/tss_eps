@@ -27,7 +27,7 @@ function HistorialAnticipos(){
 
 function HistorialNotas(){
     var dbIPS=document.getElementById('CmbIPS').value; 
-    SeleccioneTablaDB(dbIPS+`.notas_dv_cr`,`DivHistorialNotas`,`DivOpcionesHistorialNotas`)
+    SeleccioneTablaDB(dbIPS+`.notas_db_cr_2`,`DivHistorialNotas`,`DivOpcionesHistorialNotas`)
 }
 document.getElementById('BtnMuestraMenuLateral').click();
 document.getElementById('TabCuentas1').click();
