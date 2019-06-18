@@ -53,7 +53,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $Extension=($info->getExtension());
                 
                    
-                if($Extension=="xls" or $Extension=="xlsx"){
+                if($Extension=="txt" or $Extension=="csv"){
                     $carpeta="../../../soportes/813001952/";
                     if (!file_exists($carpeta)) {
                         mkdir($carpeta, 0777);
@@ -87,9 +87,9 @@ if( !empty($_REQUEST["Accion"]) ){
             $TablaTemporal="$db.temporal_notas_db_cr_2";
             
             $sql="UPDATE $db.temporal_notas_db_cr_2 t1 INNER JOIN $db.notas_db_cr_2 t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  
-                    WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion AND t1.NumeroAutorizacion=t2.NumeroAutorizacion AND t1.NumeroTransaccion =t2.NumeroTransaccion ;";
+                    WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion AND t1.NumeroAutorizacion=t2.NumeroAutorizacion ;";
             $obCon->Query($sql);
-            $sql="INSERT INTO $db.notas_db_cr_2 SELECT * FROM $db.temporal_notas_db_cr_2 as t1 WHERE t1.FlagUpdate=0;  ";
+            $sql="INSERT INTO $db.notas_db_cr_2 SELECT * FROM $db.temporal_notas_db_cr_2 as t1 WHERE t1.FlagUpdate=0";
             //print($sql);
             
             $obCon->Query($sql);
@@ -119,8 +119,11 @@ if( !empty($_REQUEST["Accion"]) ){
             $db=$DatosCargas["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
-            if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){                
-                $obCon->GuardeNotasEnTemporal2($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
+            if($DatosEPS["ID"]==1){                
+                $obCon->GuardeNotasCRDBEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser,46);
+            }
+            if($DatosEPS["ID"]==2){                
+                $obCon->GuardeNotasCRDBEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser,47);
             }
                         
             if($DatosEPS["ID"]>2 ){                

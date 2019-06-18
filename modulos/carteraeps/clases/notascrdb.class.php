@@ -223,13 +223,14 @@ class NotasCRBD extends conexion{
         $Cuenta="";
         $Banco="";
         $Tabla="temporal_notas_db_cr_2";
+        $ColumnasTabla= $this->ShowColums($db.".$Tabla");
         $Cols=[ 'ZZ','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
                 'AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ',
                 'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ',
                 'CA','CB','CC','CD','CE','CF','CG','CH','CI','CJ','CK','CL','CM','CN','CO','CP','CQ','CR','CS','CT','CU','CV','CW','CX','CY','CZ',
                 'DA','DB','DC','DD','DE','DF','DG','DH','DI','DJ','DK','DL','DM','DN','DO','DP','DQ','DR','DS','DT','DU','DV','DW','DX','DY','DZ'];
         
-        $ColumnasTabla= $this->ShowColums($db.".$Tabla");
+        
         
         for ($h=0;$h<$hojas;$h++){
             $objPHPExcel->setActiveSheetIndex($h);
@@ -340,6 +341,134 @@ class NotasCRBD extends conexion{
         unset($ColumnasTabla);
         
         
+    }
+    
+    public function GuardeNotasCRDBEnTemporal($keyArchivo,$idIPS,$idEPS,$idUser,$NumeroColumnasEncabezado) {
+        clearstatcache();
+        $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
+        $db=$DatosIPS["DataBase"];
+        $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo' AND idUser='$idUser'";
+        $Consulta=$this->Query($sql);
+        $DatosUpload=$this->FetchAssoc($Consulta);
+        
+        $RutaArchivo=$DatosUpload["RutaArchivo"];
+        $i=0;
+        $Separador="\t";
+        $Fecha=date("Y-m-d H:i:s");
+        $Tabla="temporal_notas_db_cr_2";
+        $ColumnasTabla= $this->ShowColums($db.".$Tabla");
+        $sql= "INSERT INTO $db.`$Tabla` ( ";
+        foreach ($ColumnasTabla["Field"] as $key => $value) {
+            $sql.="`$value`,";
+        }
+        $sql=substr($sql, 0, -1);
+        $sql.=") VALUES ";
+
+            $handle = fopen($RutaArchivo, "r");
+            $r=0;
+            while (($data = fgetcsv($handle, 1000, $Separador)) !== FALSE) {
+                
+                $i++;
+               if($i==1){ //Verifico que el archivo recibido corresponda al solicitado
+                   if(count($data)<>$NumeroColumnasEncabezado){
+                       $NumeroColumnas=count($data);
+                       exit("E1;<h3>El archivo enviado no corresponde al archivo esperado o ha sufrido cambios, contiene $NumeroColumnas Columnas</h3>");
+                   }
+               }
+               
+               $r++;//Contador de filas a insertar
+               $sql.="(";
+               $z=0;
+               foreach ($ColumnasTabla["Field"] as $key => $value) {
+                   if($value=="ID"){
+                       $sql.="'',";
+                       continue;
+                   }
+                   if($value=="Soporte"){
+                       $sql.="'$RutaArchivo',";
+                       continue;
+                   }
+                   if($value=="idUser"){
+                       $sql.="'$idUser',";
+                       continue;
+                   }
+                   if($value=="keyFile"){
+                       $sql.="'$keyArchivo',";
+                       continue;
+                   }
+                   
+                   if($value=="FlagUpdate"){
+                       $sql.="'0',";
+                       continue;
+                   }
+                   
+                   
+                   if($value=="FechaRegistro"){
+                       $sql.="'$Fecha',";
+                       continue;
+                   }
+                   
+                   if($value=="FechaTransaccion" or $value=="FechaAprobacion" ){
+                       if(isset($data[$z])){
+                           $FechaTransaccion=$this->ConviertaStringToDate($data[$z]);
+                       }else{
+                           $FechaTransaccion="";
+                       }
+                       
+                       $sql.="'$FechaTransaccion',";
+                       continue;
+                   }
+                   
+                   if(isset($data[$z])){
+                       $Dato= str_replace("'", "", $data[$z]);
+                       $sql.="'$Dato',";
+                   }else{
+                       $Dato= "";
+                       $sql.="'$Dato',";
+                   }
+                   $z++;
+                   
+                   
+               }
+               $sql=substr($sql, 0, -1);
+               $sql.="),";
+               
+               $r++;
+               if($r>=5000){
+                    $r=0;
+                    $sql=substr($sql, 0, -1);
+                    $this->Query($sql);
+                    $sql= "INSERT INTO $db.`$Tabla` ( ";
+                     foreach ($ColumnasTabla["Field"] as $key => $value) {
+                         $sql.="`$value`,";
+                     }
+                     $sql=substr($sql, 0, -1);
+                     $sql.=") VALUES "; 
+               }
+               
+                
+                
+            }
+            if($r<>5000){
+                $sql=substr($sql, 0, -1);
+                $this->Query($sql);
+            }
+            fclose($handle); 
+        clearstatcache();
+    }
+    
+    public function ConviertaStringToDate($Dato) {
+        $Fecha="0000-00-00";
+        if($Dato<>''){
+            $Vector= explode("/", $Dato);
+            if(count($Vector)>1){
+                $Fecha= $Vector[2]."-".$Vector[1]."-".$Vector[0];
+            }else{
+                $Fecha=$Dato;
+            }
+
+        }
+        return($Fecha);
     }
     
     //Fin Clases
