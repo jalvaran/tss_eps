@@ -79,6 +79,23 @@ public function QueryExterno($sql,$ip,$User,$Pass,$db,$VectorCon){
     
     
 }
+
+public function Query2($sql,$ip,$User,$Pass,$db,$VectorCon){
+    
+    $this->mysqli = new mysqli($ip, $User, $Pass, $db);
+    if ($this->mysqli->connect_errno) {
+        $Mensaje="No se pudo conectar al servidor en la ip: $ip ".$this->mysqli->connect_errno;
+        //exit();
+        
+    }   
+    
+    $Consul=$this->mysqli->query($sql) or $Consul["Error"]=$this->mysqli->error; 
+    
+    return($Consul);
+    $this->CerrarCon();
+    
+    
+}
     ////////////////////////////////////////////////////////////////////
 //////////////////////Funcion Obtener vaciar una tabla
 ///////////////////////////////////////////////////////////////////
@@ -447,6 +464,35 @@ public function ShowColums($Tabla){
       $sql = substr($sql, 0, -1);
       return $sql;
     }
+    
+    public function MultiQuery($sql,$ip,$User,$Pass,$db,$VectorCon){
+    
+        $this->mysqli = new mysqli($ip, $User, $Pass, $db);
+        if ($this->mysqli->multi_query($sql)) {
+            do {
+                /* Almacenar primer juego de resultados */
+                if ($result = $this->mysqli->store_result()) {
+                    while ($row = $result->fetch_assoc()) {
+                        print_r($row);
+                        echo "<br/>";
+                    }
+                    $result->free();
+                }
+                /* mostrar divisor */
+                if ($this->mysqli->more_results()) {
+                    printf("-----------------\n");
+                }
+              // Avanzar al siguiente resultado
+            } while ($this->mysqli->next_result());
+        }else{
+            print($this->mysqli->error);
+        }
+
+        $this->CerrarCon();
+
+
+    }
+    
 //Fin Clases
 }
 
