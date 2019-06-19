@@ -5,7 +5,6 @@ SET time_zone = '+00:00';
 SET foreign_key_checks = 0;
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
-DROP TABLE IF EXISTS `alertas`;
 CREATE TABLE `alertas` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `AlertaTipo` varchar(45) NOT NULL,
@@ -19,7 +18,6 @@ CREATE TABLE `alertas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-DROP TABLE IF EXISTS `cod_municipios_dptos`;
 CREATE TABLE `cod_municipios_dptos` (
   `ID` varchar(10) COLLATE utf8_spanish_ci NOT NULL,
   `Cod_mcipio` varchar(10) COLLATE utf8_spanish_ci NOT NULL,
@@ -1154,7 +1152,6 @@ INSERT INTO `cod_municipios_dptos` (`ID`, `Cod_mcipio`, `Cod_Dpto`, `Departament
 ('999',	'770',	73,	'TOLIMA',	'SUAREZ',	'2019-01-13 14:04:42',	'2019-01-13 09:04:42'),
 ('ID',	'idMcipio',	0,	'depat',	'muni',	'2019-01-13 14:04:42',	'2019-01-13 09:04:42');
 
-DROP TABLE IF EXISTS `configuraciones_nombres_campos`;
 CREATE TABLE `configuraciones_nombres_campos` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `NombreDB` varchar(50) COLLATE utf8_spanish_ci NOT NULL,
@@ -1165,7 +1162,6 @@ CREATE TABLE `configuraciones_nombres_campos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-DROP TABLE IF EXISTS `configuracion_campos_asociados`;
 CREATE TABLE `configuracion_campos_asociados` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `TablaOrigen` varchar(50) COLLATE utf8_spanish_ci NOT NULL,
@@ -1200,7 +1196,6 @@ INSERT INTO `configuracion_campos_asociados` (`ID`, `TablaOrigen`, `CampoTablaOr
 (19,	'empresapro',	'FacturaSinInventario',	'respuestas_condicional',	'Valor',	'Valor',	'2019-01-13 14:04:47',	'2019-01-13 09:04:47'),
 (20,	'empresapro',	'CXPAutomaticas',	'respuestas_condicional',	'Valor',	'Valor',	'2019-01-13 14:04:47',	'2019-01-13 09:04:47');
 
-DROP TABLE IF EXISTS `configuracion_control_tablas`;
 CREATE TABLE `configuracion_control_tablas` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `TablaDB` varchar(50) COLLATE utf8_spanish_ci NOT NULL,
@@ -1231,7 +1226,6 @@ INSERT INTO `configuracion_control_tablas` (`ID`, `TablaDB`, `Agregar`, `Editar`
 (12,	'vista_factura_compra_totales',	0,	0,	1,	'PDF_Documentos.draw.php?idDocumento=23&ID=',	1,	1,	0,	'2019-04-16 19:45:33',	'2019-04-16 14:45:33'),
 (13,	'usuarios',	1,	1,	0,	'',	0,	1,	0,	'2019-05-20 15:23:39',	'2019-01-13 09:04:48');
 
-DROP TABLE IF EXISTS `configuracion_general`;
 CREATE TABLE `configuracion_general` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Descripcion` text COLLATE utf8_spanish_ci NOT NULL,
@@ -1252,7 +1246,6 @@ INSERT INTO `configuracion_general` (`ID`, `Descripcion`, `Valor`, `Updated`, `S
 (8,	'Determina cuantas copias saldrán del separado al crearse',	'2',	'2019-03-19 19:19:59',	'2019-03-19 14:19:59'),
 (9,	'Determina cuantas copias saldrán del egreso al crearse desde pos',	'2',	'2019-03-19 21:47:01',	'2019-03-19 16:47:01');
 
-DROP TABLE IF EXISTS `configuracion_tablas_acciones_adicionales`;
 CREATE TABLE `configuracion_tablas_acciones_adicionales` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `TablaDB` varchar(50) COLLATE utf8_spanish_ci NOT NULL,
@@ -1275,7 +1268,42 @@ INSERT INTO `configuracion_tablas_acciones_adicionales` (`ID`, `TablaDB`, `JavaS
 (6,	'prestamos_terceros',	'onclick=HistorialAbonos',	'fa fa-fw fa-history',	'Historial',	'#',	'_SELF',	'2019-04-07 13:23:24',	'2019-04-07 08:23:24'),
 (7,	'usuarios',	'onclick=ListaIPSAsignar',	'fa fa-fw fa-plus',	'Asignar IPS',	'#',	'_SELF',	'2019-04-06 19:49:13',	'2019-04-06 14:49:13');
 
-DROP TABLE IF EXISTS `empresapro`;
+CREATE TABLE `controlcargueseps` (
+  `ID` int(20) NOT NULL AUTO_INCREMENT,
+  `NombreCargue` varchar(65) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Nombre del cargue ',
+  `ValorCargue` double(15,2) NOT NULL COMMENT 'Valor total del cargue ',
+  `Nit_EPS` bigint(20) NOT NULL COMMENT 'Número de identificación del entidad promomotora de salud ',
+  `Soporte` varchar(200) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Documento que soporta el cargue ',
+  `RutaArchivo` text COLLATE utf8_spanish_ci NOT NULL,
+  `ExtensionArchivo` varchar(10) COLLATE utf8_spanish_ci NOT NULL,
+  `idUser` int(11) NOT NULL,
+  `FechaRegistro` datetime NOT NULL COMMENT 'Fecha que se hace el registro ',
+  `FechaActualizacion` datetime NOT NULL COMMENT 'Fecha que se actualiza el registro ',
+  `Sync` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`ID`),
+  KEY `NombreCargue` (`NombreCargue`),
+  KEY `Nit_EPS` (`Nit_EPS`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de control de cargues';
+
+
+CREATE TABLE `controlcarguesips` (
+  `ID` int(20) NOT NULL AUTO_INCREMENT,
+  `NombreCargue` varchar(65) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Nombre del cargue ',
+  `ValorCargue` double(15,2) NOT NULL COMMENT 'Valor total del cargue ',
+  `Nit_EPS` bigint(20) NOT NULL COMMENT 'Número de identificación del entidad promomotora de salud ',
+  `Soporte` varchar(200) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Documento que soporta el cargue ',
+  `RutaArchivo` text COLLATE utf8_spanish_ci NOT NULL,
+  `ExtensionArchivo` varchar(10) COLLATE utf8_spanish_ci NOT NULL,
+  `idUser` int(11) NOT NULL,
+  `FechaRegistro` datetime NOT NULL COMMENT 'Fecha que se hace el registro ',
+  `FechaActualizacion` datetime NOT NULL COMMENT 'Fecha que se actualiza el registro ',
+  `Sync` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`ID`),
+  KEY `NombreCargue` (`NombreCargue`),
+  KEY `Nit_EPS` (`Nit_EPS`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de control de cargues';
+
+
 CREATE TABLE `empresapro` (
   `idEmpresaPro` int(11) NOT NULL AUTO_INCREMENT,
   `RazonSocial` varchar(45) COLLATE utf8_spanish_ci DEFAULT NULL,
@@ -1308,7 +1336,6 @@ CREATE TABLE `empresapro` (
 INSERT INTO `empresapro` (`idEmpresaPro`, `RazonSocial`, `NIT`, `DigitoVerificacion`, `Direccion`, `Barrio`, `Telefono`, `Celular`, `Ciudad`, `ResolucionDian`, `Regimen`, `TipoPersona`, `TipoDocumento`, `MatriculoMercantil`, `ActividadesEconomicas`, `Email`, `WEB`, `ObservacionesLegales`, `PuntoEquilibrio`, `DatosBancarios`, `RutaImagen`, `FacturaSinInventario`, `CXPAutomaticas`, `Updated`, `Sync`) VALUES
 (1,	'Ftech Colombia SAS',	901143311,	1,	'AvPoblado Cra 43 A 19 17',	'MEDELLIN',	'3177740609',	'3177740609',	'MEDELLIN',	'IVA REGIMEN COMUN ACTIVIDAD ECONOMICA CIIU 8020',	'COMUN',	'3',	31,	1234567,	'O-42;O-42',	'info@technosoluciones.com',	'www.technosoluciones.com',	'Esta Factura de Venta se asimila en todos sus efectos a una letra de cambio (Art. 621 y siguientes del Codigo de Comercio). En caso de mora se causaran los intereses legales Vigentes.',	5000000,	'_',	'LogosEmpresas/logotipo1.png',	'SI',	'SI',	'2019-01-13 14:04:55',	'2019-01-13 09:04:55');
 
-DROP TABLE IF EXISTS `empresapro_regimenes`;
 CREATE TABLE `empresapro_regimenes` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Regimen` varchar(20) COLLATE utf8_spanish_ci NOT NULL,
@@ -1321,7 +1348,6 @@ INSERT INTO `empresapro_regimenes` (`ID`, `Regimen`, `Updated`, `Sync`) VALUES
 (1,	'COMUN',	'2019-01-13 19:04:55',	'2019-01-13 09:04:55'),
 (2,	'SIMPLIFICADO',	'2019-01-13 19:04:55',	'2019-01-13 09:04:55');
 
-DROP TABLE IF EXISTS `eps`;
 CREATE TABLE `eps` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(120) COLLATE utf8_spanish_ci NOT NULL,
@@ -1340,7 +1366,6 @@ INSERT INTO `eps` (`ID`, `Nombre`, `NIT`, `Direccion`, `Departamento`, `Municipi
 (3,	'SOS ',	321321321,	'DSADSA',	'VALLE',	'CALI',	'ESE ',	'21321',	'DSADSA'),
 (2,	'ASMET SALUD MUTUAL',	900833180,	'CALLE 5 SUR 16 62',	'CAUCA',	'POPAYAN',	'PEPO',	'31221221',	'jalvaran@gmail.com');
 
-DROP TABLE IF EXISTS `formatos_calidad`;
 CREATE TABLE `formatos_calidad` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Nombre` text COLLATE utf8_spanish_ci NOT NULL,
@@ -1355,7 +1380,6 @@ CREATE TABLE `formatos_calidad` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-DROP TABLE IF EXISTS `ips`;
 CREATE TABLE `ips` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(60) COLLATE utf8_spanish_ci NOT NULL,
@@ -1367,14 +1391,14 @@ CREATE TABLE `ips` (
   `Telefono` varchar(120) COLLATE utf8_spanish_ci NOT NULL,
   `Correo` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
   `DataBase` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `DataBase` (`DataBase`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 INSERT INTO `ips` (`ID`, `Nombre`, `NIT`, `Direccion`, `Departamento`, `Municipio`, `RepresentanteLegal`, `Telefono`, `Correo`, `DataBase`) VALUES
 (1,	'Clinica MediLaser S.A.',	813001952,	'CALLSLA',	'HUILA',	'NEIVA',	'PEPITO PEREZ',	'',	'',	'ts_eps_ips_813001952'),
-(2,	'Clinica MediMAS S.A.',	900833180,	'CALLSLA',	'VALLE',	'BUGA',	'PEPITO PEREZ',	'',	'',	'ts_eps_ips_900833180');
+(2,	'Clinica MEDICOL ',	900476271,	'CALLSLA',	'VALLE',	'BUGA',	'PEPITO PEREZ',	'',	'',	'ts_eps_ips_900476271');
 
-DROP TABLE IF EXISTS `menu`;
 CREATE TABLE `menu` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(80) COLLATE utf8_spanish_ci NOT NULL,
@@ -1397,7 +1421,6 @@ INSERT INTO `menu` (`ID`, `Nombre`, `idCarpeta`, `Pagina`, `Target`, `Estado`, `
 (4,	'Validación de Facturas',	1,	'MnuValidaciones.php',	'_BLANK',	1,	'validacion.png',	'fa fa-share',	1,	'2019-05-20 15:02:31',	'0000-00-00 00:00:00'),
 (5,	'Tickets',	1,	'MnuTickets.php',	'_BLANK',	1,	'tickets.png',	'fa fa-share',	1,	'2019-06-01 19:23:19',	'0000-00-00 00:00:00');
 
-DROP TABLE IF EXISTS `menu_carpetas`;
 CREATE TABLE `menu_carpetas` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Ruta` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
@@ -1417,7 +1440,6 @@ INSERT INTO `menu_carpetas` (`ID`, `Ruta`, `Updated`, `Sync`) VALUES
 (8,	'../modulos/validaciones/',	'2019-05-20 14:17:15',	'0000-00-00 00:00:00'),
 (9,	'../modulos/tickets/',	'2019-05-20 14:17:15',	'0000-00-00 00:00:00');
 
-DROP TABLE IF EXISTS `menu_pestanas`;
 CREATE TABLE `menu_pestanas` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
@@ -1479,7 +1501,6 @@ INSERT INTO `menu_pestanas` (`ID`, `Nombre`, `idMenu`, `Orden`, `Estado`, `Updat
 (48,	'Colaboradores',	20,	1,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43'),
 (49,	'Ingresos',	23,	1,	CONV('1', 2, 10) + 0,	'2019-01-13 14:12:43',	'2019-01-13 09:12:43');
 
-DROP TABLE IF EXISTS `menu_submenus`;
 CREATE TABLE `menu_submenus` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
@@ -1511,9 +1532,20 @@ INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`,
 (9,	'Tickets',	14,	9,	5,	'',	1,	'',	'tickets.php',	'_SELF',	1,	'tickets.png',	1,	'2019-06-01 19:21:56',	'0000-00-00 00:00:00'),
 (10,	'Administrador',	9,	4,	2,	'',	1,	'',	'adminCarteraIPS.php',	'_SELF',	1,	'admin.png',	1,	'2019-05-20 15:12:11',	'0000-00-00 00:00:00'),
 (11,	'Administrador EPS',	12,	5,	2,	'',	1,	'',	'adminCarteraEPS.php',	'_SELF',	1,	'admin.png',	6,	'2019-06-04 10:26:23',	'0000-00-00 00:00:00'),
-(12,	'Cargar Notas Credito y Debito EPS',	12,	5,	2,	'',	1,	'',	'notascrdb.php',	'_SELF',	1,	'Anticipos.png',	5,	'2019-05-23 12:51:52',	'0000-00-00 00:00:00');
+(12,	'Cargar Notas Credito y Debito EPS',	12,	5,	2,	'',	1,	'',	'notascrdb.php',	'_SELF',	1,	'Anticipos.png',	5,	'2019-05-23 12:51:52',	'0000-00-00 00:00:00'),
+(13,	'Cargar Cartera x Edades',	12,	5,	2,	'',	1,	'',	'carteraxedades.php',	'_SELF',	1,	'diascomp.png',	5,	'2019-06-08 00:16:15',	'0000-00-00 00:00:00'),
+(14,	'Cargar Egresos',	12,	5,	2,	'',	1,	'',	'cargar_egresos.php',	'_SELF',	1,	'egresoitems.png',	4,	'2019-06-08 00:16:15',	'0000-00-00 00:00:00'),
+(15,	'Cargar Archivo de Anticipos EPS',	12,	5,	2,	'',	1,	'',	'cargar_anticipos.php',	'_SELF',	1,	'Anticipos2.png',	5,	'2019-06-19 13:28:56',	'0000-00-00 00:00:00');
 
-DROP TABLE IF EXISTS `paginas_bloques`;
+CREATE TABLE `migrations` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `migration` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
+  `database` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
+  `created` datetime NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+
 CREATE TABLE `paginas_bloques` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `TipoUsuario` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
@@ -1530,7 +1562,6 @@ INSERT INTO `paginas_bloques` (`ID`, `TipoUsuario`, `Pagina`, `Habilitado`, `Upd
 (3,	'ips',	'MnuValidaciones.php',	'SI',	'2019-05-31 05:13:05',	'0000-00-00 00:00:00'),
 (4,	'ips',	'validaciones.php',	'SI',	'2019-05-31 05:13:36',	'0000-00-00 00:00:00');
 
-DROP TABLE IF EXISTS `relacion_usuarios_ips`;
 CREATE TABLE `relacion_usuarios_ips` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `idUsuario` bigint(20) NOT NULL,
@@ -1544,9 +1575,9 @@ INSERT INTO `relacion_usuarios_ips` (`ID`, `idUsuario`, `idIPS`) VALUES
 (11,	3,	900833180),
 (7,	6,	0),
 (5,	4,	813001952),
-(6,	4,	900833180);
+(6,	4,	900833180),
+(12,	3,	900476271);
 
-DROP TABLE IF EXISTS `respuestas_condicional`;
 CREATE TABLE `respuestas_condicional` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Valor` varchar(4) COLLATE utf8_spanish_ci NOT NULL,
@@ -1559,7 +1590,6 @@ INSERT INTO `respuestas_condicional` (`ID`, `Valor`, `Updated`, `Sync`) VALUES
 (1,	'NO',	'2019-01-13 19:14:09',	'2019-01-13 09:14:09'),
 (2,	'SI',	'2019-01-13 19:14:09',	'2019-01-13 09:14:09');
 
-DROP TABLE IF EXISTS `tablas_campos_control`;
 CREATE TABLE `tablas_campos_control` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `NombreTabla` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
@@ -1592,7 +1622,15 @@ INSERT INTO `tablas_campos_control` (`ID`, `NombreTabla`, `Campo`, `Visible`, `E
 (15,	'ts_eps_ips_813001952.carteracargadaips',	'FechaRadicado',	0,	1,	1,	'administrador',	3,	'2019-06-03 16:57:53',	'0000-00-00 00:00:00'),
 (16,	'ts_eps_ips_813001952.carteracargadaips',	'TipoNegociacion',	0,	1,	1,	'administrador',	3,	'2019-06-03 16:57:54',	'0000-00-00 00:00:00');
 
-DROP TABLE IF EXISTS `tickets`;
+CREATE TABLE `temp_migrations` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `migration` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
+  `database` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
+  `Estado` int(11) NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+
 CREATE TABLE `tickets` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `FechaApertura` datetime NOT NULL,
@@ -1608,7 +1646,6 @@ CREATE TABLE `tickets` (
 INSERT INTO `tickets` (`ID`, `FechaApertura`, `Asunto`, `Estado`, `idUsuarioSolicitante`, `idUsuarioAsignado`, `FechaCierre`, `idUsuarioCierra`) VALUES
 (1,	'2019-06-01 12:00:00',	'PROBLEMA CON FACTURA 1',	1,	3,	0,	'0000-00-00 00:00:00',	'0000-00-00 00:00:00');
 
-DROP TABLE IF EXISTS `tickets_adjuntos`;
 CREATE TABLE `tickets_adjuntos` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `Ruta` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
@@ -1617,7 +1654,6 @@ CREATE TABLE `tickets_adjuntos` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-DROP TABLE IF EXISTS `tickets_estados`;
 CREATE TABLE `tickets_estados` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Estado` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
@@ -1635,7 +1671,6 @@ INSERT INTO `tickets_estados` (`ID`, `Estado`) VALUES
 (8,	'CERRADO'),
 (9,	'ELIMINADO');
 
-DROP TABLE IF EXISTS `tickets_mensajes`;
 CREATE TABLE `tickets_mensajes` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `Mensaje` text COLLATE utf8_spanish_ci NOT NULL,
@@ -1645,7 +1680,6 @@ CREATE TABLE `tickets_mensajes` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE `usuarios` (
   `idUsuarios` int(11) NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(45) COLLATE utf8_spanish_ci DEFAULT NULL,
@@ -1671,7 +1705,6 @@ INSERT INTO `usuarios` (`idUsuarios`, `Nombre`, `Apellido`, `Identificacion`, `T
 (5,	'JUANITO ',	'VALENCIA',	'94223333',	'321321',	'juanito',	'8c02d2185406bb495a360a32f7de61e3',	'ese',	'juanito@gmail.com',	'IPS',	'SI',	'2019-05-20 15:25:35',	'0000-00-00 00:00:00'),
 (6,	'ALIMANA',	'VERGARA',	'900189323',	'FDFDS',	'alimana',	'9ea21e0afc298b73d21c98bf157a2e5a',	'dasd',	'JALVARAN@gmail.com',	'dsads',	'SI',	'2019-05-20 15:27:57',	'0000-00-00 00:00:00');
 
-DROP TABLE IF EXISTS `usuarios_roles`;
 CREATE TABLE `usuarios_roles` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Role` varchar(15) COLLATE utf8_spanish_ci NOT NULL,
@@ -1683,7 +1716,6 @@ INSERT INTO `usuarios_roles` (`ID`, `Role`) VALUES
 (2,	'LIQUIDADOR'),
 (3,	'IPS');
 
-DROP TABLE IF EXISTS `usuarios_tipo`;
 CREATE TABLE `usuarios_tipo` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Tipo` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
@@ -1697,11 +1729,10 @@ INSERT INTO `usuarios_tipo` (`ID`, `Tipo`, `Updated`, `Sync`) VALUES
 (2,	'eps',	'2019-05-31 04:51:32',	'2019-01-13 09:14:14'),
 (3,	'ips',	'2019-05-31 04:51:32',	'2019-01-13 09:14:14');
 
-DROP VIEW IF EXISTS `vista_tickets`;
 CREATE TABLE `vista_tickets` (`ID` bigint(20), `FechaApertura` datetime, `Asunto` varchar(200), `Estado` int(11), `idUsuarioSolicitante` int(11), `idUsuarioAsignado` int(11), `FechaCierre` datetime, `idUsuarioCierra` datetime, `NombreSolicitante` varchar(45), `ApellidoSolicitante` varchar(45), `NombreAsignado` varchar(45), `ApellidoAsignado` varchar(45));
 
 
 DROP TABLE IF EXISTS `vista_tickets`;
 CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vista_tickets` AS select `t1`.`ID` AS `ID`,`t1`.`FechaApertura` AS `FechaApertura`,`t1`.`Asunto` AS `Asunto`,`t1`.`Estado` AS `Estado`,`t1`.`idUsuarioSolicitante` AS `idUsuarioSolicitante`,`t1`.`idUsuarioAsignado` AS `idUsuarioAsignado`,`t1`.`FechaCierre` AS `FechaCierre`,`t1`.`idUsuarioCierra` AS `idUsuarioCierra`,(select `usuarios`.`Nombre` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioSolicitante`)) AS `NombreSolicitante`,(select `usuarios`.`Apellido` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioSolicitante`)) AS `ApellidoSolicitante`,(select `usuarios`.`Nombre` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioAsignado`)) AS `NombreAsignado`,(select `usuarios`.`Apellido` from `usuarios` where (`usuarios`.`idUsuarios` = `t1`.`idUsuarioAsignado`)) AS `ApellidoAsignado` from `tickets` `t1`;
 
--- 2019-06-05 04:20:18
+-- 2019-06-19 20:34:58
