@@ -117,6 +117,30 @@ class CarteraEPS extends conexion{
             if($z<=$LineaActual){
                 continue;
             }
+            if(!isset($data[2])){
+                continue;
+            }
+            if(!isset($data[5])){
+                continue;
+            }
+            if(!isset($data[6])){
+                continue;
+            }
+            if(!isset($data[7])){
+                continue;
+            }
+            if(!isset($data[8])){
+                continue;
+            }
+            
+            if(!isset($data[8])){
+                continue;
+            }
+            
+            
+            if($data[5]==""){
+                continue;
+            }
             if($data[2]<>""){
                 $FechaArchivo= explode("/", $data[2]);
                 if(count($FechaArchivo)>1){
@@ -140,7 +164,10 @@ class CarteraEPS extends conexion{
                  $sql.="'$Dato',";
              }
              for($i=23;$i<=50;$i++){
-                 $Dato= str_replace(".", "", $data[$i]);
+                 $Dato="";
+                 if(isset($data[$i])){
+                     $Dato= str_replace(".", "", $data[$i]);
+                 }
                  
                  $sql.="'$Dato',";
              }

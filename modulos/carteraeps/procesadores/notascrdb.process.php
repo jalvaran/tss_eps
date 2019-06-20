@@ -120,10 +120,10 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
             if($DatosEPS["ID"]==1){                
-                $obCon->GuardeNotasCRDBEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser,46);
+                $obCon->GuardeNotasCRDBEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser,47);
             }
             if($DatosEPS["ID"]==2){                
-                $obCon->GuardeNotasCRDBEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser,47);
+                $obCon->GuardeNotasCRDBEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser,46);
             }
                         
             if($DatosEPS["ID"]>2 ){                

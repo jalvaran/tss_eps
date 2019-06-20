@@ -121,8 +121,12 @@ if( !empty($_REQUEST["Accion"]) ){
             $db=$DatosCargas["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
-            if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){                
-                $obCon->GuardeArchivoEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
+            if($DatosEPS["ID"]==1){                
+                $obCon->GuardeArchivoSASEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
+            }
+            
+            if($DatosEPS["ID"]==2){                
+                $obCon->GuardeArchivoMutualEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
             }
                         
             if($DatosEPS["ID"]>2 ){                

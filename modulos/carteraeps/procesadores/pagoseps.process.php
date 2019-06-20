@@ -120,10 +120,10 @@ if( !empty($_REQUEST["Accion"]) ){
             $db=$DatosCargas["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
             $keyArchivo=$obCon->getKeyPagosEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
-            if($DatosEPS["ID"]==1){                
-                $obCon->GuardePagosASMETSASEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
-            }
-            if($DatosEPS["ID"]==2){                
+            //if($DatosEPS["ID"]==1){                
+              //  $obCon->GuardePagosASMETSASEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
+           // }
+            if($DatosEPS["ID"]==2 or $DatosEPS["ID"]==1){                
                 $obCon->GuardePagosASMETMutualEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
             }
             
