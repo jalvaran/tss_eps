@@ -38,7 +38,7 @@ if( !empty($_REQUEST["idAccion"]) ){
                 $sql=$obCon->getSQLInsert("clientes", $Datos);
                 $obCon->Query($sql);
             }
-            print("OK");
+            print("OK2");
             
         break; 
         
