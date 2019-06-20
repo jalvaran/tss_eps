@@ -1672,7 +1672,7 @@ class PageConstruct extends html_estruct_class{
                             if($DatosCamposAsociados["ID"]>0){
                                 $TablaAsociada=$DatosCamposAsociados["TablaAsociada"];
                                 $CampoAsociado=$DatosCamposAsociados["CampoAsociado"];
-                                $this->select($value, "form-control", "CmbInserts", $Titulo, "", "", "");
+                                $this->select($value, "form-control", "CmbInserts", "", "", "", "");
                                     $this->option("", "", "Seleccione una opción", "", "", "");
                                             print("Seleccione una opción");
                                         $this->Coption();
