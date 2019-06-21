@@ -96,12 +96,14 @@ class GlosasEPS extends conexion{
         $z=0;
         $h=0;
         $i=0;
+        $r=0;
         while (($data = fgetcsv($handle, 1000, $Separador)) !== FALSE) {
             $h++;
             
             if($h<=1){
                 continue;
             }
+            $r++;
             $i++;
             if($data[5]<>""){
                 $FechaArchivo= explode("/", $data[5]);
@@ -125,6 +127,12 @@ class GlosasEPS extends conexion{
                  $sql.="'$Dato[0]',";
              }
              $sql.="'$Soporte','$idUser','$FechaRegistro','$FechaActualizacion'),";
+             if($r>=500){
+                 $r=0;
+                 $sql=substr($sql, 0, -1);
+                 $this->Query($sql);
+                 $sql="INSERT INTO $db.`temporal_glosaseps_asmet` ( `ID`, `Sede`,`Nit_IPS`,`RazonSocial`, `NumeroRadicado`,  `NumeroFactura`,`FechaRadicado`, `ValorFactura`, `ValorTotalGlosa`, `ValorGlosaFavor`, `ValorGlosaContra`, `ValorPendienteResolver`,  `Soporte`,`idUser`, `FechaRegistro`, `FechaActualizacion`) VALUES ";
+             }
              /*
              if($i>=2){
                  

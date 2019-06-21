@@ -52,7 +52,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $info = new SplFileInfo($_FILES['UpCartera']['name']);
                 $Extension=($info->getExtension());
                 if($Extension<>'csv'){
-                    exit("E1;El archivo enviado no corresponde a un archivo de glosas para ASMET");
+                    exit("E1;El archivo enviado no corresponde a un archivo de glosas para ASMET, debe ser un CSV y se recibió un $Extension");
                 }                
                 $carpeta="../../../soportes/813001952/";
                 if (!file_exists($carpeta)) {

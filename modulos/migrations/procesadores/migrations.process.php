@@ -93,7 +93,11 @@ if( !empty($_REQUEST["Accion"]) ){
                         $fileSQL = file_get_contents($directorio.$DatosMigration["migration"]);
                         $Consultas= explode(";", $fileSQL);
                         foreach ($Consultas as $key => $query) {
+                            if($query==''){
+                                continue;
+                            }
                             $Resultados=$obCon->Query2($query, HOST, USER, PW, $db, "");
+                            //print($query);
                             if(isset($Resultados["Error"])){
                                 //$NumErrores++;
                                 $Error=$Resultados["Error"];
