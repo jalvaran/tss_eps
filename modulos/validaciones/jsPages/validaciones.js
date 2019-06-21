@@ -879,3 +879,5 @@ function ExportarTablaToExcel(idTabla){
 }
 
 document.getElementById('TabCuentas1').click();
+$('#CmbIPS').select2();
+$('#CmbEPS').select2();

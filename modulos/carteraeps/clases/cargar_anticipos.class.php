@@ -377,7 +377,7 @@ class CargarAnticipos extends conexion{
                     continue;
                 }
                 
-                if($r==1000){
+                if($r==50){
                 
                     $sql=substr($sql, 0, -1);
                     //print($sql);

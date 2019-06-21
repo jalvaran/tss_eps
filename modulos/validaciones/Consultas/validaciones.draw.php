@@ -847,7 +847,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     
                 $css->CierraFilaTabla();
-                $sql="SELECT * FROM $db.notas_dv_cr WHERE NumeroFactura='$NumeroFactura' AND TipoOperacion='2258'";
+                $sql="SELECT * FROM $db.notas_db_cr_2 WHERE NumeroFactura='$NumeroFactura' AND (TipoOperacion='2258' or TipoOperacion='2225' or TipoOperacion='2214')";
                 $Consulta=$obCon->Query($sql);
                 while($DatosPagos=$obCon->FetchAssoc($Consulta)){
                      $css->FilaTabla(14);
@@ -855,8 +855,8 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla(($DatosPagos["NumeroTransaccion"]), 1,'L');
                         $css->ColTabla(($DatosPagos["FechaTransaccion"]), 1,'L');
                         $css->ColTabla(($DatosPagos["NombreSucursal"]), 1,'L');
-                        $css->ColTabla(($DatosPagos["C51"]), 1,'L');
-                        $css->ColTabla(number_format($DatosPagos["Valor"]), 1,'R');
+                        $css->ColTabla(($DatosPagos["NombreOperacion"]), 1,'L');
+                        $css->ColTabla(number_format($DatosPagos["ValorTotal"]), 1,'R');
                         
                     $css->CierraFilaTabla();
                 }
@@ -886,7 +886,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     
                 $css->CierraFilaTabla();
-                $sql="SELECT * FROM $db.notas_dv_cr WHERE NumeroFactura='$NumeroFactura' AND TipoOperacion='2259'";
+                $sql="SELECT * FROM $db.notas_db_cr_2 WHERE NumeroFactura='$NumeroFactura' AND TipoOperacion='2259'";
                 $Consulta=$obCon->Query($sql);
                 while($DatosPagos=$obCon->FetchAssoc($Consulta)){
                      $css->FilaTabla(14);
@@ -894,8 +894,8 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla(($DatosPagos["NumeroTransaccion"]), 1,'L');
                         $css->ColTabla(($DatosPagos["FechaTransaccion"]), 1,'L');
                         $css->ColTabla(($DatosPagos["NombreSucursal"]), 1,'L');
-                        $css->ColTabla(($DatosPagos["C51"]), 1,'L');
-                        $css->ColTabla(number_format($DatosPagos["Valor"]), 1,'R');
+                        $css->ColTabla(($DatosPagos["NombreOperacion"]), 1,'L');
+                        $css->ColTabla(number_format($DatosPagos["ValorTotal"]), 1,'R');
                         
                     $css->CierraFilaTabla();
                 }

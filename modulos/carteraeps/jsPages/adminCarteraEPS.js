@@ -22,12 +22,32 @@ function CargarHistorialPagos(){
 
 function HistorialAnticipos(){
     var dbIPS=document.getElementById('CmbIPS').value; 
-    SeleccioneTablaDB(dbIPS+`.anticipos_asmet`,`DivControlCargue`,`DivOpcionesControlCargue`)
+    SeleccioneTablaDB(dbIPS+`.anticipos2`,`DivControlCargue`,`DivOpcionesControlCargue`)
 }
 
 function HistorialNotas(){
     var dbIPS=document.getElementById('CmbIPS').value; 
     SeleccioneTablaDB(dbIPS+`.notas_db_cr_2`,`DivHistorialNotas`,`DivOpcionesHistorialNotas`)
+}
+
+function HistorialActualizacionesCartera(){
+    var dbIPS=document.getElementById('CmbIPS').value; 
+    SeleccioneTablaDB(dbIPS+`.historial_carteracargada_eps`,`DivHistorialActualizacion`,`DivOpcionesActualizacion`)
+}
+
+function HistorialArchivosCargados(){
+    var dbIPS=document.getElementById('CmbIPS').value; 
+    SeleccioneTablaDB(dbIPS+`.controlcargueseps`,`DivHistorialTab7`,`DivOpcionesTab7`)
+}
+
+function HistorialCarteraXEdades(){
+    var dbIPS=document.getElementById('CmbIPS').value; 
+    SeleccioneTablaDB(dbIPS+`.carteraxedades`,`DivHistorialTab8`,`DivOpcionesTab8`)
+}
+
+function CruceCartera(){
+    var dbIPS=document.getElementById('CmbIPS').value; 
+    SeleccioneTablaDB(dbIPS+`.vista_cruce_cartera_asmet`,`DivHistorialTab9`,`DivOpcionesTab9`)
 }
 document.getElementById('BtnMuestraMenuLateral').click();
 document.getElementById('TabCuentas1').click();

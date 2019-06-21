@@ -34,7 +34,12 @@ $css->PageInit($myTitulo);
     $css->CerrarDiv(); 
     
     $css->CrearDiv("", "col-md-3", "center", 1, 1);
-        $sql="SELECT r.idIPS,i.Nombre FROM relacion_usuarios_ips r INNER JOIN ips i ON i.NIT=r.idIPS WHERE idUsuario='$idUser' ";
+        if($Role=="SUPERVISOR"){
+            $sql="SELECT NIT as idIPS, Nombre FROM ips";
+        }else{
+            $sql="SELECT r.idIPS,i.Nombre FROM relacion_usuarios_ips r INNER JOIN ips i ON i.NIT=r.idIPS WHERE idUsuario='$idUser' ";
+        }
+        
         $Consulta=$obCon->Query($sql);
         
         $css->select("CmbIPS", "form-control", "CmbIPS", "IPS", "", "", "");

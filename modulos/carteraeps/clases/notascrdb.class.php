@@ -378,7 +378,7 @@ class NotasCRBD extends conexion{
                
                $r++;//Contador de filas a insertar
                $sql.="(";
-               $z=0;
+               $z=1*(-1);
                foreach ($ColumnasTabla["Field"] as $key => $value) {
                    if($value=="ID"){
                        $sql.="'',";
@@ -407,7 +407,7 @@ class NotasCRBD extends conexion{
                        $sql.="'$Fecha',";
                        continue;
                    }
-                   
+                   $z++;
                    if($value=="FechaTransaccion" or $value=="FechaAprobacion" ){
                        if(isset($data[$z])){
                            $FechaTransaccion=$this->ConviertaStringToDate($data[$z]);
@@ -426,7 +426,7 @@ class NotasCRBD extends conexion{
                        $Dato= "";
                        $sql.="'$Dato',";
                    }
-                   $z++;
+                   
                    
                    
                }
@@ -456,6 +456,7 @@ class NotasCRBD extends conexion{
             fclose($handle); 
         clearstatcache();
     }
+    
     
     public function ConviertaStringToDate($Dato) {
         $Fecha="0000-00-00";
