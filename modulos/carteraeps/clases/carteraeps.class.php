@@ -163,7 +163,7 @@ class CarteraEPS extends conexion{
                  }
                  $sql.="'$Dato',";
              }
-             for($i=23;$i<=50;$i++){
+             for($i=24;$i<=51;$i++){
                  $Dato="";
                  if(isset($data[$i])){
                      $Dato= str_replace(".", "", $data[$i]);

@@ -120,7 +120,8 @@ FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.Numero
 
 DROP VIEW IF EXISTS `vista_copagos_asmet`;
 CREATE VIEW vista_copagos_asmet AS 
-SELECT NumeroFactura,SUM(ValorTotal) AS ValorTotal FROM notas_db_cr_2 WHERE TipoOperacion='2258' OR notas_db_cr_2.TipoOperacion='2225' OR notas_db_cr_2.TipoOperacion='2214' GROUP BY NumeroFactura;
+SELECT NumeroFactura,SUM(ABS(ValorTotal)) AS ValorTotal FROM notas_db_cr_2 WHERE TipoOperacion='2258' 
+OR notas_db_cr_2.TipoOperacion='2225' OR notas_db_cr_2.TipoOperacion='2214' GROUP BY NumeroFactura;
 
 DROP VIEW IF EXISTS `vista_cruce_cartera_asmet`;
 CREATE VIEW vista_cruce_cartera_asmet AS 
