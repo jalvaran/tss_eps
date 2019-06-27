@@ -62,7 +62,7 @@ class CarteraIPS extends conexion{
         $columnas = $objPHPExcel->setActiveSheetIndex(0)->getHighestColumn();
         $filas = $objPHPExcel->setActiveSheetIndex(0)->getHighestRow();
         //print("<br>Columnas $columnas<br>");
-        if($columnas<>'W'){
+        if($columnas<>'W' AND $columnas<>'V'){
             exit("E1;El archivo recibido no corresponde al formato de <strong>cartera de IPS $columnas</strong>");
         }
         date_default_timezone_set('UTC'); //establecemos la hora local
@@ -76,6 +76,9 @@ class CarteraIPS extends conexion{
                 $_DATOS_EXCEL[$i]['FechaRadicado']=$FechaRadicado;
                 $_DATOS_EXCEL[$i]['NitEPS']= $objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['NitIPS']= $objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
+                if($_DATOS_EXCEL[$i]['NitIPS']<>$idIPS){
+                    exit("E1;El archivo enviado contiene registros de una IPS diferente con NIT: ".$_DATOS_EXCEL[$i]['NitIPS']);
+                }
                 $_DATOS_EXCEL[$i]['NumeroFactura'] = $objPHPExcel->getActiveSheet()->getCell('C'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['NumeroCuentaGlobal'] = $objPHPExcel->getActiveSheet()->getCell('E'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['NumeroRadicado'] = $objPHPExcel->getActiveSheet()->getCell('F'.$i)->getCalculatedValue();

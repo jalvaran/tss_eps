@@ -110,11 +110,13 @@ class CarteraEPS extends conexion{
                 . "`NumeroTransaccionGA2702`, `ValorCruceTransaccionGA2702`, `TipoOperacionGD2702`, `FechaTransaccionGD2702`, `NumeroTransaccionGD2702`, "
                 . "`ValorCruceTransaccionGD2702`, `NumeroPlanoGD2702`, `DescuentoBdua`, `Previsado`, `EnGiro`, `ValorGiro`, `Soporte`, `Nit_EPS`, `idUser`, `FechaRegistro`, "
                 . "`FechaActualizacion`) VALUES ";
-        $r=0;
         $z=0;
-        while ( ($data = fgetcsv($handle, 1000, $Separador)) !== FALSE) {
-            $r++;
+        while ($z < $MaxRegistros && ($data = fgetcsv($handle, 1000, $Separador)) !== FALSE) {
+            
             $z++;
+            if($z<=$LineaActual){
+                continue;
+            }
             if(!isset($data[2])){
                 continue;
             }
@@ -137,9 +139,6 @@ class CarteraEPS extends conexion{
             
             
             if($data[5]==""){
-                continue;
-            }
-            if(!is_numeric($data[8])){
                 continue;
             }
             if($data[2]<>""){
@@ -178,27 +177,6 @@ class CarteraEPS extends conexion{
                  $sql.="'$Dato',";
              }
              $sql.="'$Soporte','$EPS','$idUser','$FechaRegistro','$FechaActualizacion'),";
-             
-             if($r==1000){
-                 $r=0;
-                 $sql=substr($sql, 0, -1);
-                //print("<pre>".$sql."</pre>");
-                $this->Query($sql);
-                
-                $sql="INSERT INTO $db.`temporalcarguecarteraeps` (`ID`, `TipoOperacion`, `NumeroOperacion`, `FechaFactura`, `CodigoSucursal`, `Sucursal`,"
-                . "`NumeroFactura`, `Descripcion`, `RazonSocial`, `Nit_IPS`, `NumeroContrato`, `Prefijo`, `DepartamentoRadicacion`, "
-                . "`NumeroRadicado`, `MesServicio`, `ValorOriginal`, `ValorMenosImpuestos`, `ValorPagado`, `ValorCruce`, `ValorCruceAnticipo`, "
-                . "`ValorCruceAuditoria`, `SaldoFactura`, `ValorAutorizado`, "
-                . "`AnticiposRelacionados`, `ValorGlosaTotalMutual`,`CrucesMutual`,`SaldoMutual`,`TotalValorGlosadoD2702`,"
-                . " `ValorPagosGlosadoD2702`, `ValorCruceGlosadoD2702`, `SaldoGlosaD2702`, `ValorAutorizadoGlosado`, "
-                . "`Original29`, `TipoOperacionCF`, `NumeroTransaccionCF`, `FechaTransaccionCF`, `ValorCruceTransaccionCF`, `TipoOperacionPF`, "
-                . "`NumeroTransaccionPF`, `FechaTransaccionPF`, `ValorPagadoPF`, `NumeroPlanoPF`, `FechaPlanoPF`, `TipoOperacionGA2702`, `FechaTransaccionGA2702`, "
-                . "`NumeroTransaccionGA2702`, `ValorCruceTransaccionGA2702`, `TipoOperacionGD2702`, `FechaTransaccionGD2702`, `NumeroTransaccionGD2702`, "
-                . "`ValorCruceTransaccionGD2702`, `NumeroPlanoGD2702`, `DescuentoBdua`, `Previsado`, `EnGiro`, `ValorGiro`, `Soporte`, `Nit_EPS`, `idUser`, `FechaRegistro`, "
-                . "`FechaActualizacion`) VALUES "; 
-                
-             }
-             
         }
         
         fclose($handle); 
@@ -250,15 +228,10 @@ class CarteraEPS extends conexion{
                 . "`ValorCruceTransaccionGD2702`, `NumeroPlanoGD2702`, `DescuentoBdua`, `Previsado`, `EnGiro`, `ValorGiro`, `Soporte`, `Nit_EPS`, `idUser`, `FechaRegistro`, "
                 . "`FechaActualizacion`) VALUES ";
         $z=0;
-        $r=0;
-        while (($data = fgetcsv($handle, 1000, $Separador)) !== FALSE) {
+        while ($z < $MaxRegistros && ($data = fgetcsv($handle, 1000, $Separador)) !== FALSE) {
             
             $z++;
-            $r++;
-            if(!isset($data[8])){ //Se encuentra el nit de la ips
-                continue;
-            }
-            if(!is_numeric($data[8])){
+            if($z<=$LineaActual){
                 continue;
             }
             
@@ -305,24 +278,6 @@ class CarteraEPS extends conexion{
                  }
              }
              $sql.="'','','','$Soporte','$EPS','$idUser','$FechaRegistro','$FechaActualizacion'),";
-             
-             if($r==1000){
-                 $r=0;
-                 $sql=substr($sql, 0, -1);
-                //print("<pre>".$sql."</pre>");
-                $this->Query($sql);
-                $sql="INSERT INTO $db.`temporalcarguecarteraeps` (`ID`, `TipoOperacion`, `NumeroOperacion`, `FechaFactura`, `CodigoSucursal`, `Sucursal`,"
-                . "`NumeroFactura`, `Descripcion`, `RazonSocial`, `Nit_IPS`, `NumeroContrato`, `Prefijo`, `DepartamentoRadicacion`, "
-                . "`NumeroRadicado`, `MesServicio`, `ValorOriginal`, `ValorMenosImpuestos`, `ValorPagado`, `ValorCruce`, `ValorCruceAnticipo`, "
-                . "`ValorCruceAuditoria`, `SaldoFactura`, `ValorAutorizado`, "
-                . "`AnticiposRelacionados`, `ValorGlosaTotalMutual`,`CrucesMutual`,`SaldoMutual`,`TotalValorGlosadoD2702`,"
-                . " `ValorPagosGlosadoD2702`, `ValorCruceGlosadoD2702`, `SaldoGlosaD2702`, `ValorAutorizadoGlosado`, "
-                . "`Original29`, `TipoOperacionCF`, `NumeroTransaccionCF`, `FechaTransaccionCF`, `ValorCruceTransaccionCF`, `TipoOperacionPF`, "
-                . "`NumeroTransaccionPF`, `FechaTransaccionPF`, `ValorPagadoPF`, `NumeroPlanoPF`, `FechaPlanoPF`, `TipoOperacionGA2702`, `FechaTransaccionGA2702`, "
-                . "`NumeroTransaccionGA2702`, `ValorCruceTransaccionGA2702`, `TipoOperacionGD2702`, `FechaTransaccionGD2702`, `NumeroTransaccionGD2702`, "
-                . "`ValorCruceTransaccionGD2702`, `NumeroPlanoGD2702`, `DescuentoBdua`, `Previsado`, `EnGiro`, `ValorGiro`, `Soporte`, `Nit_EPS`, `idUser`, `FechaRegistro`, "
-                . "`FechaActualizacion`) VALUES ";
-             }
         }
         
         fclose($handle); 

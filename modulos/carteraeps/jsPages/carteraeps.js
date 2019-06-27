@@ -349,14 +349,14 @@ function EnviarArchivoATemporal(TotalLineas,LineaActual=0){
                 
                 LineaActual=parseFloat(respuestas[2]);
                 
-                if(LineaActual>=TotalLineas){
+               // if(LineaActual>=TotalLineas){
                     document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Carga a Temporal Terminada en la linea "+LineaActual+" de un total de: "+TotalLineas;
                     CopiarAlHistorialCargas();
                     
-                }else{
-                    document.getElementById('DivMensajes').innerHTML=LineaActual+" Lineas Cargandas de un total de: "+TotalLineas;
-                    EnviarArchivoATemporal(TotalLineas,LineaActual);
-                }
+                //}else{
+                  //  document.getElementById('DivMensajes').innerHTML=LineaActual+" Lineas Cargandas de un total de: "+TotalLineas;
+                  //  EnviarArchivoATemporal(TotalLineas,LineaActual);
+               // }
                 
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
