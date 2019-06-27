@@ -1,4 +1,5 @@
 <?php
+use PhpOffice\PhpSpreadsheet\IOFactory;
 if(file_exists("../../../modelo/php_conexion.php")){
     include_once("../../../modelo/php_conexion.php");
 }
@@ -15,8 +16,9 @@ class CargarResolucionesSinEnviar extends conexion{
         
     public function GuardeArchivoEnTemporal($keyArchivo,$db,$idUser) {
         clearstatcache();
-        require_once('../../../librerias/Excel/PHPExcel.php');
-        require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
+        //require_once('../../../librerias/Excel/PHPExcel.php');
+        //require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
+        require_once('../../../librerias/Excel/PHPExcel2.php');
         $carpeta="../../../soportes/ts_eps_resoluciones_glosas/";
         $keyArchivo="RadicadosSinEnviar.xlsx";
         $RutaArchivo=$carpeta.$keyArchivo;
@@ -28,9 +30,9 @@ class CargarResolucionesSinEnviar extends conexion{
         $Soporte=$RutaArchivo;
        
         if($Extension=="xlsx"){
-            $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+            $objReader = IOFactory::createReader('Xlsx');
         }else if($Extension=="xls"){
-            $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+            $objReader = IOFactory::createReader('Xls');
         }else{
             exit("Solo se permiten archivos con extension xls o xlsx");
         }
