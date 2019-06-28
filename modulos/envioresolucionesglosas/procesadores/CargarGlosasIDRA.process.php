@@ -16,7 +16,8 @@ if( !empty($_REQUEST["Accion"]) ){
               
         case 1: //Recibir el archivo    
             
-            $obCon->VaciarTabla("$db.temp_resoluciones_glosas_idra");
+            //$obCon->VaciarTabla("$db.temp_resoluciones_glosas_idra");
+            $obCon->BorraReg("$db.temp_resoluciones_glosas_idra", "idUser", $idUser);
             $destino='';            
             $Extension="";
             if(!empty($_FILES['UpCartera']['name'])){
@@ -67,7 +68,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         WHERE $db.resoluciones_glosas_idra.NumeroRadicado = $db.temp_resoluciones_glosas_idra.NumeroRadicado
                         AND $db.resoluciones_glosas_idra.NumeroFactura = $db.temp_resoluciones_glosas_idra.NumeroFactura    
                         AND $db.resoluciones_glosas_idra.Nit_IPS = $db.temp_resoluciones_glosas_idra.Nit_IPS  
-                            );
+                            ) AND $db.`temp_resoluciones_glosas_idra`.idUser='$idUser';
                     ";
             //print($sql);
             

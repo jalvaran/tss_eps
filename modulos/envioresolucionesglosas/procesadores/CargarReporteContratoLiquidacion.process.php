@@ -46,7 +46,8 @@ if( !empty($_REQUEST["Accion"]) ){
             $NumeroContrato=$obCon->getNumContract($NumeroContrato);
             $keyArchivo=$obCon->getKeyArchivo($NumeroContrato, $CmbIPS);
             
-            $obCon->VaciarTabla("$db.temp_resoluciones_glosas_revision_contrato_glosa");
+            //$obCon->VaciarTabla("$db.temp_resoluciones_glosas_revision_contrato_glosa");
+            $obCon->BorraReg("$db.temp_resoluciones_glosas_revision_contrato_glosa", "idUser", $idUser);
             $destino='';            
             $Extension="";
             if(!empty($_FILES['UpCartera']['name'])){
@@ -85,13 +86,13 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyArchivo($NumeroContrato, $CmbIPS);
             
             $sql="UPDATE $db.temp_resoluciones_glosas_revision_contrato_glosa t1 INNER JOIN $db.resoluciones_glosas_revision_contrato_glosa t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  "
-                    . "WHERE t1.NumeroRadicado=t2.NumeroRadicado ";
+                    . "WHERE t1.NumeroRadicado=t2.NumeroRadicado AND t1.idUser='$idUser'";
                     
             $obCon->Query($sql);
             $sql="INSERT INTO $db.`resoluciones_glosas_revision_contrato_glosa`   
                    (`Nit_IPS`,`RazonSocial`,`NumeroContrato`,`NumeroRadicado`,`NumeroFactura`,`ValorGlosa`,`ValorGlosaAFavorAsmet`,`Soporte`,`idUser`,`FechaRegistro`) 
                    SELECT `Nit_IPS`,`RazonSocial`,`NumeroContrato`,`NumeroRadicado`,`NumeroFactura`,`ValorGlosa`,`ValorGlosaAFavorAsmet`,`Soporte`,`idUser`,`FechaRegistro`
-                  FROM $db.`temp_resoluciones_glosas_revision_contrato_glosa` as t1 WHERE t1.FlagUpdate=0;
+                  FROM $db.`temp_resoluciones_glosas_revision_contrato_glosa` as t1 WHERE t1.FlagUpdate=0 AND t1.idUser='$idUser';
                     
                     ";
             //print($sql);

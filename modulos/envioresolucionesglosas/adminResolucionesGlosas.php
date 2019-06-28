@@ -31,6 +31,7 @@ print("<br>");
    
    $css->TabInit();
             $css->TabLabel("TabCuentas1", "<strong >Comparacion de Radicados</strong>", "Tab_1", 1,"onclick=CargarComparacionRadicados()");
+            $css->TabLabel("TabCuentas2", "<strong >Comparacion de Contratos VS HIDRA</strong>", "Tab_2", 0,"onclick=CargarContratosVSHIDRA()");
             
         $css->TabInitEnd();
         $css->TabContentInit();
@@ -42,6 +43,17 @@ print("<br>");
 
             $css->CerrarDiv();
             $css->CrearDiv("DivTab1", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            
+        $css->TabPaneEnd();
+        
+        $css->TabPaneInit("Tab_2", 1);
+            
+            $css->CrearDiv("DivOpcionesTab2", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            $css->CrearDiv("DivTab2", "", "center", 1, 1);
 
             $css->CerrarDiv();
             

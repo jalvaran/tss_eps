@@ -8,3 +8,29 @@ CREATE VIEW vista_coincidencia_radicados AS
 SELECT * FROM vista_agrupacion_radicados WHERE EXISTS (SELECT 1 FROM resoluciones_glosas_radicados_sin_enviar WHERE resoluciones_glosas_radicados_sin_enviar.NumeroRadicado=vista_agrupacion_radicados.NumeroRadicado);
 
 
+DROP VIEW IF EXISTS `vista_agrupacion_factura_contratos_liquidados`;
+CREATE VIEW vista_agrupacion_factura_contratos_liquidados AS 
+SELECT Nit_IPS,RazonSocial,NumeroContrato,NumeroRadicado,NumeroFactura,SUM(ValorGlosa) AS GlosaEnContratos,
+SUM(ValorGlosaAFavorAsmet) as GlosaFavorAsmetEnContratos
+FROM resoluciones_glosas_revision_contrato_glosa GROUP BY NumeroFactura ORDER BY NumeroRadicado;
+
+DROP VIEW IF EXISTS `vista_agrupacion_factura_hidra`;
+CREATE VIEW vista_agrupacion_factura_hidra AS 
+SELECT NumeroRadicado,NumeroFactura,SUM(ValorGlosa) AS ValorGlosa,
+SUM(ValorGlosaAfavorAsmet) as ValorGlosaAfavorAsmet
+
+FROM resoluciones_glosas_idra GROUP BY NumeroFactura ORDER BY NumeroRadicado;
+
+
+DROP VIEW IF EXISTS `vista_comparacion_glosas_contratos_hidra`;
+CREATE VIEW vista_comparacion_glosas_contratos_hidra AS 
+SELECT t1.*,(SELECT t1.GlosaEnContratos - t1.GlosaFavorAsmetEnContratos) as GlosaContraAsmetContratos,
+(SELECT ValorGlosa FROM vista_agrupacion_factura_hidra t2 WHERE t2.NumeroFactura=t1.NumeroFactura) as GlosaHIDRA,
+(SELECT ValorGlosaAfavorAsmet FROM vista_agrupacion_factura_hidra t2 WHERE t2.NumeroFactura=t1.NumeroFactura) as GlosaFavorAsmetHIDRA,
+(SELECT ValorGlosa-ValorGlosaAfavorAsmet FROM vista_agrupacion_factura_hidra t2 WHERE t2.NumeroFactura=t1.NumeroFactura) as GlosaContraAsmetHIDRA,
+((SELECT t1.GlosaEnContratos)-(SELECT GlosaHIDRA)) AS DiferenciaValorGlosa,
+((SELECT t1.GlosaFavorAsmetEnContratos)-(SELECT GlosaFavorAsmetHIDRA)) AS DiferenciaGlosaFavor,
+((SELECT GlosaContraAsmetContratos)-(SELECT GlosaContraAsmetHIDRA)) AS DiferenciaGlosaContra
+FROM vista_agrupacion_factura_contratos_liquidados t1;
+
+
