@@ -51,7 +51,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 
                 $info = new SplFileInfo($_FILES['UpCartera']['name']);
                 $Extension=($info->getExtension());                
-                $carpeta="../../../soportes/813001952/";
+                $carpeta="../../../soportes/$CmbIPS/";
                 if (!file_exists($carpeta)) {
                     mkdir($carpeta, 0777);
                 }

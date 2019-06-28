@@ -54,7 +54,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 
                    
                 if($Extension=="xls" or $Extension=="xlsx"){
-                    $carpeta="../../../soportes/813001952/";
+                    $carpeta="../../../soportes/$CmbIPS/";
                     if (!file_exists($carpeta)) {
                         mkdir($carpeta, 0777);
                     }

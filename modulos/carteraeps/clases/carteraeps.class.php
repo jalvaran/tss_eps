@@ -1,4 +1,5 @@
 <?php
+use PhpOffice\PhpSpreadsheet\IOFactory;
 if(file_exists("../../../modelo/php_conexion.php")){
     include_once("../../../modelo/php_conexion.php");
 }
@@ -429,8 +430,10 @@ class CarteraEPS extends conexion{
     
     
     public function GuardePagosASMETMutualEnTemporal($keyArchivo,$idIPS,$idEPS,$idUser) {
-        require_once('../../../librerias/Excel/PHPExcel.php');
-        require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
+        clearstatcache();
+        require_once('../../../librerias/Excel/PHPExcel2.php');
+        //require_once('../../../librerias/Excel/PHPExcel.php');
+        //require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
         //print("Clase Pagos Mutual");
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
         $db=$DatosIPS["DataBase"];
@@ -441,9 +444,9 @@ class CarteraEPS extends conexion{
         $RutaArchivo=$DatosUpload["RutaArchivo"];
         $Soporte=$DatosUpload["RutaArchivo"];
         if($DatosUpload["ExtensionArchivo"]=="xlsx"){
-            $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+            $objReader = IOFactory::createReader('Xlsx');
         }else if($DatosUpload["ExtensionArchivo"]=="xls"){
-            $objReader = PHPExcel_IOFactory::createReader('Excel5');
+            $objReader = IOFactory::createReader('Xls');
         }else{
             exit("Solo se permiten archivos con extension xls o xlsx");
         }
@@ -452,7 +455,7 @@ class CarteraEPS extends conexion{
         $objPHPExcel = $objReader->load($RutaArchivo);   
         $hojas=$objPHPExcel->getSheetCount();
                  
-        $objFecha = new PHPExcel_Shared_Date();      
+        //$objFecha = new PHPExcel_Shared_Date();      
         
         
         $hojas=$objPHPExcel->getSheetCount();
@@ -494,11 +497,12 @@ class CarteraEPS extends conexion{
                     continue;
                 }
                     $cell = $objPHPExcel->getActiveSheet()->getCell('A'.$i);
-                    if(!PHPExcel_Shared_Date::isDateTime($cell)){
+                    if(!\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)){
                         continue;
                     }
-                    $data=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue());
-                    $FechaPago=date("Y-m-d",$data); 
+                    $data=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue());
+                    $data=get_object_vars($data);
+                    $FechaPago=$data["date"];
                     $_DATOS_EXCEL[$i]['Nit_IPS'] = $idIPS;
                     $_DATOS_EXCEL[$i]['Nit_EPS'] = $idEPS;
                     $_DATOS_EXCEL[$i]['Proceso']=$Proceso;

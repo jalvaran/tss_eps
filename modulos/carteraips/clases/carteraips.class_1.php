@@ -36,9 +36,8 @@ class CarteraIPS extends conexion{
     }
     
     public function LeerArchivo($keyArchivo,$FechaCorte,$idIPS,$idUser) {
-        require_once('../../../librerias/Excel/PHPExcel2.php');
-        //require_once('../../../librerias/Excel/PHPExcel.php');
-        //require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
+        require_once('../../../librerias/Excel/PHPExcel.php');
+        require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
         $db=$DatosIPS["DataBase"];
         $sql="SELECT * FROM $db.controlcarguesips WHERE NombreCargue='$keyArchivo' AND idUser='$idUser'";
@@ -48,16 +47,16 @@ class CarteraIPS extends conexion{
         $Soporte=$DatosUpload["Soporte"];
         $RutaArchivo=$DatosUpload["RutaArchivo"];
         if($DatosUpload["ExtensionArchivo"]=="xlsx"){
-            $objReader = IOFactory::createReader('Xlsx');
+            $objReader = PHPExcel_IOFactory::createReader('Excel2007');
         }else if($DatosUpload["ExtensionArchivo"]=="xls"){
-            $objReader = IOFactory::createReader('Xls');
+            $objReader = PHPExcel_IOFactory::createReader('Excel5');
         }else{
             exit("Solo se permiten archivos con extension xls o xlsx");
         }
         
         //$objReader = new PHPExcel_Reader_Excel2007();
         $objPHPExcel = $objReader->load($RutaArchivo);
-        //$objFecha = new excelToTimestamp();       
+        $objFecha = new PHPExcel_Shared_Date();       
         $objPHPExcel->setActiveSheetIndex(0);
         
         $count=0;
@@ -70,14 +69,10 @@ class CarteraIPS extends conexion{
         date_default_timezone_set('UTC'); //establecemos la hora local
         for ($i=2;$i<=$filas;$i++){
             if($objPHPExcel->getActiveSheet()->getCell('C'.$i)->getCalculatedValue()<>''){
-                $data=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue());
-                $data=get_object_vars($data);
-                //print($data["date"]);
-                $FechaRadicado=$data["date"]; 
-                
-                $data=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue());
-                $data=get_object_vars($data);
-                $FechaFactura=$data["date"]; 
+                $data=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue());
+                $FechaRadicado=date("Y-m-d",$data); 
+                $data=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue());
+                $FechaFactura=date("Y-m-d",$data); 
                 $_DATOS_EXCEL[$i]['FechaFactura']=$FechaFactura;
                 $_DATOS_EXCEL[$i]['FechaRadicado']=$FechaRadicado;
                 $_DATOS_EXCEL[$i]['NitEPS']= $objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();

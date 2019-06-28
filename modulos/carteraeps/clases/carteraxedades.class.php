@@ -1,4 +1,5 @@
 <?php
+use PhpOffice\PhpSpreadsheet\IOFactory;
 if(file_exists("../../../modelo/php_conexion.php")){
     include_once("../../../modelo/php_conexion.php");
 }
@@ -36,8 +37,9 @@ class CarteraXEdades extends conexion{
     }
     
     public function GuardeArchivoEnTemporal($keyArchivo,$idIPS,$idEPS,$idUser) {
-        require_once('../../../librerias/Excel/PHPExcel.php');
-        require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
+        //require_once('../../../librerias/Excel/PHPExcel.php');
+        //require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
+        require_once('../../../librerias/Excel/PHPExcel2.php');
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
         $db=$DatosIPS["DataBase"];
         $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo' AND idUser='$idUser'";
@@ -47,9 +49,9 @@ class CarteraXEdades extends conexion{
         $RutaArchivo=$DatosUpload["RutaArchivo"];
         $Soporte=$DatosUpload["RutaArchivo"];
         if($DatosUpload["ExtensionArchivo"]=="xlsx"){
-            $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+            $objReader = IOFactory::createReader('Xlsx');
         }else if($DatosUpload["ExtensionArchivo"]=="xls"){
-            $objReader = PHPExcel_IOFactory::createReader('Excel5');
+            $objReader = IOFactory::createReader('Xls');
         }else{
             exit("Solo se permiten archivos con extension xls o xlsx");
         }
@@ -113,9 +115,10 @@ class CarteraXEdades extends conexion{
                     $Dato=$objPHPExcel->getActiveSheet()->getCell($Cols[$c].$i)->getCalculatedValue();
                     //if($value=="FechaTransaccion" or $value=="FechaValidacionImpuesto" or $value=="FechaTasa" or $value=="C55" or $value=="C56" or $value=="C73"){
                         $cell = $objPHPExcel->getActiveSheet()->getCell($Cols[$c].$i);
-                        if(PHPExcel_Shared_Date::isDateTime($cell)){
-                            $Dato=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell($Cols[$c].$i)->getValue());
-                            $Dato = date('Y-m-d', $Dato);
+                        if(\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)){
+                            $Dato=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell($Cols[$c].$i)->getValue());
+                            $Dato=get_object_vars($Dato);
+                            $Dato = $Dato["date"];
                             /*
                             if($value=="FechaValidacionImpuesto"){
                                 $Dato = date('Y-m-d H:i:s', $Dato);

@@ -17,3 +17,8 @@ INSERT INTO `menu_pestanas` (`ID`, `Nombre`, `idMenu`, `Orden`, `Estado`, `Updat
 INSERT INTO `menu_carpetas` (`ID`, `Ruta`, `Updated`, `Sync`) VALUES
 (10,	'../modulos/envioresolucionesglosas/',	'2019-05-20 09:17:15',	'0000-00-00 00:00:00');
 
+INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
+(17,	'Cargar Contratos Liquidados',	50,	10,	6,	'',	1,	'',	'CargarReporteContratoLiquidacion.php',	'_SELF',	1,	'acta.png',	2,	'2019-06-19 08:28:56',	'0000-00-00 00:00:00'),
+(18,	'Administrador de Radicados Glosas',	50,	10,	6,	'',	1,	'',	'adminResolucionesGlosas.php',	'_SELF',	1,	'admin.png',	3,	'2019-06-19 08:28:56',	'0000-00-00 00:00:00');
+
+

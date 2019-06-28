@@ -1,4 +1,5 @@
 <?php
+use PhpOffice\PhpSpreadsheet\IOFactory;
 if(file_exists("../../../modelo/php_conexion.php")){
     include_once("../../../modelo/php_conexion.php");
 }
@@ -38,8 +39,9 @@ class CargarAnticipos extends conexion{
     
     public function GuardeArchivoSASEnTemporal($keyArchivo,$idIPS,$idEPS,$idUser) {
         clearstatcache();
-        require_once('../../../librerias/Excel/PHPExcel.php');
-        require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
+        //require_once('../../../librerias/Excel/PHPExcel.php');
+        //require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
+        require_once('../../../librerias/Excel/PHPExcel2.php');
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
         $db=$DatosIPS["DataBase"];
         $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo' AND idUser='$idUser'";
@@ -50,9 +52,9 @@ class CargarAnticipos extends conexion{
         $Soporte=$DatosUpload["RutaArchivo"];
        
         if($DatosUpload["ExtensionArchivo"]=="xlsx"){
-            $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+            $objReader = IOFactory::createReader('Xlsx');
         }else if($DatosUpload["ExtensionArchivo"]=="xls"){
-            $objReader = PHPExcel_IOFactory::createReader('Excel5');
+            $objReader = IOFactory::createReader('Xls');
         }else{
             exit("Solo se permiten archivos con extension xls o xlsx");
         }
@@ -121,9 +123,10 @@ class CargarAnticipos extends conexion{
                     
                     
                     $cell = $objPHPExcel->getActiveSheet()->getCell('K'.$i);
-                    if(PHPExcel_Shared_Date::isDateTime($cell)){
-                        $FechaAnticipo=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue());
-                        $FechaAnticipo = date('Y-m-d', $FechaAnticipo);
+                    if(\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)){
+                        $FechaAnticipo=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('K'.$i)->getValue());
+                        $FechaAnticipo=get_object_vars($FechaAnticipo);
+                        $FechaAnticipo = $FechaAnticipo["date"];
                         
                     }else{
                         $FechaAnticipo='';
@@ -157,9 +160,10 @@ class CargarAnticipos extends conexion{
                     $sql.="'$NumeroOperacion',";
                     
                     $cell = $objPHPExcel->getActiveSheet()->getCell('C'.$i);
-                    if(PHPExcel_Shared_Date::isDateTime($cell)){
-                        $Fecha=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue());
-                        $Fecha = date('Y-m-d', $Fecha);
+                    if(\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)){
+                        $Fecha=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue());
+                        $Fecha=get_object_vars($Fecha);
+                        $Fecha = $Fecha["date"];
                         
                     }else{
                         $Fecha='';
@@ -228,8 +232,7 @@ class CargarAnticipos extends conexion{
     
     public function GuardeArchivoMutualEnTemporal($keyArchivo,$idIPS,$idEPS,$idUser) {
         clearstatcache();
-        require_once('../../../librerias/Excel/PHPExcel.php');
-        require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
+        require_once('../../../librerias/Excel/PHPExcel2.php');
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
         $db=$DatosIPS["DataBase"];
         $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo' AND idUser='$idUser'";
@@ -240,9 +243,9 @@ class CargarAnticipos extends conexion{
         $Soporte=$DatosUpload["RutaArchivo"];
        
         if($DatosUpload["ExtensionArchivo"]=="xlsx"){
-            $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+            $objReader = IOFactory::createReader('Xlsx');
         }else if($DatosUpload["ExtensionArchivo"]=="xls"){
-            $objReader = PHPExcel_IOFactory::createReader('Excel5');
+            $objReader = IOFactory::createReader('Xls');
         }else{
             exit("Solo se permiten archivos con extension xls o xlsx");
         }
@@ -311,9 +314,10 @@ class CargarAnticipos extends conexion{
                     
                     
                     $cell = $objPHPExcel->getActiveSheet()->getCell('D'.$Linea);
-                    if(PHPExcel_Shared_Date::isDateTime($cell)){
-                        $FechaAnticipo=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell('D'.$Linea)->getValue());
-                        $FechaAnticipo = date('Y-m-d', $FechaAnticipo);
+                    if(\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)){
+                        $FechaAnticipo=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('D'.$Linea)->getValue());
+                        $FechaAnticipo=get_object_vars($FechaAnticipo);
+                        $FechaAnticipo =  $FechaAnticipo["date"];
                         
                     }else{
                         $FechaAnticipo='';
@@ -347,9 +351,10 @@ class CargarAnticipos extends conexion{
                     $sql.="'$NumeroOperacion',";
                     
                     $cell = $objPHPExcel->getActiveSheet()->getCell('C'.$i);
-                    if(PHPExcel_Shared_Date::isDateTime($cell)){
-                        $Fecha=PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue());
-                        $Fecha = date('Y-m-d', $Fecha);
+                    if(\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)){
+                        $Fecha=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue());
+                        $Fecha=get_object_vars($Fecha);
+                        $Fecha = $Fecha["date"];
                         
                     }else{
                         $Fecha='';
