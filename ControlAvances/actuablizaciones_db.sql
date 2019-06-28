@@ -21,4 +21,7 @@ INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`,
 (17,	'Cargar Contratos Liquidados',	50,	10,	6,	'',	1,	'',	'CargarReporteContratoLiquidacion.php',	'_SELF',	1,	'acta.png',	2,	'2019-06-19 08:28:56',	'0000-00-00 00:00:00'),
 (18,	'Administrador de Radicados Glosas',	50,	10,	6,	'',	1,	'',	'adminResolucionesGlosas.php',	'_SELF',	1,	'admin.png',	3,	'2019-06-19 08:28:56',	'0000-00-00 00:00:00');
 
+INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
+(19,	'Cargar Archivo de Glosas IDRA',	50,	10,	6,	'',	1,	'',	'CargarGlosasIDRA.php',	'_SELF',	1,	'facturar.png',	2,	'2019-06-19 08:28:56',	'0000-00-00 00:00:00');
+
 
