@@ -1,0 +1,1 @@
+TRUNCATE notas_db_cr_2;

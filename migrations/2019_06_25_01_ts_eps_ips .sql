@@ -1,0 +1,2 @@
+TRUNCATE carteraeps;
+TRUNCATE historial_carteracargada_eps;

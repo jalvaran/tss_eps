@@ -64,20 +64,42 @@ class CarteraIPS extends conexion{
         $columnas = $objPHPExcel->setActiveSheetIndex(0)->getHighestColumn();
         $filas = $objPHPExcel->setActiveSheetIndex(0)->getHighestRow();
         //print("<br>Columnas $columnas<br>");
-        if($columnas<>'W' AND $columnas<>'V'){
+        if($columnas<>'W' AND $columnas<>'V'){ //Linea que valida el numero dde columnas correctas para el formato
             exit("E1;El archivo recibido no corresponde al formato de <strong>cartera de IPS $columnas</strong>");
         }
         date_default_timezone_set('UTC'); //establecemos la hora local
         for ($i=2;$i<=$filas;$i++){
-            if($objPHPExcel->getActiveSheet()->getCell('C'.$i)->getCalculatedValue()<>''){
-                $data=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue());
-                $data=get_object_vars($data);
-                //print($data["date"]);
-                $FechaRadicado=$data["date"]; 
+            $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue();
+            $FilaB=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();
+            if($FilaA=="" or $FilaB==''){
                 
-                $data=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue());
-                $data=get_object_vars($data);
-                $FechaFactura=$data["date"]; 
+                continue;
+            }
+            //print("Filas $FilaA, $FilaB");
+            //if($objPHPExcel->getActiveSheet()->getCell('C'.$i)->getCalculatedValue()<>''){
+                $cell = $objPHPExcel->getActiveSheet()->getCell('G'.$i);
+                if(\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)){
+                    $data=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue());
+                    $data=get_object_vars($data);
+                    //print($data["date"]);
+                    $FechaRadicado=$data["date"]; 
+                }else{
+                    exit("E1;El Campo G, Fecha de Radicado, debe ser Tipo Fecha");
+                    $FechaRadicado=""; 
+                }
+                
+                $cell = $objPHPExcel->getActiveSheet()->getCell('D'.$i);
+                if(\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)){
+                    $data=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue());
+                    $data=get_object_vars($data);
+                    //print($data["date"]);
+                    $FechaFactura=$data["date"]; 
+                }else{
+                    exit("E1;El Campo D, Fecha de Factura, debe ser Tipo Fecha");
+                    $FechaFactura=""; 
+                }
+                
+               
                 $_DATOS_EXCEL[$i]['FechaFactura']=$FechaFactura;
                 $_DATOS_EXCEL[$i]['FechaRadicado']=$FechaRadicado;
                 $_DATOS_EXCEL[$i]['NitEPS']= $objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
@@ -112,7 +134,7 @@ class CarteraIPS extends conexion{
                 $_DATOS_EXCEL[$i]['FechaRegistro'] = $Fecha;
                 $_DATOS_EXCEL[$i]['FechaActualizacion'] = $Fecha;
                 
-            }
+           // }
         } 
         $sql="";
         

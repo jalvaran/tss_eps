@@ -186,12 +186,14 @@ function EnviarCartera(){
                 EnviarArchivoATemporal();
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
+                document.getElementById('DivMensajes').innerHTML=respuestas[1];
                 alertify.alert(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
                 LimpiarDivs();
+                document.getElementById('DivMensajes').innerHTML=respuestas[1];
                 alertify.alert(data);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
@@ -248,7 +250,8 @@ function EnviarArchivoATemporal(){
                 VerifiqueFacturasExistentes();
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
-                alertify.alert(respuestas[1]);
+                document.getElementById('DivMensajes').innerHTML=data;
+                //alertify.alert(respuestas[1]);
                 BorrarTemporales();
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
@@ -256,7 +259,7 @@ function EnviarArchivoATemporal(){
             }else{
                 LimpiarDivs();
                 BorrarTemporales();
-                alertify.alert(data);
+                document.getElementById('DivMensajes').innerHTML=data;
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
             }
