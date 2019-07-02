@@ -84,6 +84,7 @@ class CarteraIPS extends conexion{
                     //print($data["date"]);
                     $FechaRadicado=$data["date"]; 
                 }else{
+                    //print($objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue());
                     exit("E1;El Campo G, Fecha de Radicado, debe ser Tipo Fecha");
                     $FechaRadicado=""; 
                 }

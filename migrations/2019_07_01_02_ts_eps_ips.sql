@@ -1,0 +1,1 @@
+ALTER TABLE `carteraeps` ADD `NumeroRadicado` VARCHAR(90) NOT NULL AFTER `FechaRadicado`;

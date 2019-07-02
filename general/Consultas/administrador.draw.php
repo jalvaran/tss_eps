@@ -38,7 +38,7 @@ if( !empty($_REQUEST["Accion"]) ){
             if($AscDesc==''){
                 $AscDesc="ASC";
             }
-                        
+              
             $Condicion= utf8_decode($Condicion);
             $DatosSubMenu=$obCon->DevuelveValores("menu_submenus", "TablaAsociada", $Tabla);
             $TituloTabla=$DatosSubMenu["Nombre"];
@@ -74,7 +74,7 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $Tabla=$obCon->normalizar($_REQUEST["Tabla"]); 
             $Columnas=$obCon->getColumnasVisibles($Tabla, "");
-                   
+                             
             $js="";
             
             $css->fieldset("fBuscar", "", "fBuscar", "", "Buscar", "");
@@ -163,7 +163,7 @@ if( !empty($_REQUEST["Accion"]) ){
         case 4: //Acciones
             $Tabla=$obCon->normalizar($_REQUEST["Tabla"]); 
             $Columnas=$obCon->getColumnasVisibles($Tabla, "");
-                   
+              
             $js="";
             
             $css->fieldset("fOperaciones", "", "fOperaciones", "", "Operaciones", "");
@@ -235,6 +235,7 @@ if( !empty($_REQUEST["Accion"]) ){
             if($CondicionActual<>''){
                 $Condicion=" WHERE $CondicionActual";
             }
+                 
             $sql="SELECT $AccionTabla($Columna) AS Resultado FROM $Tabla $Condicion";
             //print($sql);
             
@@ -683,13 +684,14 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosTabla[]="";
             
             $ColumnasSeleccionadas=$obCon->getColumnasVisibles($Tabla, "");  
+            
             $DatosTabla[$Tabla]["Columnas"]=$ColumnasSeleccionadas;
             $sql="";
             foreach ($ColumnasSeleccionadas["Field"] as $key => $value) {
             if($ColumnasSeleccionadas["SubQuery"][$key]<>''){
                 $value=$ColumnasSeleccionadas["SubQuery"][$key];
                 }
-                $sql.="$value,";
+                $sql.="`$value`,";
             }
 
             $sql = substr($sql, 0, -1);
@@ -710,6 +712,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CrearTablaDB($Tabla, $Tabla, "100%", "", "");
              
             $css->CabeceraTabla($Tabla,$limit,"$TituloTabla",$ColumnasSeleccionadas, "","","", "",$DivTablas);
+            
             $consulta=$obCon->Query($sql);
                  
                 while($DatosConsulta=$obCon->FetchAssoc($consulta)){

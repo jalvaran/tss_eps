@@ -1,0 +1,1 @@
+ALTER TABLE `carteraeps` ADD `MesServicio` INT(6) NOT NULL AFTER `idUser`, ADD `FechaRadicado` DATE NOT NULL AFTER `MesServicio`;

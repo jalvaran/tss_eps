@@ -27,7 +27,9 @@ if( !empty($_REQUEST["idAccion"]) ){
                     
                 }
             }
-            
+            if($Tabla=="ips"){
+                $Datos["DataBase"]="ts_eps_ips_".$Datos["NIT"];                
+            }
             $sql=$obCon->getSQLInsert($Tabla, $Datos);
             $obCon->Query($sql);
             if($Tabla=="clientes"){
@@ -38,7 +40,8 @@ if( !empty($_REQUEST["idAccion"]) ){
                 $sql=$obCon->getSQLInsert("clientes", $Datos);
                 $obCon->Query($sql);
             }
-            print("OK2");
+            
+            print("OK");
             
         break; 
         

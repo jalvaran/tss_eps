@@ -1,0 +1,1 @@
+ALTER TABLE `notas_db_cr_2` ADD INDEX(`FechaTransaccion`);

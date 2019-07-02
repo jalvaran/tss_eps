@@ -24,4 +24,6 @@ INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`,
 INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
 (19,	'Cargar Archivo de Glosas IDRA',	50,	10,	6,	'',	1,	'',	'CargarGlosasIDRA.php',	'_SELF',	1,	'facturar.png',	2,	'2019-06-19 08:28:56',	'0000-00-00 00:00:00');
 
+INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
+(20,	'Crear IPS',	1,	3,	1,	'ips',	0,	'',	'ips.php',	'_BLANK',	1,	'eps.png',	2,	'2019-05-20 10:10:26',	'0000-00-00 00:00:00');
 
