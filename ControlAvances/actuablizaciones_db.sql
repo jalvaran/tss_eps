@@ -27,3 +27,6 @@ INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`,
 INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
 (20,	'Crear IPS',	1,	3,	1,	'ips',	0,	'',	'ips.php',	'_BLANK',	1,	'eps.png',	2,	'2019-05-20 10:10:26',	'0000-00-00 00:00:00');
 
+INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
+(21,	'Cargar Archivo de Impuestos y Retenciones EPS',	12,	5,	2,	'',	1,	'',	'cargar_impuestos.php',	'_SELF',	1,	'impuestos.png',	9,	'2019-07-09 10:46:56',	'0000-00-00 00:00:00');
+
