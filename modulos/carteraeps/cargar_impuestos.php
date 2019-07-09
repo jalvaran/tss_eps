@@ -1,7 +1,7 @@
 <?php
 /**
- * Pagina para Subir la cartera por parte de una EPS
- * 2019-05-23, Julian Alvaran Techno Soluciones SAS
+ * Pagina para Subir los egresos
+ * 2019-06-18, Julian Alvaran Techno Soluciones SAS
  * 
  * es recomendable No usar los siguientes ID para ningún objeto:
  * FrmModal, ModalAcciones,DivFormularios,BtnModalGuardar,DivOpcionesTablas,
@@ -9,8 +9,8 @@
  * TxtTabla, TxtCondicion,TxtOrdenNombreColumna,TxtOrdenTabla,TxtLimit,TxtPage,tabla
  * 
  */
-$myPage="glosaseps.php";
-$myTitulo="Cargar Glosas EPS";
+$myPage="cargar_impuestos.php";
+$myTitulo="Cargar Impuestos y Retenciones";
 include_once("../../sesiones/php_control_usuarios.php");
 include_once("../../constructores/paginas_constructor.php");
 
@@ -29,7 +29,7 @@ $css->PageInit($myTitulo);
     
     $css->CrearDiv("", "col-md-12", "left", 1, 1); 
         $css->h3("", "", "", "");
-                print("<strong>Cargue de Glosas de EPS</strong>");
+                print("<strong>Cargar Archivo de Impuestos y Retenciones</strong>");
         $css->Ch3();
     $css->CerrarDiv(); 
     
@@ -39,7 +39,6 @@ $css->PageInit($myTitulo);
         }else{
             $sql="SELECT r.idIPS,i.Nombre FROM relacion_usuarios_ips r INNER JOIN ips i ON i.NIT=r.idIPS WHERE idUsuario='$idUser' ";
         }
-    
         $Consulta=$obCon->Query($sql);
         
         $css->select("CmbIPS", "form-control", "CmbIPS", "IPS", "", "", "");
@@ -65,7 +64,7 @@ $css->PageInit($myTitulo);
     
     
     $css->CrearDiv("", "col-md-2", "center", 1, 1);
-        print("<strong>Glosas hasta:</strong><br>");
+        print("<strong>Egresos hasta:</strong><br>");
         $css->input("date", "FechaCorteCartera", "form-control", "FechaCorteCartera", "", date("Y-m-d"), "Fecha Corte Cartera", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
         
     $css->CerrarDiv();
@@ -76,16 +75,9 @@ $css->PageInit($myTitulo);
     $css->CerrarDiv();
     
     $css->CrearDiv("", "col-md-2", "center", 1, 1);
-        $css->select("CmbSeparador", "form-control", "CmbSeparador", "Separador<br>", "", "", "");
-            $css->option("", "", "", 1, "", "",1);
-                print("Punto y coma (;)");
-            $css->Coption();
-            $css->option("", "", "", 1, "", "");
-                print("Coma (,)");
-            $css->Coption();
-        $css->Cselect();
+        
         print("<strong>Enviar:</strong><br>");
-        $css->CrearBotonEvento("BtnSubir", "Ejecutar", 1, "onclick", "ConfirmarCarga()", "naranja", "");
+        $css->CrearBotonEvento("BtnSubir", "Ejecutar", 1, "onclick", "ConfirmarCarga()", "verde", "");
     $css->CerrarDiv();
     print("<br><br><br><br><br><br><br>");
     $css->CrearDiv("DivProgress", "col-md-12", "center", 1, 1);
@@ -101,7 +93,7 @@ $css->PageInit($myTitulo);
     
     
 $css->PageFin();
-print('<script src="jsPages/glosaseps.js"></script>');  //script propio de la pagina
+print('<script src="jsPages/cargar_impuestos.js"></script>');  //script propio de la pagina
 
 $css->Cbody();
 $css->Chtml();

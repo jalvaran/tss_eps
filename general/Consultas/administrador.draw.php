@@ -691,7 +691,12 @@ if( !empty($_REQUEST["Accion"]) ){
             if($ColumnasSeleccionadas["SubQuery"][$key]<>''){
                 $value=$ColumnasSeleccionadas["SubQuery"][$key];
                 }
-                $sql.="`$value`,";
+                if($value=="DataBase"){
+                    $sql.="`$value`,";
+                }else{
+                    $sql.="$value,";
+                }
+                
             }
 
             $sql = substr($sql, 0, -1);

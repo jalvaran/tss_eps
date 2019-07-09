@@ -43,8 +43,8 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $obCon->BorraReg("$db.temporalcarguecarteraeps", "idUser", $idUser);
-            //$obCon->VaciarTabla("$db.temporalcarguecarteraeps");
+            //$obCon->BorraReg("$db.temporalcarguecarteraeps", "idUser", $idUser);
+            $obCon->VaciarTabla("$db.temporalcarguecarteraeps");
             $destino='';
             
             $Extension="";
@@ -98,7 +98,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $db=$DatosCargas["DataBase"];
             $sql="UPDATE $db.historial_carteracargada_eps cips INNER JOIN $db.temporalcarguecarteraeps t ON cips.NumeroFactura=t.NumeroFactura SET t.FlagUpdate=1  "
                     . "WHERE cips.NumeroOperacion=t.NumeroOperacion and cips.FechaFactura=t.FechaFactura and"
-                    . " cips.TipoOperacion=t.TipoOperacion AND t.idUser='$idUser';";
+                    . " cips.TipoOperacion=t.TipoOperacion;";
             $obCon->Query($sql);
             $sql="INSERT INTO $db.`historial_carteracargada_eps` 
                     SELECT * FROM $db.`temporalcarguecarteraeps` as t1 WHERE t1.FlagUpdate=0 AND idUser='$idUser'";
@@ -120,7 +120,7 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $sql="INSERT INTO $db.`carteraeps` (`NitEPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`ValorMenosImpuestos`,`idUser`,`FechaRegistro`,`FechaActualizacion`,`MesServicio`,`FechaRadicado`,`NumeroRadicado`) 
                     SELECT `Nit_EPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`ValorMenosImpuestos`,`idUser`,`FechaRegistro`,`FechaActualizacion` ,`MesServicio`,`FechaFactura`,`NumeroRadicado`
-                    FROM $db.`temporalcarguecarteraeps` as t1 WHERE t1.FlagUpdate=0 AND t1.TipoOperacion<>2525 AND t1.TipoOperacion<>2528 AND t1.TipoOperacion<>2512 AND t1.TipoOperacion<>829 AND t1.TipoOperacion<>0 AND t1.idUser='$idUser' GROUP BY NumeroFactura";
+                    FROM $db.`temporalcarguecarteraeps` as t1 WHERE t1.FlagUpdate=0 AND t1.TipoOperacion NOT LIKE '25%' AND t1.TipoOperacion NOT LIKE '23%' AND t1.TipoOperacion<>829 AND t1.TipoOperacion<>0 AND t1.idUser='$idUser' GROUP BY NumeroFactura";
             $obCon->Query($sql);
             
             
@@ -165,6 +165,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
+            /*
             $sql="UPDATE $db.carteraeps t1 
                 SET t1.ValorOriginal=(SELECT (ValorOriginal) FROM $db.historial_carteracargada_eps t2 
                 WHERE t1.NumeroFactura=t2.NumeroFactura AND 
@@ -187,6 +188,18 @@ if( !empty($_REQUEST["Accion"]) ){
                 WHERE $db.historial_carteracargada_eps.NumeroFactura=t1.NumeroFactura ) LIMIT 1)
                     ;
             ";
+            
+             * 
+             */
+            
+            $sql="UPDATE $db.carteraeps t1 INNER JOIN $db.vista_ultimas_facturas_cartera_eps t2 ON t1.NumeroFactura=t2.NumeroFactura
+                SET t1.ValorOriginal=t2.ValorOriginal,
+                    t1.FechaRadicado=t2.FechaFactura,
+                    t1.MesServicio=t2.MesServicio,
+                    t1.NumeroRadicado=t2.NumeroRadicado                
+                    ;
+            ";
+              
            $obCon->Query($sql);
                         
             print("OK;Registros Actualizados correctamente");

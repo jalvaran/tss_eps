@@ -366,11 +366,13 @@ class NotasCRBD extends conexion{
 
             $handle = fopen($RutaArchivo, "r");
             $r=0;
+            $LimiteInferior=$NumeroColumnasEncabezado-2;
+            $LimiteSuperior=$NumeroColumnasEncabezado+2;
             while (($data = fgetcsv($handle, 1000, $Separador)) !== FALSE) {
                 
                 $i++;
                if($i==1){ //Verifico que el archivo recibido corresponda al solicitado
-                   if(count($data)<>$NumeroColumnasEncabezado){
+                   if(!$NumeroColumnasEncabezado>=$LimiteInferior AND !$NumeroColumnasEncabezado<=$LimiteSuperior){
                        $NumeroColumnas=count($data);
                        exit("E1;<h3>El archivo enviado no corresponde al archivo esperado o ha sufrido cambios, contiene $NumeroColumnas Columnas</h3>");
                    }

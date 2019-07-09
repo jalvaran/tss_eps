@@ -475,9 +475,10 @@ class CarteraEPS extends conexion{
                 exit('E1;<h3>No se recibió el archivo de <strong>Pagos de la EPS ASMET Mutual</strong></h3>');
             }
             
-            for ($i=10;$i<=$filas;$i++){
+            for ($i=1;$i<=$filas;$i++){
                 $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
                 $FilaB=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
+                
                 if($FilaA=='' or $FilaA=='Fecha' or $FilaA=='Proveedor :'){
 
                     continue; 
@@ -497,6 +498,7 @@ class CarteraEPS extends conexion{
                     continue;
                 }
                     $cell = $objPHPExcel->getActiveSheet()->getCell('A'.$i);
+                    
                     if(!\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)){
                         continue;
                     }
@@ -627,7 +629,7 @@ class CarteraEPS extends conexion{
             for ($i=0;$i<=$filas;$i++){
                 $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
                 $FilaB=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
-                
+                 
                 if($FilaB=='Proceso :'){
                     $c=0;
                     $Cols=['C','E','F','H','J','L','M','O','P','S','T','V','Z','AE','AI'];
@@ -641,6 +643,7 @@ class CarteraEPS extends conexion{
                 }
                 
                 $cell = $objPHPExcel->getActiveSheet()->getCell('A'.$i);
+                 
                 if(!PHPExcel_Shared_Date::isDateTime($cell)){
                     continue;
                 }

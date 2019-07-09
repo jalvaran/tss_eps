@@ -138,17 +138,25 @@ class CarteraIPS extends conexion{
            // }
         } 
         $sql="";
-        
+        $r=0;
+        $sql= "INSERT INTO $db.temporalcarguecarteraips (FechaFactura,FechaRadicado,NitEPS,NitIPS,NumeroFactura,NumeroCuentaGlobal,NumeroRadicado,TipoNegociacion,NumeroContrato,DiasPactados,TipoRegimen,ValorDocumento,ValorGlosaInicial,ValorGlosaAceptada,ValorGlosaConciliada,ValorDescuentoBdua,ValorAnticipos,ValorRetencion,Copagos,Devoluciones,Pagos,ValorTotalpagar,FechaHasta,Soporte,idUser,FechaRegistro,FechaActualizacion)  VALUES ";
         foreach($_DATOS_EXCEL as $campo => $valor){
-            $sql= "INSERT INTO $db.temporalcarguecarteraips (FechaFactura,FechaRadicado,NitEPS,NitIPS,NumeroFactura,NumeroCuentaGlobal,NumeroRadicado,TipoNegociacion,NumeroContrato,DiasPactados,TipoRegimen,ValorDocumento,ValorGlosaInicial,ValorGlosaAceptada,ValorGlosaConciliada,ValorDescuentoBdua,ValorAnticipos,ValorRetencion,Copagos,Devoluciones,Pagos,ValorTotalpagar,FechaHasta,Soporte,idUser,FechaRegistro,FechaActualizacion)  VALUES ('";
+            $r++;
+            $sql.=" ('";
             foreach ($valor as $campo2 => $valor2){
-                $campo2 == "FechaActualizacion" ? $sql.= $valor2."');" : $sql.= $valor2."','";
+                $campo2 == "FechaActualizacion" ? $sql.= $valor2."')," : $sql.= $valor2."','";
             }
-            
+            if($r>=1000){
+                $r=0;
+                $sql=substr($sql, 0, -1);
+                $this->Query($sql);
+                $sql= "INSERT INTO $db.temporalcarguecarteraips (FechaFactura,FechaRadicado,NitEPS,NitIPS,NumeroFactura,NumeroCuentaGlobal,NumeroRadicado,TipoNegociacion,NumeroContrato,DiasPactados,TipoRegimen,ValorDocumento,ValorGlosaInicial,ValorGlosaAceptada,ValorGlosaConciliada,ValorDescuentoBdua,ValorAnticipos,ValorRetencion,Copagos,Devoluciones,Pagos,ValorTotalpagar,FechaHasta,Soporte,idUser,FechaRegistro,FechaActualizacion)  VALUES ";
+            }
             //print($sql);    
-            $this->Query($sql);
+            
         }    
-        
+        $sql=substr($sql, 0, -1);
+        $this->Query($sql);
         $errores=0;
         $objPHPExcel->disconnectWorksheets();// Good to disconnect
         $objPHPExcel->garbageCollect(); 

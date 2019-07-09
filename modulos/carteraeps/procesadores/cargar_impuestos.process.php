@@ -7,10 +7,10 @@ if (!isset($_SESSION['username'])){
 }
 $idUser=$_SESSION['idUser'];
 
-include_once("../clases/notascrdb.class.php");
+include_once("../clases/cargar_impuestos.class.php");
 
 if( !empty($_REQUEST["Accion"]) ){
-    $obCon = new NotasCRBD($idUser);
+    $obCon = new CargarImpuestos($idUser);
     
     switch ($_REQUEST["Accion"]) {
         
@@ -43,7 +43,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $obCon->VaciarTabla("$db.temporal_notas_db_cr_2");
+            $obCon->VaciarTabla("$db.temporal_retenciones");
             $destino='';
             
             $Extension="";
@@ -53,7 +53,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $Extension=($info->getExtension());
                 
                    
-                if($Extension=="txt" or $Extension=="csv"){
+                if($Extension=="xls" or $Extension=="xlsx"){
                     $carpeta="../../../soportes/$CmbIPS/";
                     if (!file_exists($carpeta)) {
                         mkdir($carpeta, 0777);
@@ -83,13 +83,18 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $TablaReal="$db.notas_db_cr_2";
-            $TablaTemporal="$db.temporal_notas_db_cr_2";
-            
-            $sql="UPDATE $db.temporal_notas_db_cr_2 t1 INNER JOIN $db.notas_db_cr_2 t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  
-                    WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion AND t1.NumeroAutorizacion=t2.NumeroAutorizacion ;";
+            $sql="UPDATE $db.temporal_retenciones t1 INNER JOIN $db.retenciones t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  "
+                    . "WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion AND t1.FechaTransaccion=t2.FechaTransaccion AND "
+                    . " t1.ValorDebito=t2.ValorDebito AND t1.ValorCredito=t2.ValorCredito;";
             $obCon->Query($sql);
-            $sql="INSERT INTO $db.notas_db_cr_2 SELECT * FROM $db.temporal_notas_db_cr_2 as t1 WHERE t1.FlagUpdate=0";
+            $sql="INSERT INTO $db.`retenciones` 
+                (`ID`,`Cuentacontable`,`ObservacionCuenta`,`Nit_IPS`,`RazonSocial`,`FechaTransaccion`,`TipoOperacion`,`NumeroTransaccion`,`NumeroFactura`,
+                `Descripcion`,`ValorDebito`,`ValorCredito`,`Saldo`,`Soporte`,`idUser`,`keyFile`,`FechaRegistro`)
+                   SELECT `ID`,`Cuentacontable`,`ObservacionCuenta`,`Nit_IPS`,`RazonSocial`,`FechaTransaccion`,`TipoOperacion`,`NumeroTransaccion`,`NumeroFactura`,
+                `Descripcion`,`ValorDebito`,`ValorCredito`,`Saldo`,`Soporte`,`idUser`,`keyFile`,`FechaRegistro` 
+                  FROM $db.`temporal_retenciones` as t1 WHERE t1.FlagUpdate=0;
+                    
+                    ";
             //print($sql);
             
             $obCon->Query($sql);
@@ -104,7 +109,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            //$obCon->VaciarTabla("$db.temporal_notas_db_cr_2");
+            //$obCon->VaciarTabla("$db.temporal_Anticipos2");
             $obCon->BorraReg("$db.controlcargueseps", "NombreCargue", $keyArchivo);
             print("OK;Temporales Borrados");
         break; //fin caso 5
@@ -119,15 +124,13 @@ if( !empty($_REQUEST["Accion"]) ){
             $db=$DatosCargas["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
-            if($DatosEPS["ID"]==1){                
-                $obCon->GuardeNotasCRDBEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser,49);
+            if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){                
+                $obCon->GuardeArchivoEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser);
             }
-            if($DatosEPS["ID"]==2){                
-                $obCon->GuardeNotasCRDBEnTemporal($keyArchivo,$CmbIPS,$CmbEPS,$idUser,46);
-            }
-                        
+            
+                                    
             if($DatosEPS["ID"]>2 ){                
-                exit("E1;EPS no ompatible");
+                exit("E1;EPS no compatible");
                 
             }
             

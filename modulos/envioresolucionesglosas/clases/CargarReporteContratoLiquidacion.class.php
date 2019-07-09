@@ -93,6 +93,7 @@ class ReporteContratos extends conexion{
                 if($FilaA==''){
                     continue; 
                 }
+                
                 if($ColumnasEntradas==0){
                     foreach ($Cols as $key => $value) {
                         $Titulo=$objPHPExcel->getActiveSheet()->getCell($value.$i)->getCalculatedValue();
@@ -123,7 +124,7 @@ class ReporteContratos extends conexion{
                     exit("E1;El archivo no contiene las columnas necesarias para realizar el registro");
                 }
                 
-                                    
+                                                    
                 $r++;//Contador de filas a insertar
                 $NumeroRadicado=$objPHPExcel->getActiveSheet()->getCell($ColTitulos["NORADICADO"].$i)->getCalculatedValue();
                 $NumeroRadicado= str_replace("'", "", $NumeroRadicado);
