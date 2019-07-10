@@ -394,6 +394,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->FilaTabla(16);
                     $css->ColTabla("<strong>Contrato</strong>", 1);
                     $css->ColTabla("<strong>Factura</strong>", 1);
+                    $css->ColTabla("<strong>Mes de Servicio</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Factura</strong>", 1);
                     $css->ColTabla("<strong>Radicado</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Radicado</strong>", 1);
@@ -409,6 +410,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Total Glosa en Contra</strong>", 1);
                     $css->ColTabla("<strong>Glosa por Conciliar</strong>", 1);
                     $css->ColTabla("<strong>Otros Descuentos</strong>", 1);
+                    $css->ColTabla("<strong>Cartera por Edades</strong>", 1);
                     $css->ColTabla("<strong>Saldo Según EPS</strong>", 1);
                     $css->ColTabla("<strong>Saldo Según IPS</strong>", 1);
                     $css->ColTabla("<strong>Diferencia</strong>", 1);
@@ -429,6 +431,7 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->CerrarDiv();
                             
                         print("</td>");
+                        $css->ColTabla($DatosFactura["MesServicio"], 1);
                         $css->ColTabla($DatosFactura["FechaFactura"], 1);
                         $css->ColTabla($DatosFactura["NumeroRadicado"], 1);
                         $css->ColTabla($DatosFactura["FechaRadicado"], 1);
@@ -492,7 +495,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         $css->ColTabla(number_format($DatosFactura["GlosaXConciliar"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["OtrosDescuentos"]), 1,'R');
-                        
+                        $css->ColTabla(number_format($DatosFactura["CarteraXEdades"]), 1,'R');
                         print("<td style=text-align:center;font-size:18px>");
                            print(number_format($DatosFactura["ValorSegunEPS"]));
                            $idBoton="btnConciliarXEPS_$idItem";
@@ -833,7 +836,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CrearTabla();
                 
                 $css->FilaTabla(16);
-                    $css->ColTabla("<strong>Copagos Realizados a la Factura No. $NumeroFactura</strong>", 12,'C');
+                    $css->ColTabla("<strong>Copagos y Otros Realizados a la Factura No. $NumeroFactura</strong>", 12,'C');
                 $css->CierraFilaTabla();
                 
                 $css->FilaTabla(14);
@@ -847,7 +850,8 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     
                 $css->CierraFilaTabla();
-                $sql="SELECT * FROM $db.notas_db_cr_2 WHERE NumeroFactura='$NumeroFactura' AND (TipoOperacion='2258' or TipoOperacion='2225' or TipoOperacion='2214')";
+                $sql="SELECT * FROM $db.notas_db_cr_2 WHERE NumeroFactura='$NumeroFactura' AND "
+                        . "(TipoOperacion='2258' or TipoOperacion='2225' or TipoOperacion='2214' or TipoOperacion='2254' or TipoOperacion='2039' or TipoOperacion='2020' or TipoOperacion='2601' or TipoOperacion='2218' or TipoOperacion='2402' or TipoOperacion='2500')";
                 $Consulta=$obCon->Query($sql);
                 while($DatosPagos=$obCon->FetchAssoc($Consulta)){
                      $css->FilaTabla(14);

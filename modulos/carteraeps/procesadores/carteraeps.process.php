@@ -148,7 +148,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
-            $NumeroColumnasEncabezado=52;// 51 para mutual y 52 para sas
+            $NumeroColumnasEncabezado=54;// 51 para mutual y 52 para sas
             if($DatosEPS["ID"]==2){
                 $NumeroColumnasEncabezado=51;
             }

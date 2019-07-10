@@ -74,6 +74,21 @@ class CarteraEPS extends conexion{
         return $i;
     }
     
+    public function formatearFechaCsv($Dato) {
+        if($Dato<>""){
+            $FechaArchivo= explode("/", $Dato);
+            if(count($FechaArchivo)>1){
+                $FechaFormateada= $FechaArchivo[2]."-".$FechaArchivo[1]."-".$FechaArchivo[0];
+            }else{
+                $FechaFormateada=$Dato;
+            }
+
+         }else{
+            $FechaFormateada="0000-00-00";
+         }
+         return($FechaFormateada);
+    }
+    
     public function LeerArchivoSAS($keyArchivo,$FechaCorte,$idIPS,$LineaActual,$Separador,$idUser) {
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
         $db=$DatosIPS["DataBase"];
@@ -100,19 +115,81 @@ class CarteraEPS extends conexion{
             
         $handle = fopen($RutaArchivo, "r");
         
-        $sql="INSERT INTO $db.`temporalcarguecarteraeps` (`ID`, `TipoOperacion`, `NumeroOperacion`, `FechaFactura`, `CodigoSucursal`, `Sucursal`,"
-                . "`NumeroFactura`, `Descripcion`, `RazonSocial`, `Nit_IPS`, `NumeroContrato`, `Prefijo`, `DepartamentoRadicacion`, "
-                . "`NumeroRadicado`, `MesServicio`, `ValorOriginal`, `ValorMenosImpuestos`, `ValorPagado`, `ValorCruce`, `ValorCruceAnticipo`, "
-                . "`ValorCruceAuditoria`, `SaldoFactura`, `ValorAutorizado`, "
-                . "`AnticiposRelacionados`, `ValorGlosaTotalMutual`,`CrucesMutual`,`SaldoMutual`,`TotalValorGlosadoD2702`,"
-                . " `ValorPagosGlosadoD2702`, `ValorCruceGlosadoD2702`, `SaldoGlosaD2702`, `ValorAutorizadoGlosado`, "
-                . "`Original29`, `TipoOperacionCF`, `NumeroTransaccionCF`, `FechaTransaccionCF`, `ValorCruceTransaccionCF`, `TipoOperacionPF`, "
-                . "`NumeroTransaccionPF`, `FechaTransaccionPF`, `ValorPagadoPF`, `NumeroPlanoPF`, `FechaPlanoPF`, `TipoOperacionGA2702`, `FechaTransaccionGA2702`, "
-                . "`NumeroTransaccionGA2702`, `ValorCruceTransaccionGA2702`, `TipoOperacionGD2702`, `FechaTransaccionGD2702`, `NumeroTransaccionGD2702`, "
-                . "`ValorCruceTransaccionGD2702`, `NumeroPlanoGD2702`, `DescuentoBdua`, `Previsado`, `EnGiro`, `ValorGiro`, `Soporte`, `Nit_EPS`, `idUser`, `FechaRegistro`, "
-                . "`FechaActualizacion`) VALUES ";
         $r=0;
         $z=0;
+        
+        $CamposDatos["TipoOperacion"]=$z++;                   //0   
+        $CamposDatos["NumeroOperacion"]=$z++;       
+        $CamposDatos["FechaFactura"]=$z++;          
+        $CamposDatos["CodigoSucursal"]=$z++;
+        $CamposDatos["Sucursal"]=$z++;
+        $CamposDatos["NumeroFactura"]=$z++;
+        $CamposDatos["Descripcion"]=$z++;
+        $CamposDatos["RazonSocial"]=$z++;
+        $CamposDatos["Nit_IPS"]=$z++;
+        $CamposDatos["NumeroContrato"]=$z++;        
+        $CamposDatos["Prefijo"]=$z++;                       //10
+        $CamposDatos["DepartamentoRadicacion"]=$z++;
+        $CamposDatos["NumeroRadicado"]=$z++;
+        $CamposDatos["MesServicio"]=$z++;
+        $CamposDatos["ValorOriginal"]=$z++;
+        $CamposDatos["ValorMenosImpuestos"]=$z++;
+        $CamposDatos["ValorPagado"]=$z++;
+        $CamposDatos["ValorCruce"]=$z++;
+        $CamposDatos["ValorCruceAnticipo"]=$z++;
+        $CamposDatos["ValorCruceAuditoria"]=$z++;
+        $CamposDatos["SaldoFactura"]=$z++;                  //20
+        $CamposDatos["ValorAutorizado"]=$z++;
+        $CamposDatos["AnticiposRelacionados"]=$z++;
+        $CamposDatos["TotalValorGlosadoD2702"]=$z++;        //23
+        $z=25;
+        $CamposDatos["ValorPagosGlosadoD2702"]=$z++;        
+        $CamposDatos["ValorCruceGlosadoD2702"]=$z++;
+        $CamposDatos["SaldoGlosaD2702"]=$z++;
+        $CamposDatos["ValorAutorizadoGlosado"]=$z++;
+        $CamposDatos["Original29"]=$z++;                    //29
+        $z=31;
+        $CamposDatos["TipoOperacionCF"]=$z++;                 //31
+        $CamposDatos["NumeroTransaccionCF"]=$z++;           
+        $CamposDatos["FechaTransaccionCF"]=$z++;
+        $CamposDatos["ValorCruceTransaccionCF"]=$z++;
+        $CamposDatos["TipoOperacionPF"]=$z++;               //35
+        $CamposDatos["NumeroTransaccionPF"]=$z++;
+        $CamposDatos["FechaTransaccionPF"]=$z++;
+        $CamposDatos["ValorPagadoPF"]=$z++;
+        $CamposDatos["NumeroPlanoPF"]=$z++;
+        $CamposDatos["FechaPlanoPF"]=$z++;                  //40
+        $CamposDatos["TipoOperacionGA2702"]=$z++;
+        $CamposDatos["FechaTransaccionGA2702"]=$z++;
+        $CamposDatos["NumeroTransaccionGA2702"]=$z++;
+        $CamposDatos["ValorCruceTransaccionGA2702"]=$z++;
+        $CamposDatos["TipoOperacionGD2702"]=$z++;           //45
+        $CamposDatos["FechaTransaccionGD2702"]=$z++;
+        $CamposDatos["NumeroTransaccionGD2702"]=$z++;
+        $CamposDatos["ValorCruceTransaccionGD2702"]=$z++;
+        $CamposDatos["NumeroPlanoGD2702"]=$z++;
+        $CamposDatos["DescuentoBdua"]=$z++;                 //50
+        $CamposDatos["Previsado"]=$z++;
+        $CamposDatos["EnGiro"]=$z++;
+        $CamposDatos["ValorGiro"]=$z++;                     //53
+        $CamposDatos["Soporte"]=$z++;
+        $CamposDatos["Nit_EPS"]=$z++;                       
+        $CamposDatos["idUser"]=$z++;
+        $CamposDatos["FechaRegistro"]=$z++;
+        $sqlCampos = "INSERT INTO $db.`temporalcarguecarteraeps` (";
+        $sqlValores= ' VALUES ';   
+        $length_array=count($CamposDatos);
+        $i = 1;        
+        foreach ($CamposDatos as $key => $value) {
+            $sqlCampos .= "`$key`";            
+            if ($i!= $length_array) {
+              $sqlCampos .= ", " ;              
+            }else {
+              $sqlCampos .= ')';              
+            }
+            $i++;
+        }
+              
         while ( ($data = fgetcsv($handle, 1000, $Separador)) !== FALSE) {
             $r++;
             $z++;
@@ -143,72 +220,71 @@ class CarteraEPS extends conexion{
             if(!is_numeric($data[8])){
                 continue;
             }
-            if($data[2]<>""){
-                $FechaArchivo= explode("/", $data[2]);
-                if(count($FechaArchivo)>1){
-                    $FechaFactura= $FechaArchivo[2]."-".$FechaArchivo[1]."-".$FechaArchivo[0];
+            if($data[8]<>$idIPS){
+                exit("E1;El archivo contiene registros de otra ips con NIT: $data[8]");
+            }
+            
+            
+            $sqlValores.="(";
+            $i = 1;
+            foreach ($CamposDatos as $key => $value) {
+                
+                if(isset($data[$value])){
+                    $dato=str_replace(".", "", $data[$value]);
+                    if($key=='FechaFactura' or $key=="FechaTransaccionCF" or $key=="FechaTransaccionPF" or $key=="FechaPlanoPF" or $key=="FechaTransaccionGA2702" or $key=="FechaTransaccionGD2702"){
+                        $dato=$this->formatearFechaCsv($data[$value]);
+                    }  
                 }else{
-                    $FechaFactura=$data[2];
+                    $dato='';
                 }
-
-             }else{
-                $FechaFactura="0000-00-00";
-             }
-             $sql.="('',";
-             for($i=0;$i<=26;$i++){
-                 if($i==8){
-                     if($data[$i]<>$idIPS){
-                         exit("E1;El archivo contiene registros de otra ips con NIT: $data[$i]");
-                     }
-                 }
-                 $Dato= str_replace(".", "", $data[$i]);
-                 if($i==2){
-                     $Dato=$FechaFactura;
-                 }
-                 if($i>=23 and $i<=25){
-                     $Dato=="";
-                 }
-                 $sql.="'$Dato',";
-             }
-             for($i=24;$i<=51;$i++){
-                 $Dato="";
-                 if(isset($data[$i])){
-                     $Dato= str_replace(".", "", $data[$i]);
-                 }
-                 
-                 $sql.="'$Dato',";
-             }
-             $sql.="'$Soporte','$EPS','$idUser','$FechaRegistro','$FechaActualizacion'),";
-             
+                if($key=="Soporte"){
+                    $dato=$Soporte;
+                }
+                if($key=="Nit_EPS"){
+                    $dato=$EPS;
+                }
+                if($key=="idUser"){
+                    $dato=$idUser;
+                }
+                if($key=="FechaRegistro"){
+                    $dato=$FechaRegistro;
+                }
+                $sqlValores .= "'$dato'";
+                if ($i!= $length_array) {                  
+                  $sqlValores .= "," ;
+                }else {                  
+                  $sqlValores .= '),';
+                }
+                $i++;
+              }
+                               
+            
              if($r==1000){
+                 //print($sqlValores);
                  $r=0;
-                 $sql=substr($sql, 0, -1);
-                //print("<pre>".$sql."</pre>");
-                $this->Query($sql);
-                
-                $sql="INSERT INTO $db.`temporalcarguecarteraeps` (`ID`, `TipoOperacion`, `NumeroOperacion`, `FechaFactura`, `CodigoSucursal`, `Sucursal`,"
-                . "`NumeroFactura`, `Descripcion`, `RazonSocial`, `Nit_IPS`, `NumeroContrato`, `Prefijo`, `DepartamentoRadicacion`, "
-                . "`NumeroRadicado`, `MesServicio`, `ValorOriginal`, `ValorMenosImpuestos`, `ValorPagado`, `ValorCruce`, `ValorCruceAnticipo`, "
-                . "`ValorCruceAuditoria`, `SaldoFactura`, `ValorAutorizado`, "
-                . "`AnticiposRelacionados`, `ValorGlosaTotalMutual`,`CrucesMutual`,`SaldoMutual`,`TotalValorGlosadoD2702`,"
-                . " `ValorPagosGlosadoD2702`, `ValorCruceGlosadoD2702`, `SaldoGlosaD2702`, `ValorAutorizadoGlosado`, "
-                . "`Original29`, `TipoOperacionCF`, `NumeroTransaccionCF`, `FechaTransaccionCF`, `ValorCruceTransaccionCF`, `TipoOperacionPF`, "
-                . "`NumeroTransaccionPF`, `FechaTransaccionPF`, `ValorPagadoPF`, `NumeroPlanoPF`, `FechaPlanoPF`, `TipoOperacionGA2702`, `FechaTransaccionGA2702`, "
-                . "`NumeroTransaccionGA2702`, `ValorCruceTransaccionGA2702`, `TipoOperacionGD2702`, `FechaTransaccionGD2702`, `NumeroTransaccionGD2702`, "
-                . "`ValorCruceTransaccionGD2702`, `NumeroPlanoGD2702`, `DescuentoBdua`, `Previsado`, `EnGiro`, `ValorGiro`, `Soporte`, `Nit_EPS`, `idUser`, `FechaRegistro`, "
-                . "`FechaActualizacion`) VALUES "; 
+                 $sqlValores=substr($sqlValores, 0, -1);                
+                 $sql=$sqlCampos.$sqlValores;
+                // print($sql);
+                $this->Query($sql);                
+                $sqlValores= ' VALUES ';
                 
              }
+             
              
         }
         
         fclose($handle); 
         
-        $sql=substr($sql, 0, -1);
+        $sqlValores=substr($sqlValores, 0, -1);
+                
+        $sql=$sqlCampos.$sqlValores;
         //print("<pre>".$sql."</pre>");
-        $this->Query($sql);
-        $sql="";
+       $this->Query($sql);
+
+       $sqlValores='';
         
+       $sql="";
+        unset($CamposDatos);
         
         return $z;
     }
