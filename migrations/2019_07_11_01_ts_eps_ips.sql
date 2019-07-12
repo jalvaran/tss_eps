@@ -107,7 +107,8 @@ CREATE TABLE `radicadospendientes` (
   KEY `NumeroRadicado` (`NumeroRadicado`),
   KEY `Nit_IPS` (`Nit_IPS`),
   KEY `TipoContrato` (`TipoContrato`),
-  KEY `NumeroContrato` (`NumeroContrato`)
+  KEY `NumeroContrato` (`NumeroContrato`),
+  KEY `EstadoRadicacion` (`EstadoRadicacion`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Envios de radicado';
 
 
