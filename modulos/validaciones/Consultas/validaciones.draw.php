@@ -516,7 +516,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
             
         break; //Fin caso 3
-        
+        /*
         case 4://Muestra los pagos de una factura
             $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
@@ -568,7 +568,44 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
         break;//Fin caso 4
         
-        case 5://Muestra los pagos de una factura
+         * 
+         */
+        case 4://Muestra los pagos temporalmente desde cxp de una factura
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Pagos Realizados a la Factura No. $NumeroFactura</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Fecha de Pago</strong>", 1);
+                    $css->ColTabla("<strong>Numero de Pago</strong>", 1);
+                    $css->ColTabla("<strong>Numero de Autorización</strong>", 1);
+                    $css->ColTabla("<strong>Tipo de Operacion</strong>", 1);                    
+                    $css->ColTabla("<strong>Valor Transferido</strong>", 1);                    
+                    $css->ColTabla("<strong>Cuenta Bancaria</strong>", 1);
+                $css->CierraFilaTabla();
+                $sql="SELECT * FROM $db.notas_db_cr_2 WHERE NumeroFactura='$NumeroFactura' AND ValorPago<>'0'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla($DatosPagos["FechaNumero2"], 1);
+                        $css->ColTabla($DatosPagos["NumeroOrdenPago"], 1);                        
+                        $css->ColTabla($DatosPagos["NumeroAutorizacion"], 1);
+                        $css->ColTabla($DatosPagos["TipoOperacion2"], 1);
+                        $css->ColTabla(number_format($DatosPagos["ValorPago"]), 1,'R');
+                        $css->ColTabla($DatosPagos["CuentaBancaria"], 1);
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+        break;//Fin caso 4
+        
+        case 5://Muestra los anticipos de una factura
             $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
