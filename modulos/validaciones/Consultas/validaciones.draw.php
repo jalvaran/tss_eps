@@ -314,7 +314,10 @@ if( !empty($_REQUEST["Accion"]) ){
                 $statement= urldecode($_REQUEST['st']);
                 //print($statement);
             }
-            
+            $TotalPendientesDevoluciones=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Devoluciones");
+            $TotalPendientesCopagos=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Copagos");
+            $TotalPendientesRadicados=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
+            $TotalPendientesNotas=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Notas");
             $limit = 50;
             $startpoint = ($NumPage * $limit) - $limit;
             $VectorST = explode("LIMIT", $statement);
@@ -336,8 +339,29 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td style='text-align:center'>");
                         print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
                     print("</td>");
-                    print("<td colspan=8 style='text-align:center'>");
+                    print("<td colspan=1 style='text-align:center'>");
                         print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Pendientes Radicados:</strong> <h4 style=color:red>". number_format($TotalPendientesRadicados)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Pendientes Devoluciones:</strong> <h4 style=color:red>". number_format($TotalPendientesDevoluciones)."</h4>");
+                    print("</td>");
+                    
+                    
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Pendientes Copagos:</strong> <h4 style=color:red>". number_format($TotalPendientesCopagos)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan=2 style='text-align:center'>");
+                        print("<strong>Pendientes Notas Crédito:</strong> <h4 style=color:red>". number_format($TotalPendientesNotas)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan=2 style='text-align:center'>");
+                        print("<strong>Posible Valor a Liquidar:</strong> <h4 style=color:red>". number_format($Total-$TotalPendientesNotas-$TotalPendientesCopagos-$TotalPendientesDevoluciones-$TotalPendientesRadicados)."</h4>");
                     print("</td>");
                     
                     print("<td colspan='2' style='text-align:center'>");
@@ -397,6 +421,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Mes de Servicio</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Factura</strong>", 1);
                     $css->ColTabla("<strong>Radicado</strong>", 1);
+                    $css->ColTabla("<strong>Pendientes</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Radicado</strong>", 1);
                     $css->ColTabla("<strong>Valor</strong>", 1);
                     $css->ColTabla("<strong>Impuestos</strong>", 1);
@@ -422,7 +447,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->FilaTabla(14);
                         $idItem=$DatosFactura["ID"];
                         $NumeroFactura=$DatosFactura["NumeroFactura"];
-                        
+                        $NumeroRadicado=$DatosFactura["NumeroRadicado"];
                         
                         $css->ColTabla($DatosFactura["NumeroContrato"], 1);
                         print("<td>");
@@ -433,7 +458,14 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         $css->ColTabla($DatosFactura["MesServicio"], 1);
                         $css->ColTabla($DatosFactura["FechaFactura"], 1);
-                        $css->ColTabla($DatosFactura["NumeroRadicado"], 1);
+                        print("<td>");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroRadicado',13)", "style=cursor:pointer;");
+
+                               print(($DatosFactura["NumeroRadicado"]));
+                           $css->CerrarDiv();
+                         print("</td>"); 
+                        
+                        $css->ColTabla($DatosFactura["Pendientes"], 1);
                         $css->ColTabla($DatosFactura["FechaRadicado"], 1);
                         $css->ColTabla(number_format($DatosFactura["ValorDocumento"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["Impuestos"]), 1,'R');
@@ -495,7 +527,10 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         $css->ColTabla(number_format($DatosFactura["GlosaXConciliar"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["OtrosDescuentos"]), 1,'R');
-                        $css->ColTabla(number_format($DatosFactura["CarteraXEdades"]), 1,'R');
+                        print("<td style=text-align:center;font-size:18px>");
+                            print(number_format($DatosFactura["CarteraXEdades"]));
+                        print("</td>");
+                        
                         print("<td style=text-align:center;font-size:18px>");
                            print(number_format($DatosFactura["ValorSegunEPS"]));
                            $idBoton="btnConciliarXEPS_$idItem";
@@ -617,26 +652,26 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CierraFilaTabla();
                 
                 $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Fecha</strong>", 1);
+                    $css->ColTabla("<strong>Mes de Servicio</strong>", 1);
                     $css->ColTabla("<strong>Referencia</strong>", 1);
                     $css->ColTabla("<strong>Numero de Anticipo</strong>", 1);
-                    $css->ColTabla("<strong>Radicado</strong>", 1);
-                    $css->ColTabla("<strong>Valor Factura</strong>", 1);
-                    $css->ColTabla("<strong>Valor Menos Impuestos</strong>", 1);
-                    $css->ColTabla("<strong>Valor Saldo</strong>", 1);
+                   
+                    
                     $css->ColTabla("<strong>Valor Anticipado</strong>", 1);
                     
                 $css->CierraFilaTabla();
-                $sql="SELECT * FROM $db.anticipos_asmet WHERE NumeroFactura='$NumeroFactura'";
+                $sql="SELECT * FROM $db.anticipos2 WHERE NumeroFactura='$NumeroFactura'";
                 $Consulta=$obCon->Query($sql);
                 while($DatosPagos=$obCon->FetchAssoc($Consulta)){
                      $css->FilaTabla(14);
-                        $css->ColTabla($DatosPagos["DescripcionNC"], 1);
+                        $css->ColTabla($DatosPagos["FechaAnticipo"], 1);
+                        $css->ColTabla($DatosPagos["MesServicio"], 1);
+                        $css->ColTabla($DatosPagos["DescripcionEgreso"], 1);
                         $css->ColTabla($DatosPagos["NumeroAnticipo"], 1);
-                        $css->ColTabla($DatosPagos["NumeroRadicado"], 1);
-                        $css->ColTabla(number_format($DatosPagos["ValorFactura"]), 1,'R');
-                        $css->ColTabla(number_format($DatosPagos["ValorMenosImpuestos"]), 1,'R');
-                        $css->ColTabla(number_format($DatosPagos["ValorSaldo"]), 1,'R');
+                        
                         $css->ColTabla(number_format($DatosPagos["ValorAnticipado"]), 1,'R');
+                        
                         
                     $css->CierraFilaTabla();
                 }
@@ -1334,6 +1369,66 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
             
         break; //Fin caso 12
+        
+        case 13: //Dibuja el consolidado de los pendientes
+            $NumeroRadicado=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Pendientes del Radicado No. $NumeroRadicado</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Tabla Origen</strong>", 1);
+                    $css->ColTabla("<strong>Origen</strong>", 1);
+                    $css->ColTabla("<strong>Departamento</strong>", 1);
+                    $css->ColTabla("<strong>Fecha</strong>", 1);
+                    $css->ColTabla("<strong>Numero de Registros</strong>", 1);
+                    $css->ColTabla("<strong>Aplicados</strong>", 1);
+                    $css->ColTabla("<strong>No enviados</strong>", 1);
+                    $css->ColTabla("<strong>Estado de Auditoria</strong>", 1);
+                    
+                    $css->ColTabla("<strong>Valor</strong>", 1);                    
+                      
+                $css->CierraFilaTabla();
+                $sql="SELECT 'Radicados' as TablaOrigen,Origen,NumeroRadicado, DepartamentoRadicacion, FechaRadicacion, 'NA' as NumeroRegistros, 'NA' as Aplicados,'NA' as NoEnviados, EstadoAuditoria, Valor 
+                         FROM $db.radicadospendientes WHERE NumeroRadicado='$NumeroRadicado' 
+                         UNION
+                         SELECT 'Devoluciones' as TablaOrigen,Origen,NumeroRadicado, DepartamentoRadicacion, FechaRadicacion, NumeroRegistros, Aplicados, NoEnviados,'NA' as EstadoAuditoria, Valor 
+                         FROM $db.devoluciones_pendientes WHERE NumeroRadicado='$NumeroRadicado'
+                         UNION
+                         SELECT 'Copagos' as TablaOrigen,Origen,NumeroRadicado, DepartamentoRadicacion, FechaRadicacion, NumeroRegistros, Aplicados, NoEnviados,'NA' as EstadoAuditoria, Valor 
+                         FROM $db.copagos_pendientes WHERE NumeroRadicado='$NumeroRadicado'
+                         UNION
+                         SELECT 'Notas' as TablaOrigen,Origen,NumeroRadicado, DepartamentoRadicacion, FechaRadicacion, NumeroRegistros, Aplicados, NoEnviados,'NA' as EstadoAuditoria, Valor 
+                         FROM $db.notas_pendientes WHERE NumeroRadicado='$NumeroRadicado'    
+                         
+                        ";
+               
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        $css->ColTabla(($DatosPagos["TablaOrigen"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["Origen"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["DepartamentoRadicacion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["FechaRadicacion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NumeroRegistros"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["Aplicados"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["NoEnviados"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["EstadoAuditoria"]), 1,'L');
+                        
+                        $css->ColTabla(number_format($DatosPagos["Valor"]), 1,'R');
+                        
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+            
+        break; //Fin caso 13
+        
     }
     
     

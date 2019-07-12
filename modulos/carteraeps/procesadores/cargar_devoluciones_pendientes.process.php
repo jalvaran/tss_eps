@@ -84,6 +84,11 @@ if( !empty($_REQUEST["Accion"]) ){
                     SELECT * FROM $db.`temp_devoluciones_pendientes`";
             $obCon->Query($sql);
             
+            $obCon->VaciarTabla("$db.pendientes_de_envio");
+            $sql="INSERT INTO $db.`pendientes_de_envio` (TablaOrigen,NumeroRadicado,Valor) "
+                    . "SELECT Radicados,NumeroRadicado,Total FROM $db.vista_pendientes ";
+            $obCon->Query($sql);
+            
             print("OK;Registros copiados");
         break; //fin caso 4  
     
