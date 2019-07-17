@@ -85,6 +85,7 @@ if(isset($_REQUEST["Opcion"])){
             
             $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
             $db=$obCon->normalizar($_REQUEST["db"]);
+            $NIT= str_replace("ts_eps_ips_", "", $db);
             $Condicion="";
             
             $Separador=";";
@@ -103,9 +104,10 @@ if(isset($_REQUEST["Opcion"])){
             $sqlColumnas.=" UNION ALL ";
             
             $sql=$sqlColumnas." SELECT * FROM $db.$Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
-            
+            $Fecha=date("Ymd_His");
             $obCon->Query($sql);
-            print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$Tabla.csv' target='_top' ><h1>Descargar </h1></a></div>");
+            $NombreArchivo=$Tabla."_$NIT"."_$Fecha";
+            print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar </h1></a></div>");
             break;//Fin caso 2
         
         }

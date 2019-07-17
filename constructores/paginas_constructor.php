@@ -1353,8 +1353,8 @@ class PageConstruct extends html_estruct_class{
          * Fila tabla
          * @param type $FontSize
          */
-	function FilaTabla($FontSize){
-            print('<tr class="odd gradeX" style="font-size:'.$FontSize.'px">');
+	function FilaTabla($FontSize,$styles=''){
+            print('<tr class="odd gradeX" style="font-size:'.$FontSize.'px;'.$styles.'">');
 		
 	}
 	/**
