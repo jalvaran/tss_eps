@@ -868,6 +868,122 @@ function VerConsolidadoFactura(NumeroFactura){
       });
 }
 
+function ConfirmarConciliacion(){
+    
+    alertify.confirm('Está seguro que desea Realizar ésta Conciliación?',
+        function (e) {
+            if (e) {
+
+                alertify.success("Enviando Formulario");                    
+                GuardarConciliacion();
+            }else{
+                alertify.error("Se canceló el proceso");
+
+                return;
+            }
+        });
+}
+
+function GuardarConciliacion(){
+    document.getElementById('BtnConciliar').disabled=true;
+    document.getElementById('BtnConciliar').value="Enviando...";
+    var TxtNumeroFactura=document.getElementById('TxtNumeroFactura').value;
+    var CmbTipoConciliacion=document.getElementById('CmbTipoConciliacion').value;
+    var CmbConcepto=document.getElementById('CmbConcepto').value;
+    var TxtObservaciones=document.getElementById('TxtObservaciones').value;
+    var ValorEPS=document.getElementById('ValorEPS').value;
+    var ValorIPS=document.getElementById('ValorIPS').value;
+    var FechaConciliacion=document.getElementById('FechaConciliacion').value;
+    var ConciliadorIPS=document.getElementById('ConciliadorIPS').value;
+    var CmbMetodoConciliacion=document.getElementById('CmbMetodoConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 7);
+        form_data.append('TxtNumeroFactura', TxtNumeroFactura);
+        form_data.append('CmbTipoConciliacion', CmbTipoConciliacion);
+        form_data.append('CmbConcepto', CmbConcepto);
+        form_data.append('TxtObservaciones', TxtObservaciones);
+        form_data.append('ValorEPS', ValorEPS);
+        form_data.append('ValorIPS', ValorIPS);
+        form_data.append('FechaConciliacion', FechaConciliacion);
+        form_data.append('ConciliadorIPS', ConciliadorIPS);
+        form_data.append('CmbMetodoConciliacion', CmbMetodoConciliacion);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('UpSoporte', $('#UpSoporte').prop('files')[0]);
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                VerHistorialFactura(TxtNumeroFactura,15);
+                
+                alertify.success(respuestas[1]);
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById('BtnConciliar').disabled=false;
+                document.getElementById('BtnConciliar').value="Conciliar";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('BtnConciliar').disabled=false;
+                document.getElementById('BtnConciliar').value="Conciliar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById('BtnConciliar').disabled=false;
+            document.getElementById('BtnConciliar').value="Conciliar";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function MarqueErrorElemento(idElemento){
+    document.getElementById(idElemento).style.backgroundColor="pink";
+    document.getElementById(idElemento).focus();
+}
+
+function HabiliteValores(){
+    var TipoConciliacion=document.getElementById("CmbTipoConciliacion").value;
+    if(TipoConciliacion==''){
+        document.getElementById('ValorEPS').disabled=true;
+        document.getElementById('ValorIPS').disabled=true;
+        document.getElementById('ValorEPS').value='';
+        document.getElementById('ValorIPS').value='';
+    }
+    
+    if(TipoConciliacion=='1'){
+        document.getElementById('ValorEPS').disabled=false;
+        document.getElementById('ValorIPS').disabled=true;
+        document.getElementById('ValorEPS').value='';
+        document.getElementById('ValorIPS').value='NA';
+    }
+    
+    if(TipoConciliacion=='2'){
+        document.getElementById('ValorEPS').disabled=true;
+        document.getElementById('ValorIPS').disabled=false;
+        document.getElementById('ValorEPS').value='NA';
+        document.getElementById('ValorIPS').value='';
+    }
+    
+}
 function ExportarTablaToExcel(idTabla){
     excel = new ExcelGen({
         "src_id": idTabla,

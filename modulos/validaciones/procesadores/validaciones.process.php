@@ -41,7 +41,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $info = new SplFileInfo($_FILES['UpActualizaciones']['name']);
                 $Extension=($info->getExtension());  
                 if($Extension=='xls' or $Extension=='xlsx'){
-                    $carpeta="../../../soportes/813001952/";
+                    $carpeta="../../../soportes/$CmbIPS/";
                     if (!file_exists($carpeta)) {
                         mkdir($carpeta, 0777);
                     }
@@ -136,7 +136,102 @@ if( !empty($_REQUEST["Accion"]) ){
             }
             $obCon->RegistreConciliacionUsuario($db, $idUser, $NumeroFactura, $Conciliacion);
             print("OK;Facturas Actualizadas");
-        break; //Fin caso 5
+        break; //Fin caso 6
+        
+        case 7:// Se guarda una conciliacion
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $NumeroFactura=$obCon->normalizar($_REQUEST["TxtNumeroFactura"]);
+            $TipoConciliacion=$obCon->normalizar($_REQUEST["CmbTipoConciliacion"]);
+            $ConceptoConciliacion=$obCon->normalizar($_REQUEST["CmbConcepto"]);
+            $Observaciones=$obCon->normalizar($_REQUEST["TxtObservaciones"]);
+            $ValorEPS=$obCon->normalizar($_REQUEST["ValorEPS"]);
+            $ValorIPS=$obCon->normalizar($_REQUEST["ValorIPS"]);
+            $FechaConciliacion=$obCon->normalizar($_REQUEST["FechaConciliacion"]);
+            $ConciliadorIPS=$obCon->normalizar($_REQUEST["ConciliadorIPS"]);
+            $MetodoConciliacion=$obCon->normalizar($_REQUEST["CmbMetodoConciliacion"]);
+            $destino='';
+            $keyArchivo=$NumeroFactura.date("YmdHis");
+            $Extension="";
+            if(!empty($_FILES['UpSoporte']['name'])){
+                
+                $info = new SplFileInfo($_FILES['UpSoporte']['name']);
+                $Extension=($info->getExtension());  
+                
+                $carpeta="../../../soportes/$CmbIPS/Conciliaciones/";
+                if (!file_exists($carpeta)) {
+                    mkdir($carpeta, 0777);
+                }
+                opendir($carpeta);                
+                $destino=$carpeta.$keyArchivo.".".$Extension;
+                $NombreArchivo=$keyArchivo.".".$Extension;
+                move_uploaded_file($_FILES['UpSoporte']['tmp_name'],$destino);
+                    
+                
+            }else{
+                exit("E1;No se envió ningún archivo de Soporte;UpSoporte");
+                
+            }
+            
+            if($CmbIPS==''){
+                exit("E1;No se recibió la IPS a la que pertenece la concialiacion;");
+            }
+            
+            if($TipoConciliacion==''){
+                exit("E1;No se ha seleccionado a favor de quien se concilia;CmbTipoConciliacion");
+            }
+            
+            if($ConceptoConciliacion==''){
+                exit("E1;No se ha seleccionado un concepto de conciliación;CmbConcepto");
+            }
+            
+            if($Observaciones=='' or strlen($Observaciones)<=10){
+                exit("E1;Debe escribir las observaciones de la conciliacion;TxtObservaciones");
+            }
+            
+            
+            if($FechaConciliacion==''){
+                exit("E1;La Fecha de Conciliacion no puede estar vacía;FechaConciliacion");
+            }
+            
+            if($ConciliadorIPS==''){
+                exit("E1;Debe escribir quien fue la persona con quien se realiza la conciliación;ConciliadorIPS");
+            }
+            
+            if($MetodoConciliacion==''){
+                exit("E1;Debe elejir un metodo de conciliación;CmbMetodoConciliacion");
+            }
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $DatosCruce=$obCon->DevuelveValores("$db.vista_cruce_cartera_asmet", "NumeroFactura", $NumeroFactura);
+            $ValorAConciliar=0;
+            $sql="SELECT SUM(ValorConciliacion) as Total FROM $db.conciliaciones_cruces WHERE NumeroFactura='$NumeroFactura' AND Estado<>'ANULADO'";
+            $TotalesConciliacion=$obCon->Query($sql);
+            $TotalesConciliacion=$obCon->FetchAssoc($TotalesConciliacion);
+            
+            if($TipoConciliacion==1){ //A favor de la EPS
+                if($ValorEPS=='' or !is_numeric($ValorEPS) or $ValorEPS<=0){
+                    exit("E1;El Campo Valor EPS debe contener un valor Númerico mayor a Cero;ValorEPS");
+                }
+                $ValorAConciliar=$ValorEPS;
+                if(($TotalesConciliacion["Total"]+$ValorEPS)>abs($DatosCruce["Diferencia"])){
+                    exit("E1;El valor digitado supera al valor por conciliar;ValorEPS");
+                }
+            }
+            if($TipoConciliacion==2){ //A favor de la IPS
+                if($ValorIPS=='' or !is_numeric($ValorIPS) or $ValorIPS<=0){
+                    exit("E1;El Campo Valor IPS debe contener un valor Númerico mayor a Cero;ValorIPS");
+                }
+                $ValorAConciliar=$ValorIPS;
+                if(($TotalesConciliacion["Total"]+$ValorIPS)>abs($DatosCruce["Diferencia"])){
+                    exit("E1;El valor digitado supera al valor por conciliar;ValorIPS");
+                }
+            }
+            
+            $obCon->AgregarConciliacion($db,$DatosCruce, $NumeroFactura, $ConceptoConciliacion, $TipoConciliacion, $Observaciones, $destino, $ValorAConciliar, $ConciliadorIPS, $FechaConciliacion, $MetodoConciliacion, $idUser);
+            print("OK;Conciliacion Guardada");
+        break;    
             
         
     }

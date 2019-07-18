@@ -1,0 +1,1 @@
+ALTER TABLE `carteraeps` ADD `Estado` INT NOT NULL AFTER `ConciliadoXEPS`, ADD INDEX `Estado` (`Estado`);

@@ -210,5 +210,47 @@ class ValidacionesEPS extends conexion{
             
     }
     
+    public function AgregarConciliacion($db,$DatosCruce,$NumeroFactura,$Concepto,$TipoConciliacion,$Observaciones,$Soporte,$ValorConciliacion,$ConciliadorIPS,$FechaConciliacion,$MetodoConciliacion,$idUser) {
+        
+        $Datos["NumeroContrato"]=$DatosCruce["NumeroContrato"];
+        $Datos["NumeroFactura"]=$NumeroFactura;
+        $Datos["MesServicio"]=$DatosCruce["MesServicio"];
+        $Datos["FechaFactura"]=$DatosCruce["FechaFactura"];
+        $Datos["NumeroRadicado"]=$DatosCruce["NumeroRadicado"];
+        $Datos["Pendientes"]=$DatosCruce["Pendientes"];
+        $Datos["FechaRadicado"]=$DatosCruce["FechaRadicado"];
+        $Datos["ValorOriginal"]=$DatosCruce["ValorDocumento"];
+        $Datos["ValorImpuestoCalculado"]=$DatosCruce["Impuestos"];
+        $Datos["ValorImpuestoRetenciones"]=$DatosCruce["ImpuestosSegunASMET"];
+        $Datos["ValorMenosImpuesto"]=$DatosCruce["ValorMenosImpuestos"];
+        $Datos["ValorPagos"]=$DatosCruce["TotalPagos"];
+        $Datos["ValorAnticipos"]=$DatosCruce["TotalAnticipos"];
+        $Datos["ValorCopagos"]=$DatosCruce["TotalCopagos"];
+        $Datos["ValorDevoluciones"]=$DatosCruce["TotalDevoluciones"];
+        $Datos["ValorGlosaInicial"]=$DatosCruce["TotalGlosaInicial"];
+        
+        $Datos["ValorGlosaFavor"]=$DatosCruce["TotalGlosaFavor"];
+        $Datos["ValorGlosaContra"]=$DatosCruce["TotalGlosaContra"];
+        $Datos["ValorGlosaconciliar"]=$DatosCruce["GlosaXConciliar"];
+        $Datos["ValorSaldoEps"]=$DatosCruce["ValorSegunEPS"];
+        $Datos["ValorSaldoIps"]=$DatosCruce["ValorSegunIPS"];
+        $Datos["ValorDiferencia"]=$DatosCruce["Diferencia"];
+        $Datos["ConceptoConciliacion"]=$Concepto;
+        $Datos["ConciliacionAFavorDe"]=$TipoConciliacion;
+        
+        $Datos["Observacion"]=$Observaciones;
+        $Datos["Soportes"]=$Soporte;
+        $Datos["ValorConciliacion"]=$ValorConciliacion;
+        $Datos["ConciliadorIps"]=$ConciliadorIPS;        
+        $Datos["FechaConciliacion"]=$FechaConciliacion;
+        $Datos["ViaConciliacion"]=$MetodoConciliacion;
+        $Datos["idUser"]=$idUser;
+        $Datos["FechaRegistro"]=date("Y-m-d H:i:s");
+        
+        $sql= $this->getSQLInsert("$db.conciliaciones_cruces", $Datos);
+        $this->Query($sql);
+    }
+    
+    
     //Fin Clases
 }

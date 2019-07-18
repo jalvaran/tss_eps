@@ -454,6 +454,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         
                         print("<td style='text-align:center'>");
                             print('<a id="BtnVer_'.$idItem.'" href="#" onclick="VerHistorialFactura(`'.$NumeroFactura.'`,`14`);"><i class="fa fa-fw fa-eye"></i></a>');
+                            print('&nbsp;&nbsp;&nbsp;<a id="BtnConciliar_'.$idItem.'" href="#" onclick="VerHistorialFactura(`'.$NumeroFactura.'`,`15`);"><i class="fa fa-money"></i></a>');
                         print("</td>");
                         
                         $css->ColTabla($DatosFactura["NumeroContrato"], 1);
@@ -1483,6 +1484,252 @@ if( !empty($_REQUEST["Accion"]) ){
             
                 
         break; //Fin caso 14
+        case 15:
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $DatosFactura=$obCon->DevuelveValores("$db.vista_cruce_cartera_asmet", "NumeroFactura", $NumeroFactura);
+            $css->CrearInputText("TxtNumeroFactura", "hidden", "", $NumeroFactura, "", "", "", "", "", "", 0, 0);        
+            
+            $sql="SELECT SUM(ValorConciliacion) as TotalConciliaciones FROM $db.conciliaciones_cruces WHERE NumeroFactura='$NumeroFactura' AND Estado<>'ANULADO'";
+            $Consulta=$obCon->Query($sql);
+            $DatosTotales=$obCon->FetchAssoc($Consulta);
+            $TotalConciliaciones=$DatosTotales["TotalConciliaciones"];
+
+            if($TotalConciliaciones==''){
+                $TotalConciliaciones=0;
+            }
+
+            if($TotalConciliaciones>=$DatosFactura["Diferencia"]){
+                exit("<strong>La Factura $NumeroFactura está Conciliada</strong>");
+            }
+                
+            
+            $css->CrearTabla();
+            
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>CONCILIAR FACTURA No. $NumeroFactura</strong>", 1);
+                    $css->ColTabla("Fecha: <strong><span >$DatosFactura[FechaFactura]</span></strong>", 1);
+                    $css->ColTabla("Mes de Servicio: <strong><span >$DatosFactura[MesServicio]</span></strong>", 1);
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                                    
+                    
+                
+                    $css->ColTabla("Contrato: <strong><span >$DatosFactura[NumeroContrato]</span></strong>", 1);
+                
+                    $css->ColTabla("Pendientes: <strong><span >$DatosFactura[Pendientes]</span></strong>", 1);
+                    $css->ColTabla("Fecha de Radicado: <strong><span >$DatosFactura[FechaRadicado]</span></strong>", 1);
+                    $css->ColTabla("Radicado: <strong><span >$DatosFactura[NumeroRadicado]</span></strong>", 1);
+                
+                    
+                
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Valor de la Factura: </strong>", 1,'L');                
+                    $css->ColTabla(number_format($DatosFactura["ValorDocumento"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Impuestos Calculados: </strong>", 1,'L');  
+                          
+                    $css->ColTabla(number_format($DatosFactura["Impuestos"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Impuestos Segun ASMET: </strong>", 1,'L');                
+                    $css->ColTabla(number_format($DatosFactura["ImpuestosSegunASMET"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Valor Menos Impuestos: </strong>", 1,'L');                
+                    $css->ColTabla(number_format($DatosFactura["ValorMenosImpuestos"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Pagos: </strong>", 1,'L');  
+                    $css->ColTabla("", 2,'L');   
+                    $css->ColTabla(number_format($DatosFactura["TotalPagos"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Anticipos: </strong>", 1,'L'); 
+                    $css->ColTabla("", 2,'L');   
+                    $css->ColTabla(number_format($DatosFactura["TotalAnticipos"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Copagos: </strong>", 1,'L');  
+                    $css->ColTabla("", 2,'L');   
+                    $css->ColTabla(number_format($DatosFactura["TotalCopagos"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Devoluciones: </strong>", 1,'L');
+                    $css->ColTabla("", 2,'L');   
+                    $css->ColTabla(number_format($DatosFactura["TotalDevoluciones"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Glosa Inicial: </strong>", 1,'L');
+                    
+                    $css->ColTabla(number_format($DatosFactura["TotalGlosaInicial"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Glosa a Favor: </strong>", 1,'L'); 
+                    $css->ColTabla("", 2,'L');   
+                    $css->ColTabla(number_format($DatosFactura["TotalGlosaFavor"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Glosa en Contra: </strong>", 1,'L');                
+                    $css->ColTabla(number_format($DatosFactura["TotalGlosaContra"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Glosa X Conciliar: </strong>", 1,'L');                
+                    $css->ColTabla(number_format($DatosFactura["GlosaXConciliar"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Cartera Por Edades: </strong>", 1,'L');                
+                    $css->ColTabla(number_format($DatosFactura["CarteraXEdades"]), 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Saldo Según EPS: </strong>", 1,'L'); 
+                    $css->ColTabla("", 2,'L');   
+                    $css->ColTabla("<strong>".number_format($DatosFactura["ValorSegunEPS"])."</strong>", 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Saldo Según IPS: </strong>", 1,'L');   
+                    $css->ColTabla("", 2,'L');   
+                    $css->ColTabla("<strong>".number_format($DatosFactura["ValorSegunIPS"])."</strong>", 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Diferencia: </strong>", 1,'L');  
+                    $css->ColTabla("", 2,'L');   
+                    $css->ColTabla("<strong>".number_format($DatosFactura["Diferencia"])."</strong>", 2,'L');                   
+                $css->CierraFilaTabla();
+                
+                
+                $css->FilaTabla(16);
+                    print("<td colspan='1'>");
+                        $css->select("CmbTipoConciliacion", "form-control", "CmbTipoConciliacion", "", "", "onclick=HabiliteValores()", "");
+                            $css->option("", "", "", "", "", "");
+                                print("Seleccione a Favor de Quien se Concilia");
+                            $css->Coption();
+                            $css->option("", "", "", "1", "", "");
+                                print("A Favor de la EPS");
+                            $css->Coption();
+                            $css->option("", "", "", "2", "", "");
+                                print("A Favor de la IPS");
+                            $css->Coption();
+                        $css->Cselect();
+                    print("<td>");
+                    
+                    print("<td colspan='1'>");
+                        $css->select("CmbConcepto", "form-control", "CmbConcepto", "", "", "", "");
+                            $css->option("", "", "", "", "", "");
+                                print("Seleccione el concepto por el cual se Concilia");
+                            $css->Coption();
+                            $sql="SELECT * FROM conciliaciones_conceptos";
+                            $Consulta=$obCon->Query($sql);
+                            while($DatosConceptos=$obCon->FetchAssoc($Consulta)){
+                                $css->option("", "", "", $DatosConceptos["ID"], "", "");
+                                    print($DatosConceptos["Concepto"]);
+                                $css->Coption();
+                            }
+                            
+                        $css->Cselect();
+                    print("<td>");
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    print("<td colspan='4'>");
+                        $css->textarea("TxtObservaciones", "form-control", "TxtObservaciones", "", "Observaciones", "", "");
+                            
+                        $css->Ctextarea();
+                    print("</td>");
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    
+                    print("<td colspan='4'>");
+                        print("<strong>Seleccione el archivo soporte:</strong><br>");
+                        $css->input("file", "UpSoporte", "form-control", "UpSoporte", "", "", "", "", "", "style='line-height: 15px;'");
+                    print("</td>");
+                    
+                $css->CierraFilaTabla();
+                
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Valores Conciliados Anteriormente:</strong>", 1);
+                
+                    $css->ColTabla("<strong>Valor A Favor de la EPS:</strong>", 1);
+                
+                    $css->ColTabla("<strong>Valor A Favor de la IPS:</strong>", 1);
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    print("<td>");
+                        $css->CrearInputText("TotalConciliaciones", "text", "", $TotalConciliaciones, "", "", "", "", 300, 30, 1, 1);
+                    print("</td>");
+                
+                    print("<td>");
+                        $css->CrearInputText("ValorEPS", "text", "", "", "Valor EPS", "", "", "", 300, 30, 0, 1);
+                    print("</td>");
+                
+                    print("<td>");
+                        $css->CrearInputText("ValorIPS", "text", "", "", "Valor IPS", "", "", "", 300, 30, 0, 1);
+                    print("</td>");
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    print("<td>");
+                        $css->input("date", "FechaConciliacion", "form-control", "FechaConciliacion", "", date("Y-m-d"), "Fecha Corte Cartera", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
+        
+                    print("</td>");
+                    print("<td >");
+                        $css->input("text", "ConciliadorIPS", "form-control", "ConciliadorIPS", "", "", "Conciliador IPS", "off", "", "");
+                        
+                    print("</td>");
+                    print("<td colspan='1'>");
+                        $css->select("CmbMetodoConciliacion", "form-control", "CmbMetodoConciliacion", "", "", "", "");
+                            $css->option("", "", "", "", "", "");
+                                print("Seleccione la forma en la que se realiza la conciliacion");
+                            $css->Coption();
+                            $css->option("", "", "", "1", "", "");
+                                print("Presencial");
+                            $css->Coption();
+                            $css->option("", "", "", "2", "", "");
+                                print("Telefonicamente");
+                            $css->Coption();
+                            $css->option("", "", "", "3", "", "");
+                                print("Virtualmente");
+                            $css->Coption();
+                        $css->Cselect();
+                    print("<td>");
+                    
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                     print("<td colspan=3>");
+                        $css->CrearBotonEvento("BtnConciliar", "Guardar", 1, "onclick", "ConfirmarConciliacion()", "rojo", "");
+                     print("</td>");
+                $css->CierraFilaTabla();
+                
+                
+            $css->CerrarTabla();
+        break;
     }
     
     
