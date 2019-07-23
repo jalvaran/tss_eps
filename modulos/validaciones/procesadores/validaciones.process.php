@@ -230,6 +230,11 @@ if( !empty($_REQUEST["Accion"]) ){
             }
             
             $obCon->AgregarConciliacion($db,$DatosCruce, $NumeroFactura, $ConceptoConciliacion, $TipoConciliacion, $Observaciones, $destino, $ValorAConciliar, $ConciliadorIPS, $FechaConciliacion, $MetodoConciliacion, $idUser);
+            $TotalConciliacion=$TotalesConciliacion["Total"]+$ValorAConciliar;
+           
+            if($TotalConciliacion >= (abs($DatosCruce["Diferencia"]))){
+                $obCon->ActualizaRegistro("$db.carteraeps", "Estado", 1, "NumeroFactura", $NumeroFactura);
+            }
             print("OK;Conciliacion Guardada");
         break;    
             

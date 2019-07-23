@@ -28,13 +28,20 @@ $Role=$_SESSION["Role"];
 $css->PageInit($myTitulo);
 
     $css->Modal("ModalAcciones", "TS5", "", 1);
+    
+        
         $css->div("DivFrmModalAcciones", "", "", "", "", "", "");
-        $css->Cdiv();        
+        $css->Cdiv();    
+            
+      
     $css->CModal("BntModalAcciones", "onclick=SeleccioneAccionFormularios()", "button", "Guardar");
     
+        
     print("<br>");
     
     $css->CrearDiv("", "col-md-4", "center", 1, 1);
+    
+            
         if($Role=="SUPERVISOR"){
             $sql="SELECT * FROM ips";
         }else{

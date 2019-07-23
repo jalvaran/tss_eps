@@ -295,6 +295,40 @@ function VerHistorialFactura(NumeroFactura,Accion){
       });
 }
 
+function VerHistoriales(NumeroFactura,Accion){
+    
+    document.getElementById("TabModal2").click();
+    document.getElementById("DivModalHistoricos").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', Accion);        
+        form_data.append('NumeroFactura', NumeroFactura);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivModalHistoricos').innerHTML=data;
+           
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
 
 function MuestrePagadasSR(Page=1){
     document.getElementById("DivPagasSinRelacion").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
