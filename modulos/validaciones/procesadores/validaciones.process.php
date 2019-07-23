@@ -236,7 +236,35 @@ if( !empty($_REQUEST["Accion"]) ){
                 $obCon->ActualizaRegistro("$db.carteraeps", "Estado", 1, "NumeroFactura", $NumeroFactura);
             }
             print("OK;Conciliacion Guardada");
-        break;    
+        break;    //Fin caso 7
+        
+        case 8://Anular una conciliacion
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $TxtIdAnulacionConciliacion=$obCon->normalizar($_REQUEST["TxtIdAnulacionConciliacion"]);
+            $DatosConciliacion=$obCon->DevuelveValores("$db.conciliaciones_cruces", "ID", $TxtIdAnulacionConciliacion);
+            $CmbTipoAnulacion=$obCon->normalizar($_REQUEST["CmbTipoAnulacion"]);
+            $TxtObservacionesAnulacion=$obCon->normalizar($_REQUEST["TxtObservacionesAnulacion"]);
+            $NumeroFactura=$DatosConciliacion["NumeroFactura"];
+            if($TxtIdAnulacionConciliacion==''){
+                exit("E1;No se recibió una Conciliación para anular");
+                
+            }
+            if($CmbTipoAnulacion==''){
+                exit("E1;Debes Seleccionar un tipo de Anulacion;CmbTipoAnulacion");
+                
+            }
+            if($TxtObservacionesAnulacion=='' or strlen($TxtObservacionesAnulacion)<10){
+                exit("E1;Debes Escribir el motivo por el cual se anula la conciliación;TxtObservacionesAnulacion");
+                
+            }
+            
+            $obCon->AnularConciliacion($db, $TxtIdAnulacionConciliacion, $CmbTipoAnulacion, $NumeroFactura, $DatosConciliacion["ValorConciliacion"],$TxtObservacionesAnulacion);
+            
+            print("OK;Se realizó la anulación de la Conciliación;$NumeroFactura");
+        break;//Fin caso 8    
             
         
     }

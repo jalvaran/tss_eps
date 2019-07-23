@@ -989,6 +989,85 @@ function GuardarConciliacion(){
       })
 }
 
+
+function ConfirmarAnulacion(){
+    
+    alertify.confirm('Está seguro que desea Anular esta Conciliación?',
+        function (e) {
+            if (e) {
+
+                alertify.success("Enviando Formulario");                    
+                AnularConciliacion();
+            }else{
+                alertify.error("Se canceló el proceso");
+
+                return;
+            }
+        });
+}
+
+function AnularConciliacion(){
+    document.getElementById('btnGuardarAnulacion').disabled=true;
+    document.getElementById('btnGuardarAnulacion').value="Anulando...";
+    var TxtIdAnulacionConciliacion=document.getElementById('TxtIdAnulacionConciliacion').value;
+    var CmbTipoAnulacion=document.getElementById('CmbTipoAnulacion').value;
+    var TxtObservacionesAnulacion=document.getElementById('TxtObservacionesAnulacion').value;
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 8);
+        form_data.append('TxtIdAnulacionConciliacion', TxtIdAnulacionConciliacion);
+        form_data.append('CmbTipoAnulacion', CmbTipoAnulacion);
+        form_data.append('TxtObservacionesAnulacion', TxtObservacionesAnulacion);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                var TxtNumeroFactura=respuestas[2];
+                VerHistorialFactura(TxtNumeroFactura,15);
+                CambiePaginaCruce();
+                alertify.success(respuestas[1]);
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById('btnGuardarAnulacion').disabled=false;
+                document.getElementById('btnGuardarAnulacion').value="ANULAR";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('btnGuardarAnulacion').disabled=false;
+                document.getElementById('btnGuardarAnulacion').value="ANULAR";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById('btnGuardarAnulacion').disabled=false;
+            document.getElementById('btnGuardarAnulacion').value="ANULAR";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
 function MarqueErrorElemento(idElemento){
     document.getElementById(idElemento).style.backgroundColor="pink";
     document.getElementById(idElemento).focus();

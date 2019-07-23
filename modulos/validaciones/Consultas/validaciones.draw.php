@@ -1837,12 +1837,16 @@ if( !empty($_REQUEST["Accion"]) ){
                 
                 $css->FilaTabla(14);
                 
-                $Columnas=$obCon->getColumnasDisponibles("$db.conciliaciones_cruces","");
-
-                foreach ($Columnas["Field"] as $key => $value) {
-                    $css->ColTabla("<strong>$value</strong>",1);
-                }
-                                  
+                    $css->ColTabla("<strong>Acciones</strong>",1);
+                    $css->ColTabla("<strong>Conciliacion A Favor De</strong>",1);
+                    $css->ColTabla("<strong>Observaciones</strong>",1);
+                    $css->ColTabla("<strong>Valor de Conciliación</strong>",1);
+                    $css->ColTabla("<strong>ConciliadorIps</strong>",1);
+                    $css->ColTabla("<strong>ViaConciliacion</strong>",1);
+                    $css->ColTabla("<strong>idUser</strong>",1);
+                    $css->ColTabla("<strong>FechaRegistro</strong>",1);
+                    
+                               
                       
                 $css->CierraFilaTabla();
                 $sql=" SELECT * FROM $db.conciliaciones_cruces WHERE NumeroFactura='$NumeroFactura'
@@ -1850,12 +1854,23 @@ if( !empty($_REQUEST["Accion"]) ){
                
                 $Consulta=$obCon->Query($sql);
                 while($DatosPagos=$obCon->FetchAssoc($Consulta)){
-                     $css->FilaTabla(14);
-                        foreach ($Columnas["Field"] as $key => $value) {
+                    $idItem=$DatosPagos["ID"];
+                    $css->FilaTabla(14);
+                        print("<td style='text-align:center;color:red'>");
+                            print('<a id="BtnAnular_'.$idItem.'" href="#" onclick="VerHistorialFactura(`'.$idItem.'`,`17`);"><i class="fa fa-remove "></i></a>');
                             
-                            $css->ColTabla(($DatosPagos[$value]), 1,'L');
+                        print("</td>");
+                        $ConciliadoAFavorDe="IPS";
+                        if($DatosPagos["ConciliacionAFavorDe"]==1){
+                            $ConciliadoAFavorDe="EPS";
                         }
-                                                
+                        $css->ColTabla(($ConciliadoAFavorDe), 1,'L');
+                        $css->ColTabla(($DatosPagos["Observacion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["ValorConciliacion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["ConciliadorIps"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["ViaConciliacion"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["idUser"]), 1,'L');
+                        $css->ColTabla(($DatosPagos["FechaRegistro"]), 1,'L');
                     $css->CierraFilaTabla();
                 }
                 
@@ -1863,6 +1878,73 @@ if( !empty($_REQUEST["Accion"]) ){
             
                 
         break; //Fin caso 16
+        
+        case 17:// formulario para anular una conciliacion
+            $idConciliacion=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+              
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $DatosConciliacion=$obCon->DevuelveValores("$db.conciliaciones_cruces", "ID", $idConciliacion);
+            $NumeroFactura=$DatosConciliacion["NumeroFactura"]; 
+            $css->input("hidden", "TxtIdAnulacionConciliacion", "", "", "", $idConciliacion, "", "", "", "");
+            $css->CrearTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong style=color:red>ANULAR CONCILIACIÓN DE LA FACTURA $NumeroFactura</strong>", 4,'C');
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>DATOS DE LA CONCILIACIÓN</strong>", 4,'C');
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>USUARIO</strong>", 1);
+                    $css->ColTabla("<strong>A FAVOR DE</strong>", 1);
+                    $css->ColTabla("<strong>FECHA</strong>", 1);
+                    $css->ColTabla("<strong>VALOR CONCILIADO</strong>", 1);
+                    
+                $css->CierraFilaTabla();
+                $css->FilaTabla(14);
+                    $css->ColTabla($DatosConciliacion["idUser"], 1);
+                    if($DatosConciliacion["ConciliacionAFavorDe"]==1){
+                        $ConciliacionAFavorDe="EPS";
+                    }else{
+                        $ConciliacionAFavorDe="IPS";
+                    }
+                    $css->ColTabla($ConciliacionAFavorDe, 1);
+                    $css->ColTabla($DatosConciliacion["FechaRegistro"], 1);
+                    $css->ColTabla(number_format($DatosConciliacion["ValorConciliacion"]), 1);
+                    
+                $css->CierraFilaTabla();
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Motivo de Anulación</strong>", 1);
+                    $css->ColTabla("<strong>Observaciones</strong>", 2);
+                    $css->ColTabla("<strong>Guardar</strong>", 1);
+                $css->CierraFilaTabla();
+                $css->FilaTabla(14);
+                    print("<td>");
+                        $css->select("CmbTipoAnulacion", "form-control", "CmbTipoAnulacion", "", "", "", "");
+                            $css->option("", "", "", "", "", "");
+                                print("Seleccione por qué se que anula");
+                            $css->Coption();
+                            $sql="SELECT * FROM conciliaciones_tipo_anulaciones";
+                            $Consulta=$obCon->Query($sql);
+                            while($DatosTipo=$obCon->FetchAssoc($Consulta)){
+                                $css->option("", "", "", $DatosTipo["ID"], "", "");
+                                    print($DatosTipo["Tipo"]);
+                                $css->Coption();
+                            }
+                        $css->Cselect();
+                    print("</td>");
+                    print("<td colspan=2>");
+                        $css->textarea("TxtObservacionesAnulacion", "form-control", "TxtObservacionesAnulacion", "", "Observaciones", "", "");
+                        
+                        $css->Ctextarea();
+                    print("</td>");
+                    print("<td>");
+                        $css->CrearBotonEvento("btnGuardarAnulacion", "ANULAR", 1, "onclick", "ConfirmarAnulacion()", "rojo", "");
+                    print("</td>");
+                $css->CierraFilaTabla();
+            $css->CerrarTabla();
+        break;    
         
     }
     

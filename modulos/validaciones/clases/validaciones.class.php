@@ -251,6 +251,20 @@ class ValidacionesEPS extends conexion{
         $this->Query($sql);
     }
     
+    public function AnularConciliacion($db,$idConciliacion,$TipoAnulacion,$NumeroFactura,$ValorAnulado,$Observaciones) {
+        
+        $Datos["Fecha"]=date("Y-m-d H:i:s");
+        $Datos["idConciliacion"]=$idConciliacion;
+        $Datos["TipoAnulacion"]=$TipoAnulacion;
+        $Datos["NumeroFactura"]=$NumeroFactura;
+        $Datos["ValorAnulado"]=$ValorAnulado;
+        $Datos["Observaciones"]=$Observaciones;
+        $sql=$this->getSQLInsert("$db.conciliaciones_anulaciones", $Datos);
+        $this->Query($sql);
+        $this->ActualizaRegistro("$db.carteraeps", "Estado", 0, "NumeroFactura", $NumeroFactura);
+        $this->ActualizaRegistro("$db.conciliaciones_cruces", "ValorConciliacion", 0, "ID", $idConciliacion);
+            
+    }
     
     //Fin Clases
 }
