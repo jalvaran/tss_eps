@@ -222,14 +222,6 @@ SELECT t1.ID,t1.NumeroFactura,t1.FechaFactura,
 FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.NumeroFactura;
 
 
-DROP VIEW IF EXISTS `vista_ultimas_conciliaciones_cartera_eps`;
-CREATE VIEW vista_ultimas_conciliaciones_cartera_eps AS
- 
-SELECT DISTINCT(NumeroFactura),FechaRegistro  
-FROM conciliaciones_cruces 
-ORDER BY FechaRegistro DESC;
-
-
 DROP VIEW IF EXISTS `vista_cruce_cartera_asmet`;
 CREATE VIEW vista_cruce_cartera_asmet AS 
 SELECT t1.ID,t1.NumeroFactura,t1.FechaFactura,t2.Estado,
@@ -253,6 +245,8 @@ SELECT t1.ID,t1.NumeroFactura,t1.FechaFactura,t2.Estado,
         (t2.ValorMenosImpuestos - (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT OtrosDescuentos)-(SELECT ABS(TotalCopagos))-(SELECT ABS(TotalDevoluciones))) AS ValorSegunEPS,
         t1.ValorTotalpagar as ValorSegunIPS,((SELECT ValorSegunEPS)-(SELECT ValorSegunIPS)) AS Diferencia,
         (SELECT IFNULL((SELECT (ValorTotalcartera) FROM carteraxedades WHERE carteraxedades.NumeroFactura=t1.NumeroFactura LIMIT 1),0)) AS CarteraXEdades,
-        (SELECT IF((SELECT Diferencia>0),'SI','NO')) AS ValorIPSMenor
+        (SELECT IF((SELECT Diferencia>0),'SI','NO')) AS ValorIPSMenor,
+        (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t1.NumeroFactura ),0)) AS TotalConciliaciones,
+        (SELECT IF((SELECT ROUND(TotalConciliaciones,2)<>(SELECT ROUND(ABS(Diferencia),2)) AND (SELECT TotalConciliaciones > 0)),'SI','NO')) AS ConciliacionesPendientes
 FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.NumeroFactura;
 

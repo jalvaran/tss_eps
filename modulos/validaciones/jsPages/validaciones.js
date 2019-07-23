@@ -961,7 +961,7 @@ function GuardarConciliacion(){
            if(respuestas[0]==="OK"){   
                 
                 VerHistorialFactura(TxtNumeroFactura,15);
-                
+                CambiePaginaCruce();
                 alertify.success(respuestas[1]);
                 
             }else if(respuestas[0]==="E1"){
