@@ -432,7 +432,11 @@ if( !empty($_REQUEST["Accion"]) ){
                       
                 
                 $css->FilaTabla(16);
-                    $css->ColTabla("<strong>Acciones</strong>", 1,"position:absolute;");
+                    print("<td>");
+                        print("<strong>Acciones</strong><br>");
+                        $css->CrearBotonEvento("btnOpcionesMasivas", "Cargas Masivas", 1, "onclick", "AbreOpcionesMasivas()", "verde", "");
+                    print("</td>");
+                    
                     $css->ColTabla("<strong>Contrato</strong>", 1);
                     $css->ColTabla("<strong>Factura</strong>", 1);
                     $css->ColTabla("<strong>Saldo IPS Menor?</strong>", 1);
@@ -1842,7 +1846,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Observaciones</strong>",1);
                     $css->ColTabla("<strong>Valor de Conciliación</strong>",1);
                     $css->ColTabla("<strong>ConciliadorIps</strong>",1);
-                    $css->ColTabla("<strong>ViaConciliacion</strong>",1);
+                    $css->ColTabla("<strong>Via de Conciliacion</strong>",1);
                     $css->ColTabla("<strong>idUser</strong>",1);
                     $css->ColTabla("<strong>FechaRegistro</strong>",1);
                     
@@ -1944,7 +1948,69 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                 $css->CierraFilaTabla();
             $css->CerrarTabla();
-        break;    
+        break;   //fin caso 17
+        
+        case 18://Se abre formulario para consolidaciones masivas
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            //$DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            //$db=$DatosIPS["DataBase"];
+            $css->CrearTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Subir conciliaciones desde Archivo</strong>", 6,'C');
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    print("<td colspan=6>");
+                        $Ruta="../../general/procesadores/GeneradorExcel.php?idDocumento=1&CmbIPS=$CmbIPS";
+                        print("<a href='$Ruta' target='_blank'><button class='btn btn-success'>Descargar Formato</button></a>");
+                        //$css->CrearBotonEvento("btnDescargarFormatoConciliacionMasiva", "Descargar Formato", 1, "onclick", "DescargarConciliacionMasiva()", "azul", "");
+                    print("</td>");
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Fecha</strong>", 1,'C');
+                    $css->ColTabla("<strong>Conciliador IPS</strong>", 1,'C');
+                    $css->ColTabla("<strong>Metodo de Conciliación</strong>", 1,'C');
+                    $css->ColTabla("<strong>Archivo de conciliaciones</strong>", 1,'C');
+                    $css->ColTabla("<strong>Soporte</strong>", 1,'C');
+                    $css->ColTabla("<strong>Ejecutar</strong>", 1,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    print("<td colspan=1>");
+                        $css->input("date", "FechaConciliacionMasiva", "form-control", "FechaConciliacionMasiva", "", date("Y-m-d"), "Fecha Corte Cartera", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
+                    print("</td>");
+                    print("<td >");
+                        $css->input("text", "ConciliadorIPSMasivo", "form-control", "ConciliadorIPSMasivo", "", "", "Conciliador IPS", "off", "", "");
+                        
+                    print("</td>");
+                    print("<td colspan='1'>");
+                        $css->select("CmbMetodoConciliacionMasivo", "form-control", "CmbMetodoConciliacionMasivo", "", "", "", "");
+                            $css->option("", "", "", "", "", "");
+                                print("Seleccione la forma en la que se realiza la conciliacion");
+                            $css->Coption();
+                            $css->option("", "", "", "1", "", "");
+                                print("Presencial");
+                            $css->Coption();
+                            $css->option("", "", "", "2", "", "");
+                                print("Telefonicamente");
+                            $css->Coption();
+                            $css->option("", "", "", "3", "", "");
+                                print("Virtualmente");
+                            $css->Coption();
+                        $css->Cselect();
+                    print("</td>");
+                    print("<td colspan=1>");
+                        $css->input("file", "UpConciliacionMasiva", "form-control", "UpConciliacionMasiva", "", "", "", "", "", "style='line-height: 15px;'");
+                    print("</td>");
+                    print("<td colspan=1>");
+                        $css->input("file", "UpSoporteConciliacionMasiva", "form-control", "UpSoporteConciliacionMasiva", "", "", "", "", "", "style='line-height: 15px;'");
+                    print("</td>");
+                    print("<td colspan=1>");
+                        $css->CrearBotonEvento("btnGuardarConciliacionesMasivas", "Ejecutar", 1, "onclick", "ConfirmarConciliacionesMasivas()", "rojo", "");
+                    print("</td>");
+                $css->CierraFilaTabla();
+            $css->CerrarTabla();
+        break;//FIn caso 18    
         
     }
     
