@@ -1069,6 +1069,10 @@ function AnularConciliacion(){
 
 
 function MarqueErrorElemento(idElemento){
+    console.log(idElemento);
+    if(idElemento==undefined){
+       return; 
+    }
     document.getElementById(idElemento).style.backgroundColor="pink";
     document.getElementById(idElemento).focus();
 }
@@ -1140,6 +1144,284 @@ function AbreOpcionesMasivas(){
             alert(thrownError);
           }
       });
+}
+
+function ConfirmarConciliacionesMasivas(){
+    
+    alertify.confirm('Está seguro que desea realizar esta Conciliación Masiva?',
+        function (e) {
+            if (e) {
+
+                alertify.success("Enviando Formulario");                    
+                EnviarConciliacionMasiva();
+            }else{
+                alertify.error("Se canceló el proceso");
+
+                return;
+            }
+        });
+}
+
+function EnviarConciliacionMasiva(){
+    document.getElementById("DivProcessConciliacionMasiva").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    document.getElementById('btnGuardarConciliacionesMasivas').disabled=true;
+    document.getElementById('btnGuardarConciliacionesMasivas').value="Procesando...";
+    var FechaConciliacionMasiva=document.getElementById('FechaConciliacionMasiva').value;
+    var ConciliadorIPSMasivo=document.getElementById('ConciliadorIPSMasivo').value;
+    var CmbMetodoConciliacionMasivo=document.getElementById('CmbMetodoConciliacionMasivo').value;
+    var CmbConceptoConciliacion=document.getElementById('CmbConceptoConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 9);
+        form_data.append('FechaConciliacionMasiva', FechaConciliacionMasiva);
+        form_data.append('ConciliadorIPSMasivo', ConciliadorIPSMasivo);
+        form_data.append('CmbMetodoConciliacionMasivo', CmbMetodoConciliacionMasivo);
+        form_data.append('CmbConceptoConciliacion', CmbConceptoConciliacion);
+        form_data.append('UpConciliacionMasiva', $('#UpConciliacionMasiva').prop('files')[0]);
+        form_data.append('UpSoporteConciliacionMasiva', $('#UpSoporteConciliacionMasiva').prop('files')[0]);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                LeerArchivoConciliacionesMasivas();
+                alertify.success(respuestas[1]);
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+                document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+                document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+                document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+                document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+            document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+            document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function LeerArchivoConciliacionesMasivas(){
+    
+    var FechaConciliacionMasiva=document.getElementById('FechaConciliacionMasiva').value;
+    var ConciliadorIPSMasivo=document.getElementById('ConciliadorIPSMasivo').value;
+    var CmbMetodoConciliacionMasivo=document.getElementById('CmbMetodoConciliacionMasivo').value;
+    var CmbConceptoConciliacion=document.getElementById('CmbConceptoConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 10);
+        form_data.append('FechaConciliacionMasiva', FechaConciliacionMasiva);
+        form_data.append('ConciliadorIPSMasivo', ConciliadorIPSMasivo);
+        form_data.append('CmbMetodoConciliacionMasivo', CmbMetodoConciliacionMasivo);
+        form_data.append('CmbConceptoConciliacion', CmbConceptoConciliacion);
+        form_data.append('UpConciliacionMasiva', $('#UpConciliacionMasiva').prop('files')[0]);
+        form_data.append('UpSoporteConciliacionMasiva', $('#UpSoporteConciliacionMasiva').prop('files')[0]);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                ActualiceConciliacionTemporalMasiva();
+                alertify.success(respuestas[1]);
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+                document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+                document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+                document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+                document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+            document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+            document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function ActualiceConciliacionTemporalMasiva(){
+    
+    var FechaConciliacionMasiva=document.getElementById('FechaConciliacionMasiva').value;
+    var ConciliadorIPSMasivo=document.getElementById('ConciliadorIPSMasivo').value;
+    var CmbMetodoConciliacionMasivo=document.getElementById('CmbMetodoConciliacionMasivo').value;
+    var CmbConceptoConciliacion=document.getElementById('CmbConceptoConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 11);
+        form_data.append('FechaConciliacionMasiva', FechaConciliacionMasiva);
+        form_data.append('ConciliadorIPSMasivo', ConciliadorIPSMasivo);
+        form_data.append('CmbMetodoConciliacionMasivo', CmbMetodoConciliacionMasivo);
+        form_data.append('CmbConceptoConciliacion', CmbConceptoConciliacion);
+        form_data.append('UpConciliacionMasiva', $('#UpConciliacionMasiva').prop('files')[0]);
+        form_data.append('UpSoporteConciliacionMasiva', $('#UpSoporteConciliacionMasiva').prop('files')[0]);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                InserteConciliacionesMasivas();
+                alertify.success(respuestas[1]);
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+                document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+                document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+                document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+                document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+            document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+            document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function InserteConciliacionesMasivas(){
+    
+    var FechaConciliacionMasiva=document.getElementById('FechaConciliacionMasiva').value;
+    var ConciliadorIPSMasivo=document.getElementById('ConciliadorIPSMasivo').value;
+    var CmbMetodoConciliacionMasivo=document.getElementById('CmbMetodoConciliacionMasivo').value;
+    var CmbConceptoConciliacion=document.getElementById('CmbConceptoConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 12);
+        form_data.append('FechaConciliacionMasiva', FechaConciliacionMasiva);
+        form_data.append('ConciliadorIPSMasivo', ConciliadorIPSMasivo);
+        form_data.append('CmbMetodoConciliacionMasivo', CmbMetodoConciliacionMasivo);
+        form_data.append('CmbConceptoConciliacion', CmbConceptoConciliacion);
+        form_data.append('UpConciliacionMasiva', $('#UpConciliacionMasiva').prop('files')[0]);
+        form_data.append('UpSoporteConciliacionMasiva', $('#UpSoporteConciliacionMasiva').prop('files')[0]);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                CambiePaginaCruce();
+                document.getElementById("DivProcessConciliacionMasiva").innerHTML='';
+                document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+                document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+                alertify.success(respuestas[1]);
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+                document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+                document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+                document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+                document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById('btnGuardarConciliacionesMasivas').disabled=false;
+            document.getElementById('btnGuardarConciliacionesMasivas').value="Ejecutar";
+            document.getElementById("DivProcessConciliacionMasiva").innerHTML="";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
 }
 
 

@@ -15,7 +15,7 @@ class TS_Excel extends conexion{
     
     // Clase para generar excel de un balance de comprobacion
     
-    public function GenerarFormatoConciliacionesMasivas($db) {
+    public function GenerarFormatoConciliacionesMasivas($db,$CmbIPS) {
         require_once('../../librerias/Excel/PHPExcel2.php');
         
         $objPHPExcel = new Spreadsheet();
@@ -25,6 +25,7 @@ class TS_Excel extends conexion{
         $z=0;
         $i=1;
         $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue($Campos[$z++].$i,"IPS")
             ->setCellValue($Campos[$z++].$i,"NumeroFactura")
             ->setCellValue($Campos[$z++].$i,"FechaFactura")
             ->setCellValue($Campos[$z++].$i,"NumeroRadicado")
@@ -49,20 +50,21 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z++].$i,"ValorSegunIPS")
             ->setCellValue($Campos[$z++].$i,"Diferencia")
             ->setCellValue($Campos[$z++].$i,"CarteraXEdades")
-            ->setCellValue($Campos[$z++].$i,"ConceptoConciliacion")
+            
             ->setCellValue($Campos[$z++].$i,"ConciliacionAFavorDe")
             ->setCellValue($Campos[$z++].$i,"Observacion")
             ->setCellValue($Campos[$z++].$i,"ValorConciliacion")
-            
+            ->setCellValue($Campos[$z++].$i,"TotalConciliaciones")
             ;
             
-        $sql="SELECT * FROM $db.vista_cruce_cartera_asmet WHERE Estado=0";
+        $sql="SELECT * FROM $db.vista_cruce_cartera_asmet WHERE Estado=0 AND Diferencia<>0";
         $Consulta=$this->Query($sql);
         $i=1;
         while($DatosVista= $this->FetchAssoc($Consulta)){
             $z=0;
             $i++;
         $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue($Campos[$z++].$i,$CmbIPS)
             ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroFactura"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["FechaFactura"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroRadicado"])
@@ -87,10 +89,11 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z++].$i,$DatosVista["ValorSegunIPS"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["Diferencia"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["CarteraXEdades"])
+            
             ->setCellValue($Campos[$z++].$i,"")
             ->setCellValue($Campos[$z++].$i,"")
             ->setCellValue($Campos[$z++].$i,"")
-            ->setCellValue($Campos[$z++].$i,"")
+            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalConciliaciones"])
             
             ;
         }
@@ -108,7 +111,7 @@ class TS_Excel extends conexion{
         ->setCategory("Formato conciliacion masiva");    
  
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment;filename="'."FormatoConciliacion".'.xls"');
+    header('Content-Disposition: attachment;filename="'."FormatoConciliacion_$CmbIPS".'.xls"');
     header('Cache-Control: max-age=0');
     header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
     header('Pragma: public'); // HTTP/1.0

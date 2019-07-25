@@ -1,4 +1,5 @@
 <?php
+use PhpOffice\PhpSpreadsheet\IOFactory;
 if(file_exists("../../../modelo/php_conexion.php")){
     include_once("../../../modelo/php_conexion.php");
 }
@@ -11,7 +12,15 @@ if(file_exists("../../../modelo/php_conexion.php")){
         
 class ValidacionesEPS extends conexion{
     
+    public function getKeyConciliacionMasiva($FechaConciliacion,$CmbIPS,$CmbEPS,$idUser) {
+        $Fecha= str_replace("-", "", $FechaConciliacion);
+        return("Conciliacion_Masiva_".$CmbIPS."_".$CmbEPS."_".$Fecha."_".$idUser);
+    }
     
+    public function getKeySoporteConciliacionMasiva($FechaConciliacion,$CmbIPS,$CmbEPS,$idUser) {
+        $Fecha= str_replace("-", "", $FechaConciliacion);
+        return("Soporte_Conciliacion_Masiva_".$CmbIPS."_".$CmbEPS."_".$Fecha."_".$idUser);
+    }
     
     public function ActualizarFactura($NumeroFacturaAnterior,$NumeroFacturaNueva,$idIPS,$Observaciones,$idUser) {
         
@@ -264,6 +273,178 @@ class ValidacionesEPS extends conexion{
         $this->ActualizaRegistro("$db.carteraeps", "Estado", 0, "NumeroFactura", $NumeroFactura);
         $this->ActualizaRegistro("$db.conciliaciones_cruces", "ValorConciliacion", 0, "ID", $idConciliacion);
             
+    }
+    
+    public function GuardeConciliacionMasivaEnTemporal($FechaConciliacionMasiva,$idIPS,$idEPS,$idUser,$ConciliadorIPS,$ViaConciliacion,$ConceptoConciliacion) {
+        clearstatcache();
+        require_once('../../../librerias/Excel/PHPExcel2.php');
+        $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
+        $db=$DatosIPS["DataBase"];
+        $carpeta="../../../soportes/$idIPS/Conciliaciones/";
+        $keyArchivoSoporte=$this->getKeySoporteConciliacionMasiva($FechaConciliacionMasiva, $idIPS, $idEPS, $idUser);
+        $keyArchivoConciliacion=$this->getKeyConciliacionMasiva($FechaConciliacionMasiva, $idIPS, $idEPS, $idUser);
+        $Extension='xlsx';
+        $RutaArchivo=$carpeta.$keyArchivoConciliacion.".".$Extension;
+        $FechaActual=date("Y-m-d H:i:s");
+        
+        $Soporte=$carpeta.$keyArchivoSoporte.".".$Extension;
+       
+        
+        $objReader = IOFactory::createReader('Xlsx');
+        
+        
+       
+        $objPHPExcel = $objReader->load($RutaArchivo);   
+        $hojas=$objPHPExcel->getSheetCount();
+                 
+              
+        $hojas=$objPHPExcel->getSheetCount();
+        
+        date_default_timezone_set('UTC'); //establecemos la hora local
+        
+        $Cols=[ 'ZZ','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+                'AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ',
+                'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ',
+                'CA','CB','CC','CD','CE','CF','CG','CH','CI','CJ','CK','CL','CM','CN','CO','CP','CQ','CR','CS','CT','CU','CV','CW','CX','CY','CZ',
+                'DA','DB','DC','DD','DE','DF','DG','DH','DI','DJ','DK','DL','DM','DN','DO','DP','DQ','DR','DS','DT','DU','DV','DW','DX','DY','DZ'];
+        
+        
+        
+        //for ($h=0;$h<$hojas;$h++){
+            $objPHPExcel->setActiveSheetIndex(0);
+            $columnas = $objPHPExcel->setActiveSheetIndex(0)->getHighestColumn();
+            $filas = $objPHPExcel->setActiveSheetIndex(0)->getHighestRow();
+            
+            if($columnas<>'AB'){
+                exit('E1;<h3>No se recibió el archivo de <strong>Actualizaciones Masivas: '.$columnas.'</strong></h3>');
+            }
+           
+            $sql= "INSERT INTO $db.`temp_conciliaciones_cruces` ( ";
+            $sql.="`NumeroFactura`,";
+            $sql.="`ConceptoConciliacion`,";
+            $sql.="`ConciliacionAFavorDe`,";
+            $sql.="`Observacion`,";
+            $sql.="`Soportes`,";
+            $sql.="`ValorConciliacion`,";
+            $sql.="`ConciliadorIps`,";
+            $sql.="`FechaConciliacion`,";
+            $sql.="`ViaConciliacion`,";
+            $sql.="`idUser`,";
+            $sql.="`FechaRegistro`";
+            
+            $sql.=") VALUES ";
+            $r=0;
+            
+            for ($i=1;$i<=$filas;$i++){
+                $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
+                
+                if($FilaA==''){
+                    continue; 
+                }
+                                         
+                if(is_numeric($FilaA)){
+                    $r++;//Contador de filas a insertar
+                    if($FilaA<>$idIPS){
+                        exit("E1;El archivo contiene registros de una IPS diferente en la Fila A$i, $FilaA");
+                    }
+                    $NumeroFactura=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
+                    $NumeroFactura= str_replace("'", "", $NumeroFactura);
+                    
+                    $ConciliacionAFavorDe=$objPHPExcel->getActiveSheet()->getCell('Y'.$i)->getCalculatedValue();
+                    $ConciliacionAFavorDe= str_replace("'", "", $ConciliacionAFavorDe);
+                    $Observaciones=$objPHPExcel->getActiveSheet()->getCell('Z'.$i)->getCalculatedValue();
+                    $Observaciones= str_replace("'", "", $Observaciones);
+                    $ValorConciliacion=$objPHPExcel->getActiveSheet()->getCell('AA'.$i)->getCalculatedValue();
+                    $ValorConciliacion= str_replace("'", "", $ValorConciliacion);
+                    if($NumeroFactura==''){
+                        exit("E1;El archivo no contiene el Numero de la Factura en el Campo B$i");
+                    }
+                    
+                    if($ConciliacionAFavorDe==''){
+                        exit("E1;El archivo no especifíca a favor de quien se realiza la conciliacion en el Campo Y$i");
+                    }
+                    if(strtoupper($ConciliacionAFavorDe)<>"IPS" and strtoupper($ConciliacionAFavorDe)<>"EPS"){
+                        exit("E1;El archivo debe especificar si es a favor de la EPS o IPS en el Campo Campo Y$i");
+                    }
+                    if(strtoupper($ConciliacionAFavorDe)=="EPS"){
+                        $ConciliacionAFavorDe=1;
+                    }
+                    if(strtoupper($ConciliacionAFavorDe)=="IPS"){
+                        $ConciliacionAFavorDe=2;
+                    }
+                    
+                        
+                    if($Observaciones==''){
+                        exit("E1;El archivo no contiene observaciones en el Campo Z$i");
+                    }
+                    
+                    if($ValorConciliacion==''){
+                        exit("E1;El archivo no contiene el valor de la Conciliacion en el Campo AA$i");
+                    }
+                    
+                    if(!is_numeric($ValorConciliacion) or $ValorConciliacion<=0){
+                        exit("E1;El archivo contiene un valor de la Conciliación no admitido, solo se permiten valores númericos positivos en el Campo AA$i");
+                    }
+                    
+                    $sql.="(";
+                    $sql.="'$NumeroFactura',";
+                    $sql.="'$ConceptoConciliacion',";
+                    $sql.="'$ConciliacionAFavorDe',";
+                    $sql.="'$Observaciones',";
+                    $sql.="'$Soporte',";
+                    $sql.="'$ValorConciliacion',";
+                    $sql.="'$ConciliadorIPS',";
+                    $sql.="'$FechaConciliacionMasiva',";
+                    $sql.="'$ViaConciliacion',";
+                    $sql.="'$idUser',";
+                    $sql.="'$FechaActual'),";
+                    
+                    if($r==200){
+                
+                        $sql=substr($sql, 0, -1);
+                        //print($sql);
+                        $this->Query($sql);
+                        $sql= "INSERT INTO $db.`temp_conciliaciones_cruces` ( ";
+                        $sql.="`NumeroFactura`,";
+                        $sql.="`ConceptoConciliacion`,";
+                        $sql.="`ConciliacionAFavorDe`,";
+                        $sql.="`Observacion`,";
+                        $sql.="`Soportes`,";
+                        $sql.="`ValorConciliacion`,";
+                        $sql.="`ConciliadorIps`,";
+                        $sql.="`FechaConciliacion`,";
+                        $sql.="`ViaConciliacion`,";
+                        $sql.="`idUser`,";
+                        $sql.="`FechaRegistro`";
+
+                        $sql.=") VALUES ";
+                        $r=0;
+                    }  
+                }
+                
+                
+                
+            } 
+        
+        //}
+        
+        
+        $sql=substr($sql, 0, -1);
+        //print($sql);
+        $this->Query($sql);
+        
+        $objPHPExcel->disconnectWorksheets();// Good to disconnect
+        $objPHPExcel->garbageCollect(); 
+        clearstatcache();
+        unset($objPHPExcel);
+        
+        unset($sql);
+        unset($Cols);
+        unset($value);
+        unset($key);
+        unset($ColumnasTabla);
+        
+        
     }
     
     //Fin Clases

@@ -265,7 +265,225 @@ if( !empty($_REQUEST["Accion"]) ){
             
             print("OK;Se realizó la anulación de la Conciliación;$NumeroFactura");
         break;//Fin caso 8    
+        
+        case 9: //se recibe el archivo de conciliaciones masivas
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $FechaConciliacionMasiva=$obCon->normalizar($_REQUEST["FechaConciliacionMasiva"]);
+            $ConciliadorIPSMasivo=$obCon->normalizar($_REQUEST["ConciliadorIPSMasivo"]);
+            $CmbMetodoConciliacionMasivo=$obCon->normalizar($_REQUEST["CmbMetodoConciliacionMasivo"]);
+            $CmbConceptoConciliacion=$obCon->normalizar($_REQUEST["CmbConceptoConciliacion"]);
             
+            if($CmbIPS==""){
+                exit("E1;No se recibió una IPS;CmbIPS");
+            }
+            
+            if($CmbConceptoConciliacion==""){
+                exit("E1;Debe Seleccionar un Concepto de Conciliacion;CmbConceptoConciliacion");
+            }
+            
+            if($CmbEPS==""){
+                exit("E1;No se recibió una EPS;CmbEPS");
+            }
+            
+            if($FechaConciliacionMasiva==""){
+                exit("E1;No se recibió una Fecha de Conciliacion;FechaConciliacionMasiva");
+            }
+            
+            if($ConciliadorIPSMasivo==""){
+                exit("E1;Debe digitar el nombre del conciliador de la IPS;ConciliadorIPSMasivo");
+            }
+            
+            if($CmbMetodoConciliacionMasivo==""){
+                exit("E1;Debe Seleccionar el metodo utilizado para conciliar;CmbMetodoConciliacionMasivo");
+            }
+            
+            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosCargas["DataBase"];
+            $obCon->VaciarTabla("$db.temp_conciliaciones_cruces");
+            $destinoConciliacionMasiva='';
+            $keyArchivo=$obCon->getKeyConciliacionMasiva($FechaConciliacionMasiva, $CmbIPS, $CmbEPS, $idUser);
+            $Extension="";
+            if(!empty($_FILES['UpConciliacionMasiva']['name'])){
+                
+                $info = new SplFileInfo($_FILES['UpConciliacionMasiva']['name']);
+                $Extension=($info->getExtension());  
+                if($Extension=='xls' or $Extension=='xlsx'){
+                    $carpeta="../../../soportes/$CmbIPS/Conciliaciones/";
+                    if (!file_exists($carpeta)) {
+                        mkdir($carpeta, 0777);
+                    }
+                    opendir($carpeta);                
+                    $destinoConciliacionMasiva=$carpeta.$keyArchivo.".xlsx";
+                    $NombreArchivo=$keyArchivo.".".$Extension;
+                    move_uploaded_file($_FILES['UpConciliacionMasiva']['tmp_name'],$destinoConciliacionMasiva);
+                    
+                }else{
+                    exit("E1;Error el archivo debe ser tipo xls o xlsx;UpConciliacionMasiva");
+                }
+            }else{
+                exit("E1;No se recibió el archivo de conciliaciones masivas;UpConciliacionMasiva");
+                
+            }
+            
+            $destino='';
+            $keyArchivo=$obCon->getKeySoporteConciliacionMasiva($FechaConciliacionMasiva, $CmbIPS, $CmbEPS, $idUser);
+            $Extension="";
+            if(!empty($_FILES['UpSoporteConciliacionMasiva']['name'])){
+                
+                $info = new SplFileInfo($_FILES['UpSoporteConciliacionMasiva']['name']);
+                $Extension=($info->getExtension());  
+                
+                $carpeta="../../../soportes/$CmbIPS/Conciliaciones/";
+                if (!file_exists($carpeta)) {
+                    mkdir($carpeta, 0777);
+                }
+                opendir($carpeta);                
+                $destino=$carpeta.$keyArchivo.".".$Extension;
+                $NombreArchivo=$keyArchivo.".".$Extension;
+                move_uploaded_file($_FILES['UpSoporteConciliacionMasiva']['tmp_name'],$destino);
+                    
+                
+            }else{
+                exit("E1;No se envió ningún archivo de Soporte;UpSoporteConciliacionMasiva");
+                
+            }
+            
+            print("OK;Archivo Recibido");   
+        break;//Fin caso 9
+        
+        case 10: //se lee el archivo y carga en la temporal
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $FechaConciliacionMasiva=$obCon->normalizar($_REQUEST["FechaConciliacionMasiva"]);
+            $ConciliadorIPSMasivo=$obCon->normalizar($_REQUEST["ConciliadorIPSMasivo"]);
+            $CmbMetodoConciliacionMasivo=$obCon->normalizar($_REQUEST["CmbMetodoConciliacionMasivo"]);
+            $CmbConceptoConciliacion=$obCon->normalizar($_REQUEST["CmbConceptoConciliacion"]);
+            if($CmbIPS==""){
+                exit("E1;No se recibió una IPS;CmbIPS");
+            }
+            if($CmbConceptoConciliacion==""){
+                exit("E1;Debe Seleccionar un Concepto de Conciliacion;CmbConceptoConciliacion");
+            }
+            if($CmbEPS==""){
+                exit("E1;No se recibió una EPS;CmbEPS");
+            }
+            
+            if($FechaConciliacionMasiva==""){
+                exit("E1;No se recibió una Fecha de Conciliacion;FechaConciliacionMasiva");
+            }
+            
+            if($ConciliadorIPSMasivo==""){
+                exit("E1;Debe digitar el nombre del conciliador de la IPS;ConciliadorIPSMasivo");
+            }
+            
+            if($CmbMetodoConciliacionMasivo==""){
+                exit("E1;Debe Seleccionar el metodo utilizado para conciliar;CmbMetodoConciliacionMasivo");
+            }
+            $obCon->GuardeConciliacionMasivaEnTemporal($FechaConciliacionMasiva, $CmbIPS, $CmbEPS, $idUser, $ConciliadorIPSMasivo, $CmbMetodoConciliacionMasivo,$CmbConceptoConciliacion);
+                     
+            print("OK;Archivo Guardado en la temporal");
+            
+        break;    //Fin caso 10
+        
+        case 11: //se actualizan los valores de las conciliaciones masivas
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $FechaConciliacionMasiva=$obCon->normalizar($_REQUEST["FechaConciliacionMasiva"]);
+            $ConciliadorIPSMasivo=$obCon->normalizar($_REQUEST["ConciliadorIPSMasivo"]);
+            $CmbMetodoConciliacionMasivo=$obCon->normalizar($_REQUEST["CmbMetodoConciliacionMasivo"]);
+            $CmbConceptoConciliacion=$obCon->normalizar($_REQUEST["CmbConceptoConciliacion"]);
+            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosCargas["DataBase"];
+            if($CmbIPS==""){
+                exit("E1;No se recibió una IPS;CmbIPS");
+            }
+            if($CmbConceptoConciliacion==""){
+                exit("E1;Debe Seleccionar un Concepto de Conciliacion;CmbConceptoConciliacion");
+            }
+            if($CmbEPS==""){
+                exit("E1;No se recibió una EPS;CmbEPS");
+            }
+            
+            if($FechaConciliacionMasiva==""){
+                exit("E1;No se recibió una Fecha de Conciliacion;FechaConciliacionMasiva");
+            }
+            
+            if($ConciliadorIPSMasivo==""){
+                exit("E1;Debe digitar el nombre del conciliador de la IPS;ConciliadorIPSMasivo");
+            }
+            
+            if($CmbMetodoConciliacionMasivo==""){
+                exit("E1;Debe Seleccionar el metodo utilizado para conciliar;CmbMetodoConciliacionMasivo");
+            }
+            $sql="UPDATE $db.temp_conciliaciones_cruces t1 INNER JOIN $db.vista_cruce_cartera_asmet t2 ON t1.NumeroFactura=t2.NumeroFactura "
+                    . " SET t1.NumeroContrato=t2.NumeroContrato, t1.MesServicio=t2.MesServicio, t1.FechaFactura=t2.FechaFactura, "
+                    . "  t1.NumeroRadicado=t2.NumeroRadicado,  t1.Pendientes=t2.Pendientes,  t1.FechaRadicado=t2.FechaRadicado,  t1.ValorOriginal=t2.ValorDocumento, "
+                    . "  t1.ValorImpuestoCalculado=t2.Impuestos,  t1.ValorMenosImpuesto=t2.ValorMenosImpuestos,  t1.ValorPagos=t2.TotalPagos,  t1.ValorAnticipos=t2.TotalAnticipos, "
+                    . "  t1.ValorCopagos=t2.TotalCopagos,  t1.ValorDevoluciones=t2.TotalDevoluciones,  t1.ValorGlosaInicial=t2.TotalGlosaInicial,  t1.ValorGlosaFavor=t2.TotalGlosaFavor, "
+                    . "  t1.ValorGlosaContra=t2.TotalGlosaContra,  t1.ValorGlosaconciliar=t2.GlosaXConciliar,  t1.ValorSaldoEps=t2.ValorSegunEPS,  t1.ValorSaldoIps=t2.ValorSegunIPS,"
+                    . "  t1.ValorDiferencia=t2.Diferencia,t1.TotalConciliaciones=(SELECT SUM(ValorConciliacion) FROM $db.conciliaciones_cruces t3 WHERE t3.NumeroFactura=t1.NumeroFactura)";  
+            $obCon->Query($sql);
+            
+            $sql="SELECT NumeroFactura FROM $db.temp_conciliaciones_cruces WHERE (ValorConciliacion+TotalConciliaciones ) > ABS(ValorDiferencia) LIMIT 1";
+            $Consulta=$obCon->Query($sql);
+            $Datos=$obCon->FetchAssoc($Consulta);
+            if($Datos["NumeroFactura"]<>''){
+                exit("E1;La Conciliación de la Factura $Datos[NumeroFactura] excede el valor permitido");
+            }
+       
+            print("OK;Actualizacion de la temporal realizado");
+            
+        break;    //Fin caso 11
+        
+        case 12: //se insertan los datos en la tabla de conciliaciones
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $FechaConciliacionMasiva=$obCon->normalizar($_REQUEST["FechaConciliacionMasiva"]);
+            $ConciliadorIPSMasivo=$obCon->normalizar($_REQUEST["ConciliadorIPSMasivo"]);
+            $CmbMetodoConciliacionMasivo=$obCon->normalizar($_REQUEST["CmbMetodoConciliacionMasivo"]);
+            $CmbConceptoConciliacion=$obCon->normalizar($_REQUEST["CmbConceptoConciliacion"]);
+            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosCargas["DataBase"];
+            if($CmbIPS==""){
+                exit("E1;No se recibió una IPS;CmbIPS");
+            }
+            if($CmbConceptoConciliacion==""){
+                exit("E1;Debe Seleccionar un Concepto de Conciliacion;CmbConceptoConciliacion");
+            }
+            if($CmbEPS==""){
+                exit("E1;No se recibió una EPS;CmbEPS");
+            }
+            
+            if($FechaConciliacionMasiva==""){
+                exit("E1;No se recibió una Fecha de Conciliacion;FechaConciliacionMasiva");
+            }
+            
+            if($ConciliadorIPSMasivo==""){
+                exit("E1;Debe digitar el nombre del conciliador de la IPS;ConciliadorIPSMasivo");
+            }
+            
+            if($CmbMetodoConciliacionMasivo==""){
+                exit("E1;Debe Seleccionar el metodo utilizado para conciliar;CmbMetodoConciliacionMasivo");
+            }
+            $sql="INSERT INTO $db.conciliaciones_cruces (NumeroContrato,NumeroFactura,MesServicio,FechaFactura,NumeroRadicado,"
+                    . "Pendientes,FechaRadicado,ValorOriginal,ValorImpuestoCalculado,ValorImpuestoRetenciones,ValorMenosImpuesto,"
+                    . "ValorPagos,ValorAnticipos,ValorCopagos,ValorDevoluciones,ValorGlosaInicial,ValorGlosaFavor,ValorGlosaContra,"
+                    . "ValorGlosaconciliar,ValorSaldoEps,ValorSaldoIps,ValorDiferencia,ConceptoConciliacion,ConciliacionAFavorDe,"
+                    . "Observacion,Soportes,ValorConciliacion,ConciliadorIps,FechaConciliacion,ViaConciliacion,Estado,idUser,FechaRegistro) "
+                    . "SELECT NumeroContrato,NumeroFactura,MesServicio,FechaFactura,NumeroRadicado,Pendientes,FechaRadicado,ValorOriginal,ValorImpuestoCalculado,ValorImpuestoRetenciones,ValorMenosImpuesto,"
+                    . "ValorPagos,ValorAnticipos,ValorCopagos,ValorDevoluciones,ValorGlosaInicial,ValorGlosaFavor,ValorGlosaContra,"
+                    . "ValorGlosaconciliar,ValorSaldoEps,ValorSaldoIps,ValorDiferencia,ConceptoConciliacion,ConciliacionAFavorDe,"
+                    . "Observacion,Soportes,ValorConciliacion,ConciliadorIps,FechaConciliacion,ViaConciliacion,Estado,idUser,FechaRegistro "
+                    . "FROM $db.temp_conciliaciones_cruces";  
+            $obCon->Query($sql);
+            
+            $sql="UPDATE $db.carteraeps t1 INNER JOIN $db.vista_cruce_cartera_asmet t2 ON t1.NumeroFactura=t2.NumeroFactura "
+                    . " SET t1.Estado=1 WHERE t2.TotalConciliaciones>=t2.Diferencia OR t2.Diferencia=0";
+            $obCon->Query($sql);
+            print("OK;Registros insertados correctamente");
+            
+        break;    //Fin caso 12
         
     }
     

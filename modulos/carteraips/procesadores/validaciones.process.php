@@ -32,6 +32,7 @@ if( !empty($_REQUEST["Accion"]) ){
             
             //$DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             //$db=$DatosCargas["DataBase"];
+            $CmbIPS= str_replace("ts_eps_ips_", "", $db);
             $obCon->VaciarTabla("$db.temporal_actualizacion_facturas");
             $destino='';
             $keyArchivo="ActFacts";
@@ -41,7 +42,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $info = new SplFileInfo($_FILES['UpActualizaciones']['name']);
                 $Extension=($info->getExtension());  
                 if($Extension=='xls' or $Extension=='xlsx'){
-                    $carpeta="../../../soportes/813001952/";
+                    $carpeta="../../../soportes/$CmbIPS/";
                     if (!file_exists($carpeta)) {
                         mkdir($carpeta, 0777);
                     }

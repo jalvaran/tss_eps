@@ -323,10 +323,11 @@ if( !empty($_REQUEST["Accion"]) ){
             $startpoint = ($NumPage * $limit) - $limit;
             $VectorST = explode("LIMIT", $statement);
             $statement = $VectorST[0]; 
-            $query = "SELECT COUNT(*) as `num`,SUM(ValorSegunEPS) AS Total,SUM(TotalAPagar) AS TotalConciliaciones,(SELECT COUNT(*) FROM $db.vista_cruce_cartera_asmet WHERE Estado=1) as NumeroConciliaciones FROM {$statement}";
+            $query = "SELECT COUNT(*) as `num`,SUM(ValorSegunEPS) AS Total,SUM(ValorSegunIPS) AS TotalIPS,SUM(TotalAPagar) AS TotalConciliaciones,(SELECT COUNT(*) FROM $db.vista_cruce_cartera_asmet WHERE Estado=1) as NumeroConciliaciones FROM {$statement}";
             $row = $obCon->FetchArray($obCon->Query($query));
             $ResultadosTotales = $row['num'];
             $Total=$row['Total'];
+            $TotalIPS=$row['TotalIPS'];
             $TotalConciliaciones=$row['TotalConciliaciones'];
             $NumeroConciliaciones=$row['NumeroConciliaciones'];
             $st_reporte=$statement;
@@ -345,6 +346,9 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     print("<td colspan=1 style='text-align:center'>");
                         print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
+                    print("</td>");
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Total Según IPS:</strong> <h4 style=color:red>". number_format($TotalIPS)."</h4>");
                     print("</td>");
                     
                     print("<td colspan=1 style='text-align:center'>");
@@ -1954,6 +1958,8 @@ if( !empty($_REQUEST["Accion"]) ){
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             //$DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             //$db=$DatosIPS["DataBase"];
+            $css->div("DivProcessConciliacionMasiva", "", "", "", "", "", "");
+            $css->Cdiv();
             $css->CrearTabla();
                 $css->FilaTabla(16);
                     $css->ColTabla("<strong>Subir conciliaciones desde Archivo</strong>", 6,'C');
@@ -1969,11 +1975,10 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->FilaTabla(16);
                     $css->ColTabla("<strong>Fecha</strong>", 1,'C');
                     $css->ColTabla("<strong>Conciliador IPS</strong>", 1,'C');
-                    $css->ColTabla("<strong>Metodo de Conciliación</strong>", 1,'C');
-                    $css->ColTabla("<strong>Archivo de conciliaciones</strong>", 1,'C');
-                    $css->ColTabla("<strong>Soporte</strong>", 1,'C');
-                    $css->ColTabla("<strong>Ejecutar</strong>", 1,'C');
-                $css->CierraFilaTabla();
+                    $css->ColTabla("<strong>Concepto de Conciliación</strong>", 1,'C');
+                    $css->ColTabla("<strong>Vía de Conciliación</strong>", 1,'C');
+                $css->CierraFilaTabla();    
+               
                 
                 $css->FilaTabla(14);
                     print("<td colspan=1>");
@@ -1983,6 +1988,24 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->input("text", "ConciliadorIPSMasivo", "form-control", "ConciliadorIPSMasivo", "", "", "Conciliador IPS", "off", "", "");
                         
                     print("</td>");
+                    print("<td colspan='1'>");
+                        $css->select("CmbConceptoConciliacion", "form-control", "CmbConceptoConciliacion", "", "", "", "");
+                            $css->option("", "", "", "", "", "");
+                                print("Seleccione el concepto por el cual se Concilia");
+                            $css->Coption();
+                            $sql="SELECT * FROM conciliaciones_conceptos";
+                            $Consulta=$obCon->Query($sql);
+                            while($DatosConceptos=$obCon->FetchAssoc($Consulta)){
+                                $css->option("", "", "", $DatosConceptos["ID"], "", "");
+                                    print($DatosConceptos["Concepto"]);
+                                $css->Coption();
+                            }
+                            
+                        $css->Cselect();
+                    print("</td>");
+                    
+                     
+                    
                     print("<td colspan='1'>");
                         $css->select("CmbMetodoConciliacionMasivo", "form-control", "CmbMetodoConciliacionMasivo", "", "", "", "");
                             $css->option("", "", "", "", "", "");
@@ -1999,7 +2022,18 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->Coption();
                         $css->Cselect();
                     print("</td>");
-                    print("<td colspan=1>");
+                    
+                    $css->CierraFilaTabla();  
+                    
+                    $css->FilaTabla(16);    
+                        $css->ColTabla("<strong>Archivo de conciliaciones</strong>", 2,'C');
+                        $css->ColTabla("<strong>Soporte</strong>", 1,'C');
+                        $css->ColTabla("<strong>Ejecutar</strong>", 1,'C');
+                    $css->CierraFilaTabla();
+                    
+                    $css->FilaTabla(16);   
+                    
+                    print("<td colspan=2>");
                         $css->input("file", "UpConciliacionMasiva", "form-control", "UpConciliacionMasiva", "", "", "", "", "", "style='line-height: 15px;'");
                     print("</td>");
                     print("<td colspan=1>");

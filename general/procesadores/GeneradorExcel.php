@@ -15,15 +15,10 @@ if(isset($_REQUEST["idDocumento"])){
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
             
-            $obCon->GenerarFormatoConciliacionesMasivas($db);
+            $obCon->GenerarFormatoConciliacionesMasivas($db,$CmbIPS);
             
-            break;
-        case 2: //Informe de Comisiones por ventas
-            $idCierre=$obVenta->normalizar($_REQUEST["idCierre"]);
-            $obExcel->InformeComisionesXVentas(1, $idCierre, "", "", "");
-        case 3: //Genere Documento equivalente a factura
-            $idDocumentoEquivalente=$obVenta->normalizar($_REQUEST["idDocumentoEquivalente"]);
-            $obExcel->DocumentoEquivalenteExcel($idDocumentoEquivalente, "");
+        break;//Fin caso 1
+        
     }
 }else{
     print("No se recibió parametro de documento");
