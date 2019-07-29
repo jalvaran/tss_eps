@@ -47,7 +47,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $startpoint = ($NumPage * $limit) - $limit;
             $VectorST = explode("LIMIT", $statement);
             $statement = $VectorST[0]; 
-            $query = "SELECT COUNT(*) as `num`,SUM(ValorDocumento) AS Total FROM {$statement}";
+            $query = "SELECT COUNT(*) as `num`,SUM(ValorTotalpagar) AS Total FROM {$statement}";
             $row = $obCon->FetchArray($obCon->Query($query));
             $ResultadosTotales = $row['num'];
             $Total=$row['Total'];
@@ -140,7 +140,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla($DatosFactura["NumeroContrato"], 1);
                         print("<td>");
                            
-                            print('<span id="BtnEditar_'.$idItem.'"  onclick="EditarFactura('.$NumeroFactura.');" style=cursor:pointer> '.$DatosFactura["NumeroFactura"].' <i class="fa fa-fw fa-edit"></i></span>');
+                            print('<span id="BtnEditar_'.$idItem.'"  onclick="EditarFactura(`'.$NumeroFactura.'`);" style=cursor:pointer> '.$DatosFactura["NumeroFactura"].' <i class="fa fa-fw fa-edit"></i></span>');
                         print("</td>");
                         
                         
@@ -341,49 +341,6 @@ if( !empty($_REQUEST["Accion"]) ){
             
             
                 $css->FilaTabla(16);
-                    print("<td style='text-align:center;'>");
-                        print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
-                    print("</td>");
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
-                    print("</td>");
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Total Según IPS:</strong> <h4 style=color:red>". number_format($TotalIPS)."</h4>");
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Pendientes Radicados:</strong> <h4 style=color:red>". number_format($TotalPendientesRadicados)."</h4>");
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Pendientes Devoluciones:</strong> <h4 style=color:red>". number_format($TotalPendientesDevoluciones)."</h4>");
-                    print("</td>");
-                    
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Pendientes Copagos:</strong> <h4 style=color:red>". number_format($TotalPendientesCopagos)."</h4>");
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Pendientes Notas Crédito:</strong> <h4 style=color:red>". number_format($TotalPendientesNotas)."</h4>");
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Posible Valor a Liquidar:</strong> <h4 style=color:red>". number_format($Total-$TotalPendientesNotas-$TotalPendientesCopagos-$TotalPendientesDevoluciones-$TotalPendientesRadicados)."</h4>");
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Facturas Conciliadas:</strong> <h4 style=color:red>". number_format($NumeroConciliaciones)."</h4>");
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Total Conciliado:</strong> <h4 style=color:red>". number_format($TotalConciliaciones)."</h4>");
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Total Conciliado - Pendientes:</strong> <h4 style=color:red>". number_format($TotalConciliaciones-$TotalPendientesNotas-$TotalPendientesCopagos-$TotalPendientesDevoluciones-$TotalPendientesRadicados)."</h4>");
-                    print("</td>");
-                    
                     print("<td colspan='1' style='text-align:center'>");
                         $st1= urlencode($st_reporte);
                         $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_cruce_cartera_asmet','')", "verde", "");
@@ -428,7 +385,60 @@ if( !empty($_REQUEST["Accion"]) ){
                             print('<span class="input-group-addon" onclick=CambiePaginaCruce('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-right" ></i></span>');
                             }
                             print("<div>");
-                            print("</td>");
+                    print("</td>");
+                            
+                    print("<td style='text-align:center;'>");
+                        print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
+                    print("</td>");
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
+                    print("</td>");
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Total Según IPS:</strong> <h4 style=color:red>". number_format($TotalIPS)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Pendientes Radicados:</strong> <h4 style=color:red>". number_format($TotalPendientesRadicados)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Pendientes Devoluciones:</strong> <h4 style=color:red>". number_format($TotalPendientesDevoluciones)."</h4>");
+                    print("</td>");
+                    
+                    
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Pendientes Copagos:</strong> <h4 style=color:red>". number_format($TotalPendientesCopagos)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Pendientes Notas Crédito:</strong> <h4 style=color:red>". number_format($TotalPendientesNotas)."</h4>");
+                    print("</td>");
+                    $sql="SELECT SUM(ValorImpuestosCalculados) AS TotalRetencionesDevueltas FROM $db.vista_facturas_sr_eps_2 WHERE Saldo<0";
+                    //$Consulta2=$obCon->Query($sql);
+                    //$DatosSaldosDevoluciones=$obCon->FetchAssoc($Consulta2);
+                    //$TotalRetencionesDevolucionesNoRelacionadas=$DatosSaldosDevoluciones["TotalRetencionesDevueltas"];
+                    $TotalRetencionesDevolucionesNoRelacionadas=0;
+                    //print("<td colspan=1 style='text-align:center'>");
+                     //   print("<strong>Retenciones Pagadas en Devoluciones:</strong> <h4 style=color:red>". number_format($TotalRetencionesDevolucionesNoRelacionadas)."</h4>");
+                    //print("</td>");
+                    
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Posible Valor a Liquidar:</strong> <h4 style=color:red>". number_format($Total-$TotalPendientesNotas-$TotalPendientesCopagos-$TotalPendientesDevoluciones-$TotalPendientesRadicados-$TotalRetencionesDevolucionesNoRelacionadas)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Facturas Conciliadas:</strong> <h4 style=color:red>". number_format($NumeroConciliaciones)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Total Conciliado:</strong> <h4 style=color:red>". number_format($TotalConciliaciones)."</h4>");
+                    print("</td>");
+                    
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Total Conciliado - Pendientes:</strong> <h4 style=color:red>". number_format($TotalConciliaciones-$TotalPendientesNotas-$TotalPendientesCopagos-$TotalPendientesDevoluciones-$TotalPendientesRadicados-$TotalRetencionesDevolucionesNoRelacionadas)."</h4>");
+                    print("</td>");
+                    
+                    
                             
                             
                            $css->CierraFilaTabla(); 
@@ -438,7 +448,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->FilaTabla(16);
                     print("<td>");
                         print("<strong>Acciones</strong><br>");
-                        $css->CrearBotonEvento("btnOpcionesMasivas", "Cargas Masivas", 1, "onclick", "AbreOpcionesMasivas()", "verde", "");
+                        $css->CrearBotonEvento("btnOpcionesMasivas", "Cargas Masivas", 1, "onclick", "AbreOpcionesMasivas()", "naranja", "");
                     print("</td>");
                     
                     $css->ColTabla("<strong>Contrato</strong>", 1);
@@ -494,7 +504,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         
                         $css->ColTabla($DatosFactura["NumeroContrato"], 1);
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerConsolidadoFactura('$NumeroFactura',11)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerConsolidadoFactura(`'$NumeroFactura'`,`11`)", "style=cursor:pointer;");
                                 print(($DatosFactura["NumeroFactura"]));
                             $css->CerrarDiv();
                             
@@ -506,7 +516,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla($DatosFactura["MesServicio"], 1);
                         $css->ColTabla($DatosFactura["FechaFactura"], 1);
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroRadicado',13)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`'$NumeroRadicado'`,`13`)", "style=cursor:pointer;");
 
                                print(($DatosFactura["NumeroRadicado"]));
                            $css->CerrarDiv();
@@ -519,7 +529,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla(number_format($DatosFactura["ImpuestosSegunASMET"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["ValorMenosImpuestos"]), 1,'R');
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',4)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`'$NumeroFactura'`,`4`)", "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalPagos"]));
                             $css->CerrarDiv();
@@ -527,7 +537,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',5)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`'$NumeroFactura'`,`5`)", "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalAnticipos"]));
                             $css->CerrarDiv();
@@ -535,7 +545,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',9)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`'$NumeroFactura'`,`9`)", "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalCopagos"]));
                             $css->CerrarDiv();
@@ -543,7 +553,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',10)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`".$NumeroFactura."`,`10`)", "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalDevoluciones"]));
                             $css->CerrarDiv();
@@ -2046,6 +2056,168 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
         break;//FIn caso 18    
         
+        case 19: //Dibuja las Retenciones pagadas por la EPS y No relacionadas por IPS
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
+            //Paginacion
+            if(isset($_REQUEST['Page'])){
+                $NumPage=$obCon->normalizar($_REQUEST['Page']);
+            }else{
+                $NumPage=1;
+            }
+            $Condicional="";
+            if(isset($_REQUEST['Busqueda'])){
+                $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
+                if($Busqueda<>''){
+                    $Condicional=" WHERE  NumeroContrato like '$Busqueda%' or NumeroFactura like '%$Busqueda%' ";
+                }
+                
+            }
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $statement=" $db.`vista_facturas_sr_eps_3` $Condicional ";
+            if(isset($_REQUEST['st'])){
+
+                $statement= urldecode($_REQUEST['st']);
+                //print($statement);
+            }
+            
+            $limit = 50;
+            $startpoint = ($NumPage * $limit) - $limit;
+            $VectorST = explode("LIMIT", $statement);
+            $statement = $VectorST[0]; 
+            $query = "SELECT COUNT(*) as `num`,SUM(ValorImpuestosCalculados) AS Total FROM {$statement}";
+            $row = $obCon->FetchArray($obCon->Query($query));
+            $ResultadosTotales = $row['num'];
+            $Total=$row['Total'];
+            $st_reporte=$statement;
+            $Limit=" LIMIT $startpoint,$limit";
+            
+            $query="SELECT * ";
+            $Consulta=$obCon->Query("$query FROM $statement $Limit");
+            
+            $css->CrearTabla();
+            
+            
+                $css->FilaTabla(16);
+                    print("<td style='text-align:center'>");
+                        print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
+                    print("</td>");
+                    print("<td colspan=4 style='text-align:center'>");
+                        print("<strong>Total:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
+                    print("</td>");
+                    print("<td>");
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_facturas_sr_eps_3','')", "verde", "");
+                    print("</td>");
+                    
+                //$css->CierraFilaTabla();
+                
+                $st= urlencode($st_reporte);
+                    if($ResultadosTotales>$limit){
+
+                        //$css->FilaTabla(14);
+                            
+                            $TotalPaginas= ceil($ResultadosTotales/$limit);
+                            print("<td  style=text-align:center>");
+                            //print("<strong>Página: </strong>");
+                            
+                            print('<div class="input-group" style=width:150px>');
+                            if($NumPage>1){
+                                $NumPage1=$NumPage-1;
+                            print('<span class="input-group-addon" onclick=CambiePaginaRetencionesSR('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-left"></i></span>');
+                            }
+                            $FuncionJS="onchange=CambiePaginaRetencionesSR();";
+                            $css->select("CmbPageRetencionesSR", "form-control", "CmbPageRetencionesSR", "", "", $FuncionJS, "");
+                            
+                                for($p=1;$p<=$TotalPaginas;$p++){
+                                    if($p==$NumPage){
+                                        $sel=1;
+                                    }else{
+                                        $sel=0;
+                                    }
+                                    
+                                    $css->option("", "", "", $p, "", "",$sel);
+                                        print($p);
+                                    $css->Coption();
+                                    
+                                }
+
+                            $css->Cselect();
+                            if($ResultadosTotales>($startpoint+$limit)){
+                                $NumPage1=$NumPage+1;
+                            print('<span class="input-group-addon" onclick=CambiePaginaRetencionesSR('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-right" ></i></span>');
+                            }
+                            print("<div>");
+                            print("</td>");
+                            
+                            
+                           $css->CierraFilaTabla(); 
+                        }
+                      
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>NIT EPS</strong>", 1);
+                    $css->ColTabla("<strong>CodigoSucursal</strong>", 1);
+                    $css->ColTabla("<strong>Sucursal</strong>", 1);
+                    $css->ColTabla("<strong>NumeroFactura</strong>", 1);
+                    $css->ColTabla("<strong>Descripcion</strong>", 1);
+                    $css->ColTabla("<strong>RazonSocial</strong>", 1);
+                    $css->ColTabla("<strong>NIT IPS</strong>", 1);
+                    $css->ColTabla("<strong>NumeroContrato</strong>", 1);
+                    $css->ColTabla("<strong>Prefijo</strong>", 1);
+                    $css->ColTabla("<strong>DepartamentoRadicacion</strong>", 1);
+                    $css->ColTabla("<strong>ValorOriginal</strong>", 1);
+                    $css->ColTabla("<strong>ValorMenosImpuestos</strong>", 1);
+                    
+                    $css->ColTabla("<strong>MesServicio</strong>", 1);
+                    $css->ColTabla("<strong>FechaRadicado</strong>", 1);
+                    $css->ColTabla("<strong>NumeroRadicado</strong>", 1);
+                    $css->ColTabla("<strong>FechaRegistro</strong>", 1);
+                    $css->ColTabla("<strong>FechaActualizacion</strong>", 1);
+                    $css->ColTabla("<strong>TotalDevoluciones</strong>", 1);
+                    $css->ColTabla("<strong>TotalRetenciones</strong>", 1);
+                    $css->ColTabla("<strong>TotalPagos</strong>", 1);
+                    
+                    $css->ColTabla("<strong>Valor A Favor</strong>", 1);
+                $css->CierraFilaTabla();
+                
+                
+                while($DatosFactura=$obCon->FetchAssoc($Consulta)){
+                    $css->FilaTabla(14);
+                        $idItem=$DatosFactura["ID"];
+                        $NumeroFactura=$DatosFactura["NumeroFactura"];
+                        $css->ColTabla($DatosFactura["NitEPS"], 1);
+                                                
+                        $css->ColTabla($DatosFactura["CodigoSucursal"], 1);
+                        $css->ColTabla($DatosFactura["Sucursal"], 1);
+                        $css->ColTabla($DatosFactura["NumeroFactura"], 1);
+                        $css->ColTabla($DatosFactura["Descripcion"], 1);
+                        $css->ColTabla($DatosFactura["RazonSocial"], 1);
+                        $css->ColTabla($DatosFactura["Nit_IPS"], 1);
+                        $css->ColTabla($DatosFactura["NumeroContrato"], 1);
+                        $css->ColTabla($DatosFactura["Prefijo"], 1);
+                        $css->ColTabla($DatosFactura["DepartamentoRadicacion"], 1);
+                        $css->ColTabla($DatosFactura["ValorOriginal"], 1);
+                        $css->ColTabla($DatosFactura["ValorMenosImpuestos"], 1);
+                        $css->ColTabla($DatosFactura["MesServicio"], 1);
+                        $css->ColTabla($DatosFactura["FechaRadicado"], 1);
+                        $css->ColTabla($DatosFactura["NumeroRadicado"], 1);
+                        $css->ColTabla($DatosFactura["FechaRegistro"], 1);
+                        $css->ColTabla($DatosFactura["FechaActualizacion"], 1);
+                        
+                        $css->ColTabla(number_format($DatosFactura["TotalDevoluciones"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalRetenciones"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalPagos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["Saldo"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["ValorImpuestosCalculados"]), 1,'R');
+                        
+                    $css->CierraFilaTabla();
+                }
+            $css->CerrarTabla();
+            
+        break; //Fin caso 19
     }
     
     

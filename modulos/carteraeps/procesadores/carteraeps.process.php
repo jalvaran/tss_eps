@@ -150,6 +150,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
             $NumeroColumnasEncabezado=54;// 51 para mutual y 52 para sas
             if($DatosEPS["ID"]==2){
+                //exit("OK;Archivo de mutual;100");
                 $NumeroColumnasEncabezado=51;
             }
             $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
@@ -189,8 +190,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     ;
             ";
             
-             * 
-             */
+             
             
             $sql="UPDATE $db.carteraeps t1 INNER JOIN $db.vista_ultimas_facturas_cartera_eps t2 ON t1.NumeroFactura=t2.NumeroFactura
                 SET t1.ValorOriginal=t2.ValorOriginal,
@@ -199,6 +199,13 @@ if( !empty($_REQUEST["Accion"]) ){
                     t1.NumeroRadicado=t2.NumeroRadicado                
                     ;
             ";
+            * 
+             */
+            $sql="UPDATE $db.carteraeps t1 
+                SET t1.ValorOriginal=(SELECT ValorOriginal FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.FechaRadicado=(SELECT FechaFactura FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.MesServicio=(SELECT MesServicio FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.NumeroRadicado=(SELECT NumeroRadicado FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1);";
               
            $obCon->Query($sql);
                         

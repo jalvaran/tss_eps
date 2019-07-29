@@ -1424,6 +1424,48 @@ function InserteConciliacionesMasivas(){
       })
 }
 
+function RetencionesSinRelacionar(Page=1){
+    document.getElementById("DivTab6").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    var Busqueda=document.getElementById('TxtBusquedas').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 19);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('Page', Page);
+        form_data.append('Busqueda', Busqueda);
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivTab6').innerHTML=data;
+           $('#CmbPageRetencionesSR').select2();
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+function CambiePaginaRetencionesSR(Page=""){
+    
+    if(Page==""){
+        Page = document.getElementById('CmbPageRetencionesSR').value;
+    }
+    RetencionesSinRelacionar(Page);
+}
 
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();

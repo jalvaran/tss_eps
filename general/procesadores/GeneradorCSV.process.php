@@ -77,7 +77,7 @@ if(isset($_REQUEST["Opcion"])){
             print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$Tabla.csv' target='_top' style='text-align:center;position: absolute;top:5%;left:50%;padding:5px;' onclick=document.getElementById('DivImagenDescargarTablaDB').style.display='none';><h1>Descargar: </h1><img style='heigth:100px;width:100px' src='../../images/descargar3.png'></img></a></div>");
             break;
             
-            case 2: //Exportar CSV directamente
+        case 2: //Exportar CSV directamente
                 
             if(file_exists($Link)){
                 unlink($Link);

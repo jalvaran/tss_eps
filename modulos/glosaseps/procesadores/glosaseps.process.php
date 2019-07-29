@@ -99,6 +99,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $sql="UPDATE $db.temporal_glosaseps_asmet t1 INNER JOIN $db.glosaseps_asmet t2 ON t1.NumeroFactura=t2.NumeroFactura SET t.FlagUpdate=1  "
                     . "WHERE t1.ValorTotalGlosa=t2.ValorTotalGlosa and t1.ValorGlosaFavor=t2.ValorGlosaFavor and t1.ValorGlosaContra=t2.ValorGlosaContra and t1.ValorPendienteResolver=t2.ValorPendienteResolver ";
             $obCon->Query($sql);
+            //$obCon->VaciarTabla("$db.glosaseps_asmet");
             $sql="INSERT INTO $db.`glosaseps_asmet` 
                     SELECT * FROM $db.`temporal_glosaseps_asmet` as t1 WHERE t1.FlagUpdate=0";
             $obCon->Query($sql);
