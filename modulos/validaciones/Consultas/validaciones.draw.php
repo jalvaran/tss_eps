@@ -315,10 +315,17 @@ if( !empty($_REQUEST["Accion"]) ){
                 $statement= urldecode($_REQUEST['st']);
                 //print($statement);
             }
+           
             $TotalPendientesDevoluciones=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Devoluciones");
             $TotalPendientesCopagos=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Copagos");
             $TotalPendientesRadicados=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
             $TotalPendientesNotas=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Notas");
+             /*
+            $TotalPendientesDevoluciones=0;
+            $TotalPendientesCopagos=0;
+            $TotalPendientesRadicados=0;
+            $TotalPendientesNotas=0;
+            */
             $limit = 10;
             $startpoint = ($NumPage * $limit) - $limit;
             $VectorST = explode("LIMIT", $statement);
@@ -475,6 +482,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Total Glosa en Contra</strong>", 1);
                     $css->ColTabla("<strong>Glosa por Conciliar</strong>", 1);
                     $css->ColTabla("<strong>Otros Descuentos</strong>", 1);
+                    $css->ColTabla("<strong>Descuento PGP</strong>", 1);
                     $css->ColTabla("<strong>Cartera por Edades</strong>", 1);
                     $css->ColTabla("<strong>Saldo Según EPS</strong>", 1);
                     $css->ColTabla("<strong>Saldo Según IPS</strong>", 1);
@@ -504,7 +512,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         
                         $css->ColTabla($DatosFactura["NumeroContrato"], 1);
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerConsolidadoFactura(`'$NumeroFactura'`,`11`)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerConsolidadoFactura(`$NumeroFactura`,`11`)", "style=cursor:pointer;");
                                 print(($DatosFactura["NumeroFactura"]));
                             $css->CerrarDiv();
                             
@@ -516,7 +524,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla($DatosFactura["MesServicio"], 1);
                         $css->ColTabla($DatosFactura["FechaFactura"], 1);
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`'$NumeroRadicado'`,`13`)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroRadicado`,`13`)", "style=cursor:pointer;");
 
                                print(($DatosFactura["NumeroRadicado"]));
                            $css->CerrarDiv();
@@ -529,7 +537,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla(number_format($DatosFactura["ImpuestosSegunASMET"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["ValorMenosImpuestos"]), 1,'R');
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`'$NumeroFactura'`,`4`)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,`4`)", "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalPagos"]));
                             $css->CerrarDiv();
@@ -537,7 +545,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`'$NumeroFactura'`,`5`)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,`5`)", "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalAnticipos"]));
                             $css->CerrarDiv();
@@ -545,7 +553,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`'$NumeroFactura'`,`9`)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,`9`)", "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalCopagos"]));
                             $css->CerrarDiv();
@@ -561,7 +569,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',6)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,6)", "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalGlosaInicial"]));
                             $css->CerrarDiv();
@@ -569,7 +577,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',6)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,6)", "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalGlosaFavor"]));
                             $css->CerrarDiv();
@@ -585,6 +593,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         $css->ColTabla(number_format($DatosFactura["GlosaXConciliar"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["OtrosDescuentos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["DescuentoPGP"]), 1,'R');
                         print("<td style=text-align:center;font-size:18px>");
                             print(number_format($DatosFactura["CarteraXEdades"]));
                         print("</td>");

@@ -15,8 +15,9 @@ if(isset($_REQUEST["Opcion"])){
     
     $DatosRuta=$obCon->DevuelveValores("configuracion_general", "ID", 1);
     $OuputFile=$DatosRuta["Valor"];
-    $Link1=substr($OuputFile, -17);
-    $Link="../../".$Link1;
+    //$Link1=substr($OuputFile, -17);
+    //print($Link1);
+    $Link="../../exports/";
     //print($Link);
     $a='"';
     $Enclosed=" ENCLOSED BY '$a' ";
@@ -24,12 +25,15 @@ if(isset($_REQUEST["Opcion"])){
     
     switch ($Opcion){
         case 1: //Exportar CSV 
+            
+            $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
+            $FileName=$Tabla."_".$idUser.".csv";
+            $Link.= $FileName;
+            $OuputFile.=$FileName;
+            
             if(file_exists($Link)){
                 unlink($Link);
             }
-            
-            $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
-            
             $Condicion=$obCon->normalizar($_REQUEST["Condicion"]);
             $OrdenColumna=$obCon->normalizar($_REQUEST["OrdenColumna"]);
             $AscDesc=$obCon->normalizar($_REQUEST["Orden"]);
@@ -78,12 +82,16 @@ if(isset($_REQUEST["Opcion"])){
             break;
             
         case 2: //Exportar CSV directamente
-                
+            
+            $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
+            $FileName=$Tabla."_".$idUser.".csv";
+            $Link.= $FileName;
+            $OuputFile.=$FileName;
+            
             if(file_exists($Link)){
                 unlink($Link);
             }
             
-            $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
             $db=$obCon->normalizar($_REQUEST["db"]);
             $NIT= str_replace("ts_eps_ips_", "", $db);
             $Condicion="";

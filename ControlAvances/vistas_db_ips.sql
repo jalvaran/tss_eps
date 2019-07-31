@@ -394,7 +394,7 @@ SELECT t1.ID,t1.NumeroFactura,t1.FechaFactura,t2.Estado,
         (t2.ValorOriginal-t2.ValorMenosImpuestos) as Impuestos,
         '0' as OtrosDescuentos,
         (SELECT IFNULL((SELECT (Creditos-Debitos) FROM vista_retenciones_facturas WHERE vista_retenciones_facturas.NumeroFactura=t1.NumeroFactura ),0)) AS ImpuestosSegunASMET,
-        (SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t1.NumeroFactura AND (notas_db_cr_2.TipoOperacion2='3090' OR notas_db_cr_2.TipoOperacion2='3070' OR notas_db_cr_2.TipoOperacion2='3071' OR notas_db_cr_2.TipoOperacion2='3072' OR notas_db_cr_2.TipoOperacion2='3086' OR notas_db_cr_2.TipoOperacion2='3089' OR notas_db_cr_2.TipoOperacion2='3090') ),0)) AS TotalPagos,
+        (SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t1.NumeroFactura AND (notas_db_cr_2.TipoOperacion2='3090' OR notas_db_cr_2.TipoOperacion2='3070' OR notas_db_cr_2.TipoOperacion2='3071' OR notas_db_cr_2.TipoOperacion2='3072' OR notas_db_cr_2.TipoOperacion2='3086' OR notas_db_cr_2.TipoOperacion2='3089' OR notas_db_cr_2.TipoOperacion2='3090' OR notas_db_cr_2.TipoOperacion2='2260') ),0)) AS TotalPagos,
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t1.NumeroFactura ),0)) AS TotalAnticipos,
         (SELECT IFNULL((SELECT (ValorTotalGlosa) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t1.NumeroFactura ORDER BY FechaRegistro DESC LIMIT 1),0)) AS TotalGlosaInicial,
         (SELECT IFNULL((SELECT (ValorGlosaFavor) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t1.NumeroFactura ORDER BY FechaRegistro DESC LIMIT 1),0)) AS TotalGlosaFavor,
@@ -403,10 +403,11 @@ SELECT t1.ID,t1.NumeroFactura,t1.FechaFactura,t2.Estado,
         (SELECT IFNULL((SELECT (ValorTotal) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t1.NumeroFactura AND (notas_db_cr_2.TipoOperacion='2259' OR notas_db_cr_2.TipoOperacion='2269' OR notas_db_cr_2.TipoOperacion='2039') AND notas_db_cr_2.FechaTransaccion>=t2.FechaRadicado LIMIT 1),0)) AS TotalDevoluciones,
         (SELECT IFNULL((SELECT SUM(ValorTotal) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t1.NumeroFactura AND notas_db_cr_2.TipoOperacion='2086'  LIMIT 1),0)) AS ValorRegistradoFacturas,
         (SELECT IFNULL((SELECT SUM(ValorTotal) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t1.NumeroFactura AND notas_db_cr_2.TipoOperacion='2259' OR notas_db_cr_2.TipoOperacion='2269' OR notas_db_cr_2.TipoOperacion='2039' LIMIT 1),0)) AS ValorRegistradoDevoluciones,
+        (SELECT IFNULL((SELECT SUM(ValorTotal) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t1.NumeroFactura AND notas_db_cr_2.TipoOperacion='2275' ),0)) AS DescuentoPGP,
         ((SELECT ValorRegistradoFacturas) - (SELECT ABS(ValorRegistradoDevoluciones))) AS DiferenciaFacturasDevoluciones,
         (IF((SELECT DiferenciaFacturasDevoluciones)<>(SELECT ValorMenosImpuestos),'SI','NO')) AS PresentaDiferenciasContables,
         ((SELECT TotalGlosaInicial)-(SELECT TotalGlosaFavor)-(SELECT TotalGlosaContra) ) AS GlosaXConciliar,
-        (t2.ValorMenosImpuestos - (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT GlosaXConciliar)-(SELECT OtrosDescuentos)-(SELECT ABS(TotalCopagos))-(SELECT ABS(TotalDevoluciones))) AS ValorSegunEPS,
+        (t2.ValorMenosImpuestos - (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT GlosaXConciliar)-(SELECT OtrosDescuentos)-(SELECT ABS(TotalCopagos))-(SELECT ABS(TotalDevoluciones)-(SELECT ABS(DescuentoPGP)))) AS ValorSegunEPS,
         t1.ValorTotalpagar as ValorSegunIPS,((SELECT ValorSegunEPS)-(SELECT ValorSegunIPS)) AS Diferencia,
         (SELECT IFNULL((SELECT (ValorTotalcartera) FROM carteraxedades WHERE carteraxedades.NumeroFactura=t1.NumeroFactura LIMIT 1),0)) AS CarteraXEdades,
         (SELECT IF((SELECT Diferencia>0),'SI','NO')) AS ValorIPSMenor,
@@ -416,3 +417,55 @@ SELECT t1.ID,t1.NumeroFactura,t1.FechaFactura,t2.Estado,
         ((SELECT ValorSegunEPS) + (SELECT ConciliacionesAFavorIPS) - (SELECT ConciliacionesAFavorEPS)) AS TotalAPagar, 
         (SELECT IF((SELECT ROUND(TotalConciliaciones,2)<>(SELECT ROUND(ABS(Diferencia),2)) AND (SELECT TotalConciliaciones > 0)),'SI','NO')) AS ConciliacionesPendientes
 FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.NumeroFactura;
+
+
+CREATE TABLE `registro_liquidacion_contratos` (
+    `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+    `NitIPS` bigint(20) NOT NULL,
+    `RazonSocialIPS` varchar(120) COLLATE utf8_spanish_ci NOT NULL,
+    `Contrato` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
+    `VigenciaInicial` date NOT NULL,
+    `VigenciaFinal` date NOT NULL,
+    `ValorContrato` double NOT NULL,
+    `Modalidad` varchar(20) COLLATE utf8_spanish_ci NOT NULL,
+    `idUser` int(11) NOT NULL,
+    `FechaRegistro` datetime NOT NULL,
+    PRIMARY KEY (`ID`),
+    KEY (`NitIPS`),
+    KEY (`Contrato`),
+    KEY (`Modalidad`)
+    
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+CREATE TABLE `registro_liquidacion_contratos_items` (
+    `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+    `idContrato` bigint(20) NOT NULL,
+    `DepartamentoRadicacion` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
+    `Radicado` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
+    `MesServicio` varchar(10) COLLATE utf8_spanish_ci NOT NULL,
+    `NumeroFactura` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
+    `ValorFacturado` double NOT NULL,
+    `ImpuestosRetencion` double NOT NULL,
+    `Devolucion` double NOT NULL,
+    `GlosaInicial` double NOT NULL,
+    `GlosaFavorEPS` double NOT NULL,
+    `NotasCopagos` double NOT NULL,
+    `RecuperacionImpuestos` double NOT NULL,
+    `OtrosDescuentos` double NOT NULL,
+    `ValorPagado` double NOT NULL,
+    `Saldo` double NOT NULL,
+    `idUser` int(11) NOT NULL,
+    `FechaRegistro` datetime NOT NULL,
+    PRIMARY KEY (`ID`),
+    KEY (`idContrato`),
+    KEY (`Radicado`),
+    KEY (`MesServicio`),
+    KEY (`NumeroFactura`),
+    KEY (`idUser`)
+    
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+INSERT INTO `menu_pestanas` (`ID`, `Nombre`, `idMenu`, `Orden`, `Estado`, `Updated`, `Sync`) VALUES
+(52,	'Conciliaciones y Liquidaciones',	3,	2,	CONV('1', 2, 10) + 0,	'2019-05-23 07:51:15',	'2019-01-13 09:12:43');
+
+

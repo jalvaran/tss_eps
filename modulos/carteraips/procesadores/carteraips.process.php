@@ -94,8 +94,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $sql="INSERT INTO $db.`actualizacioncarteracargadaips` 
                     SELECT * FROM $db.`carteracargadaips` as t1 WHERE t1.FlagUpdate=1";
             $obCon->Query($sql);
-            $sql="UPDATE $db.carteracargadaips SET FlagUpdate=0 WHERE FlagUpdate=1";
-            $obCon->Query($sql);
+            
             print("OK;Analisis de Actualizaciones de Facturas Completo");
         break; //fin caso 4  
     
@@ -106,9 +105,16 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyCarteraIPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            
+            /*
             $sql="REPLACE INTO $db.`carteracargadaips`  
                     SELECT * FROM $db.`temporalcarguecarteraips`; ";
+            
+             * 
+             */
+            //$obCon->VaciarTabla("$db.`carteracargadaips`");
+            $obCon->BorraReg("$db.carteracargadaips", "NitEPS", $CmbEPS);
+            $sql="INSERT INTO $db.`carteracargadaips`  
+                    SELECT * FROM $db.`temporalcarguecarteraips` WHERE NitEPS='$CmbEPS'; ";
             $obCon->Query($sql);
             
             print("OK;Registros realizados correctamente");
