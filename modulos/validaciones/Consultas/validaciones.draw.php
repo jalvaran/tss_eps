@@ -405,20 +405,38 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     
                     print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Pendientes Radicados:</strong> <h4 style=color:red>". number_format($TotalPendientesRadicados)."</h4>");
+                        
+                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`21`)", "style=cursor:pointer;");
+
+                              print("<strong>Pendientes Radicados:</strong> <h4 style=color:red>". number_format($TotalPendientesRadicados)."</h4>");
+                           $css->CerrarDiv();
+                         
+                        
                     print("</td>");
                     
                     print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Pendientes Devoluciones:</strong> <h4 style=color:red>". number_format($TotalPendientesDevoluciones)."</h4>");
+                        $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`22`)", "style=cursor:pointer;");
+
+                            print("<strong>Pendientes Devoluciones:</strong> <h4 style=color:red>". number_format($TotalPendientesDevoluciones)."</h4>");
+                        $css->CerrarDiv();
+                        
                     print("</td>");
                     
                     
                     print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Pendientes Copagos:</strong> <h4 style=color:red>". number_format($TotalPendientesCopagos)."</h4>");
+                        $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`23`)", "style=cursor:pointer;");
+
+                            print("<strong>Pendientes Copagos:</strong> <h4 style=color:red>". number_format($TotalPendientesCopagos)."</h4>");
+                        $css->CerrarDiv();
+                        
                     print("</td>");
                     
                     print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Pendientes Notas Crédito:</strong> <h4 style=color:red>". number_format($TotalPendientesNotas)."</h4>");
+                        $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`24`)", "style=cursor:pointer;");
+
+                            print("<strong>Pendientes Notas Crédito:</strong> <h4 style=color:red>". number_format($TotalPendientesNotas)."</h4>");
+                        $css->CerrarDiv();
+                        
                     print("</td>");
                     $sql="SELECT SUM(ValorImpuestosCalculados) AS TotalRetencionesDevueltas FROM $db.vista_facturas_sr_eps_2 WHERE Saldo<0";
                     //$Consulta2=$obCon->Query($sql);
@@ -2227,6 +2245,379 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
             
         break; //Fin caso 19
+        
+        case 20: //Dibuja las conciliaciones realizadas 
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
+            //Paginacion
+            if(isset($_REQUEST['Page'])){
+                $NumPage=$obCon->normalizar($_REQUEST['Page']);
+            }else{
+                $NumPage=1;
+            }
+            $Condicional="";
+            if(isset($_REQUEST['Busqueda'])){
+                $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
+                if($Busqueda<>''){
+                    $Condicional=" WHERE  NumeroContrato like '$Busqueda%' or NumeroFactura like '%$Busqueda%' ";
+                }
+                
+            }
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $statement=" $db.`conciliaciones_cruces` $Condicional ";
+            if(isset($_REQUEST['st'])){
+
+                $statement= urldecode($_REQUEST['st']);
+                //print($statement);
+            }
+            $TotalConciliacionesIPS=$obCon->Sume("$db.conciliaciones_cruces", "ValorConciliacion", "WHERE ConciliacionAFavorDe=2");
+            $TotalConciliacionesEPS=$obCon->Sume("$db.conciliaciones_cruces", "ValorConciliacion", "WHERE ConciliacionAFavorDe=1");
+            $limit = 50;
+            $startpoint = ($NumPage * $limit) - $limit;
+            $VectorST = explode("LIMIT", $statement);
+            $statement = $VectorST[0]; 
+            $query = "SELECT COUNT(*) as `num`,SUM(ValorConciliacion) AS Total FROM {$statement}";
+            $row = $obCon->FetchArray($obCon->Query($query));
+            $ResultadosTotales = $row['num'];
+            $Total=$row['Total'];
+            $st_reporte=$statement;
+            $Limit=" LIMIT $startpoint,$limit";
+            
+            $query="SELECT * ";
+            $Consulta=$obCon->Query("$query FROM $statement $Limit");
+            
+            $css->CrearTabla();
+            
+            
+                $css->FilaTabla(16);
+                    print("<td style='text-align:center'>");
+                        print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
+                    print("</td>");
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Total:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
+                    print("</td>");
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Conciliado a Favor de La EPS:</strong> <h4 style=color:red>". number_format($TotalConciliacionesEPS)."</h4>");
+                    print("</td>");
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Conciliado a Favor de La IPS:</strong> <h4 style=color:red>". number_format($TotalConciliacionesIPS)."</h4>");
+                    print("</td>");
+                     print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Total:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
+                    print("</td>");
+                    print("<td>");
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','conciliaciones_cruces','')", "verde", "");
+                    print("</td>");
+                    
+                //$css->CierraFilaTabla();
+                
+                $st= urlencode($st_reporte);
+                    if($ResultadosTotales>$limit){
+
+                        //$css->FilaTabla(14);
+                            
+                            $TotalPaginas= ceil($ResultadosTotales/$limit);
+                            print("<td  style=text-align:center>");
+                            //print("<strong>Página: </strong>");
+                            
+                            print('<div class="input-group" style=width:150px>');
+                            if($NumPage>1){
+                                $NumPage1=$NumPage-1;
+                            print('<span class="input-group-addon" onclick=CambiePaginaConciliaciones('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-left"></i></span>');
+                            }
+                            $FuncionJS="onchange=CambiePaginaConciliaciones();";
+                            $css->select("CmbPageConciliaciones", "form-control", "CmbPageConciliaciones", "", "", $FuncionJS, "");
+                            
+                                for($p=1;$p<=$TotalPaginas;$p++){
+                                    if($p==$NumPage){
+                                        $sel=1;
+                                    }else{
+                                        $sel=0;
+                                    }
+                                    
+                                    $css->option("", "", "", $p, "", "",$sel);
+                                        print($p);
+                                    $css->Coption();
+                                    
+                                }
+
+                            $css->Cselect();
+                            if($ResultadosTotales>($startpoint+$limit)){
+                                $NumPage1=$NumPage+1;
+                            print('<span class="input-group-addon" onclick=CambiePaginaConciliaciones('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-right" ></i></span>');
+                            }
+                            print("<div>");
+                            print("</td>");
+                            
+                            
+                           $css->CierraFilaTabla(); 
+                        }
+                      
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>NumeroContrato</strong>", 1);
+                    $css->ColTabla("<strong>NumeroFactura</strong>", 1);
+                    $css->ColTabla("<strong>MesServicio</strong>", 1);
+                    $css->ColTabla("<strong>FechaFactura</strong>", 1);
+                    $css->ColTabla("<strong>NumeroRadicado</strong>", 1);
+                    $css->ColTabla("<strong>Pendientes</strong>", 1);
+                    $css->ColTabla("<strong>FechaRadicado</strong>", 1);
+                    $css->ColTabla("<strong>ValorOriginal</strong>", 1);
+                    $css->ColTabla("<strong>ValorImpuestoCalculado</strong>", 1);
+                    $css->ColTabla("<strong>ValorImpuestoRetenciones</strong>", 1);
+                    $css->ColTabla("<strong>ValorMenosImpuesto</strong>", 1);
+                    $css->ColTabla("<strong>ValorPagos</strong>", 1);                    
+                    $css->ColTabla("<strong>ValorAnticipos</strong>", 1);
+                    $css->ColTabla("<strong>ValorCopagos</strong>", 1);
+                    $css->ColTabla("<strong>ValorDevoluciones</strong>", 1);
+                    $css->ColTabla("<strong>ValorGlosaInicial</strong>", 1);
+                    $css->ColTabla("<strong>ValorGlosaFavor</strong>", 1);
+                    $css->ColTabla("<strong>ValorGlosaContra</strong>", 1);
+                    $css->ColTabla("<strong>ValorGlosaconciliar</strong>", 1);
+                    $css->ColTabla("<strong>ValorSaldoEps</strong>", 1);
+                    $css->ColTabla("<strong>ValorSaldoIps</strong>", 1);
+                    $css->ColTabla("<strong>ValorDiferencia</strong>", 1);
+                    $css->ColTabla("<strong>ConceptoConciliacion</strong>", 1);
+                    $css->ColTabla("<strong>ConciliacionAFavorDe</strong>", 1);
+                    $css->ColTabla("<strong>Observacion</strong>", 1);
+                    $css->ColTabla("<strong>Soportes</strong>", 1);
+                    $css->ColTabla("<strong>ValorConciliacion</strong>", 1);
+                    $css->ColTabla("<strong>ConciliadorIps</strong>", 1);
+                    $css->ColTabla("<strong>FechaConciliacion</strong>", 1);
+                    $css->ColTabla("<strong>ViaConciliacion</strong>", 1);                    
+                    $css->ColTabla("<strong>Estado</strong>", 1);
+                    $css->ColTabla("<strong>idUser</strong>", 1);
+                    $css->ColTabla("<strong>FechaRegistro</strong>", 1);
+                $css->CierraFilaTabla();
+                
+                
+                while($DatosFactura=$obCon->FetchAssoc($Consulta)){
+                    $css->FilaTabla(14);
+                        $idItem=$DatosFactura["ID"];
+                        $NumeroFactura=$DatosFactura["NumeroFactura"];
+                        $Soporte=$DatosFactura["Soportes"];
+                        $Soporte= str_replace("../","" , $Soporte);
+                        $Soporte="../../".$Soporte;
+                        $Link="<a href='$Soporte' target='_BLANK'>Ver Soporte</a>";
+                        $css->ColTabla($DatosFactura["NumeroContrato"], 1);                                                
+                        $css->ColTabla($DatosFactura["NumeroFactura"], 1);
+                        $css->ColTabla($DatosFactura["MesServicio"], 1);
+                        $css->ColTabla($DatosFactura["FechaFactura"], 1);
+                        $css->ColTabla($DatosFactura["NumeroRadicado"], 1);
+                        $css->ColTabla($DatosFactura["Pendientes"], 1);
+                        $css->ColTabla($DatosFactura["FechaRadicado"], 1);
+                        $css->ColTabla(number_format($DatosFactura["ValorOriginal"]), 1);
+                        $css->ColTabla(number_format($DatosFactura["ValorImpuestoCalculado"]), 1);
+                        $css->ColTabla(number_format($DatosFactura["ValorImpuestoRetenciones"]), 1);
+                        $css->ColTabla(number_format($DatosFactura["ValorMenosImpuesto"]), 1);
+                        $css->ColTabla(number_format($DatosFactura["ValorPagos"]), 1);
+                        $css->ColTabla(number_format($DatosFactura["ValorAnticipos"]), 1);
+                        $css->ColTabla(number_format($DatosFactura["ValorCopagos"]), 1);
+                        $css->ColTabla(number_format($DatosFactura["ValorDevoluciones"]), 1);
+                        $css->ColTabla(number_format($DatosFactura["ValorGlosaInicial"]), 1);
+                        $css->ColTabla(number_format($DatosFactura["ValorGlosaFavor"]), 1);
+                        
+                        $css->ColTabla(number_format($DatosFactura["ValorGlosaContra"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["ValorGlosaconciliar"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["ValorSaldoEps"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["ValorSaldoIps"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["ValorDiferencia"]), 1,'R');
+                        
+                        $css->ColTabla($DatosFactura["ConceptoConciliacion"], 1);
+                        $css->ColTabla($DatosFactura["ConciliacionAFavorDe"], 1);
+                        $css->ColTabla(utf8_encode($DatosFactura["Observacion"]), 1);
+                        $css->ColTabla($Link, 1);
+                        $css->ColTabla($DatosFactura["ValorConciliacion"], 1);
+                        $css->ColTabla($DatosFactura["ConciliadorIps"], 1);
+                        $css->ColTabla($DatosFactura["FechaConciliacion"], 1);
+                        $css->ColTabla($DatosFactura["ViaConciliacion"], 1);
+                        $css->ColTabla($DatosFactura["Estado"], 1);
+                        $css->ColTabla($DatosFactura["idUser"], 1);
+                        $css->ColTabla($DatosFactura["FechaRegistro"], 1);
+                        
+                    $css->CierraFilaTabla();
+                }
+            $css->CerrarTabla();
+            
+        break; //Fin caso 20
+        
+        case 21: //Dibuja toda el historial de la los radicados pendientes
+            
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Radicados Pendientes</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                
+                $Columnas=$obCon->getColumnasDisponibles("$db.radicadospendientes","");
+
+                foreach ($Columnas["Field"] as $key => $value) {
+                    $css->ColTabla("<strong>$value</strong>",1);
+                }
+                                  
+                      
+                $css->CierraFilaTabla();
+                $sql=" SELECT * FROM $db.radicadospendientes WHERE EstadoAuditoria LIKE '%AUDITORIA%' AND 
+                        EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet WHERE $db.vista_cruce_cartera_asmet.NumeroRadicado=$db.radicadospendientes.NumeroRadicado LIMIT 1) 
+                        ";
+               
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        foreach ($Columnas["Field"] as $key => $value) {
+                            
+                            $css->ColTabla(($DatosPagos[$value]), 1,'L');
+                        }
+                                                
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+            
+                
+        break; //Fin caso 21
+        
+        case 22: //Dibuja toda el historial de la los devoluciones pendientes
+            
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Devoluciones Pendientes</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                
+                $Columnas=$obCon->getColumnasDisponibles("$db.devoluciones_pendientes","");
+
+                foreach ($Columnas["Field"] as $key => $value) {
+                    $css->ColTabla("<strong>$value</strong>",1);
+                }
+                                  
+                      
+                $css->CierraFilaTabla();
+                $sql=" SELECT * FROM $db.devoluciones_pendientes
+                            WHERE NoEnviados > '0' AND 
+                           EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet WHERE $db.vista_cruce_cartera_asmet.NumeroRadicado=$db.devoluciones_pendientes.NumeroRadicado LIMIT 1) 
+                        ";
+               
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        foreach ($Columnas["Field"] as $key => $value) {
+                            
+                            $css->ColTabla(($DatosPagos[$value]), 1,'L');
+                        }
+                                                
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+            
+                
+        break; //Fin caso 22
+        
+        case 23: //Dibuja toda el historial de los copagos pendientes
+            
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Copagos Pendientes</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                
+                $Columnas=$obCon->getColumnasDisponibles("$db.copagos_pendientes","");
+
+                foreach ($Columnas["Field"] as $key => $value) {
+                    $css->ColTabla("<strong>$value</strong>",1);
+                }
+                                  
+                      
+                $css->CierraFilaTabla();
+                $sql=" SELECT * FROM $db.copagos_pendientes
+                            WHERE NoEnviados > '0' AND 
+                           EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet WHERE $db.vista_cruce_cartera_asmet.NumeroRadicado=$db.copagos_pendientes.NumeroRadicado LIMIT 1) 
+                        ";
+               
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        foreach ($Columnas["Field"] as $key => $value) {
+                            
+                            $css->ColTabla(($DatosPagos[$value]), 1,'L');
+                        }
+                                                
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+            
+                
+        break; //Fin caso 23
+        
+        case 24: //Dibuja toda el historial de los notas pendientes
+            
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Notas Pendientes</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                
+                $Columnas=$obCon->getColumnasDisponibles("$db.notas_pendientes","");
+
+                foreach ($Columnas["Field"] as $key => $value) {
+                    $css->ColTabla("<strong>$value</strong>",1);
+                }
+                                  
+                      
+                $css->CierraFilaTabla();
+                $sql=" SELECT * FROM $db.notas_pendientes
+                            WHERE NoEnviados > '0' AND 
+                           EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet WHERE $db.vista_cruce_cartera_asmet.NumeroRadicado=$db.notas_pendientes.NumeroRadicado LIMIT 1) 
+                        ";
+               
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        foreach ($Columnas["Field"] as $key => $value) {
+                            
+                            $css->ColTabla(($DatosPagos[$value]), 1,'L');
+                        }
+                                                
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+            
+                
+        break; //Fin caso 24
     }
     
     

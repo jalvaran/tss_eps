@@ -94,6 +94,8 @@ $css->PageInit($myTitulo);
             $css->TabLabel("TabCuentas3", "<strong >Facturas Pagadas Sin Relación</strong>", "Tab_3",0,"onclick=MuestrePagadasSR()"); 
             $css->TabLabel("TabCuentas6", "<strong >Retenciones Pagadas Sin Relacionar Por IPS</strong>", "Tab_6",0,"onclick=RetencionesSinRelacionar()");  
             $css->TabLabel("TabCuentas4", "<strong >Cruce de Cartera</strong>", "Tab_4",0,"onclick=MuestreCruce()"); 
+            $css->TabLabel("TabCuentas7", "<strong >Historial de Conciliaciones</strong>", "Tab_7",0,"onclick=MuestreConciliaciones()"); 
+            
             $css->TabLabel("TabCuentas5", "<strong >Informe Consolidado</strong>", "Tab_5",0,"onclick=MuestreConsolidado()"); 
         $css->TabInitEnd();
         $css->TabContentInit();
@@ -158,6 +160,14 @@ $css->PageInit($myTitulo);
         $css->TabPaneInit("Tab_6", 1);
            
             $css->CrearDiv("DivTab6", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            
+        $css->TabPaneEnd();
+        
+        $css->TabPaneInit("Tab_7", 1);
+           
+            $css->CrearDiv("DivTab7", "", "center", 1, 1);
 
             $css->CerrarDiv();
             

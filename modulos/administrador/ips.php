@@ -32,6 +32,7 @@ $css->PageInit($myTitulo);
     $css->CerrarDiv();
     
 $css->PageFin();
+//print('<script>SeleccioneTablaDB(`ts_eps_ips_890300513.vista_hoja_trabajo_cruce`)</script>');  //script propio de la pagina
 print('<script>SeleccioneTablaDB(`ips`)</script>');  //script propio de la pagina
 
 $css->Cbody();
