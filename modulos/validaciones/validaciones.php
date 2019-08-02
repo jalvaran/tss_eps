@@ -92,7 +92,7 @@ $css->PageInit($myTitulo);
             $css->TabLabel("TabCuentas1", "<strong >Facturas sin Relación IPS</strong>", "Tab_1", 1,"onclick=MuestreFacturasNRIPS()");
             $css->TabLabel("TabCuentas2", "<strong >Facturas sin Relación EPS</strong>", "Tab_2",0,"onclick=MuestreFacturasNREPS()");
             $css->TabLabel("TabCuentas3", "<strong >Facturas Pagadas Sin Relación</strong>", "Tab_3",0,"onclick=MuestrePagadasSR()"); 
-            $css->TabLabel("TabCuentas6", "<strong >Retenciones Pagadas Sin Relacionar Por IPS</strong>", "Tab_6",0,"onclick=RetencionesSinRelacionar()");  
+            $css->TabLabel("TabCuentas6", "<strong >Facturas a Favor de EPS</strong>", "Tab_6",0,"onclick=FacturasAFavor()");  
             $css->TabLabel("TabCuentas4", "<strong >Cruce de Cartera</strong>", "Tab_4",0,"onclick=MuestreCruce()"); 
             $css->TabLabel("TabCuentas7", "<strong >Historial de Conciliaciones</strong>", "Tab_7",0,"onclick=MuestreConciliaciones()"); 
             

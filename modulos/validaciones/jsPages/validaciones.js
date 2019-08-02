@@ -924,6 +924,7 @@ function GuardarConciliacion(){
     var TxtNumeroFactura=document.getElementById('TxtNumeroFactura').value;
     var CmbTipoConciliacion=document.getElementById('CmbTipoConciliacion').value;
     var CmbConcepto=document.getElementById('CmbConcepto').value;
+    var CmbConceptoAGS=document.getElementById('CmbConceptoAGS').value;
     var TxtObservaciones=document.getElementById('TxtObservaciones').value;
     var ValorEPS=document.getElementById('ValorEPS').value;
     var ValorIPS=document.getElementById('ValorIPS').value;
@@ -946,6 +947,7 @@ function GuardarConciliacion(){
         form_data.append('CmbMetodoConciliacion', CmbMetodoConciliacion);
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
+        form_data.append('CmbConceptoAGS', CmbConceptoAGS);
         form_data.append('UpSoporte', $('#UpSoporte').prop('files')[0]);
     $.ajax({
         //async:false,
@@ -1171,6 +1173,7 @@ function EnviarConciliacionMasiva(){
     var ConciliadorIPSMasivo=document.getElementById('ConciliadorIPSMasivo').value;
     var CmbMetodoConciliacionMasivo=document.getElementById('CmbMetodoConciliacionMasivo').value;
     var CmbConceptoConciliacion=document.getElementById('CmbConceptoConciliacion').value;
+    var CmbConceptoConciliacionAGS=document.getElementById('CmbConceptoConciliacionAGS').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
     
@@ -1184,6 +1187,7 @@ function EnviarConciliacionMasiva(){
         form_data.append('UpSoporteConciliacionMasiva', $('#UpSoporteConciliacionMasiva').prop('files')[0]);
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
+        form_data.append('CmbConceptoConciliacionAGS', CmbConceptoConciliacionAGS);
         
     $.ajax({
         //async:false,
@@ -1424,7 +1428,7 @@ function InserteConciliacionesMasivas(){
       })
 }
 
-function RetencionesSinRelacionar(Page=1){
+function FacturasAFavor(Page=1){
     document.getElementById("DivTab6").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
     
     var Busqueda=document.getElementById('TxtBusquedas').value;
@@ -1464,7 +1468,7 @@ function CambiePaginaRetencionesSR(Page=""){
     if(Page==""){
         Page = document.getElementById('CmbPageRetencionesSR').value;
     }
-    RetencionesSinRelacionar(Page);
+    FacturasAFavor(Page);
 }
 
 

@@ -144,6 +144,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $NumeroFactura=$obCon->normalizar($_REQUEST["TxtNumeroFactura"]);
             $TipoConciliacion=$obCon->normalizar($_REQUEST["CmbTipoConciliacion"]);
             $ConceptoConciliacion=$obCon->normalizar($_REQUEST["CmbConcepto"]);
+            $ConceptoConciliacionAGS=$obCon->normalizar($_REQUEST["CmbConceptoAGS"]);
             $Observaciones=$obCon->normalizar($_REQUEST["TxtObservaciones"]);
             $ValorEPS=$obCon->normalizar($_REQUEST["ValorEPS"]);
             $ValorIPS=$obCon->normalizar($_REQUEST["ValorIPS"]);
@@ -181,10 +182,17 @@ if( !empty($_REQUEST["Accion"]) ){
                 exit("E1;No se ha seleccionado a favor de quien se concilia;CmbTipoConciliacion");
             }
             
-            if($ConceptoConciliacion==''){
+            if($ConceptoConciliacion=='' AND $ConceptoConciliacionAGS==''){
                 exit("E1;No se ha seleccionado un concepto de conciliación;CmbConcepto");
             }
             
+            if($ConceptoConciliacion>0 AND $ConceptoConciliacionAGS>0){
+                exit("E1;Sólo se puede seleccionar un concepto de conciliación;CmbConcepto");
+            }
+            
+            if($ConceptoConciliacionAGS>0){
+                $ConceptoConciliacion=$ConceptoConciliacionAGS;
+            }
             if($Observaciones=='' or strlen($Observaciones)<=10){
                 exit("E1;Debe escribir las observaciones de la conciliacion;TxtObservaciones");
             }
@@ -359,11 +367,20 @@ if( !empty($_REQUEST["Accion"]) ){
             $ConciliadorIPSMasivo=$obCon->normalizar($_REQUEST["ConciliadorIPSMasivo"]);
             $CmbMetodoConciliacionMasivo=$obCon->normalizar($_REQUEST["CmbMetodoConciliacionMasivo"]);
             $CmbConceptoConciliacion=$obCon->normalizar($_REQUEST["CmbConceptoConciliacion"]);
+            $CmbConceptoConciliacionAGS=$obCon->normalizar($_REQUEST["CmbConceptoConciliacionAGS"]);
             if($CmbIPS==""){
                 exit("E1;No se recibió una IPS;CmbIPS");
             }
-            if($CmbConceptoConciliacion==""){
+            if($CmbConceptoConciliacion=="" AND $CmbConceptoConciliacionAGS==""){
                 exit("E1;Debe Seleccionar un Concepto de Conciliacion;CmbConceptoConciliacion");
+            }
+            
+            if($CmbConceptoConciliacion>0 AND $CmbConceptoConciliacionAGS>0){
+                exit("E1;Solo es posible seleccionar un concepto de conciliación;CmbConceptoConciliacion");
+            }
+            
+            if($CmbConceptoConciliacionAGS>0){
+                $CmbConceptoConciliacion=$CmbConceptoConciliacionAGS;
             }
             if($CmbEPS==""){
                 exit("E1;No se recibió una EPS;CmbEPS");
@@ -479,11 +496,28 @@ if( !empty($_REQUEST["Accion"]) ){
             $obCon->Query($sql);
             
             $sql="UPDATE $db.carteraeps t1 INNER JOIN $db.vista_cruce_cartera_asmet t2 ON t1.NumeroFactura=t2.NumeroFactura "
-                    . " SET t1.Estado=1 WHERE t2.TotalConciliaciones>=t2.Diferencia OR t2.Diferencia=0";
+                    . " SET t1.Estado=1 WHERE ABS(t2.TotalConciliaciones) >= ABS(t2.Diferencia) OR t2.Diferencia=0";
             $obCon->Query($sql);
             print("OK;Registros insertados correctamente");
             
         break;    //Fin caso 12
+        
+        case 13: //se insertan los datos en la tabla de conciliaciones desde las facturas no presentadas por la ips
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $VigenciaInicial=$obCon->normalizar($_REQUEST["VigenciaInicial"]);
+            $VigenciaFinal=$obCon->normalizar($_REQUEST["VigenciaFinal"]);
+            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosCargas["DataBase"];
+            
+            $sql="INSERT INTO $db.carteracargadaips (NitEPS,NitIPS,NumeroFactura,NumeroRadicado,FechaRadicado,TipoNegociacion,
+                                NumeroContrato,DiasPactados,TipoRegimen,ValorDocumento,ValorGlosaInicial,ValorGlosaAceptada,ValorGlosaConciliada,ValorDescuentoBdua,
+                                ValorAnticipos,ValorRetencion,Copagos,
+                                )   ";
+            
+            print("OK;Registros insertados correctamente");
+            
+        break;    //Fin caso 13
         
     }
     

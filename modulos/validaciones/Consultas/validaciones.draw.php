@@ -487,6 +487,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Radicado</strong>", 1);
                     $css->ColTabla("<strong>Pendientes</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Radicado</strong>", 1);
+                    $css->ColTabla("<strong>Departamento de Radicacion</strong>", 1);
                     $css->ColTabla("<strong>Valor</strong>", 1);
                     $css->ColTabla("<strong>Impuestos Conciliaciones</strong>", 1);
                     $css->ColTabla("<strong>Impuestos Segun Retencion</strong>", 1);
@@ -550,6 +551,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         
                         $css->ColTabla($DatosFactura["Pendientes"], 1);
                         $css->ColTabla($DatosFactura["FechaRadicado"], 1);
+                        $css->ColTabla($DatosFactura["DepartamentoRadicacion"], 1);
                         $css->ColTabla(number_format($DatosFactura["ValorDocumento"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["Impuestos"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["ImpuestosSegunASMET"]), 1,'R');
@@ -1745,7 +1747,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->FilaTabla(16);
                     $css->ColTabla("<strong>Diferencia: </strong>", 1,'L');  
                     $css->ColTabla("", 2,'L');   
-                    $css->ColTabla("<strong>".number_format($DatosFactura["Diferencia"])."</strong>", 2,'L');                   
+                    $css->ColTabla("<strong>".number_format($DatosFactura["Diferencia"],2)."</strong>", 2,'L');                   
                 $css->CierraFilaTabla();
                 
                 
@@ -1762,14 +1764,15 @@ if( !empty($_REQUEST["Accion"]) ){
                                 print("A Favor de la IPS");
                             $css->Coption();
                         $css->Cselect();
-                    print("<td>");
+                    print("</td>");
+                    
                     
                     print("<td colspan='1'>");
                         $css->select("CmbConcepto", "form-control", "CmbConcepto", "", "", "", "");
                             $css->option("", "", "", "", "", "");
-                                print("Seleccione el concepto por el cual se Concilia");
+                                print("Seleccione el concepto IPS");
                             $css->Coption();
-                            $sql="SELECT * FROM conciliaciones_conceptos";
+                            $sql="SELECT * FROM conciliaciones_conceptos WHERE Interno=0";
                             $Consulta=$obCon->Query($sql);
                             while($DatosConceptos=$obCon->FetchAssoc($Consulta)){
                                 $css->option("", "", "", $DatosConceptos["ID"], "", "");
@@ -1778,7 +1781,23 @@ if( !empty($_REQUEST["Accion"]) ){
                             }
                             
                         $css->Cselect();
-                    print("<td>");
+                    print("</td>");
+                    
+                    print("<td colspan='1'>");
+                        $css->select("CmbConceptoAGS", "form-control", "CmbConceptoAGS", "", "", "", "");
+                            $css->option("", "", "", "", "", "");
+                                print("Seleccione el concepto AGS");
+                            $css->Coption();
+                            $sql="SELECT * FROM conciliaciones_conceptos WHERE Interno=1";
+                            $Consulta=$obCon->Query($sql);
+                            while($DatosConceptos=$obCon->FetchAssoc($Consulta)){
+                                $css->option("", "", "", $DatosConceptos["ID"], "", "");
+                                    print($DatosConceptos["Concepto"]);
+                                $css->Coption();
+                            }
+                            
+                        $css->Cselect();
+                    print("</td>");
                 $css->CierraFilaTabla();
                 
                 $css->FilaTabla(16);
@@ -2012,7 +2031,8 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->FilaTabla(16);
                     $css->ColTabla("<strong>Fecha</strong>", 1,'C');
                     $css->ColTabla("<strong>Conciliador IPS</strong>", 1,'C');
-                    $css->ColTabla("<strong>Concepto de Conciliación</strong>", 1,'C');
+                    $css->ColTabla("<strong>Concepto de Conciliación Con IPS</strong>", 1,'C');
+                    $css->ColTabla("<strong>Concepto de Conciliación AGS</strong>", 1,'C');
                     $css->ColTabla("<strong>Vía de Conciliación</strong>", 1,'C');
                 $css->CierraFilaTabla();    
                
@@ -2030,7 +2050,23 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->option("", "", "", "", "", "");
                                 print("Seleccione el concepto por el cual se Concilia");
                             $css->Coption();
-                            $sql="SELECT * FROM conciliaciones_conceptos";
+                            $sql="SELECT * FROM conciliaciones_conceptos WHERE Interno=0";
+                            $Consulta=$obCon->Query($sql);
+                            while($DatosConceptos=$obCon->FetchAssoc($Consulta)){
+                                $css->option("", "", "", $DatosConceptos["ID"], "", "");
+                                    print($DatosConceptos["Concepto"]);
+                                $css->Coption();
+                            }
+                            
+                        $css->Cselect();
+                    print("</td>");
+                    
+                    print("<td colspan='1'>");
+                        $css->select("CmbConceptoConciliacionAGS", "form-control", "CmbConceptoConciliacionAGS", "", "", "", "");
+                            $css->option("", "", "", "", "", "");
+                                print("Seleccione el concepto por el cual se Concilia");
+                            $css->Coption();
+                            $sql="SELECT * FROM conciliaciones_conceptos WHERE Interno=1";
                             $Consulta=$obCon->Query($sql);
                             while($DatosConceptos=$obCon->FetchAssoc($Consulta)){
                                 $css->option("", "", "", $DatosConceptos["ID"], "", "");
@@ -2070,7 +2106,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     $css->FilaTabla(16);   
                     
-                    print("<td colspan=2>");
+                    print("<td colspan=3>");
                         $css->input("file", "UpConciliacionMasiva", "form-control", "UpConciliacionMasiva", "", "", "", "", "", "style='line-height: 15px;'");
                     print("</td>");
                     print("<td colspan=1>");
@@ -2082,7 +2118,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CierraFilaTabla();
             $css->CerrarTabla();
         break;//FIn caso 18    
-        
+        /*
         case 19: //Dibuja las Retenciones pagadas por la EPS y No relacionadas por IPS
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
@@ -2241,6 +2277,94 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla(number_format($DatosFactura["ValorImpuestosCalculados"]), 1,'R');
                         
                     $css->CierraFilaTabla();
+                }
+            $css->CerrarTabla();
+            
+        break; //Fin caso 19
+        */
+        
+        case 19: //Dibuja las Retenciones pagadas por la EPS y No relacionadas por IPS
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
+            
+            //Paginacion
+            if(isset($_REQUEST['Page'])){
+                $NumPage=$obCon->normalizar($_REQUEST['Page']);
+            }else{
+                $NumPage=1;
+            }
+            $Condicional="";
+            if(isset($_REQUEST['Busqueda'])){
+                $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
+                if($Busqueda<>''){
+                    $Condicional=" WHERE  NumeroContrato like '$Busqueda%' or NumeroFactura like '%$Busqueda%' ";
+                }
+                
+            }
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $statement=" $db.`vista_cruce_cartera_eps_no_relacionadas_ips` $Condicional ";
+            if(isset($_REQUEST['st'])){
+
+                $statement= urldecode($_REQUEST['st']);
+                //print($statement);
+            }
+            
+            $limit = 10;
+            $startpoint = ($NumPage * $limit) - $limit;
+            $VectorST = explode("LIMIT", $statement);
+            $statement = $VectorST[0]; 
+            
+            $Limit=" LIMIT $startpoint,$limit";
+            
+            $query="SELECT * ";
+            $Consulta=$obCon->Query("$query FROM $statement $Limit");
+            
+            $css->CrearTabla();
+            
+            
+                $css->FilaTabla(16);
+                                        
+                    print("<td colspan=2>");
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_cruce_cartera_eps_no_relacionadas_ips','')", "verde", "");
+                    print("</td>");
+                    
+                    
+                    print("<td colspan=2>");
+                        $css->input("text", "VigenciaInicialFSF", "form-control", "VigenciaInicialFSF", "Vigencia Inicial:", "", "Vigencia Inicial", "off", "", "");
+                   
+                        $css->input("text", "VigenciaFinalFSF", "form-control", "VigenciaFinalFSF", "Vigencia Final:", "", "Vigencia Final", "off", "", "");
+                    
+                        $css->CrearBotonEvento("BtnCopiarAlCruce", "Copiar al Cruce", 1, "onclick", "CopiarAlCruce()", "rojo", "");
+                    print("</td>");
+                    
+               
+                            
+                $css->CierraFilaTabla(); 
+                        
+                $css->FilaTabla(16);
+                
+                $Columnas=$obCon->getColumnasDisponibles("$db.vista_cruce_cartera_eps_no_relacionadas_ips","");
+
+                    foreach ($Columnas["Field"] as $key => $value) {
+                        $css->ColTabla("<strong>$value</strong>",1);
+                    }
+                
+                $css->CierraFilaTabla();
+                
+                
+                while($DatosFactura=$obCon->FetchAssoc($Consulta)){
+                    $css->FilaTabla(14);
+                        $idItem=$DatosFactura["ID"];
+                        $NumeroFactura=$DatosFactura["NumeroFactura"];
+
+                        foreach ($Columnas["Field"] as $key => $value) {
+                            $css->ColTabla(($DatosFactura[$value]), 1,'L');
+                        }                                                
+                    $css->CierraFilaTabla();
+                    
                 }
             $css->CerrarTabla();
             

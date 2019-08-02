@@ -469,3 +469,6 @@ INSERT INTO `menu_pestanas` (`ID`, `Nombre`, `idMenu`, `Orden`, `Estado`, `Updat
 (52,	'Conciliaciones y Liquidaciones',	3,	2,	CONV('1', 2, 10) + 0,	'2019-05-23 07:51:15',	'2019-01-13 09:12:43');
 
 
+ALTER TABLE `carteracargadaips` ADD `NoRelacionada` INT(1) NOT NULL AFTER `ConciliadoXEPS`;
+ALTER TABLE `actualizacioncarteracargadaips` ADD `NoRelacionada` INT(1) NOT NULL AFTER `ConciliadoXEPS`;
+
