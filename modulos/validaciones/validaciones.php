@@ -59,12 +59,15 @@ $css->PageInit($myTitulo);
     $css->CerrarDiv();
     
     $css->CrearDiv("", "col-md-4", "center", 1, 1);
+        $sql="SELECT * FROM eps";
+        $Consulta=$obCon->Query($sql);
+        
         $css->select("CmbEPS", "form-control", "CmbEPS", "EPS", "", "", "");
-           
-            $css->option("", "", "", 1, "", "");
-                print("ASMET");
-            $css->Coption();
-           
+            while($DatosEPS=$obCon->FetchAssoc($Consulta)){
+                $css->option("", "", "", $DatosEPS["NIT"], "", "");
+                    print($DatosEPS["Nombre"]." ".$DatosEPS["NIT"]);
+                $css->Coption();
+            }
         $css->Cselect();
     $css->CerrarDiv();
     

@@ -1516,6 +1516,84 @@ function CambiePaginaConciliaciones(Page=""){
 }
 
 
+function ConfirmarCopiaFacturasSFNR(){
+    
+    alertify.confirm('Está seguro que desea Copiar las facturas de la vigencia seleccionada?',
+        function (e) {
+            if (e) {
+
+                alertify.success("Enviando Solicitud");                    
+                CopiaFacturasSFNR();
+            }else{
+                alertify.error("Se canceló el proceso");
+
+                return;
+            }
+        });
+}
+
+function CopiaFacturasSFNR(){
+    document.getElementById("DivProcesoCopia").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    document.getElementById('BtnCopiarAlCruce').disabled=true;
+    document.getElementById('BtnCopiarAlCruce').value="Copiando...";
+    var VigenciaInicial=document.getElementById('VigenciaInicialFSF').value;
+    var VigenciaFinal=document.getElementById('VigenciaFinalFSF').value;
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 13);
+        form_data.append('VigenciaInicial', VigenciaInicial);
+        form_data.append('VigenciaFinal', VigenciaFinal);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               document.getElementById("DivProcesoCopia").innerHTML="";
+                document.getElementById('TabCuentas6').click();
+                
+                alertify.success(respuestas[1]);
+                
+            }else if(respuestas[0]==="E1"){
+                 document.getElementById("DivProcesoCopia").innerHTML="";
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById('BtnCopiarAlCruce').disabled=false;
+                document.getElementById('BtnCopiarAlCruce').value="Copiar al Cruce";
+                return;                
+            }else{
+                 document.getElementById("DivProcesoCopia").innerHTML="";
+                alertify.alert(data);
+                document.getElementById('BtnCopiarAlCruce').disabled=false;
+                document.getElementById('BtnCopiarAlCruce').value="Copiar al Cruce";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+             document.getElementById("DivProcesoCopia").innerHTML="";
+            document.getElementById('BtnCopiarAlCruce').disabled=false;
+            document.getElementById('BtnCopiarAlCruce').value="Copiar al Cruce";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();
 $('#CmbEPS').select2();

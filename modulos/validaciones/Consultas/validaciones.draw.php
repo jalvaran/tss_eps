@@ -2321,7 +2321,9 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $query="SELECT * ";
             $Consulta=$obCon->Query("$query FROM $statement $Limit");
+            $css->div("DivProcesoCopia", "", "", "", "", "", "");
             
+            $css->Cdiv();
             $css->CrearTabla();
             
             
@@ -2337,7 +2339,7 @@ if( !empty($_REQUEST["Accion"]) ){
                    
                         $css->input("text", "VigenciaFinalFSF", "form-control", "VigenciaFinalFSF", "Vigencia Final:", "", "Vigencia Final", "off", "", "");
                     
-                        $css->CrearBotonEvento("BtnCopiarAlCruce", "Copiar al Cruce", 1, "onclick", "CopiarAlCruce()", "rojo", "");
+                        $css->CrearBotonEvento("BtnCopiarAlCruce", "Copiar al Cruce", 1, "onclick", "ConfirmarCopiaFacturasSFNR()", "rojo", "");
                     print("</td>");
                     
                

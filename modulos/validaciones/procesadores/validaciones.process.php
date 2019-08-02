@@ -507,14 +507,27 @@ if( !empty($_REQUEST["Accion"]) ){
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
             $VigenciaInicial=$obCon->normalizar($_REQUEST["VigenciaInicial"]);
             $VigenciaFinal=$obCon->normalizar($_REQUEST["VigenciaFinal"]);
+            if(!is_numeric($VigenciaInicial) or strlen($VigenciaInicial)<>'6'){
+                exit("E1;La Vigencia Inicial debe ser un valor númerico de 6 dígitos;VigenciaInicialFSF");
+            }
+            
+            if(!is_numeric($VigenciaFinal) or strlen($VigenciaFinal)<>'6'){
+                exit("E1;La Vigencia Final debe ser un valor númerico de 6 dígitos;VigenciaFinalFSF");
+            }
+            
+            if($CmbEPS==''){
+                exit("E1;No se ha seleccionado una EPS;select2-CmbEPS-container");
+            }
+            $Fecha=date("Y-m-d");
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             
-            $sql="INSERT INTO $db.carteracargadaips (NitEPS,NitIPS,NumeroFactura,NumeroRadicado,FechaRadicado,TipoNegociacion,
-                                NumeroContrato,DiasPactados,TipoRegimen,ValorDocumento,ValorGlosaInicial,ValorGlosaAceptada,ValorGlosaConciliada,ValorDescuentoBdua,
-                                ValorAnticipos,ValorRetencion,Copagos,
-                                )   ";
-            
+            $sql="INSERT INTO $db.carteracargadaips (NitEPS,NitIPS,NumeroFactura,NumeroRadicado,FechaRadicado,
+                  NumeroContrato,ValorDocumento,ValorTotalpagar,FechaRegistro,FechaActualizacion,NoRelacionada) 
+                  SELECT '$CmbEPS','$CmbIPS', NumeroFactura,NumeroRadicado,FechaRadicado, NumeroContrato,
+                      '0','0','$Fecha','$Fecha','1' FROM $db.vista_cruce_cartera_eps_no_relacionadas_ips  
+                  WHERE MesServicio>='$VigenciaInicial' AND MesServicio<='$VigenciaFinal' ";
+            $obCon->Query($sql);
             print("OK;Registros insertados correctamente");
             
         break;    //Fin caso 13
