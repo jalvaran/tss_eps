@@ -397,6 +397,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td style='text-align:center;'>");
                         print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
                     print("</td>");
+                    
                     print("<td colspan=1 style='text-align:center'>");
                         print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
                     print("</td>");

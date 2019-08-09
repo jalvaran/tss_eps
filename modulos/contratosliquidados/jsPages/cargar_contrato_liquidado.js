@@ -20,7 +20,7 @@ document.getElementById('BtnMuestraMenuLateral').click();
 
 function ConfirmarCarga(){
     var EPS=$('#select2-CmbEPS-container').text();
-    alertify.confirm('Está seguro que desea Cargar este archivo </strong>',
+    alertify.confirm('<strong>Está seguro que desea Cargar este archivo </strong>',
         function (e) {
             if (e) {
 
