@@ -1,0 +1,1 @@
+ALTER TABLE `temporalcarguecarteraips` ADD `NoRelacionada` INT(1) NOT NULL AFTER `ConciliadoXEPS`;

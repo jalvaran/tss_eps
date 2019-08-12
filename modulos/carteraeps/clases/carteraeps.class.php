@@ -389,7 +389,7 @@ class CarteraEPS extends conexion{
              }
              $sql.="'','','','$Soporte','$EPS','$idUser','$FechaRegistro','$FechaActualizacion'),";
              
-             if($r==1000){
+             if($r==1233){
                  $r=0;
                  $sql=substr($sql, 0, -1);
                 //print("<pre>".$sql."</pre>");

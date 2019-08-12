@@ -351,6 +351,8 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td colspan='1' style='text-align:center'>");
                         $st1= urlencode($st_reporte);
                         $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_cruce_cartera_asmet','')", "verde", "");
+						print('<br>');
+						$css->CrearBotonEvento("BtnExportarReporteIps", "Exportar-Reporte_Ips", 1, "onclick", "ExportarExcel('$db','vista_reporte_ips','')", "verde", "");
                         //$css->CrearImageLink("ProcesadoresJS/GeneradorCSVReportesCartera.php?Opcion=1&sp=$Separador&st=$st1", "../images/csv.png", "_blank", 50, 50);
 
                     //print("</td>");
@@ -397,7 +399,6 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td style='text-align:center;'>");
                         print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
                     print("</td>");
-                    
                     print("<td colspan=1 style='text-align:center'>");
                         print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
                     print("</td>");
@@ -867,7 +868,10 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                    print("<td>");
                         $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_facturas_pagadas_no_relacionadas','')", "verde", "");
-                    print("</td>");
+				   print("</td>");
+					
+					
+
                 //$css->CierraFilaTabla();
                 
                 $st= urlencode($st_reporte);
@@ -1371,6 +1375,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td colspan='2' style='text-align:center'>");
                         $st1= urlencode($st_reporte);
                         $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_resumen_cruce_cartera_asmet','')", "verde", "");
+						
                         //$css->CrearImageLink("ProcesadoresJS/GeneradorCSVReportesCartera.php?Opcion=1&sp=$Separador&st=$st1", "../images/csv.png", "_blank", 50, 50);
 
                     print("</td>");
@@ -2024,7 +2029,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->FilaTabla(16);
                     print("<td colspan=6>");
                         $Ruta="../../general/procesadores/GeneradorExcel.php?idDocumento=1&CmbIPS=$CmbIPS";
-                        print("<a href='$Ruta' target='_blank'><button class='btn btn-success'>Descargar Formato</button></a>");
+                        print("<a href='$Ruta' target='_blank'><button class='btn btn-success'>Descargar Base Conciliación</button></a>");
                         //$css->CrearBotonEvento("btnDescargarFormatoConciliacionMasiva", "Descargar Formato", 1, "onclick", "DescargarConciliacionMasiva()", "azul", "");
                     print("</td>");
                 $css->CierraFilaTabla();

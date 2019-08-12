@@ -111,6 +111,7 @@ class CargarRadicadosPendientes extends conexion{
             if($Verifique==1){
                 $Verifique=0;
                 $TotalColumnas=count($data);
+                //print_r($data);
                 if($TotalColumnas<>14){
                     exit("E1;El archivo enviado no corresponde al esperado, tiene $TotalColumnas Columnas");
                 }

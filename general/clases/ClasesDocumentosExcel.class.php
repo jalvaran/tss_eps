@@ -111,7 +111,7 @@ class TS_Excel extends conexion{
         ->setCategory("Formato conciliacion masiva");    
  
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment;filename="'."FormatoConciliacion_$CmbIPS".'.xls"');
+    header('Content-Disposition: attachment;filename="'."Base_Conciliacion_$CmbIPS".'.xls"');
     header('Cache-Control: max-age=0');
     header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
     header('Pragma: public'); // HTTP/1.0

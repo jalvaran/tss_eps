@@ -269,9 +269,9 @@ public function ObtenerMAX($tabla,$campo, $filtro, $idItem)
         $filtro=$this->normalizar($filtro);
         $idItem=$this->normalizar($idItem);
 	if($filtro==1){
-		$sql="SELECT MAX($campo) AS MaxNum FROM `$tabla`";
+		$sql="SELECT MAX($campo) AS MaxNum FROM $tabla";
 	}else{
-		$sql="SELECT MAX($campo) AS MaxNum FROM `$tabla` WHERE `$filtro` = '$idItem'";
+		$sql="SELECT MAX($campo) AS MaxNum FROM $tabla WHERE `$filtro` = '$idItem'";
 	}
 		
 	$Reg=$this->Query($sql) or die('no se pudo actualizar el registro en la $tabla: ' . $this->mysqli->error);	
