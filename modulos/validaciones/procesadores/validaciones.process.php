@@ -532,6 +532,32 @@ if( !empty($_REQUEST["Accion"]) ){
             
         break;    //Fin caso 13
         
+        case 14://Crear un Acta de Conciliacion
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $FechaActaConciliacion=$obCon->normalizar($_REQUEST["FechaActaConciliacion"]);
+            $TxtRepresentanteLegalIPS=$obCon->normalizar($_REQUEST["TxtRepresentanteLegalIPS"]);
+            $TxtEncargadoEPS=$obCon->normalizar($_REQUEST["TxtEncargadoEPS"]);
+            if($FechaActaConciliacion==''){
+                exit("E1;No se recibió una Fecha de Corte;FechaActaConciliacion");
+                
+            }
+            if($TxtRepresentanteLegalIPS==''){
+                exit("E1;Se debe digitar el Nombre del Representante Legal de la IPS;TxtRepresentanteLegalIPS");
+                
+            }
+            if($TxtEncargadoEPS==''){
+                exit("E1;Se debe digitar el Nombre del Encargado de la EPS;TxtEncargadoEPS");
+                
+            }
+            
+            $idActa=$obCon->CrearActaConciliacion($FechaActaConciliacion, $CmbIPS, $TxtRepresentanteLegalIPS, $TxtEncargadoEPS,$idUser);
+            
+            print("OK;Acta $idActa Creada Correctamente;$idActa");
+        break;//Fin caso 14  
+        
     }
     
     

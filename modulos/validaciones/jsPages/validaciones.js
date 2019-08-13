@@ -1593,6 +1593,193 @@ function CopiaFacturasSFNR(){
       })
 }
 
+function ActasConciliaciones(){
+    
+    MuestraXID('DivOpcionesActasConciliacion');
+    
+}
+
+
+function AbreModalNuevaActaConciliacion(){
+    OcultaXID('BntModalAcciones');
+    AbreModal('ModalAcciones');
+    document.getElementById("DivFrmModalAcciones").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 25);        
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivFrmModalAcciones').innerHTML=data;
+           
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+function CargarActaConciliacion(){
+    
+    var Busqueda=document.getElementById('TxtBusquedas').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 20);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        
+        form_data.append('Busqueda', Busqueda);
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivTab7').innerHTML=data;
+           $('#CmbPageCruce').select2();
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+
+function FacturasSinRelacionarPorIPS(Page=1){
+    document.getElementById("DivFacturasEPS").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    var Busqueda=document.getElementById('TxtBusquedas').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 26);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('Page', Page);
+        form_data.append('Busqueda', Busqueda);
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivFacturasEPS').innerHTML=data;
+           //$('#CmbPageRetencionesSR').select2();
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+
+function ConfirmarCrearActa(){
+    
+    alertify.confirm('Está seguro que desea Crear una Nueva Acta de Conciliación?',
+        function (e) {
+            if (e) {
+                
+                CrearActaConciliacion();
+            }else{
+                alertify.error("Se canceló el proceso");
+
+                return;
+            }
+        });
+}
+
+function CrearActaConciliacion(){
+    document.getElementById('BtnGuardarActa').disabled=true;
+    document.getElementById('BtnGuardarActa').value="Creando...";
+    var FechaActaConciliacion=document.getElementById('FechaActaConciliacion').value;
+    var TxtRepresentanteLegalIPS=document.getElementById('TxtRepresentanteLegalIPS').value;
+    var TxtEncargadoEPS=document.getElementById('TxtEncargadoEPS').value;
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 14);
+        form_data.append('FechaActaConciliacion', FechaActaConciliacion);
+        form_data.append('TxtRepresentanteLegalIPS', TxtRepresentanteLegalIPS);
+        form_data.append('TxtEncargadoEPS', TxtEncargadoEPS);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]);
+                document.getElementById('BtnGuardarActa').disabled=false;
+                document.getElementById('BtnGuardarActa').value="Crear Acta";
+                CierraModal("ModalAcciones");
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById('BtnGuardarActa').disabled=false;
+                document.getElementById('BtnGuardarActa').value="Crear Acta";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('BtnGuardarActa').disabled=false;
+                document.getElementById('BtnGuardarActa').value="Crear Acta";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById('BtnGuardarActa').disabled=false;
+            document.getElementById('BtnGuardarActa').value="Crear Acta";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
 
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();

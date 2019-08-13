@@ -447,5 +447,23 @@ class ValidacionesEPS extends conexion{
         
     }
     
+    public function CrearActaConciliacion($FechaCorte,$CmbIPS,$RepresentanteLegalIPS,$EncargadoEPS,$idUser) {
+        $FechaRegistro=date("Y-m-d H:i:s");
+        $DatosIPS=$this->DevuelveValores("ips", "NIT", $CmbIPS);
+        
+        $Datos["FechaCorte"]=$FechaCorte;
+        $Datos["RazonSocialIPS"]=$DatosIPS["Nombre"];
+        $Datos["NIT_IPS"]=$CmbIPS;
+        $Datos["RepresentanteLegal"]=$RepresentanteLegalIPS;
+        $Datos["Departamento"]=$DatosIPS["Departamento"];
+        $Datos["EncargadoEPS"]=$EncargadoEPS;
+        $Datos["idUser"]=$idUser;
+        $Datos["FechaRegistro"]=$FechaRegistro;
+        $sql=$this->getSQLInsert("actas_conciliaciones", $Datos);
+        $this->Query($sql);
+        $idActa=$this->ObtenerMAX("actas_conciliaciones", "ID", 1, "");
+        return($idActa);
+    }
+    
     //Fin Clases
 }

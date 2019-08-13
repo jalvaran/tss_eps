@@ -495,6 +495,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Impuestos Segun Retencion</strong>", 1);
                     $css->ColTabla("<strong>Valor Menos Impuestos</strong>", 1);
                     $css->ColTabla("<strong>Total Pagos</strong>", 1);
+                    $css->ColTabla("<strong>Capitalización</strong>", 1);
                     $css->ColTabla("<strong>Total Anticipos</strong>", 1);
                     $css->ColTabla("<strong>Total Copagos</strong>", 1);
                     $css->ColTabla("<strong>Total Devoluciones</strong>", 1);
@@ -565,6 +566,8 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->CerrarDiv();
                             
                         print("</td>");
+                        $css->ColTabla(number_format($DatosFactura["Capitalizacion"]), 1,'R');
+                        
                         
                         print("<td>");
                             $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,`5`)", "style=cursor:pointer;");
@@ -2750,6 +2753,133 @@ if( !empty($_REQUEST["Accion"]) ){
             
                 
         break; //Fin caso 24
+        
+        case 25://Dibuja el formulario para el Acta de Conciliacion
+            $NitIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $NitIPS);
+            $css->input("hidden", "TxtNitIPSActa", "form-control", "TxtNitIPS", "", $NitIPS, "", "", "", "");
+            $css->CrearTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("Crear Nueva Acta de Conciliación para la IPS: <strong>". utf8_decode($DatosIPS["Nombre"])."</strong>, con NIT: ".$NitIPS, 3);
+                $css->CierraFilaTabla();
+                $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Fecha de Corte:</strong>", 1);
+                    $css->ColTabla("<strong>Representante Legal IPS:</strong>", 1);
+                    $css->ColTabla("<strong>Encargado de la EPS:</strong>", 1);
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                    print("<td>");
+                        $css->input("date", "FechaActaConciliacion", "form-control", "FechaActaConciliacion", "", date("Y-m-d"), "Fecha Corte Cartera", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
+        
+                    print("</td>");
+                    print("<td>");
+                        $css->input("text", "TxtRepresentanteLegalIPS", "form-control", "TxtRepresentanteLegalIPS", "", $DatosIPS["RepresentanteLegal"], "Representante Legal", "", "", "");
+                    print("</td>");
+                    
+                     print("<td>");
+                        $css->input("text", "TxtEncargadoEPS", "form-control", "TxtEncargadoEPS", "", "", "Encargado EPS", "", "", "");
+                    print("</td>");
+                    
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(16);
+                    print("<td colspan=3>");
+                        $css->CrearBotonEvento("BtnGuardarActa", "Crear Acta", 1, "onclick", "ConfirmarCrearActa()", "rojo", "");
+                    print("</td>");
+                $css->CierraFilaTabla();
+                
+            $css->CerrarTabla();
+        break;//Fin caso 25
+    
+        case 26: //Dibuja las facturas que tiene la eps pero no la ips
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
+            
+            //Paginacion
+            if(isset($_REQUEST['Page'])){
+                $NumPage=$obCon->normalizar($_REQUEST['Page']);
+            }else{
+                $NumPage=1;
+            }
+            $Condicional="";
+            if(isset($_REQUEST['Busqueda'])){
+                $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
+                if($Busqueda<>''){
+                    $Condicional=" WHERE  NumeroContrato like '$Busqueda%' or NumeroFactura like '%$Busqueda%' ";
+                }
+                
+            }
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $statement=" $db.`vista_cruce_cartera_eps_no_relacionadas_ips_completa` $Condicional ";
+            if(isset($_REQUEST['st'])){
+
+                $statement= urldecode($_REQUEST['st']);
+                //print($statement);
+            }
+            
+            $limit = 10;
+            $startpoint = ($NumPage * $limit) - $limit;
+            $VectorST = explode("LIMIT", $statement);
+            $statement = $VectorST[0]; 
+            
+            $Limit=" LIMIT $startpoint,$limit";
+            
+            $query="SELECT * ";
+            $Consulta=$obCon->Query("$query FROM $statement $Limit");
+            $css->div("DivProcesoCopia", "", "", "", "", "", "");
+            
+            $css->Cdiv();
+            $css->CrearTabla();
+            
+            
+                $css->FilaTabla(16);
+                                        
+                    print("<td colspan=2>");
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_cruce_cartera_eps_no_relacionadas_ips_completa','')", "verde", "");
+                    print("</td>");
+                    
+                    /*
+                    print("<td colspan=2>");
+                        $css->input("text", "VigenciaInicialFSF", "form-control", "VigenciaInicialFSF", "Vigencia Inicial:", "", "Vigencia Inicial", "off", "", "");
+                   
+                        $css->input("text", "VigenciaFinalFSF", "form-control", "VigenciaFinalFSF", "Vigencia Final:", "", "Vigencia Final", "off", "", "");
+                    
+                        $css->CrearBotonEvento("BtnCopiarAlCruce", "Copiar al Cruce", 1, "onclick", "ConfirmarCopiaFacturasSFNR()", "rojo", "");
+                    print("</td>");
+                    */
+               
+                            
+                $css->CierraFilaTabla(); 
+                        
+                $css->FilaTabla(16);
+                
+                $Columnas=$obCon->getColumnasDisponibles("$db.vista_cruce_cartera_eps_no_relacionadas_ips_completa","");
+
+                    foreach ($Columnas["Field"] as $key => $value) {
+                        $css->ColTabla("<strong>$value</strong>",1);
+                    }
+                
+                $css->CierraFilaTabla();
+                
+                
+                while($DatosFactura=$obCon->FetchAssoc($Consulta)){
+                    $css->FilaTabla(14);
+                        $idItem=$DatosFactura["ID"];
+                        $NumeroFactura=$DatosFactura["NumeroFactura"];
+
+                        foreach ($Columnas["Field"] as $key => $value) {
+                            $css->ColTabla(($DatosFactura[$value]), 1,'L');
+                        }                                                
+                    $css->CierraFilaTabla();
+                    
+                }
+            $css->CerrarTabla();
+            
+        break; //Fin caso 26
     }
     
     

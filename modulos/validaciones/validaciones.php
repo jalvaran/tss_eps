@@ -93,11 +93,12 @@ $css->PageInit($myTitulo);
         
         $css->TabInit();
             $css->TabLabel("TabCuentas1", "<strong >Facturas sin Relación IPS</strong>", "Tab_1", 1,"onclick=MuestreFacturasNRIPS()");
-            $css->TabLabel("TabCuentas2", "<strong >Facturas sin Relación EPS</strong>", "Tab_2",0,"onclick=MuestreFacturasNREPS()");
+            $css->TabLabel("TabCuentas2", "<strong >Facturas sin Relación EPS</strong>", "Tab_2",0,"onclick=FacturasSinRelacionarPorIPS()");
             $css->TabLabel("TabCuentas3", "<strong >Facturas Pagadas Sin Relación</strong>", "Tab_3",0,"onclick=MuestrePagadasSR()"); 
             $css->TabLabel("TabCuentas6", "<strong >Facturas a Favor de EPS</strong>", "Tab_6",0,"onclick=FacturasAFavor()");  
             $css->TabLabel("TabCuentas4", "<strong >Cruce de Cartera</strong>", "Tab_4",0,"onclick=MuestreCruce()"); 
             $css->TabLabel("TabCuentas7", "<strong >Historial de Conciliaciones</strong>", "Tab_7",0,"onclick=MuestreConciliaciones()"); 
+            $css->TabLabel("TabCuentas8", "<strong >Actas de Conciliaciones</strong>", "Tab_8",0,"onclick=ActasConciliaciones()"); 
             
             $css->TabLabel("TabCuentas5", "<strong >Informe Consolidado</strong>", "Tab_5",0,"onclick=MuestreConsolidado()"); 
         $css->TabInitEnd();
@@ -168,6 +169,18 @@ $css->PageInit($myTitulo);
             
         $css->TabPaneEnd();
         
+        $css->TabPaneInit("Tab_8", 1);
+            
+            $css->CrearDiv("DivOpcionesActasConciliacion", "col-md-3", "left", 0, 1);
+                 $css->CrearBotonEvento("BntNuevaActaConciliacion", "Nueva Acta", 1, "onclick", "AbreModalNuevaActaConciliacion()", "verde", "");
+            $css->Cdiv();
+                           
+            $css->CrearDiv("DivTab8", "", "center", 1, 1);
+                 
+            $css->CerrarDiv();
+            
+        $css->TabPaneEnd();
+        
         $css->TabPaneInit("Tab_7", 1);
            
             $css->CrearDiv("DivTab7", "", "center", 1, 1);
@@ -175,6 +188,8 @@ $css->PageInit($myTitulo);
             $css->CerrarDiv();
             
         $css->TabPaneEnd();
+        
+        
         
         
     $css->CerrarDiv();
