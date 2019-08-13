@@ -23,7 +23,7 @@ if( !empty($_REQUEST["Accion"]) ){
             //$keySoporte=$obCon->getKeySoporte($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            //$obCon->VaciarTabla("$db.temporal_comprobantesegresoasmet");
+            $obCon->VaciarTabla("$db.temporal_registro_liquidacion_contratos_items");
             $destino='';
             
             $Extension="";
@@ -105,7 +105,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosArchivo=$obCon->FetchAssoc($Consulta);
             if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){       
                 $idContrato=$obCon->RegistreEncabezadoContrato($CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
-                print("Contrato: ".$idContrato);
+                //print("Contrato: ".$idContrato);
             }
                         
             if($DatosEPS["ID"]>2 ){                
@@ -116,38 +116,63 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;Encabezado del contrato realizado;$idContrato");
         break; //fin caso 3
         
-        case 5://Insertar registros nuevos
-            $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
+        case 4://Guarda los items en la temporal
+            
+            $idContrato=$obCon->normalizar($_REQUEST["idContrato"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
+            $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $sql="UPDATE $db.temporal_comprobantesegresoasmet t1 INNER JOIN $db.comprobantesegresoasmet t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  "
-                    . "WHERE t1.TipoOperacion=t2.TipoOperacion and t1.NumeroComprobante=t2.NumeroComprobante and"
-                    . " t1.FechaComprobante=t2.FechaComprobante AND t1.NumeroInterno=t2.NumeroInterno AND t1.MesServicio=t2.MesServicio AND t1.Valor3=t2.Valor3 ;";
-            $obCon->Query($sql);
-            $sql="INSERT INTO $db.`comprobantesegresoasmet`  
+            
+            $sql="SELECT * FROM control_cargue_contratos_liquidados WHERE idUser='$idUser' AND Estado=0 LIMIT 1";
+            $Consulta=$obCon->Query($sql);
+            $DatosArchivo=$obCon->FetchAssoc($Consulta);
+            if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){       
+                $obCon->GuardeArchivoEnTemporal($idContrato,$CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
+                
+            }
+                        
+            if($DatosEPS["ID"]>2 ){                
+                exit("E1;EPS no ompatible");
+                
+            }
+            
+            print("OK;Encabezado del contrato realizado;$idContrato");
+        break; //fin caso 4
+        
+        case 5://Insertar items del contrato
+            $idContrato=$obCon->normalizar($_REQUEST["idContrato"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            
+            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosCargas["DataBase"];
+            
+            $sql="INSERT INTO $db.`registro_liquidacion_contratos_items`  
                    SELECT *
-                  FROM $db.`temporal_comprobantesegresoasmet` as t1 WHERE t1.FlagUpdate=0;
-                    
+                  FROM $db.`temporal_registro_liquidacion_contratos_items`;                    
                     ";
             //print($sql);
             
             $obCon->Query($sql);
+            $TotalPagado=$obCon->SumeColumna("$db.registro_liquidacion_contratos_items", "ValorPagado", "idContrato", $idContrato);
             
+            $obCon->update("control_cargue_contratos_liquidados", "Estado", 1, " WHERE idUser='$idUser' AND Estado='0'");
+            $obCon->update("registro_liquidacion_contratos", "ValorPagado", $TotalPagado, " WHERE ID='$idContrato'");
             print("OK;Registros realizados correctamente");
         break; //fin caso 5
     
         case 6://Borrar temporales y registros mal hechos
-            $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
+            
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
+            
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            //$obCon->VaciarTabla("$db.temporal_comprobantesegresoasmet");
-            $obCon->BorraReg("$db.controlcargueseps", "NombreCargue", $keyArchivo);
+            
+            $sql="DELETE FROM control_cargue_contratos_liquidados WHERE Estado=0 AND idUser='$idUser'";
+            $obCon->Query($sql);
             print("OK;Temporales Borrados");
         break; //fin caso 5
     

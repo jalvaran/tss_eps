@@ -419,56 +419,12 @@ SELECT t1.ID,t1.NumeroFactura,t1.FechaFactura,t2.Estado,
 FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.NumeroFactura;
 
 
-CREATE TABLE `registro_liquidacion_contratos` (
-    `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-    `NitIPS` bigint(20) NOT NULL,
-    `RazonSocialIPS` varchar(120) COLLATE utf8_spanish_ci NOT NULL,
-    `Contrato` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
-    `VigenciaInicial` date NOT NULL,
-    `VigenciaFinal` date NOT NULL,
-    `ValorContrato` double NOT NULL,
-    `Modalidad` varchar(20) COLLATE utf8_spanish_ci NOT NULL,
-    `idUser` int(11) NOT NULL,
-    `FechaRegistro` datetime NOT NULL,
-    PRIMARY KEY (`ID`),
-    KEY (`NitIPS`),
-    KEY (`Contrato`),
-    KEY (`Modalidad`)
-    
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
-
-CREATE TABLE `registro_liquidacion_contratos_items` (
-    `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-    `idContrato` bigint(20) NOT NULL,
-    `DepartamentoRadicacion` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
-    `Radicado` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
-    `MesServicio` varchar(10) COLLATE utf8_spanish_ci NOT NULL,
-    `NumeroFactura` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
-    `ValorFacturado` double NOT NULL,
-    `ImpuestosRetencion` double NOT NULL,
-    `Devolucion` double NOT NULL,
-    `GlosaInicial` double NOT NULL,
-    `GlosaFavorEPS` double NOT NULL,
-    `NotasCopagos` double NOT NULL,
-    `RecuperacionImpuestos` double NOT NULL,
-    `OtrosDescuentos` double NOT NULL,
-    `ValorPagado` double NOT NULL,
-    `Saldo` double NOT NULL,
-    `idUser` int(11) NOT NULL,
-    `FechaRegistro` datetime NOT NULL,
-    PRIMARY KEY (`ID`),
-    KEY (`idContrato`),
-    KEY (`Radicado`),
-    KEY (`MesServicio`),
-    KEY (`NumeroFactura`),
-    KEY (`idUser`)
-    
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
-
 INSERT INTO `menu_pestanas` (`ID`, `Nombre`, `idMenu`, `Orden`, `Estado`, `Updated`, `Sync`) VALUES
 (52,	'Conciliaciones y Liquidaciones',	3,	2,	CONV('1', 2, 10) + 0,	'2019-05-23 07:51:15',	'2019-01-13 09:12:43');
 
 
 ALTER TABLE `carteracargadaips` ADD `NoRelacionada` INT(1) NOT NULL AFTER `ConciliadoXEPS`;
 ALTER TABLE `actualizacioncarteracargadaips` ADD `NoRelacionada` INT(1) NOT NULL AFTER `ConciliadoXEPS`;
+
+
 

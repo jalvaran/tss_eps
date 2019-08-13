@@ -31,11 +31,14 @@ class CargarContratos extends conexion{
     
     public function RegistreEncabezadoContrato($CmbIPS,$CmbEPS,$NombreArchivo,$Ruta,$Soporte,$idUser) {
         clearstatcache();
-        require_once('../../../librerias/Excel/PHPExcel2.php');
         
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $CmbIPS);
         $db=$DatosIPS["DataBase"];
-        
+        $DatosContratos=$this->DevuelveValores("registro_liquidacion_contratos", "NombreArchivo", $NombreArchivo);
+        if($DatosContratos["ID"]<>''){
+            return($DatosContratos["ID"]);
+        }
+        require_once('../../../librerias/Excel/PHPExcel2.php');
         $FechaActual=date("Y-m-d H:i:s");
         $RutaArchivo=$Ruta;
              
@@ -97,9 +100,12 @@ class CargarContratos extends conexion{
         $Datos["Modalidad"]=$Modalidad;
         $Datos["idUser"]=$idUser;
         $Datos["FechaRegistro"]=$FechaActual;
-        $sql=$this->getSQLInsert("$db.registro_liquidacion_contratos", $Datos);
+        $Datos["NombreArchivo"]=$NombreArchivo;
+        $Datos["Soporte"]=$Soporte;
+        $Datos["BaseDatos"]=$db;
+        $sql=$this->getSQLInsert("registro_liquidacion_contratos", $Datos);
         $this->Query($sql);
-        $idContrato=$this->ObtenerMAX("$db.registro_liquidacion_contratos", "ID", 1, "");
+        $idContrato=$this->ObtenerMAX("registro_liquidacion_contratos", "ID", 1, "");
         
         $z=3;
         $Sale=0;
@@ -142,7 +148,10 @@ class CargarContratos extends conexion{
             $Datos["Modalidad"]=$Modalidad;
             $Datos["idUser"]=$idUser;
             $Datos["FechaRegistro"]=$FechaActual;
-            $sql=$this->getSQLInsert("$db.registro_liquidacion_contratos", $Datos);
+            $Datos["NombreArchivo"]=$NombreArchivo;
+            $Datos["Soporte"]=$Soporte;
+            $Datos["BaseDatos"]=$db;
+            $sql=$this->getSQLInsert("registro_liquidacion_contratos", $Datos);
             $this->Query($sql);
             $z=$z+1;
         }
@@ -159,190 +168,134 @@ class CargarContratos extends conexion{
         
     }
     
-    public function GuardeArchivoEnTemporal($keyArchivo,$idIPS,$idEPS,$idUser) {
+    public function GuardeArchivoEnTemporal($idContrato,$CmbIPS,$CmbEPS,$NombreArchivo,$Ruta,$Soporte,$idUser) {
         clearstatcache();
         require_once('../../../librerias/Excel/PHPExcel2.php');
-        //require_once('../../../librerias/Excel/PHPExcel.php');
-        //require_once('../../../librerias/Excel/PHPExcel/Reader/Excel2007.php');
-        $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
+        
+        $DatosIPS=$this->DevuelveValores("ips", "NIT", $CmbIPS);
         $db=$DatosIPS["DataBase"];
-        $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo' AND idUser='$idUser'";
-        $Consulta=$this->Query($sql);
-        $DatosUpload=$this->FetchArray($Consulta);
+        
         $FechaActual=date("Y-m-d H:i:s");
-        $RutaArchivo=$DatosUpload["RutaArchivo"];
-        $Soporte=$DatosUpload["RutaArchivo"];
-       
-        if($DatosUpload["ExtensionArchivo"]=="xlsx"){
-            $objReader = IOFactory::createReader('Xlsx');
-        }else if($DatosUpload["ExtensionArchivo"]=="xls"){
-            $objReader = IOFactory::createReader('Xls');
-        }else{
-            exit("Solo se permiten archivos con extension xls o xlsx");
-        }
-        
-       
-        $objPHPExcel = $objReader->load($RutaArchivo);   
-        $hojas=$objPHPExcel->getSheetCount();
-                 
-              
-        $hojas=$objPHPExcel->getSheetCount();
-        
-        date_default_timezone_set('UTC'); //establecemos la hora local
-        $Proceso="";
-        $DescripcionProceso="";
-        $Estado="";
-        $Cuenta="";
-        $Banco="";
+        $RutaArchivo=$Ruta;
+             
+        $objReader = IOFactory::createReader('Xlsx');
         $Cols=[ 'ZZ','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
                 'AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ',
                 'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ',
                 'CA','CB','CC','CD','CE','CF','CG','CH','CI','CJ','CK','CL','CM','CN','CO','CP','CQ','CR','CS','CT','CU','CV','CW','CX','CY','CZ',
                 'DA','DB','DC','DD','DE','DF','DG','DH','DI','DJ','DK','DL','DM','DN','DO','DP','DQ','DR','DS','DT','DU','DV','DW','DX','DY','DZ'];
         
-        $ColumnasTabla= $this->ShowColums($db.".temporal_comprobantesegresoasmet");
         
-        //for ($h=0;$h<$hojas;$h++){
-            $objPHPExcel->setActiveSheetIndex(0);
-            $columnas = $objPHPExcel->setActiveSheetIndex(0)->getHighestColumn();
-            $filas = $objPHPExcel->setActiveSheetIndex(0)->getHighestRow();
+        $objPHPExcel = $objReader->load($RutaArchivo);   
+        $hojas=$objPHPExcel->getSheetCount();
+                  
+        date_default_timezone_set('UTC'); //establecemos la hora local
+        
+        
+        $objPHPExcel->setActiveSheetIndex(0);
+        $columnas = $objPHPExcel->setActiveSheetIndex(0)->getHighestColumn();
+        $filas = $objPHPExcel->setActiveSheetIndex(0)->getHighestRow();
             
-            if($columnas<>'AC'){
-                exit('E1;<h3>No se recibió el archivo de <strong>La Cartera por Edades de la EPS ASMET Mutual, Ultima Columna: '.$columnas.'</strong></h3>');
-            }
-           
-            $sql= "INSERT INTO $db.`temporal_comprobantesegresoasmet` ( ";
-            foreach ($ColumnasTabla["Field"] as $key => $value) {
-                $sql.="`$value`,";
-            }
-            $sql=substr($sql, 0, -1);
+                       
+            $sql= "INSERT INTO $db.`temporal_registro_liquidacion_contratos_items` ( ";
+            
+            $sql.="`ID`,`idContrato`,`DepartamentoRadicacion`,`Radicado`,`MesServicio`,`NumeroFactura`,`ValorFacturado`,`ImpuestosRetencion`,`Devolucion`,`GlosaInicial`,`GlosaFavorEPS`,`NotasCopagos`,`RecuperacionImpuestos`,`OtrosDescuentos`,";
+            $sql.="`ValorPagado`,`Saldo`,`idUser`,`FechaRegistro`";
+            
             $sql.=") VALUES ";
             $r=0;
-            
-           $TipoOperacion="";
-           $NumeroComprobante="";
-           $FechaComprobante="";
-           
-           $EstadoCheque="";
-           $Observacion="";
-           $Descripcion="";
-           $Estado="";
-           $CuentaBancaria="";
-           $Banco="";
-            
+            $Salto=0;
             for ($i=1;$i<=$filas;$i++){
                 $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
                 
                 if($FilaA==''){
                     continue; 
                 }
-                $c=0;  
-                $r++;//Contador de filas a insertar
                 
-                if($FilaA=='Tipo Oper. :'){
-                    
-                    $TipoOperacion=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
-                    $TipoOperacion= str_replace("'", "", $TipoOperacion);
-                    
-                    $NumeroComprobante=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getCalculatedValue();
-                    $NumeroComprobante= str_replace("'", "", $NumeroComprobante);
-                    
-                    
-                    $cell = $objPHPExcel->getActiveSheet()->getCell('G'.$i);
-                    if(\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)){
-                        $FechaComprobante=\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($objPHPExcel->getActiveSheet()->getCell('G'.$i)->getValue());
-                        $FechaComprobante=get_object_vars($FechaComprobante);
-                        $FechaComprobante = $FechaComprobante["date"];
-                        
-                    }else{
-                        $FechaComprobante='';
-                    }
-                    
-                    $EstadoCheque=$objPHPExcel->getActiveSheet()->getCell('X'.$i)->getCalculatedValue();
-                    $EstadoCheque= str_replace("'", "", $EstadoCheque);
-                    
-                    
-                    $Observacion=$objPHPExcel->getActiveSheet()->getCell('Y'.$i)->getCalculatedValue();
-                    $Observacion= str_replace("'", "", $Observacion);
-                    
-                    
-                    $Descripcion=$objPHPExcel->getActiveSheet()->getCell('AA'.$i)->getCalculatedValue();
-                    $Descripcion= str_replace("'", "", $Descripcion);
-                    
-                    
-                    $Estado=$objPHPExcel->getActiveSheet()->getCell('AC'.$i)->getCalculatedValue();
-                    $Estado= str_replace("'", "", $Estado);
-                                   
+                if($FilaA=='DPTO RADICACION' and $Salto==0){
+                    $Salto=1;
                     continue; 
                 }
-                
-                if($FilaA=='Cuenta Bancaria Proveedor'){
-                    
-                    $CuentaBancaria=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
-                    $CuentaBancaria= str_replace("'", "", $CuentaBancaria);
-                    
-                    $Banco=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getCalculatedValue();
-                    $Banco= str_replace("'", "", $Banco);
-                    
-                    continue;
+                if($Salto==0){
+                    continue; 
                 }
-                
-                
-                if($FilaA=='SUBTOTAL'){
-                    $sql.="(";
-                    $sql.="'',";
-                    $sql.="'$TipoOperacion',";
-                    $sql.="'$NumeroComprobante',";
-                    $sql.="'$FechaComprobante',";
-                    $sql.="'$idIPS',";
-                    $sql.="'$EstadoCheque',";
-                    $sql.="'$Observacion',";
-                    $sql.="'$Descripcion',";
-                    $sql.="'$Estado',";     
-                    $sql.="'$CuentaBancaria',";
-                    $sql.="'$Banco',";
-                    $NumeroInterno=$objPHPExcel->getActiveSheet()->getCell('L'.$i)->getCalculatedValue();
-                    $NumeroInterno= str_replace("'", "", $NumeroInterno);
-                    $sql.="'$NumeroInterno',";
-                    
-                    $NumeroFactura=$objPHPExcel->getActiveSheet()->getCell('M'.$i)->getCalculatedValue();
-                    $NumeroFactura= str_replace("'", "", $NumeroFactura);
-                    $sql.="'$NumeroFactura',";
-                    
-                    $TipoOperacion2=$objPHPExcel->getActiveSheet()->getCell('N'.$i)->getCalculatedValue();
-                    $TipoOperacion2= str_replace("'", "", $TipoOperacion2);
-                    $sql.="'$TipoOperacion2',";
-                    
-                    $MesServicio=$objPHPExcel->getActiveSheet()->getCell('O'.$i)->getCalculatedValue();
-                    $MesServicio= str_replace("'", "", $MesServicio);
-                    $sql.="'$MesServicio',";
-                    
-                    $Valor1=$objPHPExcel->getActiveSheet()->getCell('P'.$i)->getCalculatedValue();
-                    $Valor1= str_replace("'", "", $Valor1);
-                    $sql.="'$Valor1',";
-                    
-                    $Valor2=$objPHPExcel->getActiveSheet()->getCell('Q'.$i)->getCalculatedValue();
-                    $Valor2= str_replace("'", "", $Valor2);
-                    $sql.="'$Valor2',";
-                    
-                    $Valor3=$objPHPExcel->getActiveSheet()->getCell('Z'.$i)->getCalculatedValue();
-                    $Valor3= str_replace("'", "", $Valor3);
-                    $sql.="'$Valor3',";
-                    
-                    $sql.="'$Soporte','$idUser','0','$keyArchivo','$FechaActual',''),";
-                    continue;
+                if($FilaA=='TOTAL'){
+                    break;
                 }
+                $c=0;  
+                $r++;//Contador de filas a insertar
+                           
+                $Departamento=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
+                $Departamento= str_replace("'", "", $Departamento);
+
+                $Radicado=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
+                $Radicado= str_replace("'", "", $Radicado);
                 
-                if($r==5000){
+                $MesServicio=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getCalculatedValue();
+                $MesServicio= str_replace("'", "", $MesServicio);
+                
+                $Factura=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getCalculatedValue();
+                $Factura= str_replace("'", "", $Factura);
+                
+                $ValorFactura=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getCalculatedValue();
+                $ValorFactura= str_replace("'", "", $ValorFactura);
+                
+                $ValorRetenciones=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getCalculatedValue();
+                $ValorRetenciones= str_replace("'", "", $ValorRetenciones);
+                
+                $Devoluciones=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getCalculatedValue();
+                $Devoluciones= str_replace("'", "", $Devoluciones);
+                
+                $Glosas=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getCalculatedValue();
+                $Glosas= str_replace("'", "", $Glosas);
+                
+                $GlosaFavor=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getCalculatedValue();
+                $GlosaFavor= str_replace("'", "", $GlosaFavor);
+                
+                $NotasCredito=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getCalculatedValue();
+                $NotasCredito= str_replace("'", "", $NotasCredito);
+                
+                $ImpuestosRecupedos=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getCalculatedValue();
+                $ImpuestosRecupedos= str_replace("'", "", $ImpuestosRecupedos);
+                
+                $OtrosDescuentos=$objPHPExcel->getActiveSheet()->getCell('L'.$i)->getCalculatedValue();
+                $OtrosDescuentos= str_replace("'", "", $OtrosDescuentos);
+                
+                $ValorPagado=$objPHPExcel->getActiveSheet()->getCell('M'.$i)->getCalculatedValue();
+                $ValorPagado= str_replace("'", "", $ValorPagado);
+                
+                $Saldo=$objPHPExcel->getActiveSheet()->getCell('N'.$i)->getCalculatedValue();
+                $Saldo= str_replace("'", "", $Saldo);
+                                
+                $sql.="(";
+                $sql.="'',";
+                $sql.="'$idContrato',";
+                $sql.="'$Departamento',";
+                $sql.="'$Radicado',";
+                $sql.="'$MesServicio',";
+                $sql.="'$Factura',";
+                $sql.="'$ValorFactura',";
+                $sql.="'$ValorRetenciones',";
+                $sql.="'$Devoluciones',";
+                $sql.="'$Glosas',";     
+                $sql.="'$GlosaFavor',";
+                $sql.="'$NotasCredito',";
+                
+                $sql.="'$ImpuestosRecupedos',";
+                $sql.="'$OtrosDescuentos',";
+                $sql.="'$ValorPagado',";
+                $sql.="'$Saldo',";
+                
+                $sql.="'$idUser','$FechaActual'),";
+                       
+                if($r==2345){
                 
                     $sql=substr($sql, 0, -1);
                     //print($sql);
                     $this->Query($sql);
-                    $sql= "INSERT INTO $db.`temporal_comprobantesegresoasmet` ( ";
-                    foreach ($ColumnasTabla["Field"] as $key => $value) {
-                        $sql.="`$value`,";
-                    }
-                    $sql=substr($sql, 0, -1);
+                    $sql= "INSERT INTO $db.`temporal_registro_liquidacion_contratos_items` ( ";
+                    $sql.="`ID`,`idContrato`,`DepartamentoRadicacion`,`Radicado`,`MesServicio`,`NumeroFactura`,`ValorFacturado`,`ImpuestosRetencion`,`Devolucion`,`GlosaInicial`,`GlosaFavorEPS`,`NotasCopagos`,`RecuperacionImpuestos`,`OtrosDescuentos`,";
+                    $sql.="`ValorPagado`,`Saldo`,`idUser`,`FechaRegistro`";
                     
                     $sql.=") VALUES ";
                     $r=0;

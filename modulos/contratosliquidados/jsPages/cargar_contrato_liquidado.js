@@ -71,14 +71,14 @@ function EnviarContrato(){
                 GuardeEncabezado();
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
-                //BorrarTemporales();
+                BorrarTemporales();
                 alertify.alert(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
                 LimpiarDivs();
-                //BorrarTemporales();
+                BorrarTemporales();
                 alertify.alert(data);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
@@ -128,14 +128,14 @@ function GuardeEncabezado(){
            if(respuestas[0]==="OK"){   
                $('.progress-bar').css('width','40%').attr('aria-valuenow', 40);  
                 document.getElementById('LyProgresoUP').innerHTML="40%";
-                var idContrato=respuestas[1];
+                var idContrato=respuestas[2];
                 alertify.success(respuestas[1]);
                 Hora = ObtengaHora();
                 document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+respuestas[1];
                 InserteItemsTemporal(idContrato);
             }else if(respuestas[0]==="E1"){
                 LimpiarDivs();
-                //BorrarTemporales();
+                BorrarTemporales();
                 alertify.alert(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
@@ -144,7 +144,7 @@ function GuardeEncabezado(){
                 LimpiarDivs();
                 var Hora = ObtengaHora();
                 document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+data+" "+Hora;
-                //BorrarTemporales();
+                BorrarTemporales();
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
             }
@@ -152,7 +152,7 @@ function GuardeEncabezado(){
         },
         error: function (xhr, ajaxOptions, thrownError) {
             LimpiarDivs();
-           // BorrarTemporales();
+            BorrarTemporales();
             document.getElementById('BtnSubir').disabled=false;
             document.getElementById('BtnSubir').value="Ejecutar";
             alert(xhr.status);
@@ -162,20 +162,20 @@ function GuardeEncabezado(){
 }
 
 function InserteItemsTemporal(idContrato){
-    document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Iniciando Registros de los items del contrato "+idContrato;
+    document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Iniciando Registros de los items del contrato a la tabla temporal "+idContrato;
     
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
        
     var form_data = new FormData();
-        form_data.append('Accion', 5);
-        form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
+        form_data.append('Accion', 4);
+        form_data.append('idContrato', idContrato);
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
          
     $.ajax({
         //async:false,
-        url: './procesadores/cargar_egresos.process.php',
+        url: './procesadores/cargar_contrato_liquidado.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -185,24 +185,23 @@ function InserteItemsTemporal(idContrato){
         success: function(data){
             var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){ 
-               LimpiarDivs();
-               $('.progress-bar').css('width','100%').attr('aria-valuenow', 100);  
-                document.getElementById('LyProgresoUP').innerHTML="100%";
-                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Proceso Terminado";
+              
+               $('.progress-bar').css('width','70%').attr('aria-valuenow', 70);  
+                document.getElementById('LyProgresoUP').innerHTML="70%";
+                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Iniciando carga de Items del Contrato";
                 alertify.success(respuestas[1]);
-                document.getElementById('BtnSubir').disabled=false;
-                document.getElementById('BtnSubir').value="Ejecutar";
+                InserteItemsContrato(idContrato);
                 
             }else if(respuestas[0]==="E1"){
                 BorrarTemporales();
-                LimpiarDivs();
+                document.getElementById("DivProcess").innerHTML='';
                 document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+respuestas[1];
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
                 return;                
             }else{
                 BorrarTemporales();
-                LimpiarDivs();
+                document.getElementById("DivProcess").innerHTML='';
                 document.getElementById('DivMensajes').innerHTML=data;
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
@@ -220,23 +219,73 @@ function InserteItemsTemporal(idContrato){
       })
 }
 
+function InserteItemsContrato(idContrato){
+    document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Iniciando Registros de los items del contrato ";
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+       
+    var form_data = new FormData();
+        form_data.append('Accion', 5);        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('idContrato', idContrato);
+         
+    $.ajax({
+        //async:false,
+        url: './procesadores/cargar_contrato_liquidado.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){ 
+                document.getElementById("DivProcess").innerHTML='';
+                $('.progress-bar').css('width','100%').attr('aria-valuenow', 100);  
+                document.getElementById('LyProgresoUP').innerHTML="100%";
+                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>Proceso Finalizado";
+                alertify.success(respuestas[1]);
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+                
+            }else if(respuestas[0]==="E1"){
+                BorrarTemporales();
+                document.getElementById("DivProcess").innerHTML='';
+                document.getElementById('DivMensajes').innerHTML=document.getElementById('DivMensajes').innerHTML+"<br>"+respuestas[1];
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+                return;                
+            }else{
+                BorrarTemporales();
+                document.getElementById("DivProcess").innerHTML='';
+                document.getElementById('DivMensajes').innerHTML=data;
+                document.getElementById('BtnSubir').disabled=false;
+                document.getElementById('BtnSubir').value="Ejecutar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            BorrarTemporales();
+            document.getElementById("DivProcess").innerHTML='';
+            document.getElementById('BtnSubir').disabled=false;
+            document.getElementById('BtnSubir').value="Ejecutar";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
 
 function BorrarTemporales(){
     
-    var FechaCorteCartera=document.getElementById('FechaCorteCartera').value;
+   
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
     
-    if($('#FechaCorteCartera').val()==null || $('#FechaCorteCartera').val()==''){
-          alertify.alert("por favor seleccione una fecha");   
-          document.getElementById('BtnSubir').disabled=false;
-          document.getElementById('BtnSubir').value="Ejecutar";
-          document.getElementById('FechaCorteCartera').style.backgroundColor="pink";
-          return;
-    }else{
-        document.getElementById('FechaCorteCartera').style.backgroundColor="white";
-    }
-        
+            
     var form_data = new FormData();
         form_data.append('Accion', 6);
         form_data.append('FechaCorteCartera', $('#FechaCorteCartera').val());
@@ -245,7 +294,7 @@ function BorrarTemporales(){
          
     $.ajax({
         //async:false,
-        url: './procesadores/cargar_egresos.process.php',
+        url: './procesadores/cargar_contrato_liquidado.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -258,23 +307,26 @@ function BorrarTemporales(){
                 alertify.error(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
-                //InserteRegistrosNuevos();
+                document.getElementById("DivProcess").innerHTML='';
             }else if(respuestas[0]==="E1"){
                 alertify.alert(respuestas[1]);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
+                document.getElementById("DivProcess").innerHTML='';
                 return;                
             }else{
                 
                 alertify.alert(data);
                 document.getElementById('BtnSubir').disabled=false;
                 document.getElementById('BtnSubir').value="Ejecutar";
+                document.getElementById("DivProcess").innerHTML='';
             }
             
         },
         error: function (xhr, ajaxOptions, thrownError) {
             document.getElementById('BtnSubir').disabled=false;
             document.getElementById('BtnSubir').value="Ejecutar";
+            document.getElementById("DivProcess").innerHTML='';
             alert(xhr.status);
             alert(thrownError);
           }
