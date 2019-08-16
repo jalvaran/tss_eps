@@ -190,7 +190,7 @@ class html_estruct_class {
      */
     function div($id,$class,$vectorhtml,$role,$ng_angular,$Script,$style){
         
-         print('<div id="'.$id.'" class="'.$class.'"  role="'.$role.'" '.$ng_angular.'  '.$Script.' '.$style.' >');
+         print('<div id="'.$id.'" class="'.$class.'"  role="'.$role.'" '.$ng_angular.'  '.$Script.' style="'.$style.'" >');
         
     }
     
@@ -516,9 +516,9 @@ class html_estruct_class {
      * @param type $placeholder ->atr. placeholder del elemento texarea
      * @param type $vectorhtml ->vector por si se desea meter mas atributos al elemento(se debe definir antes de ulitlizarlo y en la clase definir el uso para tal atributo)
      */
-    function textarea($id,$class,$name,$title,$placeholder,$vectorhtml,$Script){
+    function textarea($id,$class,$name,$title,$placeholder,$vectorhtml,$Script,$style=''){
         
-        print('<textarea id="'.$id.'" class="'.$class.'" name="'.$name.'" title="'.$title.'" placeholder="'.$placeholder.'" '.$Script.' >');
+        print('<textarea id="'.$id.'" class="'.$class.'" name="'.$name.'" title="'.$title.'" placeholder="'.$placeholder.'" '.$Script.' '.$style.'>');
     }
     
     /**
@@ -1031,9 +1031,9 @@ class html_estruct_class {
      * @param type $alt ->atr. alt del elemento img  
      * @param type $vectorhtml ->vector por si se desea meter mas atributos al elemento(se debe definir antes de ulitlizarlo y en la clase definir el uso para tal atributo)
      */
-    function img($id,$class,$src,$alt,$vectorhtml,$Script){
+    function img($id,$class,$src,$alt,$vectorhtml,$Script,$style=''){
         
-        print('<img id="'.$id.'" class="'.$class.'" src="'.$src.'" alt="'.$alt.'" '.$Script.' >');
+        print('<img id="'.$id.'" class="'.$class.'" src="'.$src.'" alt="'.$alt.'" '.$Script.' '.$style.'>');
     }
     
     /**

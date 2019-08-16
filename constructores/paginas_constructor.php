@@ -718,6 +718,7 @@ class PageConstruct extends html_estruct_class{
         print('<script src="../../componentes/select2/dist/js/select2.full.min.js"></script>');
         print('<script src="../../general/js/tablas.js"></script>');  //script genrral de la pagina
         print('<script src="../../general/js/formularios.js"></script>');  //script genrral de la pagina
+        print('<script src="../../componentes/techno/js/number_format.js"></script>');
         //print('<script type="text/javascript" src="../ext/jquery/jquery-1.11.0.min.js"></script>');
         
     }
@@ -1952,6 +1953,34 @@ class PageConstruct extends html_estruct_class{
             }
             
             print('<i class="'.$iconClass.' "></i> '.$Titulo.' </a>');
+        }
+        
+        public function CrearTitulo($Mensaje,$color='azul') {
+            
+            if($color=="azul"){
+                $tipo="info";
+            }
+            if($color=="rojo"){
+                $tipo="danger";
+            }
+            if($color=="naranja"){
+                $tipo="warning";
+            }
+            if($color=="verde"){
+                $tipo="success";
+            }
+            print('<div class="box box-'.$tipo.'">
+            <div class="box-header with-border">
+              <h3 class="box-title">'.$Mensaje.'</h3>             
+            </div>
+            
+          </div>');
+            //print('<div class="callout callout-info">'.$Mensaje.'</div>');
+        }
+        
+        
+        public function AddJSPDF(){
+            print('<script src="../../componentes/jspdf/jspdf.min.js"></script>');
         }
         
         //////////////////////////////////FIN

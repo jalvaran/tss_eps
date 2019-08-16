@@ -465,5 +465,59 @@ class ValidacionesEPS extends conexion{
         return($idActa);
     }
     
+    public function AgregarCompromisoActaConciliacion($idActaConciliacion,$TxtCompromisoNuevo,$Responsable,$idUser) {
+        $FechaRegistro=date("Y-m-d H:i:s");
+        
+        $Datos["idActaConciliacion"]=$idActaConciliacion;
+        $Datos["ResultadoCompromiso"]=$TxtCompromisoNuevo;
+        $Datos["Responsable"]=$Responsable;
+        $Datos["idUser"]=$idUser;
+        $Datos["FechaRegistro"]=$FechaRegistro;
+        
+        $sql=$this->getSQLInsert("actas_conciliaciones_resultados_compromisos", $Datos);
+        $this->Query($sql);
+        
+    }
+    
+        
+    public function CalculeDiferenciasProceso1($db) {
+        
+        $sql="SELECT SUM(DiferenciaXPagos) as DiferenciaXPagos,
+                     SUM(DiferenciaXAnticipos) as DiferenciaXAnticipos,
+                     SUM(DiferenciaXCopagos) as DiferenciaXCopagos,
+                     SUM(DiferenciaXDescuentoPGP) as DiferenciaXDescuentoPGP,
+                     SUM(DiferenciaXOtrosDescuentos) as DiferenciaXOtrosDescuentos,
+                     SUM(DiferenciaXAjustesCartera) as DiferenciaXAjustesCartera,
+                     SUM(DiferenciaXGlosaFavorEPS) as DiferenciaXGlosaFavorEPS,
+                     SUM(DiferenciaXGlosaContraEPS) as DiferenciaXGlosaContraEPS,
+                     SUM(DiferenciaXDevoluciones) as DiferenciaXDevoluciones,
+                     SUM(DiferenciaXImpuestos) as DiferenciaXImpuestos,
+                     SUM(DiferenciaVariada) as DiferenciaVariada,        
+                     SUM(DiferenciaXGlosaXConciliar) AS DiferenciaXGlosaXConciliar,
+                     SUM(DiferenciaXValorFacturado) AS DiferenciaXValorFacturado
+                 FROM $db.vista_cruce_totales_actas_conciliaciones";
+        
+        $DatosTotales=$this->FetchAssoc($this->Query($sql));
+        $TotalPendientesRadicados= $this->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
+        $FacturasNoRelacionadasXIPS= $this->SumeColumna("$db.vista_cruce_cartera_asmet", "ValorSegunEPS", "NoRelacionada", 1);
+        $TotalFacturasSinRelacionsrXIPS= $this->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
+        $DetalleDiferencias["DiferenciaXPagos"]=$DatosTotales["DiferenciaXPagos"]+$DatosTotales["DiferenciaXAnticipos"];
+        $DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=$TotalFacturasSinRelacionsrXIPS;        
+        $DetalleDiferencias["GlosasPendientesXConciliar"]=$DatosTotales["DiferenciaXGlosaXConciliar"];
+        $DetalleDiferencias["FacturasDevueltas"]=$DatosTotales["DiferenciaXDevoluciones"];
+        $DetalleDiferencias["DiferenciaXImpuestos"]=$DatosTotales["DiferenciaXImpuestos"];
+        $DetalleDiferencias["DescuentoXRetefuente"]=0;
+        $DetalleDiferencias["FacturasNoRelacionadasXIPS"]=$FacturasNoRelacionadasXIPS;
+        $DetalleDiferencias["RetencionesImpuestosNoProcedentes"]=0;
+        $DetalleDiferencias["AjustesDeCartera"]=$DatosTotales["DiferenciaXCopagos"]+$DatosTotales["DiferenciaXOtrosDescuentos"]+$DatosTotales["DiferenciaXAjustesCartera"];
+        $DetalleDiferencias["DiferenciaXValorFacturado"]=$DatosTotales["DiferenciaXValorFacturado"];
+        $DetalleDiferencias["DiferenciaXUPC"]=0;        
+        $DetalleDiferencias["GlosasPendientesXDescargarIPS"]=$DatosTotales["DiferenciaXDescuentoPGP"]+$DatosTotales["DiferenciaXGlosaFavorEPS"];
+        $DetalleDiferencias["AnticiposPendientesXCruzar"]=0;
+        $DetalleDiferencias["DescuentosLMA"]=0;
+        $DetalleDiferencias["PendientesAuditoria"]=$TotalPendientesRadicados;
+        return($DetalleDiferencias);
+    }
+    
     //Fin Clases
 }

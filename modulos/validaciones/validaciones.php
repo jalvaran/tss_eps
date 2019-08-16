@@ -171,9 +171,16 @@ $css->PageInit($myTitulo);
         
         $css->TabPaneInit("Tab_8", 1);
             
-            $css->CrearDiv("DivOpcionesActasConciliacion", "col-md-3", "left", 0, 1);
-                 $css->CrearBotonEvento("BntNuevaActaConciliacion", "Nueva Acta", 1, "onclick", "AbreModalNuevaActaConciliacion()", "verde", "");
+            $css->CrearDiv("DivOpcionesActasConciliacion", "col-md-12", "left", 0, 1);
+                $css->CrearDiv("", "col-md-3", "", 1, 1);                
+                    $css->CrearBotonEvento("BntNuevaActaConciliacion", "Nueva Acta", 1, "onclick", "AbreModalNuevaActaConciliacion()", "verde", "");
+                $css->Cdiv();
+                $css->CrearDiv("DivSelectActas", "col-md-3", "", 1, 1); 
+                    
+                $css->Cdiv();
             $css->Cdiv();
+            
+            print("<br><br><br><br>");
                            
             $css->CrearDiv("DivTab8", "", "center", 1, 1);
                  
@@ -197,6 +204,7 @@ $css->PageInit($myTitulo);
 $css->PageFin();
 print('<script src="jsPages/validaciones.js"></script>');  //script propio de la pagina
 $css->AddJSExcel();
+
 $css->Cbody();
 $css->Chtml();
 

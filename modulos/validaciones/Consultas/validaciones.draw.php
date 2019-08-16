@@ -2880,6 +2880,392 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
             
         break; //Fin caso 26
+        
+        case 27://Dibuja el selector para las actas
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $css->select("idActaConciliacion", "form-control", "idActaConciliacion", "", "", "onchange=MostrarActa()", "");
+                $css->option("", "", "", "", "", "");
+                    print("Seleccione un Acta de Conciliación");
+                $css->Coption();
+                $sql="SELECT * FROM actas_conciliaciones WHERE Estado='0' AND NIT_IPS='$CmbIPS'";
+                $Consulta=$obCon->Query($sql);
+                while($DatosActas=$obCon->FetchAssoc($Consulta)){
+                    $css->option("", "", "", $DatosActas["ID"], "", "");
+                        print($DatosActas["ID"]." ".$DatosActas["FechaCorte"]." ".$DatosActas["RazonSocialIPS"]." ".$DatosActas["NIT_IPS"]);
+                    $css->Coption();
+                }
+            $css->Cselect();
+        break;//fin caso 27
+        
+        case 28://Dibuja el selector para las actas
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            
+            if($idActaConciliacion==''){
+                $css->CrearTitulo("Por favor Seleccione un Acta", "rojo");
+                exit();
+            }
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $TotalPendientesRadicados=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
+            $TotalFacturasSinRelacionsrXIPS= $obCon->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
+            $sql="SELECT SUM(ValorSegunEPS) AS TotalEPS,SUM(ValorSegunIPS) AS TotalIPS FROM $db.`vista_cruce_cartera_asmet` ";
+            $TotalesCruce=$obCon->FetchAssoc($obCon->Query($sql));
+            $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados;
+            $ValorSegunIPS=$TotalesCruce["TotalIPS"]-$TotalFacturasSinRelacionsrXIPS;
+            $Diferencia=$ValorSegunEPS-$ValorSegunIPS;
+            //$DetalleDiferencias=$obCon->CalculeDiferenciasProceso1($db);
+            
+            $DatosActa=$obCon->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
+            $css->CrearTitulo("<strong>Acta de Conciliación No. $idActaConciliacion, IPS: $DatosActa[RazonSocialIPS], con Fecha de Corte $DatosActa[FechaCorte]. </strong>", "azul");
+            $css->CrearTabla("TablaActaConciliacion");
+                print("<tr style=font-size:18px;border-top-style:double;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td>");
+                        $css->img("", "", "../../LogosEmpresas/logoAsmet.png", "Sin Imagen", "", "","style=height:80px;width:400px;");
+                    print("</td>");
+                    print("<td >");
+                        print("<strong>ACTA DE CONCILIACIÓN</strong>");
+                    print("</td>");
+                    print("<td>");
+                        $css->img("", "", "../../LogosEmpresas/logoAGS.png", "Sin Imagen", "", "","style=height:100px;width:200px;");
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:18px;border-top-style:double;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td>");
+                        print("<strong>Proveedor:</strong>");
+                    print("</td>");
+                    print("<td>");
+                        print(utf8_decode($DatosActa["RazonSocialIPS"]));
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td>");
+                        print("<strong>Representante:</strong>");
+                    print("</td>");
+                    print("<td>");
+                        $css->input("text", "TxtRepresentanteActaConciliacion", "form-control", "TxtRepresentanteActaConciliacion", "", ($DatosActa["RepresentanteLegal"]), "Representante IPS", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TxtRepresentanteActaConciliacion`,`RepresentanteLegal`)");
+                        
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td>");
+                        print("<strong>NIT:</strong>");
+                    print("</td>");
+                    print("<td>");
+                        print(utf8_decode($DatosActa["NIT_IPS"]));
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td>");
+                        print("<strong>Departamento:</strong>");
+                    print("</td>");
+                    print("<td>");
+                        print(utf8_decode($DatosActa["Departamento"]));
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td>");
+                        print("<strong>Encargado ASMET SALUD:</strong>");
+                    print("</td>");
+                    print("<td>");
+                        
+                        $css->input("text", "TxtEncargadoEPS", "form-control", "TxtEncargadoEPS", "", ($DatosActa["EncargadoEPS"]), "Encargado EPS", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TxtEncargadoEPS`,`EncargadoEPS`)");
+                    
+                        //print(utf8_decode($DatosActa["EncargadoEPS"]));
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr style=font-size:18px;border-left-style:double;border-bottom-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td>");
+                        print("<strong>Mes de Corte:</strong>");
+                    print("</td>");
+                    print("<td>");
+                        $css->input("date", "TxtFechaCorteConciliacion", "form-control", "TxtFechaCorteConciliacion", "", ($DatosActa["FechaCorte"]), "Encargado EPS", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TxtFechaCorteConciliacion`,`FechaCorte`)","style='line-height: 15px;'"."max=".date("Y-m-d"));
+                    
+                        //print(utf8_decode($DatosActa["FechaCorte"]));
+                    print("</td>");
+                print("</tr>");
+                print("<tr>");
+                    print("<td colspan=3>");
+                    print("</td>");
+                print("</tr>");
+                print("<tr>");
+                    print("<td colspan=2>");
+                        print("<strong>Total Cuenta por pagar ASMET SALUD al corte:</strong>");
+                    print("</td>");
+                    print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
+                        
+                        $css->input("hidden", "ACValorSegunEPS", "form-control", "ACValorSegunEPS", "", ($ValorSegunEPS), "Valor EPS", "off", "", "");
+                        print("<span id='spValorSegunEPS'>".number_format($ValorSegunEPS)."</span>");
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr>");
+                    print("<td colspan=2>");
+                        print("<strong>Total Cuenta por Pagar del proveedor  al corte:</strong>");
+                    print("</td>");
+                    print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
+                        $css->input("hidden", "ACValorSegunIPS", "form-control", "ACValorSegunIPS", "", ($ValorSegunIPS), "Valor IPS", "off", "", "");
+                        print("<span id='spValorSegunIPS'>".number_format($ValorSegunIPS)."</span>");
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr>");
+                    print("<td colspan=2>");
+                        print("<strong>Diferencia por conciliar:</strong>");
+                    print("</td>");
+                    print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
+                        $css->input("hidden", "ACDiferencia", "form-control", "ACDiferencia", "", ($Diferencia), "Diferencia", "off", "", "");
+                        print("<span id='spACDiferencia'>".number_format($Diferencia)."</span>");
+                    print("</td>");
+                print("</tr>");
+                print("<tr>");
+                    print("<td colspan=2>");
+                    
+                    print("</td>");
+                    print("<td >");
+                        $css->CrearBotonEvento("BtnCalculosActaConciliaciones", "Calcular Diferencias", 1, "onclick", "CalcularDiferenciasActaConciliacion()", "azul", "");
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr>");
+                    print("<td colspan=3>");
+                        $css->CrearDiv("DivMensajesActaConciliacion", "", "center", 1, 1);
+                        $css->CerrarDiv();
+                    print("</td>");
+                    
+                print("</tr>");
+                
+                print("<tr style=font-size:16px;border-top-style:double;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    
+                    print("<td colspan=3 style='text-align:center'>");
+                        print("<strong>DETALLE DIFERENCIAS</strong>");
+                    print("</td>");
+                    
+                print("</tr>");
+                
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=3 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                    
+                print("</tr>");
+                
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("1. Facturas canceladas por ASMET SALUD no descargadas por el proveedor");
+                        
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        $css->input("text", "TxtACDiferenciaXPagos", "", "TxtACDiferenciaXPagos", "", "", "", "off", "", "onchange=EscribaSpan(`TxtACDiferenciaXPagos`,`spACDiferenciaXPagos`)");
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("2. Relación de facturas no registradas por ASMET SALUD");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("3. Glosas pendientes de conciliar");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("4. Facturas Devueltas");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("5. Impuestos no aplicados por la IPS");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("6. Descuentos financieros no merecidos en proceso de recobro RETEFUENTE ");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("7. Facturas registradas en ASMET SALUD que no estan en el listado del Proveedor");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("8. Retenciones de impuestos no procedentes (retefuente, ica, timbres)");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("9. Ajustes de Cartera en proceso (Notas credito IPS)");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("10. Facturas con diferencia en el Valor facturado");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("11. Facturas presentadas por reajuste de UPC");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("12. Glosas conciliadas pendientes de descargar por el proveedor");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("13. Anticipos pendientes de cruzar con facturas del proveedor");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("14. Descuentos y/o reconocimientos según LMA");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("15. Facturas pendientes de auditoría");
+                    print("</td>");
+                    print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=3 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("<strong>TOTAL DIFERENCIAS</strong>");
+                    print("</td>");
+                    print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=3 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr style=font-size:16px;border-bottom-style:double;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
+                        print("<strong>SALDO CONCILIADO PARA PAGO</strong>");
+                    print("</td>");
+                    print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
+                        
+                    print("</td>");
+                print("</tr>");
+                
+                print("</tr>");
+                print("<tr >");
+                    print("<td>");
+                        
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr>");
+                    print("<td colspan=3 style=font-size:16px;>");
+                        print("<span style='text-decoration: underline;cursor:pointer;'><strong >RESULTADOS Y COMPROMISOS:</strong></span>");
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr>");
+                    print("<td colspan=3 style=font-size:16px;>");
+                        $NombreCaja="TxtCompromisoNuevo";  
+                        $css->textarea($NombreCaja, "form-control", $NombreCaja, "", "+", "+", "onchange=AgregueCompromiso()","style='overflow: hidden;'");
+                            
+                        $css->Ctextarea();
+                        //$css->input("text", "TxtCompromisoNuevo", "form-control", "TxtCompromisoNuevo", "", "", "+", "off", "", "onchange=AgregueCompromiso()", "");
+                        $css->div("DivCompromisosActaConciliacion", "", "", "", "", "", "");
+                            $Consulta=$obCon->ConsultarTabla("actas_conciliaciones_resultados_compromisos", "WHERE idActaConciliacion='$idActaConciliacion'");
+                            while($DatosCompromisos=$obCon->FetchAssoc($Consulta)){
+                                $idCompromiso=$DatosCompromisos["ID"];
+                                $NombreCaja="TxtCompromiso_".$idCompromiso;  
+                                $css->textarea($NombreCaja, "form-control", $NombreCaja, "", "", "", "onchange=EditeCompromiso($idCompromiso)","style='overflow: hidden;'");
+                                    print($DatosCompromisos["ResultadoCompromiso"]);
+                                $css->Ctextarea();
+                                //$css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosCompromisos["ResultadoCompromiso"], "", "off", "", "onchange=EditeCompromiso($idCompromiso)", "", "style='height: auto;'");
+                                    
+                            }
+                        $css->Cdiv();
+                    print("</td>");
+                print("</tr>");
+                
+                
+            $css->CerrarTabla();
+            
+        break;//fin caso 28
+        
+        case 29://Dibuja los compromisos de un acta de conciliacion
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            
+            if($idActaConciliacion==''){
+                $css->CrearTitulo("Por favor Seleccione un Acta", "rojo");
+                exit();
+            }
+            
+            $Consulta=$obCon->ConsultarTabla("actas_conciliaciones_resultados_compromisos", "WHERE idActaConciliacion='$idActaConciliacion'");
+            
+            while($DatosCompromisos=$obCon->FetchAssoc($Consulta)){
+                $idCompromiso=$DatosCompromisos["ID"];
+                $NombreCaja="TxtCompromiso_".$idCompromiso; 
+                $css->textarea($NombreCaja, "form-control", $NombreCaja, "", "", "", "onchange=EditeCompromiso($idCompromiso)");
+                    print($DatosCompromisos["ResultadoCompromiso"]);
+                $css->Ctextarea();
+                //$css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosCompromisos["ResultadoCompromiso"], "", "off", "", "onchange=EditeCompromiso($idCompromiso)","", "style='height: auto;'");
+                
+            }  
+            
+        break;// fin caso 29    
+        
     }
     
     

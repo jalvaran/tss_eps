@@ -5,6 +5,12 @@
  * 
  */
 
+function ObtenerHora(){
+    var f=new Date();
+    var HoraActual=f.getHours()+":"+f.getMinutes()+":"+f.getSeconds();
+    return(HoraActual);
+} 
+
 /**
  * Cierra una ventana modal
  * @param {type} idModal
@@ -1596,7 +1602,7 @@ function CopiaFacturasSFNR(){
 function ActasConciliaciones(){
     
     MuestraXID('DivOpcionesActasConciliacion');
-    
+    DibujeSelectorActas();
 }
 
 
@@ -1756,6 +1762,7 @@ function CrearActaConciliacion(){
                 document.getElementById('BtnGuardarActa').disabled=false;
                 document.getElementById('BtnGuardarActa').value="Crear Acta";
                 CierraModal("ModalAcciones");
+                DibujeSelectorActas();
             }else if(respuestas[0]==="E1"){
                 
                 alertify.alert(respuestas[1]);
@@ -1779,6 +1786,358 @@ function CrearActaConciliacion(){
             alert(thrownError);
           }
       })
+}
+
+function DibujeSelectorActas(){
+    
+   
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 27);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivSelectActas').innerHTML=data;
+           $('#idActaConciliacion').select2();
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+
+function MostrarActa(){
+    
+    document.getElementById("DivTab8").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 28);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivTab8').innerHTML=data;
+           
+           setTextareaHeight($('textarea'));
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+function AgregueCompromiso(){
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var TxtCompromisoNuevo=document.getElementById('TxtCompromisoNuevo').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 15);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        form_data.append('TxtCompromisoNuevo', TxtCompromisoNuevo);  
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]);                
+                DibujeCompromisosActaConciliacion(idActaConciliacion);
+                document.getElementById('TxtCompromisoNuevo').value='';
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function EditeCompromiso(idCompromiso){
+    var idCajaCompromiso = "TxtCompromiso_"+idCompromiso;
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var TxtCompromisoEditado = document.getElementById(idCajaCompromiso).value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 16);
+        form_data.append('idCompromiso', idCompromiso);
+        form_data.append('TxtCompromisoEditado', TxtCompromisoEditado);  
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]);                
+                DibujeCompromisosActaConciliacion(idActaConciliacion);
+                document.getElementById('TxtCompromisoNuevo').value='';
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function DibujeCompromisosActaConciliacion(idActaCompromiso){
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 29);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            console.log("Entra");
+            document.getElementById('DivCompromisosActaConciliacion').innerHTML=data;
+            setTextareaHeight($('textarea'));
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+
+function setTextareaHeight(textareas) {
+    textareas.each(function () {
+        var textarea = $(this);
+ 
+        if ( !textarea.hasClass('autoHeightDone') ) {
+            textarea.addClass('autoHeightDone');
+ 
+            var extraHeight = parseInt(textarea.css('padding-top')) + parseInt(textarea.css('padding-bottom')), // to set total height - padding size
+                h = textarea[0].scrollHeight - extraHeight;
+ 
+            // init height
+            textarea.height('auto').height(h);
+ 
+            textarea.bind('keyup', function() {
+ 
+                textarea.removeAttr('style'); // no funciona el height auto
+ 
+                h = textarea.get(0).scrollHeight - extraHeight;
+ 
+                textarea.height(h+'px'); // set new height
+            });
+        }
+    })
+}
+
+
+function EditeActaConciliacion(idActaConciliacion,idCampoTexto,CampoAEditar){
+    
+    var NuevoValor = document.getElementById(idCampoTexto).value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 17);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        form_data.append('NuevoValor', NuevoValor); 
+        form_data.append('idCampoTexto', idCampoTexto); 
+        form_data.append('CampoAEditar', CampoAEditar); 
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]);                
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function CalcularDiferenciasActaConciliacion(){
+    var HoraActual=ObtenerHora();
+    var DivMensajes = document.getElementById('DivMensajesActaConciliacion');
+    DivMensajes.innerHTML="<strong>("+HoraActual+") Iniciando los calculos para obtener las diferencias...</strong>";
+    DivMensajes.innerHTML=DivMensajes.innerHTML+'<br><div id="GifProcess"><img src="../../images/process.gif" alt="Cargando" height="100" width="100"></div>';
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    var ValorSegunEPS=document.getElementById('ACValorSegunEPS').value;
+    var ValorSegunIPS=document.getElementById('ACValorSegunIPS').value;
+    var Diferencia=document.getElementById('ACDiferencia').value;
+    var form_data = new FormData();
+        form_data.append('Accion', 18);
+        form_data.append('idActaConciliacion', idActaConciliacion);        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('ValorSegunEPS', ValorSegunEPS);
+        form_data.append('ValorSegunIPS', ValorSegunIPS);
+        form_data.append('Diferencia', Diferencia);
+        
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                var HoraActual=ObtenerHora();
+                DivMensajes.innerHTML=DivMensajes.innerHTML+"<br><strong>("+HoraActual+") 1 de 3 procesos terminado...</strong>";
+                var DetalleDiferencias= JSON.parse(respuestas[2]);
+                
+                console.log(DetalleDiferencias);
+                alertify.success(respuestas[1]);                
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function EscribaSpan(idOrigen,idDestino){
+    var Valor=document.getElementById(idOrigen).value;
+    var Numero = number_format(Valor);
+    document.getElementById(idDestino).value=Numero;
 }
 
 document.getElementById('TabCuentas1').click();

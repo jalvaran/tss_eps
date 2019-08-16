@@ -558,6 +558,88 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;Acta $idActa Creada Correctamente;$idActa");
         break;//Fin caso 14  
         
+        case 15://Agregar Compromiso a Acta
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $TxtCompromisoNuevo=$obCon->normalizar($_REQUEST["TxtCompromisoNuevo"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            if($idActaConciliacion==''){
+                exit("E1;Se debe seleccionar un Acta de conciliación;idActaConciliacion");
+                
+            }
+            if($TxtCompromisoNuevo==''){
+                exit("E1;El campo de Compromiso no puede estar vacío;TxtCompromisoNuevo");
+                
+            }
+                        
+            $obCon->AgregarCompromisoActaConciliacion($idActaConciliacion, $TxtCompromisoNuevo, "", $idUser);
+            
+            print("OK;Compromiso o Resultado Agregado");
+        break;//Fin caso 15
+        
+        case 16://Agregar Compromiso a Acta
+            $idCompromiso=$obCon->normalizar($_REQUEST["idCompromiso"]);
+            $idCajaEdicion="TxtCompromiso_".$idCompromiso;
+            $TxtCompromisoEditado=$obCon->normalizar($_REQUEST["TxtCompromisoEditado"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            if($idCompromiso==''){
+                exit("E1;No se recibió un compromiso a editar");
+                
+            }
+            if($TxtCompromisoEditado==''){
+                exit("E1;la caja de texto no puede estar vacía;$idCajaEdicion");
+                
+            }
+                        
+            $obCon->ActualizaRegistro("actas_conciliaciones_resultados_compromisos", "ResultadoCompromiso", $TxtCompromisoEditado, "ID", $idCompromiso, 0);
+            print("OK;Compromiso o Resultado Editado");
+        break;//Fin caso 16
+        
+        case 17://Editar el campo de un acta
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $idCampoTexto=$obCon->normalizar($_REQUEST["idCampoTexto"]);
+            $NuevoValor=$obCon->normalizar($_REQUEST["NuevoValor"]);
+            $CampoAEditar=$obCon->normalizar($_REQUEST["CampoAEditar"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+                        
+            if($idActaConciliacion==''){
+                exit("E1;No se recibió el id del Acta a Editar");
+                
+            }
+            if($NuevoValor==''){
+                exit("E1;la caja de texto no puede estar vacía;$idCampoTexto");
+                
+            }
+                        
+            $obCon->ActualizaRegistro("actas_conciliaciones", $CampoAEditar, $NuevoValor, "ID", $idActaConciliacion, 0);
+            print("OK;Campo $CampoAEditar del Acta de conciliación Editado");
+        break;//Fin caso 17
+        
+        case 18://Obtenga Valores Completos de la diferencia en las columnas
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+                        
+            if($idActaConciliacion==''){
+                exit("E1;No se recibió el id del Acta a Editar");
+                
+            }
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $DetalleDiferencias=$obCon->CalculeDiferenciasProceso1($db);
+            $CamposDiferencias= json_encode($DetalleDiferencias, JSON_FORCE_OBJECT);
+            print("OK;Proceso 1 terminado;$CamposDiferencias");
+        break;//Fin caso 18
+        
     }
     
     
