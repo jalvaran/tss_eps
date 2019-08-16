@@ -3019,7 +3019,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
                         $css->input("hidden", "ACDiferencia", "form-control", "ACDiferencia", "", ($Diferencia), "Diferencia", "off", "", "");
-                        print("<span id='spACDiferencia'>".number_format($Diferencia)."</span>");
+                        print("<span id='spACDiferencia'>".number_format(abs($Diferencia))."</span>");
                     print("</td>");
                 print("</tr>");
                 print("<tr>");
@@ -3053,14 +3053,16 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     
                 print("</tr>");
-                
+                $TipoCaja="hidden";
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
                     print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
                         print("1. Facturas canceladas por ASMET SALUD no descargadas por el proveedor");
                         
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        $css->input("text", "TxtACDiferenciaXPagos", "", "TxtACDiferenciaXPagos", "", "", "", "off", "", "onchange=EscribaSpan(`TxtACDiferenciaXPagos`,`spACDiferenciaXPagos`)");
+                        $css->input("$TipoCaja", "TxtACDiferenciaXPagos", "", "TxtACDiferenciaXPagos", "", "", "", "off", "", "");
+                        $css->span("spACDiferenciaXPagos", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3068,7 +3070,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("2. Relación de facturas no registradas por ASMET SALUD");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACFacturasIPSNoRelacionadasEPS", "", "TxtACFacturasIPSNoRelacionadasEPS", "", "", "", "off", "", "");
+                        $css->span("spACFacturasIPSNoRelacionadasEPS", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3076,7 +3080,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("3. Glosas pendientes de conciliar");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACGlosasPendientesXConciliar", "", "TxtACGlosasPendientesXConciliar", "", "", "", "off", "", "");
+                        $css->span("spACGlosasPendientesXConciliar", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3084,7 +3090,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("4. Facturas Devueltas");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACFacturasDevueltas", "", "TxtACFacturasDevueltas", "", "", "", "off", "", "");
+                        $css->span("spACFacturasDevueltas", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3092,7 +3100,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("5. Impuestos no aplicados por la IPS");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACDiferenciaXImpuestos", "", "TxtACDiferenciaXImpuestos", "", "", "", "off", "", "");
+                        $css->span("spACDiferenciaXImpuestos", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3100,7 +3110,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("6. Descuentos financieros no merecidos en proceso de recobro RETEFUENTE ");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACDescuentoXRetefuente", "", "TxtACDescuentoXRetefuente", "", "", "", "off", "", "");
+                        $css->span("spACDescuentoXRetefuente", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3108,7 +3120,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("7. Facturas registradas en ASMET SALUD que no estan en el listado del Proveedor");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACFacturasNoRelacionadasXIPS", "", "TxtACFacturasNoRelacionadasXIPS", "", "", "", "off", "", "");
+                        $css->span("spACFacturasNoRelacionadasXIPS", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3116,7 +3130,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("8. Retenciones de impuestos no procedentes (retefuente, ica, timbres)");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACRetencionesImpuestosNoProcedentes", "", "TxtACRetencionesImpuestosNoProcedentes", "", "", "", "off", "", "");
+                        $css->span("spACRetencionesImpuestosNoProcedentes", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3124,7 +3140,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("9. Ajustes de Cartera en proceso (Notas credito IPS)");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACAjustesDeCartera", "", "TxtACAjustesDeCartera", "", "", "", "off", "", "");
+                        $css->span("spACAjustesDeCartera", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3132,7 +3150,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("10. Facturas con diferencia en el Valor facturado");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACDiferenciaXValorFacturado", "", "TxtACDiferenciaXValorFacturado", "", "", "", "off", "", "");
+                        $css->span("spACDiferenciaXValorFacturado", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3140,7 +3160,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("11. Facturas presentadas por reajuste de UPC");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACDiferenciaXUPC", "", "TxtACDiferenciaXUPC", "", "", "", "off", "", "");
+                        $css->span("spACDiferenciaXUPC", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3148,7 +3170,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("12. Glosas conciliadas pendientes de descargar por el proveedor");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACGlosasPendientesXDescargarIPS", "", "TxtACGlosasPendientesXDescargarIPS", "", "", "", "off", "", "");
+                        $css->span("spACGlosasPendientesXDescargarIPS", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3156,7 +3180,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("13. Anticipos pendientes de cruzar con facturas del proveedor");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACAnticiposPendientesXCruzar", "", "TxtACAnticiposPendientesXCruzar", "", "", "", "off", "", "");
+                        $css->span("spACAnticiposPendientesXCruzar", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
@@ -3164,7 +3190,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("14. Descuentos y/o reconocimientos según LMA");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACDescuentosLMA", "", "TxtACDescuentosLMA", "", "", "", "off", "", "");
+                        $css->span("spACDescuentosLMA", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 
@@ -3173,7 +3201,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("15. Facturas pendientes de auditoría");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACPendientesAuditoria", "", "TxtACPendientesAuditoria", "", "", "", "off", "", "");
+                        $css->span("spACPendientesAuditoria", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");

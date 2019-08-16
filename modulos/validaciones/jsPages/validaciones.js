@@ -2107,9 +2107,10 @@ function CalcularDiferenciasActaConciliacion(){
            if(respuestas[0]==="OK"){   
                 var HoraActual=ObtenerHora();
                 DivMensajes.innerHTML=DivMensajes.innerHTML+"<br><strong>("+HoraActual+") 1 de 3 procesos terminado...</strong>";
-                var DetalleDiferencias= JSON.parse(respuestas[2]);
-                
+                var DetalleDiferencias= JSON.parse(respuestas[2]);                
                 console.log(DetalleDiferencias);
+                EscribaDiferenciasActas(DetalleDiferencias);
+                
                 alertify.success(respuestas[1]);                
                 
             }else if(respuestas[0]==="E1"){
@@ -2133,11 +2134,88 @@ function CalcularDiferenciasActaConciliacion(){
       })
 }
 
+function EscribaDiferenciasActas(DetalleDiferencias){
+    document.getElementById('TxtACDiferenciaXPagos').value=DetalleDiferencias.DiferenciaXPagos;
+    document.getElementById('TxtACFacturasIPSNoRelacionadasEPS').value=DetalleDiferencias.FacturasIPSNoRelacionadasEPS;   
+    document.getElementById('TxtACGlosasPendientesXConciliar').value=DetalleDiferencias.GlosasPendientesXConciliar;     
+    document.getElementById('TxtACFacturasDevueltas').value=DetalleDiferencias.FacturasDevueltas;
+    document.getElementById('TxtACDiferenciaXImpuestos').value=DetalleDiferencias.DiferenciaXImpuestos;  
+    document.getElementById('TxtACDescuentoXRetefuente').value=DetalleDiferencias.DescuentoXRetefuente;     
+    document.getElementById('TxtACFacturasNoRelacionadasXIPS').value=DetalleDiferencias.FacturasNoRelacionadasXIPS;     
+    document.getElementById('TxtACRetencionesImpuestosNoProcedentes').value=DetalleDiferencias.RetencionesImpuestosNoProcedentes;    
+    document.getElementById('TxtACAjustesDeCartera').value=DetalleDiferencias.AjustesDeCartera;   
+    document.getElementById('TxtACDiferenciaXValorFacturado').value=DetalleDiferencias.DiferenciaXValorFacturado;     
+    document.getElementById('TxtACDiferenciaXUPC').value=DetalleDiferencias.DiferenciaXUPC;    
+    document.getElementById('TxtACGlosasPendientesXDescargarIPS').value=DetalleDiferencias.GlosasPendientesXDescargarIPS;    
+    document.getElementById('TxtACAnticiposPendientesXCruzar').value=DetalleDiferencias.AnticiposPendientesXCruzar;    
+    document.getElementById('TxtACDescuentosLMA').value=DetalleDiferencias.DescuentosLMA;  
+    document.getElementById('TxtACPendientesAuditoria').value=DetalleDiferencias.PendientesAuditoria;
+    
+    EscribaValoresEnSpanDiferenciasActas();
+}
 
-function EscribaSpan(idOrigen,idDestino){
-    var Valor=document.getElementById(idOrigen).value;
+function EscribaValoresEnSpanDiferenciasActas(){
+    
+    var Valor=document.getElementById('TxtACDiferenciaXPagos').value;
     var Numero = number_format(Valor);
-    document.getElementById(idDestino).value=Numero;
+    document.getElementById('spACDiferenciaXPagos').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACFacturasIPSNoRelacionadasEPS').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACFacturasIPSNoRelacionadasEPS').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACGlosasPendientesXConciliar').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACGlosasPendientesXConciliar').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACFacturasDevueltas').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACFacturasDevueltas').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACDiferenciaXImpuestos').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACDiferenciaXImpuestos').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACDescuentoXRetefuente').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACDescuentoXRetefuente').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACFacturasNoRelacionadasXIPS').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACFacturasNoRelacionadasXIPS').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACRetencionesImpuestosNoProcedentes').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACRetencionesImpuestosNoProcedentes').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACAjustesDeCartera').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACAjustesDeCartera').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACDiferenciaXValorFacturado').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACDiferenciaXValorFacturado').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACDiferenciaXUPC').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACDiferenciaXUPC').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACGlosasPendientesXDescargarIPS').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACGlosasPendientesXDescargarIPS').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACAnticiposPendientesXCruzar').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACAnticiposPendientesXCruzar').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACDescuentosLMA').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACDescuentosLMA').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACPendientesAuditoria').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACPendientesAuditoria').innerHTML=Numero;
+    
 }
 
 document.getElementById('TabCuentas1').click();

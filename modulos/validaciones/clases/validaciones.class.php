@@ -499,23 +499,32 @@ class ValidacionesEPS extends conexion{
         
         $DatosTotales=$this->FetchAssoc($this->Query($sql));
         $TotalPendientesRadicados= $this->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
+        if(!is_numeric($TotalPendientesRadicados)){
+            $TotalPendientesRadicados=0;
+        }
         $FacturasNoRelacionadasXIPS= $this->SumeColumna("$db.vista_cruce_cartera_asmet", "ValorSegunEPS", "NoRelacionada", 1);
+        if(!is_numeric($FacturasNoRelacionadasXIPS)){
+            $FacturasNoRelacionadasXIPS=0;
+        }
         $TotalFacturasSinRelacionsrXIPS= $this->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
-        $DetalleDiferencias["DiferenciaXPagos"]=$DatosTotales["DiferenciaXPagos"]+$DatosTotales["DiferenciaXAnticipos"];
-        $DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=$TotalFacturasSinRelacionsrXIPS;        
-        $DetalleDiferencias["GlosasPendientesXConciliar"]=$DatosTotales["DiferenciaXGlosaXConciliar"];
-        $DetalleDiferencias["FacturasDevueltas"]=$DatosTotales["DiferenciaXDevoluciones"];
-        $DetalleDiferencias["DiferenciaXImpuestos"]=$DatosTotales["DiferenciaXImpuestos"];
+        if(!is_numeric($TotalFacturasSinRelacionsrXIPS)){
+            $TotalFacturasSinRelacionsrXIPS=0;
+        }
+        $DetalleDiferencias["DiferenciaXPagos"]=abs(round($DatosTotales["DiferenciaXPagos"]+$DatosTotales["DiferenciaXAnticipos"]));
+        $DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=abs(round($TotalFacturasSinRelacionsrXIPS));        
+        $DetalleDiferencias["GlosasPendientesXConciliar"]=abs(round($DatosTotales["DiferenciaXGlosaXConciliar"]));
+        $DetalleDiferencias["FacturasDevueltas"]=abs(round($DatosTotales["DiferenciaXDevoluciones"]));
+        $DetalleDiferencias["DiferenciaXImpuestos"]=abs(round($DatosTotales["DiferenciaXImpuestos"]));
         $DetalleDiferencias["DescuentoXRetefuente"]=0;
-        $DetalleDiferencias["FacturasNoRelacionadasXIPS"]=$FacturasNoRelacionadasXIPS;
+        $DetalleDiferencias["FacturasNoRelacionadasXIPS"]=abs(round($FacturasNoRelacionadasXIPS));
         $DetalleDiferencias["RetencionesImpuestosNoProcedentes"]=0;
-        $DetalleDiferencias["AjustesDeCartera"]=$DatosTotales["DiferenciaXCopagos"]+$DatosTotales["DiferenciaXOtrosDescuentos"]+$DatosTotales["DiferenciaXAjustesCartera"];
-        $DetalleDiferencias["DiferenciaXValorFacturado"]=$DatosTotales["DiferenciaXValorFacturado"];
+        $DetalleDiferencias["AjustesDeCartera"]=abs(round($DatosTotales["DiferenciaXCopagos"]+$DatosTotales["DiferenciaXOtrosDescuentos"]+$DatosTotales["DiferenciaXAjustesCartera"]));
+        $DetalleDiferencias["DiferenciaXValorFacturado"]=abs(round($DatosTotales["DiferenciaXValorFacturado"]));
         $DetalleDiferencias["DiferenciaXUPC"]=0;        
-        $DetalleDiferencias["GlosasPendientesXDescargarIPS"]=$DatosTotales["DiferenciaXDescuentoPGP"]+$DatosTotales["DiferenciaXGlosaFavorEPS"];
+        $DetalleDiferencias["GlosasPendientesXDescargarIPS"]=abs(round($DatosTotales["DiferenciaXDescuentoPGP"]+$DatosTotales["DiferenciaXGlosaFavorEPS"]));
         $DetalleDiferencias["AnticiposPendientesXCruzar"]=0;
         $DetalleDiferencias["DescuentosLMA"]=0;
-        $DetalleDiferencias["PendientesAuditoria"]=$TotalPendientesRadicados;
+        $DetalleDiferencias["PendientesAuditoria"]=abs(round($TotalPendientesRadicados));
         return($DetalleDiferencias);
     }
     

@@ -1,22 +1,44 @@
-function number_format(amount, decimals) {
+    function number_format(numero){
 
-    amount += ''; // por si pasan un numero en vez de un string
-    amount = parseFloat(amount.replace(/[^0-9\.]/g, '')); // elimino cualquier cosa que no sea numero o punto
+        // Variable que contendra el resultado final
 
-    decimals = decimals || 0; // por si la variable no fue fue pasada
+        var resultado = "";
+        // Si el numero empieza por el valor "-" (numero negativo)
 
-    // si no es un numero o es igual a cero retorno el mismo cero
-    if (isNaN(amount) || amount === 0) 
-        return parseFloat(0).toFixed(decimals);
+        if(numero[0]=="-")
+        {
 
-    // si es mayor o menor que cero retorno el valor formateado como numero
-    amount = '' + amount.toFixed(decimals);
+            nuevoNumero=numero.replace(/\./g,'').substring(1);
 
-    var amount_parts = amount.split('.'),
-        regexp = /(\d+)(\d{3})/;
+        }else{
 
-    while (regexp.test(amount_parts[0]))
-        amount_parts[0] = amount_parts[0].replace(regexp, '$1' + ',' + '$2');
+           
+            nuevoNumero=numero.replace(/\./g,'');
 
-    return amount_parts.join('.');
-}
+        }
+
+        if(numero.indexOf(",")>=0)
+
+            nuevoNumero=nuevoNumero.substring(0,nuevoNumero.indexOf(","));
+
+        for (var j, i = nuevoNumero.length - 1, j = 0; i >= 0; i--, j++)
+
+            resultado = nuevoNumero.charAt(i) + ((j > 0) && (j % 3 == 0)? ".": "") + resultado;
+
+         if(numero.indexOf(",")>=0)
+
+            resultado+=numero.substring(numero.indexOf(","));
+
+        if(numero[0]=="-")
+
+        {
+
+            return "-"+resultado;
+
+        }else{
+
+            return resultado;
+
+        }
+
+    }
