@@ -2897,13 +2897,14 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->Cselect();
         break;//fin caso 27
         
-        case 28://Dibuja el selector para las actas
+        case 28://Dibuja el acta de conciliacion
             $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
             
             if($idActaConciliacion==''){
                 $css->CrearTitulo("Por favor Seleccione un Acta", "rojo");
                 exit();
             }
+            
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
@@ -2914,7 +2915,6 @@ if( !empty($_REQUEST["Accion"]) ){
             $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados;
             $ValorSegunIPS=$TotalesCruce["TotalIPS"]-$TotalFacturasSinRelacionsrXIPS;
             $Diferencia=$ValorSegunEPS-$ValorSegunIPS;
-            //$DetalleDiferencias=$obCon->CalculeDiferenciasProceso1($db);
             
             $DatosActa=$obCon->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
             $css->CrearTitulo("<strong>Acta de Conciliación No. $idActaConciliacion, IPS: $DatosActa[RazonSocialIPS], con Fecha de Corte $DatosActa[FechaCorte]. </strong>", "azul");
@@ -3019,7 +3019,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
                         $css->input("hidden", "ACDiferencia", "form-control", "ACDiferencia", "", ($Diferencia), "Diferencia", "off", "", "");
-                        print("<span id='spACDiferencia'>".number_format(abs($Diferencia))."</span>");
+                        print("<span id='spACDiferencia'>".number_format(($Diferencia))."</span>");
                     print("</td>");
                 print("</tr>");
                 print("<tr>");
@@ -3216,7 +3216,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("<strong>TOTAL DIFERENCIAS</strong>");
                     print("</td>");
                     print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
-                        
+                        $css->input("$TipoCaja", "TxtACTotalDiferencias", "", "TxtACTotalDiferencias", "", "", "", "off", "", "");
+                        $css->span("spACTotalDiferencias", "", "", "");                        
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");

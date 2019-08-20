@@ -640,6 +640,24 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;Proceso 1 terminado;$CamposDiferencias");
         break;//Fin caso 18
         
+        case 19://Calcula las diferencias que están en varias columnas
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DetalleDiferencias=get_object_vars(json_decode($_REQUEST["DetalleDiferencias"]));    
+            if($idActaConciliacion==''){
+                exit("E1;No se recibió el id del Acta a Editar");
+                
+            }
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            //$DetalleDiferenciasMultiples=$obCon->CalculeDiferenciasMultiplesAC($db);
+            $CamposDiferencias= json_encode($DetalleDiferencias, JSON_FORCE_OBJECT);
+            print("OK;Proceso 2 terminado;$CamposDiferencias");
+        break;//Fin caso 19
+        
     }
     
     

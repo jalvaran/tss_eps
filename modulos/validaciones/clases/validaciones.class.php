@@ -494,7 +494,11 @@ class ValidacionesEPS extends conexion{
                      SUM(DiferenciaXImpuestos) as DiferenciaXImpuestos,
                      SUM(DiferenciaVariada) as DiferenciaVariada,        
                      SUM(DiferenciaXGlosaXConciliar) AS DiferenciaXGlosaXConciliar,
-                     SUM(DiferenciaXValorFacturado) AS DiferenciaXValorFacturado
+                     SUM(DiferenciaXValorFacturado) AS DiferenciaXValorFacturado,
+                     SUM(DiferenciaXDevolucionesNoIPS) AS DiferenciaXDevolucionesNoIPS,
+                     SUM(GlosasXConciliar2) AS GlosasXConciliar2,
+                     SUM(XPagos2) AS XPagos2,
+                     SUM(DiferenciaVariada) AS DiferenciaVariada
                  FROM $db.vista_cruce_totales_actas_conciliaciones";
         
         $DatosTotales=$this->FetchAssoc($this->Query($sql));
@@ -509,6 +513,35 @@ class ValidacionesEPS extends conexion{
         $TotalFacturasSinRelacionsrXIPS= $this->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
         if(!is_numeric($TotalFacturasSinRelacionsrXIPS)){
             $TotalFacturasSinRelacionsrXIPS=0;
+        }
+        $DetalleDiferencias["DiferenciaXPagos"]=(round(abs($DatosTotales["DiferenciaXPagos"])+abs($DatosTotales["DiferenciaXAnticipos"])+abs($DatosTotales["DiferenciaXGlosaContraEPS"])+abs($DatosTotales["XPagos2"])));
+        $DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=abs(round($TotalFacturasSinRelacionsrXIPS));        
+        $DetalleDiferencias["GlosasPendientesXConciliar"]=(round(abs($DatosTotales["DiferenciaXGlosaXConciliar"])+abs($DatosTotales["GlosasXConciliar2"])));
+        $DetalleDiferencias["FacturasDevueltas"]=(round(abs($DatosTotales["DiferenciaXDevoluciones"])+abs($DatosTotales["DiferenciaXDevolucionesNoIPS"])));
+        $DetalleDiferencias["DiferenciaXImpuestos"]=abs(round($DatosTotales["DiferenciaXImpuestos"]));
+        $DetalleDiferencias["DescuentoXRetefuente"]=0;
+        $DetalleDiferencias["FacturasNoRelacionadasXIPS"]=abs(round($FacturasNoRelacionadasXIPS));
+        $DetalleDiferencias["RetencionesImpuestosNoProcedentes"]=0;
+        $DetalleDiferencias["AjustesDeCartera"]=(round(abs($DatosTotales["DiferenciaXCopagos"])+abs($DatosTotales["DiferenciaXOtrosDescuentos"])+abs($DatosTotales["DiferenciaXAjustesCartera"])));
+        $DetalleDiferencias["DiferenciaXValorFacturado"]=abs(round($DatosTotales["DiferenciaXValorFacturado"]));
+        $DetalleDiferencias["DiferenciaXUPC"]=0;        
+        $DetalleDiferencias["GlosasPendientesXDescargarIPS"]=(round(abs($DatosTotales["DiferenciaXDescuentoPGP"])+abs($DatosTotales["DiferenciaXGlosaFavorEPS"])));
+        $DetalleDiferencias["AnticiposPendientesXCruzar"]=0;
+        $DetalleDiferencias["DescuentosLMA"]=0;
+        $DetalleDiferencias["PendientesAuditoria"]=abs(round($TotalPendientesRadicados));
+        //$DetalleDiferencias["DiferenciaVariada"]=abs(round($DatosTotales["DiferenciaVariada"]));
+        $DetalleDiferencias["TotalDiferencias"]= array_sum($DetalleDiferencias);
+        return($DetalleDiferencias);
+    }
+    
+    public function CalculeDiferenciasMultiplesAC($db) {
+        
+        $sql="SELECT NumeroFactura
+                 FROM $db.vista_cruce_totales_actas_conciliaciones WHERE DiferenciaVariada<>0 LIMIT 1";
+        
+        $Consulta=$this->Query($sql);
+        while($Facturas=$this->FetchAssoc($Consulta)){
+            $DatosDiferencias=BusqueDiferenciasEnVector($Facturas["NumeroFactura"]);
         }
         $DetalleDiferencias["DiferenciaXPagos"]=abs(round($DatosTotales["DiferenciaXPagos"]+$DatosTotales["DiferenciaXAnticipos"]));
         $DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=abs(round($TotalFacturasSinRelacionsrXIPS));        
@@ -526,6 +559,10 @@ class ValidacionesEPS extends conexion{
         $DetalleDiferencias["DescuentosLMA"]=0;
         $DetalleDiferencias["PendientesAuditoria"]=abs(round($TotalPendientesRadicados));
         return($DetalleDiferencias);
+    }
+    
+    public function BusqueDiferenciasEnVector($NumeroFactura) {
+        
     }
     
     //Fin Clases

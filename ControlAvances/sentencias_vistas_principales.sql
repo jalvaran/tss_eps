@@ -42,7 +42,7 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelaciona
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=1),0)) AS ConciliacionesAFavorEPS,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=2),0)) AS ConciliacionesAFavorIPS,
         ((SELECT ValorSegunEPS) + (SELECT ConciliacionesAFavorIPS) - (SELECT ConciliacionesAFavorEPS)) AS TotalAPagar, 
-        (SELECT IF((SELECT ROUND(TotalConciliaciones,2)<>(SELECT ROUND(ABS(Diferencia),2)) AND (SELECT TotalConciliaciones > 0)),'SI','NO')) AS ConciliacionesPendientes,
+        (SELECT IF((SELECT ROUND(TotalConciliaciones,2)<>(SELECT ROUND(ABS(Diferencia),2)) AND (SELECT TotalConciliaciones > 0)),'SI','NO')) AS ConciliacionesPendientes
         
         
 FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.NumeroFactura;
@@ -119,6 +119,32 @@ SELECT *
 FROM vista_cruce_cartera_eps t1
 WHERE NOT EXISTS (SELECT 1 FROM carteracargadaips t2 WHERE t1.NumeroFactura=t2.NumeroFactura);
 
+DROP VIEW IF EXISTS `vista_reporte_ips`;
+CREATE VIEW vista_reporte_ips AS
+SELECT  t2.FechaFactura AS 'Fecha Factura',
+		t2.MesServicio AS 'Mes servicio',
+        t2.NumeroRadicado AS 'Numero Radicado',
+        t2.FechaRadicado AS 'Fecha Radicado',
+		t2.NumeroContrato AS 'Numero Contrato',
+		t2.NumeroFactura AS 'Numero factura',
+		t2.ValorDocumento AS 'Valor de Factura',
+        t2.Impuestos AS 'Impuestos Factura',
+		t2.TotalPagos AS 'Pagos',
+		t2.TotalAnticipos AS 'Anticipos',
+        t2.TotalCopagos AS 'Copagos',
+        t2.DescuentoPGP AS 'Descuentos PGP',
+		t2.OtrosDescuentos AS 'Otros Descuentos',
+        t2.AjustesCartera AS 'Ajustes Cartera',
+        t2.TotalGlosaFavor AS 'Glosa Aceptada Ips',
+        t2.TotalGlosaContra AS 'Glosa levantada EPS',
+		t2.GlosaXConciliar AS 'Glosa X Conciliar',  
+		t2.TotalDevoluciones AS 'Devoluciones',
+        t2.ValorSegunEPS AS 'Saldo Eps',
+        t2.ValorSegunIPS AS 'Saldo Ips',
+		t2.Diferencia AS 'Valor Diferencia'
+FROM vista_cruce_cartera_eps_relacionadas_ips t2 WHERE ValorIPSMenor='NO' AND Diferencia<>'0';
+
+
 DROP VIEW IF EXISTS `vista_cruce_totales_actas_conciliaciones`;
 CREATE VIEW vista_cruce_totales_actas_conciliaciones AS 
 SELECT t1.NumeroFactura,t1.Diferencia,
@@ -134,7 +160,25 @@ SELECT t1.NumeroFactura,t1.Diferencia,
         (SELECT IF( ( ABS(TotalDevoluciones)) = ( ABS(Diferencia)),Diferencia,0)) as DiferenciaXDevoluciones,
         (SELECT IF( ( ABS(Impuestos)) = ( ABS(Diferencia)),Diferencia,0)) as DiferenciaXImpuestos,
         (SELECT IF(  ValorSegunIPS > ValorDocumento,Diferencia,0)) as DiferenciaXValorFacturado,
-        (SELECT IF( (SELECT DiferenciaXPagos)=0 AND (SELECT DiferenciaXAnticipos)=0 AND (SELECT DiferenciaXCopagos)=0 AND (SELECT DiferenciaXDescuentoPGP)=0 AND (SELECT DiferenciaXOtrosDescuentos)=0 AND (SELECT DiferenciaXAjustesCartera)=0 AND (SELECT DiferenciaXGlosaFavorEPS)=0 AND (SELECT DiferenciaXGlosaContraEPS)=0 AND (SELECT DiferenciaXGlosaXConciliar)=0 AND (SELECT DiferenciaXDevoluciones)=0 AND (SELECT DiferenciaXImpuestos)=0 AND (SELECT DiferenciaXValorFacturado)=0 ,Diferencia,0)) as DiferenciaVariada
-        
+
+        (   (SELECT DiferenciaXPagos) + 
+            (SELECT DiferenciaXAnticipos) + 
+            (SELECT DiferenciaXCopagos) + 
+            (SELECT DiferenciaXDescuentoPGP) + 
+            (SELECT DiferenciaXOtrosDescuentos) + 
+            (SELECT DiferenciaXAjustesCartera) + 
+            (SELECT DiferenciaXGlosaFavorEPS) + 
+            (SELECT DiferenciaXGlosaContraEPS) + 
+            (SELECT DiferenciaXGlosaXConciliar) + 
+            (SELECT DiferenciaXDevoluciones) + 
+            (SELECT DiferenciaXImpuestos) + 
+            (SELECT DiferenciaXValorFacturado) ) AS TotalDiferenciasComunes,
+
+       (SELECT IF( (SELECT TotalDiferenciasComunes)=0 AND ValorSegunEPS=0 AND ABS(TotalDevoluciones)>0,Diferencia,0)) as DiferenciaXDevolucionesNoIPS,
+       (SELECT IF( (SELECT TotalDiferenciasComunes)=0 AND (SELECT DiferenciaXDevolucionesNoIPS)=0 AND ABS(TotalPagos)>0 AND ABS(GlosaXConciliar)>0,GlosaXConciliar,0)) as GlosasXConciliar2,
+       (SELECT IF( (SELECT TotalDiferenciasComunes)=0 AND (SELECT DiferenciaXDevolucionesNoIPS)=0 AND ABS(TotalPagos)>0 AND ABS(GlosaXConciliar)>0,TotalPagos,0)) as XPagos2,
+       
+       (SELECT IF( (SELECT TotalDiferenciasComunes)=0 AND ABS(DiferenciaXDevolucionesNoIPS)=0 AND ABS(GlosasXConciliar2)=0,Diferencia,0)) as DiferenciaVariada 
+
 FROM vista_cruce_cartera_asmet t1
 WHERE Diferencia<>0;

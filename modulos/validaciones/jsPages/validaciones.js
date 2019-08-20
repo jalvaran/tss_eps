@@ -2106,13 +2106,75 @@ function CalcularDiferenciasActaConciliacion(){
             var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){   
                 var HoraActual=ObtenerHora();
-                DivMensajes.innerHTML=DivMensajes.innerHTML+"<br><strong>("+HoraActual+") 1 de 3 procesos terminado...</strong>";
+                DivMensajes.innerHTML=DivMensajes.innerHTML+"<br><strong>("+HoraActual+") 1 de 2 procesos terminado...</strong>";
                 var DetalleDiferencias= JSON.parse(respuestas[2]);                
-                console.log(DetalleDiferencias);
+                
+                EscribaDiferenciasActas(DetalleDiferencias);
+                CalcularDiferenciasActaConciliacionProceso2(respuestas[2]);
+                alertify.success(respuestas[1]);                
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function CalcularDiferenciasActaConciliacionProceso2(DetalleDiferencias){
+    var HoraActual=ObtenerHora();
+    var DivMensajes = document.getElementById('DivMensajesActaConciliacion');
+    DivMensajes.innerHTML=DivMensajes.innerHTML+"<br><strong>("+HoraActual+") Iniciando el segundo proceso de calculos para obtener las diferencias...</strong>";
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    var ValorSegunEPS=document.getElementById('ACValorSegunEPS').value;
+    var ValorSegunIPS=document.getElementById('ACValorSegunIPS').value;
+    var Diferencia=document.getElementById('ACDiferencia').value;
+    var form_data = new FormData();
+        form_data.append('Accion', 19);
+        form_data.append('idActaConciliacion', idActaConciliacion);        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('ValorSegunEPS', ValorSegunEPS);
+        form_data.append('ValorSegunIPS', ValorSegunIPS);
+        form_data.append('Diferencia', Diferencia);
+        form_data.append('DetalleDiferencias', DetalleDiferencias);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                var HoraActual=ObtenerHora();
+                DivMensajes.innerHTML=DivMensajes.innerHTML+"<br><strong>("+HoraActual+") 2 de 2 procesos terminados...</strong>";
+                var DetalleDiferencias= JSON.parse(respuestas[2]);                
+                //console.log(DetalleDiferencias);
                 EscribaDiferenciasActas(DetalleDiferencias);
                 
                 alertify.success(respuestas[1]);                
-                
+                document.getElementById('GifProcess').innerHTML='';
             }else if(respuestas[0]==="E1"){
                 
                 alertify.alert(respuestas[1]);
@@ -2150,7 +2212,7 @@ function EscribaDiferenciasActas(DetalleDiferencias){
     document.getElementById('TxtACAnticiposPendientesXCruzar').value=DetalleDiferencias.AnticiposPendientesXCruzar;    
     document.getElementById('TxtACDescuentosLMA').value=DetalleDiferencias.DescuentosLMA;  
     document.getElementById('TxtACPendientesAuditoria').value=DetalleDiferencias.PendientesAuditoria;
-    
+    document.getElementById('TxtACTotalDiferencias').value=DetalleDiferencias.TotalDiferencias;
     EscribaValoresEnSpanDiferenciasActas();
 }
 
@@ -2215,6 +2277,10 @@ function EscribaValoresEnSpanDiferenciasActas(){
     var Valor=document.getElementById('TxtACPendientesAuditoria').value;
     var Numero = number_format(Valor);
     document.getElementById('spACPendientesAuditoria').innerHTML=Numero;
+    
+    var Valor=document.getElementById('TxtACTotalDiferencias').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACTotalDiferencias').innerHTML=Numero;
     
 }
 
