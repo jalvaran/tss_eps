@@ -628,16 +628,18 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-                        
+            $Diferencia=abs($obCon->normalizar($_REQUEST["Diferencia"]));
             if($idActaConciliacion==''){
                 exit("E1;No se recibió el id del Acta a Editar");
                 
             }
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
-            $DetalleDiferencias=$obCon->CalculeDiferenciasProceso1($db);
+            $DetalleDiferencias=$obCon->CalculeDiferenciasProceso1($db,$Diferencia);
             $CamposDiferencias= json_encode($DetalleDiferencias, JSON_FORCE_OBJECT);
             print("OK;Proceso 1 terminado;$CamposDiferencias");
+            unset($DetalleDiferencias);
+            unset($CamposDiferencias);
         break;//Fin caso 18
         
         case 19://Calcula las diferencias que están en varias columnas

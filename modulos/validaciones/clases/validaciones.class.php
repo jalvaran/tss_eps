@@ -480,7 +480,7 @@ class ValidacionesEPS extends conexion{
     }
     
         
-    public function CalculeDiferenciasProceso1($db) {
+    public function CalculeDiferenciasProceso1($db,$Diferencia) {
         
         $sql="SELECT SUM(DiferenciaXPagos) as DiferenciaXPagos,
                      SUM(DiferenciaXAnticipos) as DiferenciaXAnticipos,
@@ -514,6 +514,7 @@ class ValidacionesEPS extends conexion{
         if(!is_numeric($TotalFacturasSinRelacionsrXIPS)){
             $TotalFacturasSinRelacionsrXIPS=0;
         }
+        
         $DetalleDiferencias["DiferenciaXPagos"]=(round(abs($DatosTotales["DiferenciaXPagos"])+abs($DatosTotales["DiferenciaXAnticipos"])+abs($DatosTotales["DiferenciaXGlosaContraEPS"])+abs($DatosTotales["XPagos2"])));
         $DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=abs(round($TotalFacturasSinRelacionsrXIPS));        
         $DetalleDiferencias["GlosasPendientesXConciliar"]=(round(abs($DatosTotales["DiferenciaXGlosaXConciliar"])+abs($DatosTotales["GlosasXConciliar2"])));
@@ -530,6 +531,10 @@ class ValidacionesEPS extends conexion{
         $DetalleDiferencias["DescuentosLMA"]=0;
         $DetalleDiferencias["PendientesAuditoria"]=abs(round($TotalPendientesRadicados));
         //$DetalleDiferencias["DiferenciaVariada"]=abs(round($DatosTotales["DiferenciaVariada"]));
+        
+        $TotalDiferencias= array_sum($DetalleDiferencias);
+        $DiferenciaFaltante=abs($Diferencia)-abs($TotalDiferencias);
+        $DetalleDiferencias["DiferenciaXPagos"]=$DetalleDiferencias["DiferenciaXPagos"]+$DiferenciaFaltante;
         $DetalleDiferencias["TotalDiferencias"]= array_sum($DetalleDiferencias);
         return($DetalleDiferencias);
     }

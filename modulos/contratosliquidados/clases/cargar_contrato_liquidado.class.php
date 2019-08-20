@@ -236,7 +236,9 @@ class CargarContratos extends conexion{
                 
                 $Factura=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getCalculatedValue();
                 $Factura= str_replace("'", "", $Factura);
-                
+                if($Factura==''){
+                    exit("E1;El archivo no tiene la factura relacionanda en la celda D$i");
+                }
                 $ValorFactura=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getCalculatedValue();
                 $ValorFactura= str_replace("'", "", $ValorFactura);
                 

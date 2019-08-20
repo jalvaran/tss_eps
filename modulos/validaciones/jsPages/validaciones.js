@@ -2284,6 +2284,99 @@ function EscribaValoresEnSpanDiferenciasActas(){
     
 }
 
+
+function GuardarDiferenciasActaConciliacion(){
+    var HoraActual=ObtenerHora();
+    var DivMensajes = document.getElementById('DivMensajesGuardarDiferenciasActa');
+    DivMensajes.innerHTML=DivMensajes.innerHTML+"<br><strong>("+HoraActual+") Guardando Acta...</strong>";
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    var ValorSegunEPS=document.getElementById('ACValorSegunEPS').value;
+    var ValorSegunIPS=document.getElementById('ACValorSegunIPS').value;
+    var Diferencia=document.getElementById('ACDiferencia').value;
+    
+    var TxtACDiferenciaXPagos=document.getElementById('TxtACDiferenciaXPagos').value;
+    var TxtACFacturasIPSNoRelacionadasEPS=document.getElementById('TxtACFacturasIPSNoRelacionadasEPS').value;
+    var TxtACGlosasPendientesXConciliar=document.getElementById('TxtACGlosasPendientesXConciliar').value;
+    var TxtACFacturasDevueltas=document.getElementById('TxtACFacturasDevueltas').value;
+    var TxtACDiferenciaXImpuestos=document.getElementById('TxtACDiferenciaXImpuestos').value;
+    var TxtACDescuentoXRetefuente=document.getElementById('TxtACDescuentoXRetefuente').value;
+    var TxtACFacturasNoRelacionadasXIPS=document.getElementById('TxtACFacturasNoRelacionadasXIPS').value;
+    var TxtACRetencionesImpuestosNoProcedentes=document.getElementById('TxtACRetencionesImpuestosNoProcedentes').value;
+    var TxtACAjustesDeCartera=document.getElementById('TxtACAjustesDeCartera').value;
+    var TxtACDiferenciaXValorFacturado=document.getElementById('TxtACDiferenciaXValorFacturado').value;
+    var TxtACDiferenciaXUPC=document.getElementById('TxtACDiferenciaXUPC').value;
+    var TxtACGlosasPendientesXDescargarIPS=document.getElementById('TxtACGlosasPendientesXDescargarIPS').value;
+    var TxtACAnticiposPendientesXCruzar=document.getElementById('TxtACAnticiposPendientesXCruzar').value;
+    var TxtACDescuentosLMA=document.getElementById('TxtACDescuentosLMA').value;
+    var TxtACPendientesAuditoria=document.getElementById('TxtACPendientesAuditoria').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 20);
+        form_data.append('idActaConciliacion', idActaConciliacion);        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('ValorSegunEPS', ValorSegunEPS);
+        form_data.append('ValorSegunIPS', ValorSegunIPS);
+        form_data.append('Diferencia', Diferencia);
+        
+        form_data.append('TxtACDiferenciaXPagos', TxtACDiferenciaXPagos);
+        form_data.append('TxtACFacturasIPSNoRelacionadasEPS', TxtACFacturasIPSNoRelacionadasEPS);
+        form_data.append('TxtACGlosasPendientesXConciliar', TxtACGlosasPendientesXConciliar);
+        form_data.append('TxtACFacturasDevueltas', TxtACFacturasDevueltas);
+        form_data.append('TxtACDiferenciaXImpuestos', TxtACDiferenciaXImpuestos);
+        form_data.append('TxtACDescuentoXRetefuente', TxtACDescuentoXRetefuente);
+        form_data.append('TxtACFacturasNoRelacionadasXIPS', TxtACFacturasNoRelacionadasXIPS);
+        form_data.append('TxtACRetencionesImpuestosNoProcedentes', TxtACRetencionesImpuestosNoProcedentes);
+        form_data.append('TxtACAjustesDeCartera', TxtACAjustesDeCartera);
+        form_data.append('TxtACDiferenciaXValorFacturado', TxtACDiferenciaXValorFacturado);
+        form_data.append('TxtACDiferenciaXUPC', TxtACDiferenciaXUPC);
+        form_data.append('TxtACGlosasPendientesXDescargarIPS', TxtACGlosasPendientesXDescargarIPS);
+        form_data.append('TxtACAnticiposPendientesXCruzar', TxtACAnticiposPendientesXCruzar);
+        form_data.append('TxtACDescuentosLMA', TxtACDescuentosLMA);
+        form_data.append('TxtACPendientesAuditoria', TxtACPendientesAuditoria);
+        
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                var HoraActual=ObtenerHora();
+                DivMensajes.innerHTML=DivMensajes.innerHTML+"<br><strong>("+HoraActual+") Acta De conciliación guardada...</strong>";
+                                
+                alertify.success(respuestas[1]);                
+                document.getElementById('GifProcess').innerHTML='';
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();
 $('#CmbEPS').select2();

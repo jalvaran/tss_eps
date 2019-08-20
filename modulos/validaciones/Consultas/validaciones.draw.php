@@ -2912,10 +2912,14 @@ if( !empty($_REQUEST["Accion"]) ){
             $TotalFacturasSinRelacionsrXIPS= $obCon->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
             $sql="SELECT SUM(ValorSegunEPS) AS TotalEPS,SUM(ValorSegunIPS) AS TotalIPS FROM $db.`vista_cruce_cartera_asmet` ";
             $TotalesCruce=$obCon->FetchAssoc($obCon->Query($sql));
+            
+            $sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='2' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura); ";
+            $TotalesConciliacionesFactura=$obCon->FetchAssoc($obCon->Query($sql));
+            
             $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados;
             $ValorSegunIPS=$TotalesCruce["TotalIPS"]-$TotalFacturasSinRelacionsrXIPS;
             $Diferencia=$ValorSegunEPS-$ValorSegunIPS;
-            
+            $SaldoConciliadoParaPago=$ValorSegunEPS+$TotalesConciliacionesFactura["ValorConciliaciones"];
             $DatosActa=$obCon->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
             $css->CrearTitulo("<strong>Acta de Conciliación No. $idActaConciliacion, IPS: $DatosActa[RazonSocialIPS], con Fecha de Corte $DatosActa[FechaCorte]. </strong>", "azul");
             $css->CrearTabla("TablaActaConciliacion");
@@ -3053,7 +3057,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     
                 print("</tr>");
-                $TipoCaja="hidden";
+                $TipoCaja="text";
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
                     print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
                         print("1. Facturas canceladas por ASMET SALUD no descargadas por el proveedor");
@@ -3232,7 +3236,11 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("<strong>SALDO CONCILIADO PARA PAGO</strong>");
                     print("</td>");
                     print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
-                        
+                        //$TipoCaja="text";
+                        $css->input("$TipoCaja", "TxtACSaldoAcuerdoPago", "", "TxtACSaldoAcuerdoPago", "", "$SaldoConciliadoParaPago", "", "off", "", "");
+                        $css->span("spACSaldoAcuerdoPago", "", "", "");    
+                            print(number_format($SaldoConciliadoParaPago));
+                        $css->Cspan();
                     print("</td>");
                 print("</tr>");
                 
@@ -3244,8 +3252,15 @@ if( !empty($_REQUEST["Accion"]) ){
                 print("</tr>");
                 
                 print("<tr>");
-                    print("<td colspan=3 style=font-size:16px;>");
+                    print("<td colspan=2 style=font-size:16px;>");
                         print("<span style='text-decoration: underline;cursor:pointer;'><strong >RESULTADOS Y COMPROMISOS:</strong></span>");
+                    print("</td>");
+                    print("<td>");
+                        //$css->CrearBotonEvento("BtnCalculosActaConciliaciones", "Guardar Acta", 1, "onclick", "GuardarActaConciliacion()", "azul", "");
+                        $css->CrearBotonEvento("btnGuardarConciliacion", "Guardar Acta", 1, "onclick", "GuardarDiferenciasActaConciliacion()", "rojo", "");
+                        $css->CrearDiv("DivMensajesGuardarDiferenciasActa", "", "center", 1, 1);
+                        
+                        $css->CerrarDiv();
                     print("</td>");
                 print("</tr>");
                 
