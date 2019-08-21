@@ -114,8 +114,9 @@ if(isset($_REQUEST["Opcion"])){
             $sql=$sqlColumnas." SELECT * FROM $db.$Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
             $Fecha=date("Ymd_His");
             $obCon->Query($sql);
-            $NombreArchivo=$Tabla."_$NIT"."_$Fecha";
-            print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar </h1></a></div>");
+            $Inical= str_replace("ips", "proveedor", $Tabla);
+            $NombreArchivo=$Inical."_$NIT"."_$Fecha";
+            print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar</h1></a></div>");
             break;//Fin caso 2
         
         }
