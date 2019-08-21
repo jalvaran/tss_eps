@@ -7,13 +7,13 @@ if (!isset($_SESSION['username'])){
 }
 $idUser=$_SESSION['idUser'];
 include_once("../clases/validaciones.class.php");
-
 include_once("../../../constructores/paginas_constructor.php");
+include_once '../../../general/clases/numeros_letras.class.php';
 
 if( !empty($_REQUEST["Accion"]) ){
     $css =  new PageConstruct("", "", 1, "", 1, 0);
     $obCon = new ValidacionesEPS($idUser);
-    
+    $obNumLetra=new numeros_letras();
     switch ($_REQUEST["Accion"]) {
         case 1: //Dibuja las facturas que tiene la ips pero no la EPS
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
@@ -3271,19 +3271,13 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td colspan=2 style=font-size:16px;>");
                         print("<span style='text-decoration: underline;cursor:pointer;'><strong >RESULTADOS Y COMPROMISOS:</strong></span>");
                     print("</td>");
-                    print("<td>");
-                        //$css->CrearBotonEvento("BtnCalculosActaConciliaciones", "Guardar Acta", 1, "onclick", "GuardarActaConciliacion()", "azul", "");
-                        $css->CrearBotonEvento("btnGuardarConciliacion", "Cerrar Acta", 1, "onclick", "CerrarActaConciliacion()", "rojo", "");
-                        $css->CrearDiv("DivMensajesGuardarDiferenciasActa", "", "center", 1, 1);
-                        
-                        $css->CerrarDiv();
-                    print("</td>");
+                    
                 print("</tr>");
                 
                 print("<tr>");
                     print("<td colspan=3 style=font-size:16px;>");
                         $NombreCaja="TxtCompromisoNuevo";  
-                        $css->textarea($NombreCaja, "form-control", $NombreCaja, "", "+", "+", "onchange=AgregueCompromiso()","style='overflow: hidden;'");
+                        $css->textarea($NombreCaja, "form-control", $NombreCaja, "", "Nuevo", "Nuevo", "onchange=AgregueCompromiso()","style='overflow: hidden;'");
                             
                         $css->Ctextarea();
                         //$css->input("text", "TxtCompromisoNuevo", "form-control", "TxtCompromisoNuevo", "", "", "+", "off", "", "onchange=AgregueCompromiso()", "");
@@ -3299,6 +3293,31 @@ if( !empty($_REQUEST["Accion"]) ){
                                     
                             }
                         $css->Cdiv();
+                    print("</td>");
+                print("</tr>");
+                print("<tr>");
+                    print("<td colspan=1 style=font-size:16px;>");
+                        print("<strong>Fecha de Firma: </strong>");
+                        $css->input("date", "TxtFechaDeFirma", "", "TxtFechaDeFirma", "", ($DatosActa["FechaFirma"]), "Encargado EPS", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TxtFechaDeFirma`,`FechaFirma`);DibujeConstanciaFirmaActaConciliacion();","style='line-height: 15px;'"."max=".date("Y-m-d"));
+                    
+                    print("</td>");
+                    print("<td colspan=2 style=font-size:16px;>");
+                        print("<strong>Ciudad de Firma: </strong>");
+                        $css->input("text", "TxtCiudadDeFirma", "", "TxtCiudadDeFirma", "", "Popayán", "Ciudad", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TxtCiudadDeFirma`,`CiudadFirma`);DibujeConstanciaFirmaActaConciliacion();");
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr>");
+                    print("<td colspan=3 style=font-size:16px;>");
+                        $css->CrearDiv("DivConstanciaFirma", "","", 1, 1);
+                            $DatosFechaFirma= explode("-", $DatosActa["FechaFirma"]);  
+                            $dia=$obNumLetra->convertir($DatosFechaFirma[2]);
+                            $mes=$obNumLetra->meses($DatosFechaFirma[1]);
+                            $anio=$obNumLetra->convertir($DatosFechaFirma[0]);
+                            print("Para constancia, se firma en <strong>".($DatosActa["CiudadFirma"])."</strong>");
+                            
+                            print(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]) en dos originales:");
+                        $css->CerrarDiv();
                     print("</td>");
                 print("</tr>");
                 
@@ -3357,7 +3376,22 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CerrarDiv();
                     print("</td>");
                 print("</tr>");
-                
+                print("<tr>");
+                    print("<td colspan=3>");
+                        print("<strong>Cerrar Documento:<strong>");
+                    print("</td>");
+                print("</tr>");
+                print("<tr>");
+                    
+                    print("<td colspan=3>");
+        
+                        $css->CrearBotonEvento("btnGuardarConciliacion", "Cerrar Acta", 1, "onclick", "CerrarActaConciliacion()", "rojo", "");
+                        $css->CrearDiv("DivMensajesCerrarActa", "", "center", 1, 1);
+                        
+                        $css->CerrarDiv();
+                    print("</td>");
+                    
+                print("</tr>");
                 
             $css->CerrarTabla();
             
@@ -3386,6 +3420,8 @@ if( !empty($_REQUEST["Accion"]) ){
         break;// fin caso 29    
         
         case 30://Dibuja las firmas del acta
+            
+            
             $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
             
             if($idActaConciliacion==''){
@@ -3400,17 +3436,33 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CrearDiv("", "col-md-4", "left", 1, 1);
                     print("<br><br><hr></hr>");
                     $idFirma=$DatosFirmas["ID"];
+                    $css->li("", "fa  fa-remove", "", "onclick=EliminarItem(`1`,`$idFirma`) style=font-size:16px;cursor:pointer;text-align:center;color:red");
+                    $css->Cli();
                     $NombreCaja="TxtFirmaNombreActa_".$idFirma; 
                     $css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosFirmas["Nombre"], "Nombre", "off", "", "onchange=EditeFirmaActaConciliacion(`$idFirma`,`$NombreCaja`,`Nombre`);");
                     $NombreCaja="TxtFirmaCargoActa_".$idFirma; 
                     $css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosFirmas["Cargo"], "Cargo", "off", "", "onchange=EditeFirmaActaConciliacion(`$idFirma`,`$NombreCaja`,`Cargo`);");
                     $NombreCaja="TxtFirmaEmpresaActa_".$idFirma; 
                     $css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosFirmas["Empresa"], "Empresa", "off", "", "onchange=EditeFirmaActaConciliacion(`$idFirma`,`$NombreCaja`,`Empresa`);");
+                    
                 $css->CerrarDiv();
                 
             }  
             
         break;// fin caso 30
+        
+        case 31: // dibuja la constancia de la firma
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $DatosActa=$obCon->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
+            $DatosFechaFirma= explode("-", $DatosActa["FechaFirma"]);  
+            $dia=$obNumLetra->convertir($DatosFechaFirma[2]);
+            //$dia=$obNumLetra->convertir(31);
+            $mes=$obNumLetra->meses($DatosFechaFirma[1]);
+            $anio=$obNumLetra->convertir($DatosFechaFirma[0]);
+            print("Para constancia, se firma en <strong>".($DatosActa["CiudadFirma"])."</strong>");
+
+            print(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]) en dos originales:");
+        break;    
         
     }
     

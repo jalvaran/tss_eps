@@ -1852,7 +1852,7 @@ function MostrarActa(){
         success: function(data){
             
            document.getElementById('DivTab8').innerHTML=data;
-           
+           $('#CmbFirmaUsual').select2();
            setTextareaHeight($('textarea'));
            DibujeFirmasActaConciliacion();
         },
@@ -2364,6 +2364,7 @@ function AgregueFirma(TipoFirma){
                 document.getElementById('TxtCargoFirmaActa').value='';
                 document.getElementById('TxtEmpresaFirmaActa').value='';
                 document.getElementById('CmbFirmaUsual').value='';
+                document.getElementById('select2-CmbFirmaUsual-container').innerHTML='Seleccione una Firma';
             }else if(respuestas[0]==="E1"){
                 
                 alertify.alert(respuestas[1]);
@@ -2449,8 +2450,7 @@ function EditeFirmaActaConciliacion(idFirma,idCajaFirma,CampoEditar){
            if(respuestas[0]==="OK"){   
                 
                 alertify.success(respuestas[1]);                
-                DibujeCompromisosActaConciliacion(idActaConciliacion);
-                document.getElementById('TxtCompromisoNuevo').value='';
+                
             }else if(respuestas[0]==="E1"){
                 
                 alertify.alert(respuestas[1]);
@@ -2470,6 +2470,91 @@ function EditeFirmaActaConciliacion(idFirma,idCajaFirma,CampoEditar){
             alert(thrownError);
           }
       })
+}
+
+
+function EliminarItem(Tabla,idItem){
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 22);
+        form_data.append('Tabla', Tabla);
+        form_data.append('idItem', idItem);  
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.error(respuestas[1]);                
+                DibujeFirmasActaConciliacion();
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function DibujeConstanciaFirmaActaConciliacion(){
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 31);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+            document.getElementById('DivConstanciaFirma').innerHTML=data;
+                        
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
 }
 
 document.getElementById('TabCuentas1').click();

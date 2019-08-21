@@ -715,7 +715,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     if($TxtRepresentanteActaConciliacion==''){
                         exit("E1;No se ha escrito el nombre del representante de la IPS;TxtRepresentanteActaConciliacion");
                     }else{
-                        $obCon->AgregueFirmaActa($idActaConciliacion, $TxtRepresentanteActaConciliacion, "", $DatosIPS["Nombre"]);
+                        $obCon->AgregueFirmaActa($idActaConciliacion, $TxtRepresentanteActaConciliacion, "REPRESENTANTE LEGAL", $DatosIPS["Nombre"]);
                     }
                 }else{
                     $DatosFirmas=$obCon->DevuelveValores("actas_conciliaciones_firmas_usuales", "ID", $CmbFirmaUsual);
@@ -764,6 +764,22 @@ if( !empty($_REQUEST["Accion"]) ){
             $obCon->ActualizaRegistro("actas_conciliaciones", "idUserUpdate",$idUser, "ID", $idActaConciliacion, 1);
             print("OK;Campo $CampoEditar de las firmas ha sido Editado");
         break;//Fin caso 21
+        
+        case 22://Eliminar el item de una tabla
+            $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
+            $idItem=$obCon->normalizar($_REQUEST["idItem"]);
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            
+            if($Tabla==1){
+                $obCon->BorraReg("actas_conciliaciones_firmas", "ID", $idItem);
+            }
+            
+            $obCon->ActualizaRegistro("actas_conciliaciones", "Updated", date("Y-m-d H:i:s"), "ID", $idActaConciliacion, 1);
+            $obCon->ActualizaRegistro("actas_conciliaciones", "idUserUpdate",$idUser, "ID", $idActaConciliacion, 1);
+            print("OK;Registro eliminado");
+        break;//Fin caso 22
         
     }
     
