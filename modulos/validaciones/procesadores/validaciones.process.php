@@ -722,10 +722,48 @@ if( !empty($_REQUEST["Accion"]) ){
                     $obCon->AgregueFirmaActa($idActaConciliacion, $DatosFirmas["Nombre"], $DatosFirmas["Cargo"], $DatosFirmas["Empresa"]);
                 }
             }
-            
+            if($TipoFirma=='2'){
+                if($TxtNombreFirmaActa==''){
+                    exit("E1;Debe Seleccionar el Nombre para la Firma;TxtNombreFirmaActa");
+                }
+                if($TxtCargoFirmaActa==''){
+                    exit("E1;Debe Digitar el Cargo de quien firma;TxtCargoFirmaActa");
+                }
+                if($TxtEmpresaFirmaActa==''){
+                    exit("E1;Debe Digitar La Empresa;TxtEmpresaFirmaActa");
+                }
+                $obCon->AgregueFirmaActa($idActaConciliacion, $TxtNombreFirmaActa, $TxtCargoFirmaActa, $TxtEmpresaFirmaActa);
+            }
             
             print("OK;Firma Agregada");
         break;//Fin caso 20
+        
+        case 21://Editar las firmas de un acta
+            $idFirma=$obCon->normalizar($_REQUEST["idFirma"]);
+            $idCajaFirma=$obCon->normalizar($_REQUEST["idCajaFirma"]);
+            $TxtValorNuevo=$obCon->normalizar($_REQUEST["TxtValorNuevo"]);
+            $CampoEditar=$obCon->normalizar($_REQUEST["CampoEditar"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);            
+            if($idFirma==''){
+                exit("E1;No se recibió el id de la Firma a Editar");
+                
+            }
+            if($TxtValorNuevo==''){
+                exit("E1;la caja de texto no puede estar vacía;$idCajaFirma");
+                
+            }
+            if($CampoEditar==''){
+                exit("E1;No se recibió el campo a Editar;$CampoEditar");
+                
+            }
+                        
+            $obCon->ActualizaRegistro("actas_conciliaciones_firmas", $CampoEditar, $TxtValorNuevo, "ID", $idFirma, 0);
+            $obCon->ActualizaRegistro("actas_conciliaciones", "Updated", date("Y-m-d H:i:s"), "ID", $idActaConciliacion, 1);
+            $obCon->ActualizaRegistro("actas_conciliaciones", "idUserUpdate",$idUser, "ID", $idActaConciliacion, 1);
+            print("OK;Campo $CampoEditar de las firmas ha sido Editado");
+        break;//Fin caso 21
         
     }
     

@@ -1854,6 +1854,7 @@ function MostrarActa(){
            document.getElementById('DivTab8').innerHTML=data;
            
            setTextareaHeight($('textarea'));
+           DibujeFirmasActaConciliacion();
         },
         error: function (xhr, ajaxOptions, thrownError) {
             LimpiarDivs();
@@ -1986,9 +1987,10 @@ function DibujeCompromisosActaConciliacion(idActaCompromiso){
         data: form_data,
         type: 'post',
         success: function(data){
-            console.log("Entra");
+            
             document.getElementById('DivCompromisosActaConciliacion').innerHTML=data;
             setTextareaHeight($('textarea'));
+            
             
         },
         error: function (xhr, ajaxOptions, thrownError) {
@@ -2356,9 +2358,99 @@ function AgregueFirma(TipoFirma){
             var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){   
                 
-                //DibujeFirmas();                
+                DibujeFirmasActaConciliacion();                
                 alertify.success(respuestas[1]);                
+                document.getElementById('TxtNombreFirmaActa').value='';
+                document.getElementById('TxtCargoFirmaActa').value='';
+                document.getElementById('TxtEmpresaFirmaActa').value='';
+                document.getElementById('CmbFirmaUsual').value='';
+            }else if(respuestas[0]==="E1"){
                 
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function DibujeFirmasActaConciliacion(){
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 30);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+            document.getElementById('DivFirmasActaConciliacion').innerHTML=data;
+                        
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+
+function EditeFirmaActaConciliacion(idFirma,idCajaFirma,CampoEditar){
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var TxtValorNuevo = document.getElementById(idCajaFirma).value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 21);
+        form_data.append('idFirma', idFirma);
+        form_data.append('TxtValorNuevo', TxtValorNuevo);  
+        form_data.append('CampoEditar', CampoEditar);  
+        form_data.append('idCajaFirma', idCajaFirma);  
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]);                
+                DibujeCompromisosActaConciliacion(idActaConciliacion);
+                document.getElementById('TxtCompromisoNuevo').value='';
             }else if(respuestas[0]==="E1"){
                 
                 alertify.alert(respuestas[1]);

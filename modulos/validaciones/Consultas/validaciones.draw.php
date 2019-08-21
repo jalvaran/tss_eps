@@ -3350,6 +3350,14 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                 print("</tr>");
                 
+                print("<tr>");
+                    print("<td colspan=3>");
+                        $css->CrearDiv("DivFirmasActaConciliacion", "", "left", 1, 1);
+                        
+                        $css->CerrarDiv();
+                    print("</td>");
+                print("</tr>");
+                
                 
             $css->CerrarTabla();
             
@@ -3376,6 +3384,33 @@ if( !empty($_REQUEST["Accion"]) ){
             }  
             
         break;// fin caso 29    
+        
+        case 30://Dibuja las firmas del acta
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            
+            if($idActaConciliacion==''){
+                $css->CrearTitulo("Por favor Seleccione un Acta", "rojo");
+                exit();
+            }
+            
+            $Consulta=$obCon->ConsultarTabla("actas_conciliaciones_firmas", "WHERE idActaConciliacion='$idActaConciliacion'");
+            $i=0;
+            while($DatosFirmas=$obCon->FetchAssoc($Consulta)){
+                
+                $css->CrearDiv("", "col-md-4", "left", 1, 1);
+                    print("<br><br><hr></hr>");
+                    $idFirma=$DatosFirmas["ID"];
+                    $NombreCaja="TxtFirmaNombreActa_".$idFirma; 
+                    $css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosFirmas["Nombre"], "Nombre", "off", "", "onchange=EditeFirmaActaConciliacion(`$idFirma`,`$NombreCaja`,`Nombre`);");
+                    $NombreCaja="TxtFirmaCargoActa_".$idFirma; 
+                    $css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosFirmas["Cargo"], "Cargo", "off", "", "onchange=EditeFirmaActaConciliacion(`$idFirma`,`$NombreCaja`,`Cargo`);");
+                    $NombreCaja="TxtFirmaEmpresaActa_".$idFirma; 
+                    $css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosFirmas["Empresa"], "Empresa", "off", "", "onchange=EditeFirmaActaConciliacion(`$idFirma`,`$NombreCaja`,`Empresa`);");
+                $css->CerrarDiv();
+                
+            }  
+            
+        break;// fin caso 30
         
     }
     
