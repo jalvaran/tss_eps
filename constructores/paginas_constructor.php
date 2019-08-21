@@ -1944,7 +1944,7 @@ class PageConstruct extends html_estruct_class{
         }
         
         public function IconButton($Name,$id,$iconClass,$Titulo,$js,$spanActivo=0,$style='') {
-            print('<a name='.$Name.' id="'.$id.'" '.$js.' class="btn btn-app" '.$style.' style="background-color:#d9e8ff;color:red">');
+            print('<a name='.$Name.' id="'.$id.'" '.$js.' class="btn btn-app" '.$style.'>');
             
             
             if($spanActivo==1){

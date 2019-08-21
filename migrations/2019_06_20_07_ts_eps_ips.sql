@@ -142,7 +142,7 @@ SELECT  t2.FechaFactura AS 'Fecha Factura',
         t2.ValorSegunEPS AS 'Saldo Eps',
         t2.ValorSegunIPS AS 'Saldo Ips',
 		t2.Diferencia AS 'Valor Diferencia'
-FROM vista_cruce_cartera_eps_relacionadas_ips t2;
+FROM vista_cruce_cartera_eps_relacionadas_ips t2 WHERE ValorIPSMenor='NO' AND Diferencia<>'0';
 
 
 DROP VIEW IF EXISTS `vista_cruce_totales_actas_conciliaciones`;

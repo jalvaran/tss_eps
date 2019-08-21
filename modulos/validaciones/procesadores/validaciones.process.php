@@ -281,13 +281,18 @@ if( !empty($_REQUEST["Accion"]) ){
             $ConciliadorIPSMasivo=$obCon->normalizar($_REQUEST["ConciliadorIPSMasivo"]);
             $CmbMetodoConciliacionMasivo=$obCon->normalizar($_REQUEST["CmbMetodoConciliacionMasivo"]);
             $CmbConceptoConciliacion=$obCon->normalizar($_REQUEST["CmbConceptoConciliacion"]);
+            $CmbConceptoConciliacionAGS=$obCon->normalizar($_REQUEST["CmbConceptoConciliacionAGS"]);
             
             if($CmbIPS==""){
                 exit("E1;No se recibió una IPS;CmbIPS");
             }
             
-            if($CmbConceptoConciliacion==""){
+            if($CmbConceptoConciliacion=="" AND $CmbConceptoConciliacionAGS==""){
                 exit("E1;Debe Seleccionar un Concepto de Conciliacion;CmbConceptoConciliacion");
+            }
+            
+            if($CmbConceptoConciliacion>0 AND $CmbConceptoConciliacionAGS>0){
+                exit("E1;Solo es posible seleccionar un concepto de conciliación;CmbConceptoConciliacion");
             }
             
             if($CmbEPS==""){
@@ -410,14 +415,18 @@ if( !empty($_REQUEST["Accion"]) ){
             $ConciliadorIPSMasivo=$obCon->normalizar($_REQUEST["ConciliadorIPSMasivo"]);
             $CmbMetodoConciliacionMasivo=$obCon->normalizar($_REQUEST["CmbMetodoConciliacionMasivo"]);
             $CmbConceptoConciliacion=$obCon->normalizar($_REQUEST["CmbConceptoConciliacion"]);
-            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
-            $db=$DatosCargas["DataBase"];
+            $CmbConceptoConciliacionAGS=$obCon->normalizar($_REQUEST["CmbConceptoConciliacionAGS"]);
             if($CmbIPS==""){
                 exit("E1;No se recibió una IPS;CmbIPS");
             }
-            if($CmbConceptoConciliacion==""){
+            if($CmbConceptoConciliacion=="" AND $CmbConceptoConciliacionAGS==""){
                 exit("E1;Debe Seleccionar un Concepto de Conciliacion;CmbConceptoConciliacion");
             }
+            
+            if($CmbConceptoConciliacion>0 AND $CmbConceptoConciliacionAGS>0){
+                exit("E1;Solo es posible seleccionar un concepto de conciliación;CmbConceptoConciliacion");
+            }
+            
             if($CmbEPS==""){
                 exit("E1;No se recibió una EPS;CmbEPS");
             }
@@ -433,6 +442,9 @@ if( !empty($_REQUEST["Accion"]) ){
             if($CmbMetodoConciliacionMasivo==""){
                 exit("E1;Debe Seleccionar el metodo utilizado para conciliar;CmbMetodoConciliacionMasivo");
             }
+            
+            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosCargas["DataBase"];
             $sql="UPDATE $db.temp_conciliaciones_cruces t1 INNER JOIN $db.vista_cruce_cartera_asmet t2 ON t1.NumeroFactura=t2.NumeroFactura "
                     . " SET t1.NumeroContrato=t2.NumeroContrato, t1.MesServicio=t2.MesServicio, t1.FechaFactura=t2.FechaFactura, "
                     . "  t1.NumeroRadicado=t2.NumeroRadicado,  t1.Pendientes=t2.Pendientes,  t1.FechaRadicado=t2.FechaRadicado,  t1.ValorOriginal=t2.ValorDocumento, "
@@ -460,14 +472,18 @@ if( !empty($_REQUEST["Accion"]) ){
             $ConciliadorIPSMasivo=$obCon->normalizar($_REQUEST["ConciliadorIPSMasivo"]);
             $CmbMetodoConciliacionMasivo=$obCon->normalizar($_REQUEST["CmbMetodoConciliacionMasivo"]);
             $CmbConceptoConciliacion=$obCon->normalizar($_REQUEST["CmbConceptoConciliacion"]);
-            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
-            $db=$DatosCargas["DataBase"];
+            $CmbConceptoConciliacionAGS=$obCon->normalizar($_REQUEST["CmbConceptoConciliacionAGS"]);
             if($CmbIPS==""){
                 exit("E1;No se recibió una IPS;CmbIPS");
             }
-            if($CmbConceptoConciliacion==""){
+            if($CmbConceptoConciliacion=="" AND $CmbConceptoConciliacionAGS==""){
                 exit("E1;Debe Seleccionar un Concepto de Conciliacion;CmbConceptoConciliacion");
             }
+            
+            if($CmbConceptoConciliacion>0 AND $CmbConceptoConciliacionAGS>0){
+                exit("E1;Solo es posible seleccionar un concepto de conciliación;CmbConceptoConciliacion");
+            }
+            
             if($CmbEPS==""){
                 exit("E1;No se recibió una EPS;CmbEPS");
             }
@@ -483,6 +499,9 @@ if( !empty($_REQUEST["Accion"]) ){
             if($CmbMetodoConciliacionMasivo==""){
                 exit("E1;Debe Seleccionar el metodo utilizado para conciliar;CmbMetodoConciliacionMasivo");
             }
+            
+            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosCargas["DataBase"];
             $sql="INSERT INTO $db.conciliaciones_cruces (NumeroContrato,NumeroFactura,MesServicio,FechaFactura,NumeroRadicado,"
                     . "Pendientes,FechaRadicado,ValorOriginal,ValorImpuestoCalculado,ValorImpuestoRetenciones,ValorMenosImpuesto,"
                     . "ValorPagos,ValorAnticipos,ValorCopagos,ValorDevoluciones,ValorGlosaInicial,ValorGlosaFavor,ValorGlosaContra,"
@@ -620,6 +639,8 @@ if( !empty($_REQUEST["Accion"]) ){
             }
                         
             $obCon->ActualizaRegistro("actas_conciliaciones", $CampoAEditar, $NuevoValor, "ID", $idActaConciliacion, 0);
+            $obCon->ActualizaRegistro("actas_conciliaciones", "Updated", date("Y-m-d H:i:s"), "ID", $idActaConciliacion, 0);
+            $obCon->ActualizaRegistro("actas_conciliaciones", "idUserUpdate",$idUser, "ID", $idActaConciliacion, 0);
             print("OK;Campo $CampoAEditar del Acta de conciliación Editado");
         break;//Fin caso 17
         
@@ -659,6 +680,52 @@ if( !empty($_REQUEST["Accion"]) ){
             $CamposDiferencias= json_encode($DetalleDiferencias, JSON_FORCE_OBJECT);
             print("OK;Proceso 2 terminado;$CamposDiferencias");
         break;//Fin caso 19
+        
+        case 20://Guarda la
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $TipoFirma=$obCon->normalizar($_REQUEST["TipoFirma"]);
+            $CmbFirmaUsual=$obCon->normalizar($_REQUEST["CmbFirmaUsual"]);
+            $TxtNombreFirmaActa=$obCon->normalizar($_REQUEST["TxtNombreFirmaActa"]);
+            $TxtCargoFirmaActa=$obCon->normalizar($_REQUEST["TxtCargoFirmaActa"]);
+            $TxtEmpresaFirmaActa=$obCon->normalizar($_REQUEST["TxtEmpresaFirmaActa"]);
+            $TxtRepresentanteActaConciliacion=$obCon->normalizar($_REQUEST["TxtRepresentanteActaConciliacion"]);
+            
+            if($idActaConciliacion==''){
+                exit("E1;No se recibió el id del Acta");
+                
+            }
+            
+            if($TipoFirma==''){
+                exit("E1;No se recibió el Tipo de Firma a agregar");
+                
+            }
+            
+            if($TipoFirma=='1'){
+                if($CmbFirmaUsual==''){
+                    exit("E1;Debe Seleccionar una Firma Usual;CmbFirmaUsual");
+                }
+                if($CmbFirmaUsual=='RI'){
+                    if($TxtRepresentanteActaConciliacion==''){
+                        exit("E1;No se ha escrito el nombre del representante de la IPS;TxtRepresentanteActaConciliacion");
+                    }else{
+                        $obCon->AgregueFirmaActa($idActaConciliacion, $TxtRepresentanteActaConciliacion, "", $DatosIPS["Nombre"]);
+                    }
+                }else{
+                    $DatosFirmas=$obCon->DevuelveValores("actas_conciliaciones_firmas_usuales", "ID", $CmbFirmaUsual);
+                    $obCon->AgregueFirmaActa($idActaConciliacion, $DatosFirmas["Nombre"], $DatosFirmas["Cargo"], $DatosFirmas["Empresa"]);
+                }
+            }
+            
+            
+            print("OK;Firma Agregada");
+        break;//Fin caso 20
         
     }
     

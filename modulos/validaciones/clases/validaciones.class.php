@@ -566,7 +566,13 @@ class ValidacionesEPS extends conexion{
         return($DetalleDiferencias);
     }
     
-    public function BusqueDiferenciasEnVector($NumeroFactura) {
+    public function AgregueFirmaActa($idActa,$Nombre,$Cargo,$Empresa) {
+        $Datos["idActaConciliacion"]=$idActa;
+        $Datos["Nombre"]=$Nombre;
+        $Datos["Cargo"]=$Cargo;
+        $Datos["Empresa"]=$Empresa;
+        $sql=$this->getSQLInsert("actas_conciliaciones_firmas", $Datos);
+        $this->Query($sql);
         
     }
     

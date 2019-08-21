@@ -1245,6 +1245,7 @@ function LeerArchivoConciliacionesMasivas(){
     var ConciliadorIPSMasivo=document.getElementById('ConciliadorIPSMasivo').value;
     var CmbMetodoConciliacionMasivo=document.getElementById('CmbMetodoConciliacionMasivo').value;
     var CmbConceptoConciliacion=document.getElementById('CmbConceptoConciliacion').value;
+    var CmbConceptoConciliacionAGS=document.getElementById('CmbConceptoConciliacionAGS').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
     
@@ -1254,6 +1255,7 @@ function LeerArchivoConciliacionesMasivas(){
         form_data.append('ConciliadorIPSMasivo', ConciliadorIPSMasivo);
         form_data.append('CmbMetodoConciliacionMasivo', CmbMetodoConciliacionMasivo);
         form_data.append('CmbConceptoConciliacion', CmbConceptoConciliacion);
+        form_data.append('CmbConceptoConciliacionAGS', CmbConceptoConciliacionAGS);
         form_data.append('UpConciliacionMasiva', $('#UpConciliacionMasiva').prop('files')[0]);
         form_data.append('UpSoporteConciliacionMasiva', $('#UpSoporteConciliacionMasiva').prop('files')[0]);
         form_data.append('CmbEPS', CmbEPS);
@@ -1310,6 +1312,7 @@ function ActualiceConciliacionTemporalMasiva(){
     var ConciliadorIPSMasivo=document.getElementById('ConciliadorIPSMasivo').value;
     var CmbMetodoConciliacionMasivo=document.getElementById('CmbMetodoConciliacionMasivo').value;
     var CmbConceptoConciliacion=document.getElementById('CmbConceptoConciliacion').value;
+    var CmbConceptoConciliacionAGS=document.getElementById('CmbConceptoConciliacionAGS').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
     
@@ -1319,6 +1322,7 @@ function ActualiceConciliacionTemporalMasiva(){
         form_data.append('ConciliadorIPSMasivo', ConciliadorIPSMasivo);
         form_data.append('CmbMetodoConciliacionMasivo', CmbMetodoConciliacionMasivo);
         form_data.append('CmbConceptoConciliacion', CmbConceptoConciliacion);
+        form_data.append('CmbConceptoConciliacionAGS', CmbConceptoConciliacionAGS);
         form_data.append('UpConciliacionMasiva', $('#UpConciliacionMasiva').prop('files')[0]);
         form_data.append('UpSoporteConciliacionMasiva', $('#UpSoporteConciliacionMasiva').prop('files')[0]);
         form_data.append('CmbEPS', CmbEPS);
@@ -1374,6 +1378,7 @@ function InserteConciliacionesMasivas(){
     var ConciliadorIPSMasivo=document.getElementById('ConciliadorIPSMasivo').value;
     var CmbMetodoConciliacionMasivo=document.getElementById('CmbMetodoConciliacionMasivo').value;
     var CmbConceptoConciliacion=document.getElementById('CmbConceptoConciliacion').value;
+    var CmbConceptoConciliacionAGS=document.getElementById('CmbConceptoConciliacionAGS').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
     
@@ -1383,6 +1388,7 @@ function InserteConciliacionesMasivas(){
         form_data.append('ConciliadorIPSMasivo', ConciliadorIPSMasivo);
         form_data.append('CmbMetodoConciliacionMasivo', CmbMetodoConciliacionMasivo);
         form_data.append('CmbConceptoConciliacion', CmbConceptoConciliacion);
+        form_data.append('CmbConceptoConciliacionAGS', CmbConceptoConciliacionAGS);
         form_data.append('UpConciliacionMasiva', $('#UpConciliacionMasiva').prop('files')[0]);
         form_data.append('UpSoporteConciliacionMasiva', $('#UpSoporteConciliacionMasiva').prop('files')[0]);
         form_data.append('CmbEPS', CmbEPS);
@@ -2197,7 +2203,8 @@ function CalcularDiferenciasActaConciliacionProceso2(DetalleDiferencias){
 }
 
 function EscribaDiferenciasActas(DetalleDiferencias){
-    document.getElementById('TxtACDiferenciaXPagos').value=DetalleDiferencias.DiferenciaXPagos;
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    document.getElementById('TxtACDiferenciaXPagos').value=DetalleDiferencias.DiferenciaXPagos;    
     document.getElementById('TxtACFacturasIPSNoRelacionadasEPS').value=DetalleDiferencias.FacturasIPSNoRelacionadasEPS;   
     document.getElementById('TxtACGlosasPendientesXConciliar').value=DetalleDiferencias.GlosasPendientesXConciliar;     
     document.getElementById('TxtACFacturasDevueltas').value=DetalleDiferencias.FacturasDevueltas;
@@ -2282,61 +2289,58 @@ function EscribaValoresEnSpanDiferenciasActas(){
     var Numero = number_format(Valor);
     document.getElementById('spACTotalDiferencias').innerHTML=Numero;
     
+    GuardarDiferenciasActaConciliacion();
 }
 
 
 function GuardarDiferenciasActaConciliacion(){
-    var HoraActual=ObtenerHora();
-    var DivMensajes = document.getElementById('DivMensajesGuardarDiferenciasActa');
-    DivMensajes.innerHTML=DivMensajes.innerHTML+"<br><strong>("+HoraActual+") Guardando Acta...</strong>";
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    
+    EditeActaConciliacion(idActaConciliacion,'TxtACDiferenciaXPagos','DiferenciaXPagos');    
+    EditeActaConciliacion(idActaConciliacion,'TxtACFacturasIPSNoRelacionadasEPS','FacturasNoRegistradasXEPS');
+    EditeActaConciliacion(idActaConciliacion,'TxtACGlosasPendientesXConciliar','GlosasPendientesXConciliar');
+    EditeActaConciliacion(idActaConciliacion,'TxtACFacturasDevueltas','TotalDevoluciones');
+    EditeActaConciliacion(idActaConciliacion,'TxtACDiferenciaXImpuestos','ImpuestosNoRelacionadosIPS');
+    EditeActaConciliacion(idActaConciliacion,'TxtACDescuentoXRetefuente','RetefuenteNoMerecida');
+    EditeActaConciliacion(idActaConciliacion,'TxtACFacturasNoRelacionadasXIPS','FacturasSinRelacionIPS');
+    EditeActaConciliacion(idActaConciliacion,'TxtACRetencionesImpuestosNoProcedentes','RetencionesImpuestosNoProcedentes');
+    EditeActaConciliacion(idActaConciliacion,'TxtACAjustesDeCartera','AjustesDeCartera');
+    EditeActaConciliacion(idActaConciliacion,'TxtACDiferenciaXValorFacturado','FacturasConValorDiferente');
+    EditeActaConciliacion(idActaConciliacion,'TxtACDiferenciaXUPC','FacturasConReajusteUPC');
+    EditeActaConciliacion(idActaConciliacion,'TxtACGlosasPendientesXDescargarIPS','GlosasConciliadasPendientesDescargaIPS');
+    EditeActaConciliacion(idActaConciliacion,'TxtACAnticiposPendientesXCruzar','TotalAnticipos');
+    EditeActaConciliacion(idActaConciliacion,'TxtACDescuentosLMA','DescuentosReconocimientosLMA');
+    EditeActaConciliacion(idActaConciliacion,'TxtACPendientesAuditoria','FacturasPendienteAuditoria');
+    
+    EditeActaConciliacion(idActaConciliacion,'ACValorSegunEPS','ValorSegunEPS');
+    EditeActaConciliacion(idActaConciliacion,'ACValorSegunIPS','ValorSegunIPS');
+    EditeActaConciliacion(idActaConciliacion,'TxtACTotalDiferencias','Diferencia');
+    EditeActaConciliacion(idActaConciliacion,'TxtACSaldoAcuerdoPago','SaldoConciliadoPago');
+}
+
+function AgregueFirma(TipoFirma){
     
     var idActaConciliacion=document.getElementById('idActaConciliacion').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
-    var ValorSegunEPS=document.getElementById('ACValorSegunEPS').value;
-    var ValorSegunIPS=document.getElementById('ACValorSegunIPS').value;
-    var Diferencia=document.getElementById('ACDiferencia').value;
-    
-    var TxtACDiferenciaXPagos=document.getElementById('TxtACDiferenciaXPagos').value;
-    var TxtACFacturasIPSNoRelacionadasEPS=document.getElementById('TxtACFacturasIPSNoRelacionadasEPS').value;
-    var TxtACGlosasPendientesXConciliar=document.getElementById('TxtACGlosasPendientesXConciliar').value;
-    var TxtACFacturasDevueltas=document.getElementById('TxtACFacturasDevueltas').value;
-    var TxtACDiferenciaXImpuestos=document.getElementById('TxtACDiferenciaXImpuestos').value;
-    var TxtACDescuentoXRetefuente=document.getElementById('TxtACDescuentoXRetefuente').value;
-    var TxtACFacturasNoRelacionadasXIPS=document.getElementById('TxtACFacturasNoRelacionadasXIPS').value;
-    var TxtACRetencionesImpuestosNoProcedentes=document.getElementById('TxtACRetencionesImpuestosNoProcedentes').value;
-    var TxtACAjustesDeCartera=document.getElementById('TxtACAjustesDeCartera').value;
-    var TxtACDiferenciaXValorFacturado=document.getElementById('TxtACDiferenciaXValorFacturado').value;
-    var TxtACDiferenciaXUPC=document.getElementById('TxtACDiferenciaXUPC').value;
-    var TxtACGlosasPendientesXDescargarIPS=document.getElementById('TxtACGlosasPendientesXDescargarIPS').value;
-    var TxtACAnticiposPendientesXCruzar=document.getElementById('TxtACAnticiposPendientesXCruzar').value;
-    var TxtACDescuentosLMA=document.getElementById('TxtACDescuentosLMA').value;
-    var TxtACPendientesAuditoria=document.getElementById('TxtACPendientesAuditoria').value;
+    var CmbFirmaUsual=document.getElementById('CmbFirmaUsual').value;
+    var TxtNombreFirmaActa=document.getElementById('TxtNombreFirmaActa').value;
+    var TxtCargoFirmaActa=document.getElementById('TxtCargoFirmaActa').value;
+    var TxtEmpresaFirmaActa=document.getElementById('TxtEmpresaFirmaActa').value;
+    var TxtRepresentanteActaConciliacion=document.getElementById('TxtRepresentanteActaConciliacion').value;
     
     var form_data = new FormData();
         form_data.append('Accion', 20);
         form_data.append('idActaConciliacion', idActaConciliacion);        
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
-        form_data.append('ValorSegunEPS', ValorSegunEPS);
-        form_data.append('ValorSegunIPS', ValorSegunIPS);
-        form_data.append('Diferencia', Diferencia);
-        
-        form_data.append('TxtACDiferenciaXPagos', TxtACDiferenciaXPagos);
-        form_data.append('TxtACFacturasIPSNoRelacionadasEPS', TxtACFacturasIPSNoRelacionadasEPS);
-        form_data.append('TxtACGlosasPendientesXConciliar', TxtACGlosasPendientesXConciliar);
-        form_data.append('TxtACFacturasDevueltas', TxtACFacturasDevueltas);
-        form_data.append('TxtACDiferenciaXImpuestos', TxtACDiferenciaXImpuestos);
-        form_data.append('TxtACDescuentoXRetefuente', TxtACDescuentoXRetefuente);
-        form_data.append('TxtACFacturasNoRelacionadasXIPS', TxtACFacturasNoRelacionadasXIPS);
-        form_data.append('TxtACRetencionesImpuestosNoProcedentes', TxtACRetencionesImpuestosNoProcedentes);
-        form_data.append('TxtACAjustesDeCartera', TxtACAjustesDeCartera);
-        form_data.append('TxtACDiferenciaXValorFacturado', TxtACDiferenciaXValorFacturado);
-        form_data.append('TxtACDiferenciaXUPC', TxtACDiferenciaXUPC);
-        form_data.append('TxtACGlosasPendientesXDescargarIPS', TxtACGlosasPendientesXDescargarIPS);
-        form_data.append('TxtACAnticiposPendientesXCruzar', TxtACAnticiposPendientesXCruzar);
-        form_data.append('TxtACDescuentosLMA', TxtACDescuentosLMA);
-        form_data.append('TxtACPendientesAuditoria', TxtACPendientesAuditoria);
+        form_data.append('TipoFirma', TipoFirma);
+        form_data.append('CmbFirmaUsual', CmbFirmaUsual);
+        form_data.append('TxtNombreFirmaActa', TxtNombreFirmaActa);
+        form_data.append('TxtCargoFirmaActa', TxtCargoFirmaActa);
+        form_data.append('TxtEmpresaFirmaActa', TxtEmpresaFirmaActa);
+        form_data.append('TxtRepresentanteActaConciliacion', TxtRepresentanteActaConciliacion);
         
         
     $.ajax({
@@ -2351,11 +2355,10 @@ function GuardarDiferenciasActaConciliacion(){
         success: function(data){
             var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){   
-                var HoraActual=ObtenerHora();
-                DivMensajes.innerHTML=DivMensajes.innerHTML+"<br><strong>("+HoraActual+") Acta De conciliación guardada...</strong>";
-                                
+                
+                //DibujeFirmas();                
                 alertify.success(respuestas[1]);                
-                document.getElementById('GifProcess').innerHTML='';
+                
             }else if(respuestas[0]==="E1"){
                 
                 alertify.alert(respuestas[1]);
