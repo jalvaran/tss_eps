@@ -449,6 +449,7 @@ class ValidacionesEPS extends conexion{
     
     public function CrearActaConciliacion($FechaCorte,$CmbIPS,$RepresentanteLegalIPS,$EncargadoEPS,$idUser) {
         $FechaRegistro=date("Y-m-d H:i:s");
+        $FechaFirma=date("Y-m-d");
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $CmbIPS);
         
         $Datos["FechaCorte"]=$FechaCorte;
@@ -457,6 +458,8 @@ class ValidacionesEPS extends conexion{
         $Datos["RepresentanteLegal"]=$RepresentanteLegalIPS;
         $Datos["Departamento"]=$DatosIPS["Departamento"];
         $Datos["EncargadoEPS"]=$EncargadoEPS;
+        $Datos["FechaFirma"]=$FechaFirma;
+        $Datos["CiudadFirma"]='Popayán';   
         $Datos["idUser"]=$idUser;
         $Datos["FechaRegistro"]=$FechaRegistro;
         $sql=$this->getSQLInsert("actas_conciliaciones", $Datos);
@@ -467,10 +470,10 @@ class ValidacionesEPS extends conexion{
     
     public function AgregarCompromisoActaConciliacion($idActaConciliacion,$TxtCompromisoNuevo,$Responsable,$idUser) {
         $FechaRegistro=date("Y-m-d H:i:s");
-        
+        $FechaFirma=date("Y-m-d");
         $Datos["idActaConciliacion"]=$idActaConciliacion;
         $Datos["ResultadoCompromiso"]=$TxtCompromisoNuevo;
-        $Datos["Responsable"]=$Responsable;
+        $Datos["Responsable"]=$Responsable;            
         $Datos["idUser"]=$idUser;
         $Datos["FechaRegistro"]=$FechaRegistro;
         

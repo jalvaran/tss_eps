@@ -92,7 +92,10 @@ if( !empty($_REQUEST["Accion"]) ){
                     . " or cips.TipoRegimen<>t.TipoRegimen ;";
             $obCon->Query($sql);
             $sql="INSERT INTO $db.`actualizacioncarteracargadaips` 
-                    SELECT * FROM $db.`carteracargadaips` as t1 WHERE t1.FlagUpdate=1";
+                    (NitEPS,NitIPS,NumeroFactura,FechaFactura,NumeroCuentaGlobal,NumeroRadicado,FechaRadicado,TipoNegociacion,NumeroContrato,DiasPactados,TipoRegimen,ValorDocumento,ValorGlosaInicial,ValorGlosaAceptada,ValorGlosaConciliada,ValorDescuentoBdua,ValorAnticipos,ValorRetencion,Copagos,Devoluciones,Pagos,ValorTotalpagar,FechaHasta,Soporte,idUser,FechaRegistro,FechaActualizacion,FlagUpdate,ConciliadoXIPS,ConciliadoXEPS,NoRelacionada)
+                    SELECT 
+                    NitEPS,NitIPS,NumeroFactura,FechaFactura,NumeroCuentaGlobal,NumeroRadicado,FechaRadicado,TipoNegociacion,NumeroContrato,DiasPactados,TipoRegimen,ValorDocumento,ValorGlosaInicial,ValorGlosaAceptada,ValorGlosaConciliada,ValorDescuentoBdua,ValorAnticipos,ValorRetencion,Copagos,Devoluciones,Pagos,ValorTotalpagar,FechaHasta,Soporte,idUser,FechaRegistro,FechaActualizacion,FlagUpdate,ConciliadoXIPS,ConciliadoXEPS,NoRelacionada 
+                    FROM $db.`carteracargadaips` as t1 WHERE t1.FlagUpdate=1";
             $obCon->Query($sql);
             
             print("OK;Analisis de Actualizaciones de Facturas Completo");
@@ -111,10 +114,13 @@ if( !empty($_REQUEST["Accion"]) ){
             
              * 
              */
-            //$obCon->VaciarTabla("$db.`carteracargadaips`");
-            $obCon->BorraReg("$db.carteracargadaips", "NitEPS", $CmbEPS);
-            $sql="INSERT INTO $db.`carteracargadaips`  
-                    SELECT * FROM $db.`temporalcarguecarteraips` WHERE NitEPS='$CmbEPS'; ";
+            $obCon->VaciarTabla("$db.`carteracargadaips`");
+            //$obCon->BorraReg("$db.carteracargadaips", "NitEPS", $CmbEPS);
+            $sql="INSERT INTO $db.`carteracargadaips` 
+                    (NitEPS,NitIPS,NumeroFactura,FechaFactura,NumeroCuentaGlobal,NumeroRadicado,FechaRadicado,TipoNegociacion,NumeroContrato,DiasPactados,TipoRegimen,ValorDocumento,ValorGlosaInicial,ValorGlosaAceptada,ValorGlosaConciliada,ValorDescuentoBdua,ValorAnticipos,ValorRetencion,Copagos,Devoluciones,Pagos,ValorTotalpagar,FechaHasta,Soporte,idUser,FechaRegistro,FechaActualizacion,FlagUpdate,ConciliadoXIPS,ConciliadoXEPS) 
+                    SELECT 
+                    NitEPS,NitIPS,NumeroFactura,FechaFactura,NumeroCuentaGlobal,NumeroRadicado,FechaRadicado,TipoNegociacion,NumeroContrato,DiasPactados,TipoRegimen,ValorDocumento,ValorGlosaInicial,ValorGlosaAceptada,ValorGlosaConciliada,ValorDescuentoBdua,ValorAnticipos,ValorRetencion,Copagos,Devoluciones,Pagos,ValorTotalpagar,FechaHasta,Soporte,idUser,FechaRegistro,FechaActualizacion,FlagUpdate,ConciliadoXIPS,ConciliadoXEPS   
+                    FROM $db.`temporalcarguecarteraips`; ";
             $obCon->Query($sql);
             
             print("OK;Registros realizados correctamente");

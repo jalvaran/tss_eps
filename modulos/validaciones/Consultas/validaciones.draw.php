@@ -2916,7 +2916,10 @@ if( !empty($_REQUEST["Accion"]) ){
             $sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='2' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura); ";
             $TotalesConciliacionesFactura=$obCon->FetchAssoc($obCon->Query($sql));
             
-            $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados;
+            $sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='1' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura); ";
+            $TotalesConciliacionesFavorEPS=$obCon->FetchAssoc($obCon->Query($sql));
+            
+            $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados-$TotalesConciliacionesFavorEPS["ValorConciliaciones"];
             $ValorSegunIPS=$TotalesCruce["TotalIPS"]-$TotalFacturasSinRelacionsrXIPS;
             $Diferencia=$ValorSegunEPS-$ValorSegunIPS;
             $SaldoConciliadoParaPago=$ValorSegunEPS+$TotalesConciliacionesFactura["ValorConciliaciones"];
@@ -3378,12 +3381,34 @@ if( !empty($_REQUEST["Accion"]) ){
                 print("</tr>");
                 print("<tr>");
                     print("<td colspan=3>");
-                        print("<strong>Cerrar Documento:<strong>");
+                        print("<strong>Opciones del Documento:<strong>");
+                    print("</td>");
+                print("</tr>");
+                print("<tr>");
+                
+                print("<tr>");
+                    print("<td>");
+                        print("<strong>Imprimir<strong>");
+                    print("</td>");
+                    print("<td>");
+                        print("<strong>Soporte del Acta<strong>");
+                    print("</td>");
+                    
+                    print("<td>");
+                        print("<strong>Cerrar Acta<strong>");
                     print("</td>");
                 print("</tr>");
                 print("<tr>");
                     
-                    print("<td colspan=3>");
+                    print("<td>");
+                        $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=36&idActaConciliacion=$idActaConciliacion";
+                        print("<a href='$Ruta' target='_BLANK'><button class='btn btn-success' >Imprimir</button></a>");
+                        
+                    print("</td>");
+                    print("<td>");        
+                       $css->input("file", "UpSoporteActaConciliacionCierre", "", "UpSoporteActaConciliacionCierre", "Soporte Acta", "Subir Acta Firmada", "Subir Acta Firmada", "off", "", "");
+                    print("</td>");
+                    print("<td>");
         
                         $css->CrearBotonEvento("btnGuardarConciliacion", "Cerrar Acta", 1, "onclick", "CerrarActaConciliacion()", "rojo", "");
                         $css->CrearDiv("DivMensajesCerrarActa", "", "center", 1, 1);
