@@ -4,7 +4,7 @@
  * Julian Alvaran
  * Techno Soluciones SAS
  */
-//include_once '../../modelo/php_tablas.php';
+include_once 'numeros_letras.class.php';
 class Documento{
     /**
      * Constructor 
@@ -34,7 +34,7 @@ class Documento{
                 }
         }
         // create new PDF document
-        $this->PDF = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'ISO 8859-1', false);
+        $this->PDF = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF8', false);
         // set document information
         $this->PDF->SetCreator(PDF_CREATOR);
         $this->PDF->SetAuthor('Techno Soluciones');
@@ -2291,6 +2291,359 @@ $tbl.= "</table>";
 
     }
     
+    public function ActaConciliacionPDF($idActaConciliacion) {
+        
+        $DatosActa=$this->obCon->DevuelveValores("actas_conciliaciones","ID",$idActaConciliacion);
+                
+        $this->PDF_Ini("Acta de Concilacion", 7, "");
+        $html= $this->EncabezadoActaConciliacion($idActaConciliacion);
+        $this->PDF->writeHTML($html, true, false, false, false, '');
+        
+        $html= $this->DatosGeneralesActaConciliacion($DatosActa);
+        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        
+        $html= $this->DiferenciasActaConciliacion($DatosActa);
+        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        
+        $html= $this->ResultadosCompromisosActa($idActaConciliacion);
+        $this->PDF->writeHTML("".$html, true, false, false, false, '');
+        
+        $html=$this->FirmasActaConciliacion($DatosActa);
+        $this->PDF->writeHTML("<br><hr><br>".$html."", true, false, false, false, '');
+        /*
+        $html= $this->HTML_Movimiento_Contable("CompEgreso",$idEgreso,"");
+        $this->PDF_Write("<br><br><br><br><br><br><br><br><br>".$html);
+        $html= $this->HTML_Movimiento_Firmas_Egresos($Valor);
+        $this->PDF_Write("<br><br>".$html);
+         * 
+         */
+        $this->PDF_Output("Acta_Conciliacion_$idActaConciliacion");
+    }
+    
+    public function EncabezadoActaConciliacion($idActaConciliacion) {
+        $RutaLogoASMET="../../LogosEmpresas/logoAsmet.png";
+        $RutaLogoAGS="../../LogosEmpresas/logoAGS.png";
+        $html =' 
+                <table cellspacing="0" cellpadding="1" border="0">
+                    <tr border="0">
+                        <td border="0" style="text-align: center;"><img src="'.$RutaLogoASMET.'" style="width:200px;height:60px;"></td>
+                        <td width="290px" style="text-align: center; vertical-align: center;"><h3><br>ACTA DE CONCILIACION No. '.$idActaConciliacion.'</h3></td>
+                        <td border="0" style="text-align: center;"><img src="'.$RutaLogoAGS.'" style="width:80px;height:60px;"></td>
+                    </tr>
+                    
+                </table>
+                ';
+        return($html);
+    }
+    
+    public function DatosGeneralesActaConciliacion($DatosActa) {
+        $html='<table cellspacing="2" cellpadding="2" border="0" >';
+            
+            $html.='<tr border="0" >';
+                $html.='<td border="0" width="200px">';
+                    $html.='<h3>Proveedor:</h3>';
+                $html.='</td>'; 
+                
+                $html.='<td  border="0" colspan=2>';
+                    $html.="<h3>".$DatosActa["RazonSocialIPS"]."</h3>";
+                $html.='</td>'; 
+                
+            $html.='</tr>';
+            $html.='<tr>';
+                $html.='<td  border="0">';
+                    $html.='<h3>Representante IPS:</h3>';
+                $html.='</td>';  
+                $html.='<td  border="0" colspan=2>';
+                    $html.="<h3>".$DatosActa["RepresentanteLegal"]."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            $html.='<tr>';
+                $html.='<td  border="0">';
+                    $html.='<h3>NIT:</h3>';
+                $html.='</td>';  
+                $html.='<td border="0" colspan=2>';
+                    $html.="<h3>".$DatosActa["NIT_IPS"]."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            $html.='<tr>';
+                $html.='<td border="0" >';
+                    $html.='<h3>Departamento:</h3>';
+                $html.='</td>';  
+                $html.='<td border="0" colspan=2>';
+                    $html.="<h3>".$DatosActa["Departamento"]."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            $html.='<tr>';
+                $html.='<td border="0">';
+                    $html.='<h3>Encargado Asmet Salud:</h3>';
+                $html.='</td>';  
+                $html.='<td border="0" colspan=2>';
+                    $html.="<h3>".$DatosActa["EncargadoEPS"]."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            $html.='<tr>';
+                $html.='<td border="0">';
+                    $html.='<h3>Mes de Corte:</h3>';
+                $html.='</td>';  
+                $html.='<td border="0" colspan=2>';
+                    $html.="<h3>".$DatosActa["FechaCorte"]."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+        $html.='</table><br><br>';
+        
+        $html.='<table cellspacing="2" cellpadding="2" border="0">';
+            $html.='<tr>';
+                $html.='<td style="text-align:left;">';
+                    $html.='Total Cuenta por pagar ASMET SALUD al corte:';
+                $html.='</td>';
+                $html.='<td>';
+                    $html.=' ';
+                $html.='</td>';
+                $html.='<td border="1" style="text-align:right;">';
+                    $html.="<h3>$ ".number_format($DatosActa["ValorSegunEPS"])."</h3>";
+                $html.='</td>';
+            $html.='</tr>';
+            $html.='<tr>';
+                $html.='<td>';
+                    $html.='Total Cuenta por Pagar del proveedor  al corte:';
+                $html.='</td>';
+                $html.='<td>';
+                    $html.=' ';
+                $html.='</td>';
+                $html.='<td border="1" style="text-align:right;">';
+                    $html.="<h3>$ ".number_format($DatosActa["ValorSegunIPS"])."</h3>";
+                $html.='</td>';
+            $html.='</tr>';
+            $html.='<tr>';
+                $html.='<td>';
+                    $html.='Diferencia por Conciliar:';
+                $html.='</td>';
+                $html.='<td>';
+                    $html.=' ';
+                $html.='</td>';
+                $html.='<td border="1" style="text-align:right;">';
+                    $html.="<h3>$ ".number_format($DatosActa["Diferencia"])."</h3>";
+                $html.='</td>';
+            $html.='</tr>';
+        $html.='</table>';
+        return($html);
+    }
+    
+    public function DiferenciasActaConciliacion($DatosActa) {
+        $html='<table cellspacing="2" cellpadding="2" border="1" >';
+            $html.='<tr>';
+                $html.='<td colspan="3" style="text-align:center;">';
+                    $html.='<h3>DETALLE DE DIFERENCIAS</h3>';
+                $html.='</td>'; 
+                
+            $html.='</tr>';
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='1. Facturas canceladas por ASMET SALUD no descargadas por el proveedor:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["DiferenciaXPagos"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='2. Relación de facturas no registradas por ASMET SALUD:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["FacturasNoRegistradasXEPS"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='3. Glosas pendientes de conciliar:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["GlosasPendientesXConciliar"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='4. Facturas Devueltas:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["TotalDevoluciones"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='5. Impuestos no aplicados por la IPS:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["ImpuestosNoRelacionadosIPS"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='6. Descuentos financieros no merecidos en proceso de recobro RETEFUENTE:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["RetefuenteNoMerecida"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='7. Facturas registradas en ASMET SALUD que no estan en el listado del Proveedor:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["FacturasSinRelacionIPS"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='8. Retenciones de impuestos no procedentes (retefuente, ica, timbres):';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["RetencionesImpuestosNoProcedentes"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='9. Ajustes de Cartera en proceso (Notas credito IPS):';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["AjustesDeCartera"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='10. Facturas con diferencia en el Valor facturado:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["FacturasConValorDiferente"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='11. Facturas presentadas por reajuste de UPC:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["FacturasConReajusteUPC"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='12. Glosas conciliadas pendientes de descargar por el proveedor:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["GlosasConciliadasPendientesDescargaIPS"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='13. Anticipos pendientes de cruzar con facturas del proveedor:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["TotalAnticipos"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='14. Descuentos y/o reconocimientos según LMA:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["DescuentosReconocimientosLMA"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2">';
+                    $html.='15. Facturas pendientes de auditoría:';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>".number_format($DatosActa["FacturasPendienteAuditoria"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2" style="text-align:right">';
+                    $html.='<h4>TOTAL DIFERENCIAS:</h4>';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>$ ".number_format($DatosActa["Diferencia"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+            $html.='<tr>';
+                $html.='<td  border="0" colspan="2" style="text-align:right">';
+                    $html.='<h4>SALDO CONCILIADO PARA PAGO:</h4>';
+                $html.='</td>';  
+                $html.='<td  border="0" style="text-align:right;">';
+                    $html.="<h3>$ ".number_format($DatosActa["SaldoConciliadoPago"])."</h3>";
+                $html.='</td>'; 
+            $html.='</tr>';
+            
+        $html.='</table>';
+        return($html);
+    }
+    
+    public function ResultadosCompromisosActa($idActaConsolidacion) {
+        
+        $html='<h3 style="text-decoration: underline;">RESULTADOS Y COMPROMISOS:</h3><br>';
+        
+        $sql="SELECT * FROM actas_conciliaciones_resultados_compromisos WHERE idActaConciliacion='$idActaConsolidacion'";
+        $Consulta=$this->obCon->Query($sql);
+        $html.='<ul>';
+        while($DatosCompromisos=$this->obCon->FetchArray($Consulta)){
+            $html.='<li>'.$DatosCompromisos["ResultadoCompromiso"].'</li>';
+        }
+        $html.='</ul>';
+        return($html);
+        
+    }
+    
+    public function FirmasActaConciliacion($DatosActa) {
+        $idActaConsolidacion=$DatosActa["ID"];
+        $obNumLetra=new numeros_letras();
+        $DatosFechaFirma= explode("-", $DatosActa["FechaFirma"]);  
+        $dia=$obNumLetra->convertir($DatosFechaFirma[2]);
+        //$dia=$obNumLetra->convertir(31);
+        $mes=$obNumLetra->meses($DatosFechaFirma[1]);
+        $anio=$obNumLetra->convertir($DatosFechaFirma[0]);
+        $html=("Para constancia, se firma en <strong>".($DatosActa["CiudadFirma"])."</strong>");
+        $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]) en dos originales:<br><br><br><br><br>");
+        
+        $sql="SELECT * FROM actas_conciliaciones_firmas WHERE idActaConciliacion='$idActaConsolidacion'";
+        $Consulta=$this->obCon->Query($sql);
+        $html.='<table cellspacing="2" cellpadding="2" border="0">';
+        $html.='<tr>';
+        $i=0;
+        while($DatosFirmas=$this->obCon->FetchArray($Consulta)){
+            $i++;
+            $html.='<td><hr>';
+            $html.=''.$DatosFirmas["Nombre"];
+            $html.='<br>'.$DatosFirmas["Cargo"];
+            $html.='<br>'.$DatosFirmas["Empresa"];
+            $html.='</td>';
+            if($i==3){
+                $html.='</tr><br><br><br>';
+                $html.='<tr>';
+            }
+        }
+        $html.='</tr>';
+        $html.='</table>';
+        
+        return($html);
+        
+    }
    //Fin Clases
 }
     

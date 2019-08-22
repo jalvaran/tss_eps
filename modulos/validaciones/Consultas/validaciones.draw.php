@@ -3303,7 +3303,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     print("<td colspan=2 style=font-size:16px;>");
                         print("<strong>Ciudad de Firma: </strong>");
-                        $css->input("text", "TxtCiudadDeFirma", "", "TxtCiudadDeFirma", "", "Popayán", "Ciudad", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TxtCiudadDeFirma`,`CiudadFirma`);DibujeConstanciaFirmaActaConciliacion();");
+                        $css->input("text", "TxtCiudadDeFirma", "", "TxtCiudadDeFirma", "", $DatosActa["CiudadFirma"], "Ciudad", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TxtCiudadDeFirma`,`CiudadFirma`);DibujeConstanciaFirmaActaConciliacion();");
                     print("</td>");
                 print("</tr>");
                 
