@@ -579,5 +579,68 @@ class ValidacionesEPS extends conexion{
         
     }
     
+    public function AgregueContratoActaConciliacion($idActa,$NumeroContrato) {
+        $Datos["idActaConciliacion"]=$idActa;
+        $Datos["NumeroContrato"]=$NumeroContrato;        
+        $sql=$this->getSQLInsert("actas_conciliaciones_contratos", $Datos);
+        $this->Query($sql);        
+    }
+    
+    public function obtengaValoresGeneralesActaConciliacion($db,$idActaConciliacion) {
+        
+        $TotalPendientesRadicados=$this->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
+        $TotalFacturasSinRelacionsrXIPS= $this->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
+            
+        $sql="SELECT SUM(ValorSegunEPS) AS TotalEPS,SUM(ValorSegunIPS) AS TotalIPS FROM $db.`vista_cruce_cartera_asmet` t1 WHERE EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato);";
+        $TotalesCruce=$this->FetchAssoc($this->Query($sql));
+
+        $sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='2' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura) AND EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato); ";
+        $TotalesConciliacionesFactura=$this->FetchAssoc($this->Query($sql));
+
+        $sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='1' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura) AND EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato); ";
+        $TotalesConciliacionesFavorEPS=$this->FetchAssoc($this->Query($sql));
+
+        $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados-$TotalesConciliacionesFavorEPS["ValorConciliaciones"];
+        $ValorSegunIPS=$TotalesCruce["TotalIPS"]-$TotalFacturasSinRelacionsrXIPS;
+        $Diferencia=$ValorSegunEPS-$ValorSegunIPS;
+        $SaldoConciliadoParaPago=$ValorSegunEPS+$TotalesConciliacionesFactura["ValorConciliaciones"];
+        
+        $TotalesActa["ValorSegunEPS"]=$ValorSegunEPS;
+        $TotalesActa["ValorSegunIPS"]=$ValorSegunIPS;
+        $TotalesActa["Diferencia"]=$Diferencia;
+        $TotalesActa["SaldoConciliadoParaPago"]=$SaldoConciliadoParaPago;
+        $TotalesActa["TotalPendientesRadicados"]=$TotalPendientesRadicados;
+        $TotalesActa["TotalFacturasSinRelacionsrXIPS"]=$TotalFacturasSinRelacionsrXIPS;
+        return($TotalesActa);
+        
+    }
+    
+    public function AjusteValoresInicialesActaConciliacion($db,$idActaConciliacion,$TotalesActa) {
+        $Datos["ValorSegunEPS"]=$TotalesActa["ValorSegunEPS"];
+        $Datos["ValorSegunIPS"]=$TotalesActa["ValorSegunIPS"];
+        $Datos["Diferencia"]=$TotalesActa["Diferencia"];
+        $Datos["SaldoConciliadoPago"]=$TotalesActa["SaldoConciliadoParaPago"];
+
+        $Datos["DiferenciaXPagos"]=0;
+        $Datos["FacturasNoRegistradasXEPS"]=0;
+        $Datos["GlosasPendientesXConciliar"]=0;
+        $Datos["TotalDevoluciones"]=0;
+        $Datos["ImpuestosNoRelacionadosIPS"]=0;
+        $Datos["RetefuenteNoMerecida"]=0;
+        $Datos["FacturasSinRelacionIPS"]=0;
+        $Datos["RetencionesImpuestosNoProcedentes"]=0;
+        $Datos["AjustesDeCartera"]=0;
+        $Datos["FacturasConValorDiferente"]=0;
+        $Datos["FacturasConReajusteUPC"]=0;
+        $Datos["GlosasConciliadasPendientesDescargaIPS"]=0;
+        $Datos["TotalAnticipos"]=0;
+        $Datos["DescuentosReconocimientosLMA"]=0;
+        $Datos["FacturasPendienteAuditoria"]=0;
+
+        $sql=$this->getSQLUpdate("actas_conciliaciones", $Datos);
+        $sql." WHERE ID='$idActaConciliacion'";
+        $this->Query($sql);
+    }
+    
     //Fin Clases
 }

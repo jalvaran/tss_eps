@@ -189,4 +189,4 @@ SELECT t1.NumeroFactura,t1.Diferencia,
        (SELECT IF( (SELECT TotalDiferenciasComunes)=0 AND ABS(DiferenciaXDevolucionesNoIPS)=0 AND ABS(GlosasXConciliar2)=0,Diferencia,0)) as DiferenciaVariada 
 
 FROM vista_cruce_cartera_asmet t1
-WHERE Diferencia<>0;
+WHERE Diferencia<>0 AND EXISTS (SELECT 1 FROM ts_eps.actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato);

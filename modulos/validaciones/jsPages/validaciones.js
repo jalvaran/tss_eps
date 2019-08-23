@@ -1828,9 +1828,12 @@ function DibujeSelectorActas(){
 }
 
 
-function MostrarActa(){
-    
-    document.getElementById("DivTab8").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+function MostrarActa(DibujeAreaContratos=1){
+    var DivDraw='DivTab8';
+    if(DibujeAreaContratos==0){
+        DivDraw='DivDrawActaConciliacion';
+    }
+    document.getElementById(DivDraw).innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
     var idActaConciliacion=document.getElementById('idActaConciliacion').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
@@ -1840,6 +1843,7 @@ function MostrarActa(){
         form_data.append('CmbIPS', CmbIPS);   
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('idActaConciliacion', idActaConciliacion);
+        form_data.append('DibujeAreaContratos', DibujeAreaContratos);
         
         $.ajax({
         url: './Consultas/validaciones.draw.php',
@@ -1851,7 +1855,7 @@ function MostrarActa(){
         type: 'post',
         success: function(data){
             
-           document.getElementById('DivTab8').innerHTML=data;
+           document.getElementById(DivDraw).innerHTML=data;
            $('#CmbFirmaUsual').select2();
            setTextareaHeight($('textarea'));
            DibujeFirmasActaConciliacion();
@@ -2180,7 +2184,8 @@ function CalcularDiferenciasActaConciliacionProceso2(DetalleDiferencias){
                 var DetalleDiferencias= JSON.parse(respuestas[2]);                
                 //console.log(DetalleDiferencias);
                 EscribaDiferenciasActas(DetalleDiferencias);
-                
+                EscribaValoresEnSpanDiferenciasActas();
+                GuardarDiferenciasActaConciliacion();
                 alertify.success(respuestas[1]);                
                 document.getElementById('GifProcess').innerHTML='';
             }else if(respuestas[0]==="E1"){
@@ -2222,7 +2227,24 @@ function EscribaDiferenciasActas(DetalleDiferencias){
     document.getElementById('TxtACDescuentosLMA').value=DetalleDiferencias.DescuentosLMA;  
     document.getElementById('TxtACPendientesAuditoria').value=DetalleDiferencias.PendientesAuditoria;
     document.getElementById('TxtACTotalDiferencias').value=DetalleDiferencias.TotalDiferencias;
-    EscribaValoresEnSpanDiferenciasActas();
+    if(DetalleDiferencias.ValorSegunEPS){
+        document.getElementById('ACValorSegunEPS').value=DetalleDiferencias.ValorSegunEPS;
+    }
+    
+    if(DetalleDiferencias.ValorSegunIPS){
+        document.getElementById('ACValorSegunIPS').value=DetalleDiferencias.ValorSegunIPS;
+    }
+    
+    if(DetalleDiferencias.Diferencia){
+        document.getElementById('ACDiferencia').value=DetalleDiferencias.Diferencia;
+    }
+    
+    if(DetalleDiferencias.SaldoAcuerdoPago){
+        document.getElementById('TxtACSaldoAcuerdoPago').value=DetalleDiferencias.SaldoAcuerdoPago;
+    }
+    
+    
+    
 }
 
 function EscribaValoresEnSpanDiferenciasActas(){
@@ -2287,11 +2309,28 @@ function EscribaValoresEnSpanDiferenciasActas(){
     var Numero = number_format(Valor);
     document.getElementById('spACPendientesAuditoria').innerHTML=Numero;
     
+    var Valor=document.getElementById('ACValorSegunEPS').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spValorSegunEPS').innerHTML=Numero;
+    
+    var Valor=document.getElementById('ACValorSegunIPS').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spValorSegunIPS').innerHTML=Numero;
+    
+    var Valor=document.getElementById('ACDiferencia').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACDiferencia').innerHTML=Numero;
+    
+    
     var Valor=document.getElementById('TxtACTotalDiferencias').value;
     var Numero = number_format(Valor);
     document.getElementById('spACTotalDiferencias').innerHTML=Numero;
     
-    GuardarDiferenciasActaConciliacion();
+    var Valor=document.getElementById('TxtACSaldoAcuerdoPago').value;
+    var Numero = number_format(Valor);
+    document.getElementById('spACSaldoAcuerdoPago').innerHTML=Numero;
+    
+    
 }
 
 
@@ -2499,8 +2538,15 @@ function EliminarItem(Tabla,idItem){
             var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){   
                 
-                alertify.error(respuestas[1]);                
-                DibujeFirmasActaConciliacion();
+                alertify.error(respuestas[1]);   
+                if(Tabla==1){
+                    DibujeFirmasActaConciliacion();
+                }
+                if(Tabla==2){
+                    DibujeContratosActaConciliacion();
+                    InicializarValoresGeneralesActaConciliacion();
+                }
+                
                 
             }else if(respuestas[0]==="E1"){
                 
@@ -2557,6 +2603,139 @@ function DibujeConstanciaFirmaActaConciliacion(){
       });
 }
 
+function AgregarContratoActaConciliacion(idActaConciliacion,NumeroContrato){
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 23);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        form_data.append('NumeroContrato', NumeroContrato);  
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.error(respuestas[1]);                
+                DibujeContratosActaConciliacion();
+                InicializarValoresGeneralesActaConciliacion();
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function DibujeContratosActaConciliacion(){
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 32);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+            document.getElementById('DivContratosAgregadosActaConciliacion').innerHTML=data;
+                        
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+function InicializarValoresGeneralesActaConciliacion(){
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 24);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.error(respuestas[1]);                
+                DibujeContratosActaConciliacion();
+                MostrarActa(0);
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();
 $('#CmbEPS').select2();

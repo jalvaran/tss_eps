@@ -681,7 +681,7 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;Proceso 2 terminado;$CamposDiferencias");
         break;//Fin caso 19
         
-        case 20://Guarda la
+        case 20://Guarda la firma
             $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
             
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
@@ -775,11 +775,51 @@ if( !empty($_REQUEST["Accion"]) ){
             if($Tabla==1){
                 $obCon->BorraReg("actas_conciliaciones_firmas", "ID", $idItem);
             }
+            if($Tabla==2){
+                $obCon->BorraReg("actas_conciliaciones_contratos", "NumeroContrato", $idItem);
+            }
             
             $obCon->ActualizaRegistro("actas_conciliaciones", "Updated", date("Y-m-d H:i:s"), "ID", $idActaConciliacion, 1);
             $obCon->ActualizaRegistro("actas_conciliaciones", "idUserUpdate",$idUser, "ID", $idActaConciliacion, 1);
             print("OK;Registro eliminado");
         break;//Fin caso 22
+        
+        case 23://Agregar contrato a un acta
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $NumeroContrato=$obCon->normalizar($_REQUEST["NumeroContrato"]);
+            
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            if($idActaConciliacion==''){
+                exit("E1;No se recibió un acta de conciliacion");
+            }
+            if($NumeroContrato==''){
+                exit("E1;No se recibió un número de contrato");
+            }
+            $DatosContratos=$obCon->DevuelveValores("actas_conciliaciones_contratos", "NumeroContrato", $NumeroContrato);
+            if($DatosContratos["NumeroContrato"]<>''){
+                exit("E1;El contrato seleccionado ya se encuentra agregado al Acta de conciliación No. ".$DatosContratos["idActaConciliacion"]);
+            }
+            $obCon->AgregueContratoActaConciliacion($idActaConciliacion, $NumeroContrato);
+            
+            print("OK;Contrato $NumeroContrato Agregado al Acta $idActaConciliacion");
+        break;//Fin caso 23
+        
+        case 24:// Ajusta los valores iniciales del acta de conciliacion
+            
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $TotalesActa=$obCon->obtengaValoresGeneralesActaConciliacion($db, $idActaConciliacion);            
+            $obCon->AjusteValoresInicialesActaConciliacion($db, $idActaConciliacion, $TotalesActa);
+            
+            print("OK;Valores Generales Inicializados");
+        break; //Fin caso 24    
         
     }
     

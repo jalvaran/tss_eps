@@ -2899,7 +2899,7 @@ if( !empty($_REQUEST["Accion"]) ){
         
         case 28://Dibuja el acta de conciliacion
             $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
-            
+            $DibujeAreaContratos=$obCon->normalizar($_REQUEST["DibujeAreaContratos"]);
             if($idActaConciliacion==''){
                 $css->CrearTitulo("Por favor Seleccione un Acta", "rojo");
                 exit();
@@ -2908,24 +2908,60 @@ if( !empty($_REQUEST["Accion"]) ){
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
-            $TotalPendientesRadicados=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
-            $TotalFacturasSinRelacionsrXIPS= $obCon->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
-            $sql="SELECT SUM(ValorSegunEPS) AS TotalEPS,SUM(ValorSegunIPS) AS TotalIPS FROM $db.`vista_cruce_cartera_asmet` ";
-            $TotalesCruce=$obCon->FetchAssoc($obCon->Query($sql));
             
-            $sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='2' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura); ";
-            $TotalesConciliacionesFactura=$obCon->FetchAssoc($obCon->Query($sql));
-            
-            $sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='1' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura); ";
-            $TotalesConciliacionesFavorEPS=$obCon->FetchAssoc($obCon->Query($sql));
-            
-            $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados-$TotalesConciliacionesFavorEPS["ValorConciliaciones"];
-            $ValorSegunIPS=$TotalesCruce["TotalIPS"]-$TotalFacturasSinRelacionsrXIPS;
-            $Diferencia=$ValorSegunEPS-$ValorSegunIPS;
-            $SaldoConciliadoParaPago=$ValorSegunEPS+$TotalesConciliacionesFactura["ValorConciliaciones"];
+            $TotalesActaConciliacion=$obCon->obtengaValoresGeneralesActaConciliacion($db, $idActaConciliacion);
+            $ValorSegunEPS=$TotalesActaConciliacion["ValorSegunEPS"];
+            $ValorSegunIPS=$TotalesActaConciliacion["ValorSegunIPS"];
+            $Diferencia=$TotalesActaConciliacion["Diferencia"];
+            $SaldoConciliadoParaPago=$TotalesActaConciliacion["SaldoConciliadoParaPago"];
+            $TotalPendientesRadicados=$TotalesActaConciliacion["TotalPendientesRadicados"];
+            $TotalFacturasSinRelacionsrXIPS=$TotalesActaConciliacion["TotalFacturasSinRelacionsrXIPS"];
             $DatosActa=$obCon->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
+            
+            if($DibujeAreaContratos==1){
+                $css->CrearTabla();
+            
+                print("<tr>");
+                    print("<td colspan=1 style=font-size:16px;>");
+                        print("<span style='text-decoration: underline;cursor:pointer;'><strong >Contratos Disponibles en el cruce: </strong></span>");
+                        $css->div("DivContratosDisponiblesActaConciliacion", "", "", "", "", "", "");
+                            $sql="SELECT DISTINCT NumeroContrato FROM $db.vista_cruce_cartera_asmet";
+                            $Consulta=$obCon->Query($sql);
+
+                            while($Contratos=$obCon->FetchAssoc($Consulta)){
+                                $idContrato=$Contratos["NumeroContrato"];
+                                print("<br>".$Contratos["NumeroContrato"]." ");
+                                
+                                $css->li("", "fa fa-sign-out", "", "onclick='AgregarContratoActaConciliacion(`$idActaConciliacion`,`$idContrato`)' style=font-size:16px;cursor:pointer;text-align:center;color:green");
+                                    
+                                $css->Cli();
+
+                            }
+                        print("</div>");
+                    print("</td>");
+                    
+                    print("<td colspan=2 style=font-size:16px;>");
+                        print("<span style='text-decoration: underline;cursor:pointer;'><strong >Contratos Agregados a esta Acta: </strong></span>");
+                        $css->div("DivContratosAgregadosActaConciliacion", "", "", "", "", "", "");
+                            $sql="SELECT NumeroContrato FROM actas_conciliaciones_contratos WHERE idActaConciliacion='$idActaConciliacion'";
+                            $Consulta=$obCon->Query($sql);
+                            while($Contratos=$obCon->FetchAssoc($Consulta)){
+                                print("<br>".$Contratos["NumeroContrato"]." ");
+                                $css->li("", "fa  fa-remove", "", "onclick='EliminarItem(`2`,`$Contratos[NumeroContrato]`)' style=font-size:16px;cursor:pointer;text-align:center;color:red");
+                                    //print(" ".$Contratos["NumeroContrato"]);
+                                $css->Cli();
+                            }
+                        $css->Cdiv();
+                    print("</td>");
+                    
+                print("</tr>");
+                $css->CerrarTabla();    
+            }
+            
+            $css->CrearDiv("DivDrawActaConciliacion", "", "", 1, 1);
             $css->CrearTitulo("<strong>Acta de Conciliación No. $idActaConciliacion, IPS: $DatosActa[RazonSocialIPS], con Fecha de Corte $DatosActa[FechaCorte]. </strong>", "azul");
             $css->CrearTabla("TablaActaConciliacion");
+            
                 print("<tr style=font-size:18px;border-top-style:double;border-left-style:double;border-right-style:double;border-width:5px;>");
                     print("<td>");
                         $css->img("", "", "../../LogosEmpresas/logoAsmet.png", "Sin Imagen", "", "","style=height:80px;width:400px;");
@@ -3271,7 +3307,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 print("</tr>");
                 
                 print("<tr>");
-                    print("<td colspan=2 style=font-size:16px;>");
+                    print("<td colspan=3 style=font-size:16px;>");
                         print("<span style='text-decoration: underline;cursor:pointer;'><strong >RESULTADOS Y COMPROMISOS:</strong></span>");
                     print("</td>");
                     
@@ -3419,7 +3455,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 print("</tr>");
                 
             $css->CerrarTabla();
-            
+            $css->CerrarDiv();
         break;//fin caso 28
         
         case 29://Dibuja los compromisos de un acta de conciliacion
@@ -3487,7 +3523,21 @@ if( !empty($_REQUEST["Accion"]) ){
             print("Para constancia, se firma en <strong>".($DatosActa["CiudadFirma"])."</strong>");
 
             print(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]) en dos originales:");
-        break;    
+        break;// fin caso 31
+        
+        case 32:// dibuje los contratos en un acta
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $sql="SELECT NumeroContrato FROM actas_conciliaciones_contratos WHERE idActaConciliacion='$idActaConciliacion'";
+            $Consulta=$obCon->Query($sql);
+            while($Contratos=$obCon->FetchAssoc($Consulta)){
+                print("<br>".$Contratos["NumeroContrato"]." ");
+                $css->li("", "fa  fa-remove", "", "onclick='EliminarItem(`2`,`$Contratos[NumeroContrato]`)' style=font-size:16px;cursor:pointer;text-align:center;color:red");
+                    //print(" ".$Contratos["NumeroContrato"]);
+                $css->Cli();
+            }
+            
+        break;//Fin caso 32    
+    
         
     }
     
