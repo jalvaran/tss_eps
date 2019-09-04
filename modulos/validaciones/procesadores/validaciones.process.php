@@ -557,8 +557,13 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
             $FechaActaConciliacion=$obCon->normalizar($_REQUEST["FechaActaConciliacion"]);
+            $FechaActaInicial=$obCon->normalizar($_REQUEST["FechaActaInicial"]);
             $TxtRepresentanteLegalIPS=$obCon->normalizar($_REQUEST["TxtRepresentanteLegalIPS"]);
             $TxtEncargadoEPS=$obCon->normalizar($_REQUEST["TxtEncargadoEPS"]);
+            if($FechaActaInicial==''){
+                exit("E1;No se recibió una Fecha Inicial;FechaActaInicial");
+                
+            }
             if($FechaActaConciliacion==''){
                 exit("E1;No se recibió una Fecha de Corte;FechaActaConciliacion");
                 
@@ -572,7 +577,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 
             }
             
-            $idActa=$obCon->CrearActaConciliacion($FechaActaConciliacion, $CmbIPS, $TxtRepresentanteLegalIPS, $TxtEncargadoEPS,$idUser);
+            $idActa=$obCon->CrearActaConciliacion($FechaActaInicial,$FechaActaConciliacion, $CmbIPS, $TxtRepresentanteLegalIPS, $TxtEncargadoEPS,$idUser);
             
             print("OK;Acta $idActa Creada Correctamente;$idActa");
         break;//Fin caso 14  
@@ -656,7 +661,7 @@ if( !empty($_REQUEST["Accion"]) ){
             }
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
-            $DetalleDiferencias=$obCon->CalculeDiferenciasProceso1($db,$Diferencia);
+            $DetalleDiferencias=$obCon->CalculeDiferenciasProceso1($idActaConciliacion,$db,$Diferencia);
             $CamposDiferencias= json_encode($DetalleDiferencias, JSON_FORCE_OBJECT);
             print("OK;Proceso 1 terminado;$CamposDiferencias");
             unset($DetalleDiferencias);

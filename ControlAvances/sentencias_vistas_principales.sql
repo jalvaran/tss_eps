@@ -20,8 +20,8 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelaciona
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2275' ),0)) AS DescuentoPGP,
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2039' ),0)) AS FacturasDevueltas,
         (SELECT IFNULL((SELECT COUNT(NumeroFactura) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2039' ),0)) AS NumeroFacturasDevueltasAnticipos,
-		(SELECT IFNULL((SELECT SUM(ValorTotal) FROM vista_copagos_asmet WHERE vista_copagos_asmet.NumeroFactura=t2.NumeroFactura ),0)) AS TotalCopagosNotas,
-        ((SELECT ABS(FacturasDevueltas))+(SELECT ABS(TotalCopagosNotas) ) ) AS TotalCopagos,
+		(SELECT IFNULL((SELECT SUM(ValorTotal) FROM vista_copagos_asmet WHERE vista_copagos_asmet.NumeroFactura=t2.NumeroFactura ),0)) AS TotalCopagos,
+        
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND (NumeroInterno='2215' OR NumeroInterno='2601' OR NumeroInterno='2214') ),0)) AS OtrosDescuentos,
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2260' ),0)) AS AjustesCartera,
         (SELECT IFNULL((SELECT (ValorTotalGlosa) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t2.NumeroFactura ORDER BY FechaRegistro DESC LIMIT 1),0)) AS TotalGlosaInicial,
@@ -38,13 +38,13 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelaciona
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=1),0)) AS ConciliacionesAFavorEPS,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=2),0)) AS ConciliacionesAFavorIPS,
 
-	(t2.ValorMenosImpuestos - (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT GlosaXConciliar)-(SELECT OtrosDescuentos)-(SELECT ABS(TotalCopagos))-(SELECT ABS(TotalDevoluciones))-(SELECT ABS(DescuentoPGP)) ) AS ValorSegunEPS,
+	(t2.ValorMenosImpuestos - (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT GlosaXConciliar)-(SELECT OtrosDescuentos)-(SELECT ABS(TotalCopagos))-(SELECT ABS(TotalDevoluciones))-(SELECT ABS(DescuentoPGP))-(SELECT ABS(ConciliacionesAFavorEPS))+(SELECT ABS(ConciliacionesAFavorIPS)) ) AS ValorSegunEPS,
         (SELECT IFNULL((SELECT ROUND(ValorTotalpagar) FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1),0)) AS ValorSegunIPS,
         ((SELECT ValorSegunEPS)-(SELECT ValorSegunIPS)) AS Diferencia,
         (SELECT IF((SELECT Diferencia>0),'SI','NO')) AS ValorIPSMenor,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura ),0)) AS TotalConciliaciones,
         
-        ((SELECT ValorSegunEPS) + (SELECT ConciliacionesAFavorIPS) -(SELECT ABS(ConciliacionesAFavorEPS)) ) AS TotalAPagar, 
+        ((SELECT ValorSegunEPS) ) AS TotalAPagar, 
         (SELECT IF((SELECT ROUND(TotalConciliaciones,2)<>(SELECT ROUND(ABS(Diferencia),2)) AND (SELECT TotalConciliaciones > 0)),'SI','NO')) AS ConciliacionesPendientes,
         (SELECT IF( (SELECT ABS(TotalPagos)) = (SELECT ABS(Diferencia)),1,0)) as DiferenciaXPagos 
         
@@ -72,8 +72,8 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,(SELECT NoRela
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2275' ),0)) AS DescuentoPGP,
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2039' ),0)) AS FacturasDevueltas,
         (SELECT IFNULL((SELECT COUNT(NumeroFactura) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2039' ),0)) AS NumeroFacturasDevueltasAnticipos,
-		(SELECT IFNULL((SELECT SUM(ValorTotal) FROM vista_copagos_asmet WHERE vista_copagos_asmet.NumeroFactura=t2.NumeroFactura ),0)) AS TotalCopagosNotas,
-        ((SELECT ABS(FacturasDevueltas))+(SELECT ABS(TotalCopagosNotas) ) ) AS TotalCopagos,
+		(SELECT IFNULL((SELECT SUM(ValorTotal) FROM vista_copagos_asmet WHERE vista_copagos_asmet.NumeroFactura=t2.NumeroFactura ),0)) AS TotalCopagos,
+        
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND (NumeroInterno='2215' OR NumeroInterno='2601' OR NumeroInterno='2214') ),0)) AS OtrosDescuentos,
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2260' ),0)) AS AjustesCartera,
         (SELECT IFNULL((SELECT (ValorTotalGlosa) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t2.NumeroFactura ORDER BY FechaRegistro DESC LIMIT 1),0)) AS TotalGlosaInicial,
@@ -90,13 +90,13 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,(SELECT NoRela
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=1),0)) AS ConciliacionesAFavorEPS,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=2),0)) AS ConciliacionesAFavorIPS,
 
-	(t2.ValorMenosImpuestos - (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT GlosaXConciliar)-(SELECT OtrosDescuentos)-(SELECT ABS(TotalCopagos))-(SELECT ABS(TotalDevoluciones))-(SELECT ABS(DescuentoPGP)) ) AS ValorSegunEPS,
+	(t2.ValorMenosImpuestos - (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT GlosaXConciliar)-(SELECT OtrosDescuentos)-(SELECT ABS(TotalCopagos))-(SELECT ABS(TotalDevoluciones))-(SELECT ABS(DescuentoPGP))-(SELECT ABS(ConciliacionesAFavorEPS))+(SELECT ABS(ConciliacionesAFavorIPS)) ) AS ValorSegunEPS,
         (SELECT IFNULL((SELECT ROUND(ValorTotalpagar) FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1),0)) AS ValorSegunIPS,
         ((SELECT ValorSegunEPS)-(SELECT ValorSegunIPS)) AS Diferencia,
         (SELECT IF((SELECT Diferencia>0),'SI','NO')) AS ValorIPSMenor,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura ),0)) AS TotalConciliaciones,
         
-        ((SELECT ValorSegunEPS) + (SELECT ConciliacionesAFavorIPS) -(SELECT ABS(ConciliacionesAFavorEPS)) ) AS TotalAPagar, 
+        ((SELECT ValorSegunEPS) ) AS TotalAPagar, 
         (SELECT IF((SELECT ROUND(TotalConciliaciones,2)<>(SELECT ROUND(ABS(Diferencia),2)) AND (SELECT TotalConciliaciones > 0)),'SI','NO')) AS ConciliacionesPendientes,
         (SELECT IF( (SELECT ABS(TotalPagos)) = (SELECT ABS(Diferencia)),1,0)) as DiferenciaXPagos 
 
@@ -127,35 +127,74 @@ SELECT *
 FROM vista_cruce_cartera_eps t1
 WHERE NOT EXISTS (SELECT 1 FROM carteracargadaips t2 WHERE t1.NumeroFactura=t2.NumeroFactura);
 
+DROP VIEW IF EXISTS `vista_cruce_cartera_eps_sin_relacion_segun_ags`;
+CREATE VIEW vista_cruce_cartera_eps_sin_relacion_segun_ags AS 
+SELECT 
+        t2.FechaFactura ,
+       
+        t2.MesServicio ,
+        t2.NumeroRadicado ,
+        t2.FechaRadicado ,
+		t2.NumeroContrato ,
+		t2.NumeroFactura ,
+		t2.ValorDocumento ,
+        t2.Impuestos ,
+		t2.TotalPagos ,
+		t2.TotalAnticipos ,
+        t2.TotalCopagos ,
+        t2.DescuentoPGP ,
+		t2.OtrosDescuentos ,
+        t2.AjustesCartera ,
+        (t2.Diferencia) AS TotalGlosaFavor ,
+        t2.TotalGlosaContra ,
+		t2.GlosaXConciliar ,  
+		t2.TotalDevoluciones ,
+        '0' AS ValorSegunEPS ,
+        '0' AS ValorSegunIPS ,
+        '0' as Diferencia
+
+FROM vista_cruce_cartera_eps t2 
+WHERE NOT EXISTS (SELECT 1 FROM carteracargadaips t1 WHERE t1.NumeroFactura=t2.NumeroFactura);
+
 DROP VIEW IF EXISTS `vista_reporte_ips`;
 CREATE VIEW vista_reporte_ips AS
-SELECT  t2.FechaFactura AS 'Fecha Factura',
-		t2.MesServicio AS 'Mes servicio',
-        t2.NumeroRadicado AS 'Numero Radicado',
-        t2.FechaRadicado AS 'Fecha Radicado',
-		t2.NumeroContrato AS 'Numero Contrato',
-		t2.NumeroFactura AS 'Numero factura',
-		t2.ValorDocumento AS 'Valor de Factura',
-        t2.Impuestos AS 'Impuestos Factura',
-		t2.TotalPagos AS 'Pagos',
-		t2.TotalAnticipos AS 'Anticipos',
-        t2.TotalCopagos AS 'Copagos',
-        t2.DescuentoPGP AS 'Descuentos PGP',
-		t2.OtrosDescuentos AS 'Otros Descuentos',
-        t2.AjustesCartera AS 'Ajustes Cartera',
-        t2.TotalGlosaFavor AS 'Glosa Aceptada Ips',
-        t2.TotalGlosaContra AS 'Glosa levantada EPS',
-		t2.GlosaXConciliar AS 'Glosa X Conciliar',  
-		t2.TotalDevoluciones AS 'Devoluciones',
-        t2.ValorSegunEPS AS 'Saldo Eps',
-        t2.ValorSegunIPS AS 'Saldo Ips',
-		t2.Diferencia AS 'Valor Diferencia'
+SELECT  t2.FechaFactura ,
+       
+		t2.MesServicio ,
+        t2.NumeroRadicado ,
+        t2.FechaRadicado ,
+		t2.NumeroContrato ,
+		t2.NumeroFactura ,
+		t2.ValorDocumento ,
+        t2.Impuestos ,
+		t2.TotalPagos ,
+		t2.TotalAnticipos ,
+        t2.TotalCopagos ,
+        t2.DescuentoPGP ,
+		t2.OtrosDescuentos ,
+        t2.AjustesCartera ,
+        t2.TotalGlosaFavor ,
+        t2.TotalGlosaContra ,
+		t2.GlosaXConciliar ,  
+		t2.TotalDevoluciones ,
+        t2.ValorSegunEPS ,
+        t2.ValorSegunIPS ,
+		t2.Diferencia 
 FROM vista_cruce_cartera_eps_relacionadas_ips t2;
+
+DROP VIEW IF EXISTS `vista_reporte_ips_completo`;
+CREATE VIEW vista_reporte_ips_completo AS
+SELECT * 
+FROM vista_reporte_ips 
+UNION ALL
+SELECT * 
+FROM vista_cruce_cartera_eps_sin_relacion_segun_ags 
+;
 
 
 DROP VIEW IF EXISTS `vista_cruce_totales_actas_conciliaciones`;
 CREATE VIEW vista_cruce_totales_actas_conciliaciones AS 
-SELECT t1.NumeroFactura,t1.Diferencia,
+SELECT t1.NumeroFactura,t1.Diferencia,MesServicio,
         (SELECT IF( ( ABS(TotalPagos)) = ( ABS(Diferencia)),Diferencia,0)) as DiferenciaXPagos,
         (SELECT IF( ( ABS(TotalAnticipos)) = ( ABS(Diferencia)),Diferencia,0)) as DiferenciaXAnticipos,
         (SELECT IF( ( ABS(TotalCopagos)) = ( ABS(Diferencia)),Diferencia,0)) as DiferenciaXCopagos,
@@ -189,4 +228,8 @@ SELECT t1.NumeroFactura,t1.Diferencia,
        (SELECT IF( (SELECT TotalDiferenciasComunes)=0 AND ABS(DiferenciaXDevolucionesNoIPS)=0 AND ABS(GlosasXConciliar2)=0,Diferencia,0)) as DiferenciaVariada 
 
 FROM vista_cruce_cartera_asmet t1
-WHERE Diferencia<>0 AND EXISTS (SELECT 1 FROM ts_eps.actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato);
+WHERE Diferencia<>0 
+AND 
+EXISTS (SELECT 1 FROM ts_eps.actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato)
+
+;

@@ -2763,12 +2763,17 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("Crear Nueva Acta de Conciliación para la IPS: <strong>". utf8_decode($DatosIPS["Nombre"])."</strong>, con NIT: ".$NitIPS, 3);
                 $css->CierraFilaTabla();
                 $css->FilaTabla(14);
-                    $css->ColTabla("<strong>Fecha de Corte:</strong>", 1);
+                    $css->ColTabla("<strong>Fecha de Inicial:</strong>", 1);
+                    $css->ColTabla("<strong>Fecha de Final:</strong>", 1);
                     $css->ColTabla("<strong>Representante Legal IPS:</strong>", 1);
                     $css->ColTabla("<strong>Encargado de la EPS:</strong>", 1);
                 $css->CierraFilaTabla();
                 
                 $css->FilaTabla(14);
+                    print("<td>");
+                        $css->input("date", "FechaActaInicial", "form-control", "FechaActaInicial", "", date("Y-m-d"), "Fecha Corte Cartera", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
+        
+                    print("</td>");
                     print("<td>");
                         $css->input("date", "FechaActaConciliacion", "form-control", "FechaActaConciliacion", "", date("Y-m-d"), "Fecha Corte Cartera", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
         
@@ -2784,7 +2789,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CierraFilaTabla();
                 
                 $css->FilaTabla(16);
-                    print("<td colspan=3>");
+                    print("<td colspan=4>");
                         $css->CrearBotonEvento("BtnGuardarActa", "Crear Acta", 1, "onclick", "ConfirmarCrearActa()", "rojo", "");
                     print("</td>");
                 $css->CierraFilaTabla();
@@ -2917,15 +2922,16 @@ if( !empty($_REQUEST["Accion"]) ){
             $TotalPendientesRadicados=$TotalesActaConciliacion["TotalPendientesRadicados"];
             $TotalFacturasSinRelacionsrXIPS=$TotalesActaConciliacion["TotalFacturasSinRelacionsrXIPS"];
             $DatosActa=$obCon->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
-            
+            $MesServicioInicial=$DatosActa["MesServicioInicial"];
+            $MesServicioFinal=$DatosActa["MesServicioFinal"];
             if($DibujeAreaContratos==1){
                 $css->CrearTabla();
             
                 print("<tr>");
                     print("<td colspan=1 style=font-size:16px;>");
-                        print("<span style='text-decoration: underline;cursor:pointer;'><strong >Contratos Disponibles en el cruce: </strong></span>");
+                        print("<span style='text-decoration: underline;cursor:pointer;'><strong >Contratos Disponibles en el cruce entre el Mes de Servicio $MesServicioInicial y $MesServicioFinal: </strong></span>");
                         $css->div("DivContratosDisponiblesActaConciliacion", "", "", "", "", "", "");
-                            $sql="SELECT DISTINCT NumeroContrato FROM $db.vista_cruce_cartera_asmet";
+                            $sql="SELECT DISTINCT NumeroContrato FROM $db.vista_cruce_cartera_asmet WHERE MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
                             $Consulta=$obCon->Query($sql);
 
                             while($Contratos=$obCon->FetchAssoc($Consulta)){
@@ -3438,8 +3444,13 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     print("<td>");
                         $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=36&idActaConciliacion=$idActaConciliacion";
-                        print("<a href='$Ruta' target='_BLANK'><button class='btn btn-success' >Imprimir</button></a>");
-                        
+                        print("<a href='$Ruta' target='_BLANK'><button class='btn btn-success'>Imprimir PDF</button></a>");
+                        $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=3&idActaConciliacion=$idActaConciliacion&db=$db";
+                        print(" <a href='$Ruta' target='_BLANK'><button class='btn btn-primary'>Anexo Acta Cruce</button></a>");
+                        $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=4&idActaConciliacion=$idActaConciliacion&db=$db";
+                        print(" <a href='$Ruta' target='_BLANK'><button class='btn btn-success'>Anexo Acta Completa</button></a>");
+                        $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=5&idActaConciliacion=$idActaConciliacion&db=$db";
+                        print(" <a href='$Ruta' target='_BLANK'><button class='btn btn-warning'>Facturas Fuera del Rango</button></a>");
                     print("</td>");
                     print("<td>");        
                        $css->input("file", "UpSoporteActaConciliacionCierre", "", "UpSoporteActaConciliacionCierre", "Soporte Acta", "Subir Acta Firmada", "Subir Acta Firmada", "off", "", "");

@@ -838,7 +838,7 @@ function ExportarExcel(db,Tabla,st){
     
     
     var form_data = new FormData();
-        form_data.append('Opcion', 2); //Obtengo el total de filas
+        form_data.append('Opcion', 2); 
         
         form_data.append('Tabla', Tabla);
         form_data.append('db', db);
@@ -1736,6 +1736,7 @@ function CrearActaConciliacion(){
     document.getElementById('BtnGuardarActa').disabled=true;
     document.getElementById('BtnGuardarActa').value="Creando...";
     var FechaActaConciliacion=document.getElementById('FechaActaConciliacion').value;
+    var FechaActaInicial=document.getElementById('FechaActaInicial').value;
     var TxtRepresentanteLegalIPS=document.getElementById('TxtRepresentanteLegalIPS').value;
     var TxtEncargadoEPS=document.getElementById('TxtEncargadoEPS').value;
     
@@ -1745,6 +1746,7 @@ function CrearActaConciliacion(){
     var form_data = new FormData();
         form_data.append('Accion', 14);
         form_data.append('FechaActaConciliacion', FechaActaConciliacion);
+        form_data.append('FechaActaInicial', FechaActaInicial);
         form_data.append('TxtRepresentanteLegalIPS', TxtRepresentanteLegalIPS);
         form_data.append('TxtEncargadoEPS', TxtEncargadoEPS);
         

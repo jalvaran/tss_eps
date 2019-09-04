@@ -447,12 +447,20 @@ class ValidacionesEPS extends conexion{
         
     }
     
-    public function CrearActaConciliacion($FechaCorte,$CmbIPS,$RepresentanteLegalIPS,$EncargadoEPS,$idUser) {
+    public function CrearActaConciliacion($FechaInicial,$FechaCorte,$CmbIPS,$RepresentanteLegalIPS,$EncargadoEPS,$idUser) {
         $FechaRegistro=date("Y-m-d H:i:s");
         $FechaFirma=date("Y-m-d");
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $CmbIPS);
+        $DatosMesServicio= explode("-", $FechaInicial);
+        $MesServicioInicial=$DatosMesServicio[0].$DatosMesServicio[1];
+        $DatosMesServicio= explode("-", $FechaCorte);
+        $MesServicioFinal=$DatosMesServicio[0].$DatosMesServicio[1];
         
         $Datos["FechaCorte"]=$FechaCorte;
+        $Datos["FechaInicial"]=$FechaInicial;
+        $Datos["MesServicioInicial"]=$MesServicioInicial;
+        $Datos["MesServicioFinal"]=$MesServicioFinal;
+        
         $Datos["RazonSocialIPS"]=$DatosIPS["Nombre"];
         $Datos["NIT_IPS"]=$CmbIPS;
         $Datos["RepresentanteLegal"]=$RepresentanteLegalIPS;
@@ -462,6 +470,7 @@ class ValidacionesEPS extends conexion{
         $Datos["CiudadFirma"]='Popayán';   
         $Datos["idUser"]=$idUser;
         $Datos["FechaRegistro"]=$FechaRegistro;
+        
         $sql=$this->getSQLInsert("actas_conciliaciones", $Datos);
         $this->Query($sql);
         $idActa=$this->ObtenerMAX("actas_conciliaciones", "ID", 1, "");
@@ -483,8 +492,10 @@ class ValidacionesEPS extends conexion{
     }
     
         
-    public function CalculeDiferenciasProceso1($db,$Diferencia) {
-        
+    public function CalculeDiferenciasProceso1($idActaConciliacion,$db,$Diferencia) {
+        $DatosActa= $this->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
+        $MesServicioInicial=$DatosActa["MesServicioInicial"];
+        $MesServicioFinal=$DatosActa["MesServicioFinal"];
         $sql="SELECT SUM(DiferenciaXPagos) as DiferenciaXPagos,
                      SUM(DiferenciaXAnticipos) as DiferenciaXAnticipos,
                      SUM(DiferenciaXCopagos) as DiferenciaXCopagos,
@@ -502,7 +513,7 @@ class ValidacionesEPS extends conexion{
                      SUM(GlosasXConciliar2) AS GlosasXConciliar2,
                      SUM(XPagos2) AS XPagos2,
                      SUM(DiferenciaVariada) AS DiferenciaVariada
-                 FROM $db.vista_cruce_totales_actas_conciliaciones";
+                 FROM $db.vista_cruce_totales_actas_conciliaciones WHERE MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
         
         $DatosTotales=$this->FetchAssoc($this->Query($sql));
         $TotalPendientesRadicados= $this->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
@@ -537,7 +548,15 @@ class ValidacionesEPS extends conexion{
         
         $TotalDiferencias= array_sum($DetalleDiferencias);
         $DiferenciaFaltante=abs($Diferencia)-abs($TotalDiferencias);
-        $DetalleDiferencias["DiferenciaXPagos"]=$DetalleDiferencias["DiferenciaXPagos"]+$DiferenciaFaltante;
+        $DiferenciaTemporal=$DetalleDiferencias["DiferenciaXPagos"]+$DiferenciaFaltante;
+        if($DiferenciaTemporal<0){
+            $keyMax=array_keys($DetalleDiferencias,max($DetalleDiferencias));            
+            $idKey=$keyMax[0];
+            $DetalleDiferencias[$idKey]=$DetalleDiferencias[$idKey]+$DiferenciaTemporal;
+            $DetalleDiferencias["DiferenciaXPagos"]=0;
+        }else{
+            $DetalleDiferencias["DiferenciaXPagos"]=$DetalleDiferencias["DiferenciaXPagos"]+$DiferenciaFaltante;
+        }
         $DetalleDiferencias["TotalDiferencias"]= array_sum($DetalleDiferencias);
         return($DetalleDiferencias);
     }
@@ -587,23 +606,27 @@ class ValidacionesEPS extends conexion{
     }
     
     public function obtengaValoresGeneralesActaConciliacion($db,$idActaConciliacion) {
-        
+        $DatosActa=$this->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
+        $MesServicioInicial=$DatosActa["MesServicioInicial"];
+        $MesServicioFinal=$DatosActa["MesServicioFinal"];
         $TotalPendientesRadicados=$this->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
         $TotalFacturasSinRelacionsrXIPS= $this->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
             
-        $sql="SELECT SUM(ValorSegunEPS) AS TotalEPS,SUM(ValorSegunIPS) AS TotalIPS FROM $db.`vista_cruce_cartera_asmet` t1 WHERE EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato);";
+        $sql="SELECT SUM(ValorSegunEPS) AS TotalEPS,SUM(ValorSegunIPS) AS TotalIPS FROM $db.`vista_cruce_cartera_asmet` t1 WHERE "
+                . "EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato) AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal'";
+                
         $TotalesCruce=$this->FetchAssoc($this->Query($sql));
 
-        $sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='2' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura) AND EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato); ";
-        $TotalesConciliacionesFactura=$this->FetchAssoc($this->Query($sql));
+        //$sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='2' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura AND t2.MesServicio>='$MesServicioInicial' AND t2.MesServicio<='$MesServicioFinal') AND EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato); ";
+        //$TotalesConciliacionesFactura=$this->FetchAssoc($this->Query($sql));
 
-        $sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='1' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura) AND EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato); ";
-        $TotalesConciliacionesFavorEPS=$this->FetchAssoc($this->Query($sql));
+        //$sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='1' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura AND t2.MesServicio>='$MesServicioInicial' AND t2.MesServicio<='$MesServicioFinal') AND EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato); ";
+        //$TotalesConciliacionesFavorEPS=$this->FetchAssoc($this->Query($sql));
 
-        $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados-$TotalesConciliacionesFavorEPS["ValorConciliaciones"];
+        $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados;
         $ValorSegunIPS=$TotalesCruce["TotalIPS"]-$TotalFacturasSinRelacionsrXIPS;
         $Diferencia=$ValorSegunEPS-$ValorSegunIPS;
-        $SaldoConciliadoParaPago=$ValorSegunEPS+$TotalesConciliacionesFactura["ValorConciliaciones"];
+        $SaldoConciliadoParaPago=$ValorSegunEPS;
         
         $TotalesActa["ValorSegunEPS"]=$ValorSegunEPS;
         $TotalesActa["ValorSegunIPS"]=$ValorSegunIPS;

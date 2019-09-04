@@ -77,3 +77,9 @@ INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`,
 
 INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
 (29,	'Historial de Contratos Liquidados',	52,	11,	3,	'',	1,	'',	'historial_contratos_liquidados.php',	'_SELF',	1,	'historial.png',	1,	'2019-08-13 09:53:47',	'0000-00-00 00:00:00');
+
+
+ALTER TABLE `actas_conciliaciones` ADD `FechaInicial` DATE NOT NULL AFTER `ID`;
+ALTER TABLE `actas_conciliaciones` ADD `MesServicioInicial` INT(6) NOT NULL AFTER `Estado`, ADD `MesServicioFinal` INT(6) NOT NULL AFTER `MesServicioInicial`;
+
+
