@@ -524,10 +524,14 @@ class ValidacionesEPS extends conexion{
         if(!is_numeric($FacturasNoRelacionadasXIPS)){
             $FacturasNoRelacionadasXIPS=0;
         }
-        $TotalFacturasSinRelacionsrXIPS= $this->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
-        if(!is_numeric($TotalFacturasSinRelacionsrXIPS)){
-            $TotalFacturasSinRelacionsrXIPS=0;
-        }
+        $sql="SELECT SUM(ValorTotalpagar) AS Total FROM $db.vista_facturas_sr_ips";
+        $TotalConsulta= $this->FetchAssoc($this->Query($sql));
+        $TotalFacturasSinRelacionsrXIPS=$TotalConsulta["Total"];
+        //$TotalFacturasSinRelacionsrXIPS= $this->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
+       // print("prueba :".$TotalFacturasSinRelacionsrXIPS);
+        //if(!is_numeric($TotalFacturasSinRelacionsrXIPS)){
+         //   $TotalFacturasSinRelacionsrXIPS=0;
+        //}
         
         $DetalleDiferencias["DiferenciaXPagos"]=(round(abs($DatosTotales["DiferenciaXPagos"])+abs($DatosTotales["DiferenciaXAnticipos"])+abs($DatosTotales["DiferenciaXGlosaContraEPS"])+abs($DatosTotales["XPagos2"])));
         $DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=abs(round($TotalFacturasSinRelacionsrXIPS));        
@@ -664,6 +668,54 @@ class ValidacionesEPS extends conexion{
         $sql." WHERE ID='$idActaConciliacion'";
         $this->Query($sql);
     }
+    
+    
+    public function CopiarItemsAlActaConciliacion($db,$idActa,$idUser) {
+        $FechaRegisto=date("Y-m-d H:i:s");
+        $DatosActa=$this->DevuelveValores("actas_conciliaciones", "ID", $idActa);
+        $MesServicioInicial=$DatosActa["MesServicioInicial"];
+        $MesServicioFinal=$DatosActa["MesServicioFinal"];
+                
+        $sql="INSERT INTO $db.actas_conciliaciones_items 
+                (`idActaConciliacion`,`FechaFactura`,`MesServicio`,`DepartamentoRadicacion`,`NumeroRadicado`,`FechaRadicado`,`NumeroContrato`,`NumeroFactura`,`ValorDocumento`,`Impuestos`,`TotalPagos`,
+                `TotalAnticipos`,`TotalCopagos`,`DescuentoPGP`,`OtrosDescuentos`,`AjustesCartera`,`TotalGlosaInicial`,`TotalGlosaFavor`,`TotalGlosaContra`,`GlosaXConciliar`,`TotalDevoluciones`,`ValorSegunEPS`,
+                `ValorSegunIPS`,`Diferencia`,`NoRelacionada`,`FechaRegistro`,`idUser`)  
+                SELECT '$idActa',`FechaFactura`,`MesServicio`,`DepartamentoRadicacion`,`NumeroRadicado`,`FechaRadicado`,`NumeroContrato`,`NumeroFactura`,`ValorDocumento`,`Impuestos`,`TotalPagos`,
+                `TotalAnticipos`,`TotalCopagos`,`DescuentoPGP`,`OtrosDescuentos`,`AjustesCartera`,`TotalGlosaInicial`,`TotalGlosaFavor`,`TotalGlosaContra`,`GlosaXConciliar`,`TotalDevoluciones`,`ValorSegunEPS`,
+                `ValorSegunIPS`,`Diferencia` ,'0','$FechaRegisto','$idUser'   
+                 FROM $db.vista_reporte_ips t1 WHERE 
+                EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato AND t2.idActaConciliacion='$idActa') 
+                AND NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND t3.idActaConciliacion='$idActa') 
+
+                AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal' limit 20";
+        
+        $this->Query($sql);
+                
+    }
+    
+    public function CopiarItemsNoCruceAlActaConciliacion($db,$idActa,$idUser) {
+        $FechaRegisto=date("Y-m-d H:i:s");
+        $DatosActa=$this->DevuelveValores("actas_conciliaciones", "ID", $idActa);
+        $MesServicioInicial=$DatosActa["MesServicioInicial"];
+        $MesServicioFinal=$DatosActa["MesServicioFinal"];
+                
+        $sql="INSERT INTO $db.actas_conciliaciones_items 
+                (`idActaConciliacion`,`FechaFactura`,`MesServicio`,`DepartamentoRadicacion`,`NumeroRadicado`,`FechaRadicado`,`NumeroContrato`,`NumeroFactura`,`ValorDocumento`,`Impuestos`,`TotalPagos`,
+                `TotalAnticipos`,`TotalCopagos`,`DescuentoPGP`,`OtrosDescuentos`,`AjustesCartera`,`TotalGlosaInicial`,`TotalGlosaFavor`,`TotalGlosaContra`,`GlosaXConciliar`,`TotalDevoluciones`,`ValorSegunEPS`,
+                `ValorSegunIPS`,`Diferencia`,`NoRelacionada`,`FechaRegistro`,`idUser`)  
+                SELECT '$idActa',`FechaFactura`,`MesServicio`,`DepartamentoRadicacion`,`NumeroRadicado`,`FechaRadicado`,`NumeroContrato`,`NumeroFactura`,`ValorDocumento`,`Impuestos`,`TotalPagos`,
+                `TotalAnticipos`,`TotalCopagos`,`DescuentoPGP`,`OtrosDescuentos`,`AjustesCartera`,`TotalGlosaInicial`,`TotalGlosaFavor`,`TotalGlosaContra`,`GlosaXConciliar`,`TotalDevoluciones`,`ValorSegunEPS`,
+                `ValorSegunIPS`,`Diferencia` ,'1','$FechaRegisto','$idUser'   
+                 FROM $db.vista_cruce_cartera_eps_sin_relacion_segun_ags t1 WHERE 
+                EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato AND t2.idActaConciliacion='$idActa') 
+                AND NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND t3.idActaConciliacion='$idActa') 
+
+                AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal' limit 100";
+        
+        $this->Query($sql);
+                
+    }
+    
     
     //Fin Clases
 }

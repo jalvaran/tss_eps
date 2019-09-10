@@ -199,6 +199,8 @@ function MuestreCruce(Page=1){
             
            document.getElementById('DivCruce').innerHTML=data;
            $('#CmbPageCruce').select2();
+           
+           DibujaTotalesCruce();
             
         },
         error: function (xhr, ajaxOptions, thrownError) {
@@ -2738,6 +2740,443 @@ function InicializarValoresGeneralesActaConciliacion(){
           }
       })
 }
+
+function DibujaTotalesCruce(){
+    document.getElementById("DivTotalesCruce").innerHTML='<div id="GifProcess">Calculando Totales...<br><img   src="../../images/loading.gif" alt="Cargando" height="50" width="50"></div>';
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 33);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);        
+        
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivTotalesCruce').innerHTML=data;
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+function CerrarActaConciliacion(){
+    
+    alertify.confirm('Está seguro que desea Cerrar este documento?',
+        function (e) {
+            if (e) {
+
+                alertify.success("Iniciando Proceso");                    
+                EnviarSoporteActaConciliacion();
+            }else{
+                alertify.error("Se canceló el proceso");
+
+                return;
+            }
+        });
+}
+
+function EnviarSoporteActaConciliacion(){
+    var idDivOutput="DivMensajesCerrarActa";
+    document.getElementById(idDivOutput).innerHTML='<div id="GifProcess">Enviando Soporte...<br><img   src="../../images/loading.gif" alt="Procesando" height="50" width="50"></div>';
+    
+    var idBoton="btnGuardarConciliacion";
+    
+    document.getElementById(idBoton).disabled=true;   
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 25);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('UpSoporteActaConciliacionCierre', $('#UpSoporteActaConciliacionCierre').prop('files')[0]);
+      
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               
+                alertify.success(respuestas[1]);
+                document.getElementById(idDivOutput).innerHTML=respuestas[1];
+                ObtengaTotalRegistrosCruce();
+            }else if(respuestas[0]==="E1"){
+                document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById(idDivOutput).innerHTML='';
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function ObtengaTotalRegistrosCruce(){
+    var idDivOutput="DivMensajesCerrarActa";
+    document.getElementById(idDivOutput).innerHTML='<div id="GifProcess">Obteniengo el Total de Registros...<br><img   src="../../images/loading.gif" alt="Procesando" height="50" width="50"></div>';
+    
+    var idBoton="btnGuardarConciliacion";
+    
+    document.getElementById(idBoton).disabled=true;   
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 26);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               
+                alertify.success(respuestas[1]);
+                document.getElementById(idDivOutput).innerHTML=respuestas[1];
+                CopiarRegistrosCruce(respuestas[2]);
+            }else if(respuestas[0]==="E1"){
+                document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById(idDivOutput).innerHTML='';
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function CopiarRegistrosCruce(TotalRegistros){
+    var idDivOutput="DivMensajesCerrarActa";
+    
+    var idBoton="btnGuardarConciliacion";
+    
+    document.getElementById(idBoton).disabled=true;   
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 27);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('TotalRegistros', TotalRegistros);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            //console.log(data)
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){
+               var porcentaje = respuestas[3];
+               
+                $("#PgProgresoCruce").css('width',porcentaje+"%").attr('aria-valuenow', porcentaje);  
+                document.getElementById('LyProgresoCruce').innerHTML=porcentaje+"%";
+                //alertify.success(respuestas[1]);
+                document.getElementById(idDivOutput).innerHTML=respuestas[1];
+                
+                CopiarRegistrosCruce(TotalRegistros);
+                
+            }else if(respuestas[0]==="FIN"){
+                 var porcentaje = 100;
+               
+                $("#PgProgresoCruce").css('width',porcentaje+"%").attr('aria-valuenow', porcentaje);  
+                document.getElementById('LyProgresoCruce').innerHTML=porcentaje+"%";
+                document.getElementById(idDivOutput).innerHTML=respuestas[1];
+                //alertify.alert(respuestas[1]);
+                ObtengaTotalRegistrosQueNoCruzan();
+            }else if(respuestas[0]==="E1"){
+                document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById(idDivOutput).innerHTML='';
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function ObtengaTotalRegistrosQueNoCruzan(){
+    var idDivOutput="DivMensajesCerrarActa";
+    document.getElementById(idDivOutput).innerHTML='<div id="GifProcess">Obteniengo el Total de Registros...<br><img   src="../../images/loading.gif" alt="Procesando" height="50" width="50"></div>';
+    
+    var idBoton="btnGuardarConciliacion";
+    
+    document.getElementById(idBoton).disabled=true;   
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 28);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               
+                alertify.success(respuestas[1]);
+                document.getElementById(idDivOutput).innerHTML=respuestas[1];
+                CopiarRegistrosQueNoCruzan(respuestas[2]);
+            }else if(respuestas[0]==="E1"){
+                document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById(idDivOutput).innerHTML='';
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function CopiarRegistrosQueNoCruzan(TotalRegistros){
+    var idDivOutput="DivMensajesCerrarActa";
+    
+    var idBoton="btnGuardarConciliacion";
+        
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 29);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('TotalRegistros', TotalRegistros);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            console.log(data)
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               var porcentaje = respuestas[3];
+               
+                $("#PgProgresoNoCruce").css('width',porcentaje+"%").attr('aria-valuenow', porcentaje);  
+                document.getElementById('LyProgresoNoCruce').innerHTML=porcentaje+"%";
+                //alertify.success(respuestas[1]);
+                document.getElementById(idDivOutput).innerHTML=respuestas[1];
+                //alertify.success(respuestas[1]);
+                document.getElementById(idDivOutput).innerHTML=respuestas[1];
+                
+                CopiarRegistrosQueNoCruzan(TotalRegistros);
+                
+            }else if(respuestas[0]==="FIN"){
+                var porcentaje = 100;
+               
+                $("#PgProgresoNoCruce").css('width',porcentaje+"%").attr('aria-valuenow', porcentaje);  
+                document.getElementById('LyProgresoNoCruce').innerHTML=porcentaje+"%";
+                
+                document.getElementById(idDivOutput).innerHTML=respuestas[1];
+                //alertify.alert(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                ActualiceRegistroCierreActaConciliacion();
+            }else if(respuestas[0]==="E1"){
+                document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById(idDivOutput).innerHTML='';
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function ActualiceRegistroCierreActaConciliacion(){
+    var idDivOutput="DivMensajesCerrarActa";
+    document.getElementById(idDivOutput).innerHTML='<div id="GifProcess">Actualizando Registros para el cierre...<br><img   src="../../images/loading.gif" alt="Procesando" height="50" width="50"></div>';
+    
+    var idBoton="btnGuardarConciliacion";
+    
+    document.getElementById(idBoton).disabled=true;   
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 30);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               
+                alertify.success(respuestas[1]);
+                alertify.alert(respuestas[1]);
+                document.getElementById(idDivOutput).innerHTML=respuestas[1];
+                document.getElementById(idBoton).disabled=false;
+                
+            }else if(respuestas[0]==="E1"){
+                document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               document.getElementById(idDivOutput).innerHTML='';
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById(idDivOutput).innerHTML='';
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();
 $('#CmbEPS').select2();

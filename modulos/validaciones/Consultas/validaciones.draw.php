@@ -9,6 +9,174 @@ $idUser=$_SESSION['idUser'];
 include_once("../clases/validaciones.class.php");
 include_once("../../../constructores/paginas_constructor.php");
 include_once '../../../general/clases/numeros_letras.class.php';
+//include_once '../clases/validacionesWorker.class.php';
+//include_once '../clases/validacionesWorker.class.php';
+
+function CalculeTotales(){
+    $idUser=$_SESSION['idUser'];
+    $css =  new PageConstruct("", "", 1, "", 1, 0);
+    $obCon = new ValidacionesEPS($idUser);
+    
+    $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+    $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+    $db=$DatosIPS["DataBase"];
+
+    $sql="SELECT SUM(ValorSegunEPS) AS TotalEPS, SUM(ValorSegunIPS) AS TotalIPS, 
+        SUM(TotalAPagar) AS TotalConciliaciones, 
+        SUM(ValorMenosImpuestos) AS Valormenosimpuesto,
+        SUM(TotalPagos) AS TotalPagos,
+        SUM(TotalAnticipos) AS TotalAnticipos,
+        SUM(TotalGlosaFavor) AS TotalGlosaFavor,
+        SUM(GlosaXConciliar) AS GlosaXConciliar,
+        SUM(OtrosDescuentos) AS OtrosDescuentos,
+        SUM(TotalCopagos) AS TotalCopagos,
+        SUM(TotalDevoluciones) AS TotalDevoluciones,
+        SUM(DescuentoPGP) AS DescuentoPGP,
+        SUM(ConciliacionesAFavorEPS) AS ConciliacionesAFavorEPS,
+        SUM(ConciliacionesAFavorIPS) AS ConciliacionesAFavorIPS,
+        (SELECT COUNT(*) FROM $db.vista_cruce_cartera_asmet WHERE Estado=1) as NumeroConciliaciones
+        FROM $db.vista_cruce_cartera_asmet                
+            ";
+    $row=$obCon->FetchAssoc($obCon->Query($sql));
+    $TotalEPS=$row['TotalEPS'];
+    $TotalIPS=$row['TotalIPS'];
+    $TotalConciliaciones=$row['TotalConciliaciones'];
+    $NumeroConciliaciones=$row['NumeroConciliaciones'];
+    $Valormenosimpuesto = $row['Valormenosimpuesto'];           
+    $TotalPagos= $row['TotalPagos'];
+    $TotalAnticipos= $row['TotalAnticipos'];
+    $TotalGlosaFavor= $row['TotalGlosaFavor'];
+    $GlosaXConciliar= $row['GlosaXConciliar'];
+    $OtrosDescuentos= $row['OtrosDescuentos'];
+    $TotalCopagos= $row['TotalCopagos'];
+    $TotalDevoluciones= $row['TotalDevoluciones'];
+    $DescuentoPGP= $row['DescuentoPGP'];
+    $ConciliacionesAFavorEPS= $row['ConciliacionesAFavorEPS'];
+    $ConciliacionesAFavorIPS= $row['ConciliacionesAFavorIPS'];
+
+    $TotalPendientesDevoluciones=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Devoluciones");
+    $TotalPendientesCopagos=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Copagos");
+    $TotalPendientesRadicados=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
+    $TotalPendientesNotas=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Notas");
+
+    $css->CrearTabla();
+
+    $css->FilaTabla(16);
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($TotalEPS)."</h4>");
+    print("</td>");
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Total Según IPS:</strong> <h4 style=color:red>". number_format($TotalIPS)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+
+            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`21`)", "style=cursor:pointer;");
+
+              print("<strong>Pendientes Radicados:</strong> <h4 style=color:red>". number_format($TotalPendientesRadicados)."</h4>");
+           $css->CerrarDiv();
+
+
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`22`)", "style=cursor:pointer;");
+
+            print("<strong>Pendientes Devoluciones:</strong> <h4 style=color:red>". number_format($TotalPendientesDevoluciones)."</h4>");
+        $css->CerrarDiv();
+
+    print("</td>");
+
+
+    print("<td colspan=1 style='text-align:center'>");
+        $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`23`)", "style=cursor:pointer;");
+
+            print("<strong>Pendientes Copagos:</strong> <h4 style=color:red>". number_format($TotalPendientesCopagos)."</h4>");
+        $css->CerrarDiv();
+
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`24`)", "style=cursor:pointer;");
+
+            print("<strong>Pendientes Notas Crédito:</strong> <h4 style=color:red>". number_format($TotalPendientesNotas)."</h4>");
+        $css->CerrarDiv();
+
+    print("</td>");
+    //$sql="SELECT SUM(ValorImpuestosCalculados) AS TotalRetencionesDevueltas FROM $db.vista_facturas_sr_eps_2 WHERE Saldo<0";
+    //$Consulta2=$obCon->Query($sql);
+    //$DatosSaldosDevoluciones=$obCon->FetchAssoc($Consulta2);
+    //$TotalRetencionesDevolucionesNoRelacionadas=$DatosSaldosDevoluciones["TotalRetencionesDevueltas"];
+    $TotalRetencionesDevolucionesNoRelacionadas=0;
+    //print("<td colspan=1 style='text-align:center'>");
+     //   print("<strong>Retenciones Pagadas en Devoluciones:</strong> <h4 style=color:red>". number_format($TotalRetencionesDevolucionesNoRelacionadas)."</h4>");
+    //print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Posible Valor a Liquidar:</strong> <h4 style=color:red>". number_format($TotalEPS-$TotalPendientesNotas-$TotalPendientesCopagos-$TotalPendientesDevoluciones-$TotalPendientesRadicados-$TotalRetencionesDevolucionesNoRelacionadas)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Facturas Conciliadas:</strong> <h4 style=color:red>". number_format($NumeroConciliaciones)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Total Conciliado:</strong> <h4 style=color:red>". number_format($TotalConciliaciones)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Total Conciliado - Pendientes:</strong> <h4 style=color:red>". number_format($TotalConciliaciones-$TotalPendientesNotas-$TotalPendientesCopagos-$TotalPendientesDevoluciones-$TotalPendientesRadicados-$TotalRetencionesDevolucionesNoRelacionadas)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Total Pagos:</strong> <h4 style=color:red>". number_format($TotalPagos)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Anticipos:</strong> <h4 style=color:red>". number_format($TotalAnticipos)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Glosas A Favor:</strong> <h4 style=color:red>". number_format($TotalGlosaFavor)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Glosas X Conciliar:</strong> <h4 style=color:red>". number_format($GlosaXConciliar)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Otros Descuentos:</strong> <h4 style=color:red>". number_format($OtrosDescuentos)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Copagos:</strong> <h4 style=color:red>". number_format($TotalCopagos)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Otros Descuentos:</strong> <h4 style=color:red>". number_format($OtrosDescuentos)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Devoluciones:</strong> <h4 style=color:red>". number_format($TotalDevoluciones)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Descuentos PGP:</strong> <h4 style=color:red>". number_format($DescuentoPGP)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Conciliaciones a Favor de la EPS:</strong> <h4 style=color:red>". number_format($ConciliacionesAFavorEPS)."</h4>");
+    print("</td>");
+
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Conciliaciones a Favor de la IPS:</strong> <h4 style=color:red>". number_format($ConciliacionesAFavorIPS)."</h4>");
+    print("</td>");
+
+    $css->CierraFilaTabla();
+
+    $css->CerrarTabla();
+}  
+
 
 if( !empty($_REQUEST["Accion"]) ){
     $css =  new PageConstruct("", "", 1, "", 1, 0);
@@ -147,7 +315,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla($DatosFactura["FechaFactura"], 1);
                         $css->ColTabla($DatosFactura["NumeroRadicado"], 1);
                         $css->ColTabla($DatosFactura["FechaRadicado"], 1);
-                        $css->ColTabla(number_format($DatosFactura["ValorDocumento"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["ValorTotalpagar"]), 1,'R');
                         print("<td style='text-align:center'>");
                             print('<a id="BtnVer_'.$idItem.'" href="#" onclick="DibujeFactura('.$idItem.');"><i class="fa fa-fw fa-eye"></i></a>');
                         print("</td>");
@@ -315,12 +483,12 @@ if( !empty($_REQUEST["Accion"]) ){
                 $statement= urldecode($_REQUEST['st']);
                 //print($statement);
             }
-           
+            /*
             $TotalPendientesDevoluciones=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Devoluciones");
             $TotalPendientesCopagos=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Copagos");
             $TotalPendientesRadicados=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
             $TotalPendientesNotas=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Notas");
-             /*
+            
             $TotalPendientesDevoluciones=0;
             $TotalPendientesCopagos=0;
             $TotalPendientesRadicados=0;
@@ -330,22 +498,39 @@ if( !empty($_REQUEST["Accion"]) ){
             $startpoint = ($NumPage * $limit) - $limit;
             $VectorST = explode("LIMIT", $statement);
             $statement = $VectorST[0]; 
-            $query = "SELECT COUNT(*) as `num`,SUM(ValorSegunEPS) AS Total,SUM(ValorSegunIPS) AS TotalIPS,SUM(TotalAPagar) AS TotalConciliaciones,(SELECT COUNT(*) FROM $db.vista_cruce_cartera_asmet WHERE Estado=1) as NumeroConciliaciones FROM {$statement}";
+            $query = "SELECT COUNT(*) as `num`
+                     FROM {$statement}";
             $row = $obCon->FetchArray($obCon->Query($query));
             $ResultadosTotales = $row['num'];
+            /*
             $Total=$row['Total'];
             $TotalIPS=$row['TotalIPS'];
             $TotalConciliaciones=$row['TotalConciliaciones'];
             $NumeroConciliaciones=$row['NumeroConciliaciones'];
+            $Valormenosimpuesto = $row['Valormenosimpuesto'];
+           
+            $TotalPagos= $row['TotalPagos'];
+                    $TotalAnticipos= $row['TotalAnticipos'];
+                    $TotalGlosaFavor= $row['TotalGlosaFavor'];
+                    $GlosaXConciliar= $row['GlosaXConciliar'];
+                    $OtrosDescuentos= $row['OtrosDescuentos'];
+                    $TotalCopagos= $row['TotalCopagos'];
+                    $TotalDevoluciones= $row['TotalDevoluciones'];
+                    $DescuentoPGP= $row['DescuentoPGP'];
+                    $ConciliacionesAFavorEPS= $row['ConciliacionesAFavorEPS'];
+                    $ConciliacionesAFavorIPS= $row['ConciliacionesAFavorIPS'];
+             * 
+             */
             $st_reporte=$statement;
             $Limit=" LIMIT $startpoint,$limit";
             
             $query="SELECT * ";
             $Consulta=$obCon->Query("$query FROM $statement $Limit");
             
-                        
-            $css->CrearTabla();
-            
+            $css->CrearDiv("DivTotalesCruce", "", "left", 1, 1);
+
+            $css->CerrarDiv();
+            $css->CrearTabla();            
             
                 $css->FilaTabla(16);
                     print("<td colspan='1' style='text-align:center'>");
@@ -393,12 +578,18 @@ if( !empty($_REQUEST["Accion"]) ){
                                 $NumPage1=$NumPage+1;
                             print('<span class="input-group-addon" onclick=CambiePaginaCruce('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-right" ></i></span>');
                             }
-                            print("<div>");
+                            //print("<div>");
                     print("</td>");
                             
                     print("<td style='text-align:center;'>");
                         print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
                     print("</td>");
+                    
+                    print("<td style='text-align:left;' colspan=12>");
+                        
+                    
+                    print("</td>");
+                    /*
                     print("<td colspan=1 style='text-align:center'>");
                         print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
                     print("</td>");
@@ -440,7 +631,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CerrarDiv();
                         
                     print("</td>");
-                    $sql="SELECT SUM(ValorImpuestosCalculados) AS TotalRetencionesDevueltas FROM $db.vista_facturas_sr_eps_2 WHERE Saldo<0";
+                    //$sql="SELECT SUM(ValorImpuestosCalculados) AS TotalRetencionesDevueltas FROM $db.vista_facturas_sr_eps_2 WHERE Saldo<0";
                     //$Consulta2=$obCon->Query($sql);
                     //$DatosSaldosDevoluciones=$obCon->FetchAssoc($Consulta2);
                     //$TotalRetencionesDevolucionesNoRelacionadas=$DatosSaldosDevoluciones["TotalRetencionesDevueltas"];
@@ -466,7 +657,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     
                     
-                            
+                       */     
                             
                            $css->CierraFilaTabla(); 
                         }
@@ -3026,10 +3217,18 @@ if( !empty($_REQUEST["Accion"]) ){
                         //print(utf8_decode($DatosActa["EncargadoEPS"]));
                     print("</td>");
                 print("</tr>");
-                
+                print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td>");
+                        print("<strong>Fecha Inicial:</strong>");
+                    print("</td>");
+                    print("<td>");
+                        $css->input("date", "TxtFechaInicialActaConciliacion", "form-control", "TxtFechaInicialActaConciliacion", "", ($DatosActa["FechaInicial"]), "Fecha Inicial", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TxtFechaInicialActaConciliacion`,`FechaInicial`)","style='line-height: 15px;'"."max=".date("Y-m-d"));
+                    
+                    print("</td>");
+                print("</tr>");
                 print("<tr style=font-size:18px;border-left-style:double;border-bottom-style:double;border-right-style:double;border-width:5px;>");
                     print("<td>");
-                        print("<strong>Mes de Corte:</strong>");
+                        print("<strong>Fecha Final:</strong>");
                     print("</td>");
                     print("<td>");
                         $css->input("date", "TxtFechaCorteConciliacion", "form-control", "TxtFechaCorteConciliacion", "", ($DatosActa["FechaCorte"]), "Encargado EPS", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TxtFechaCorteConciliacion`,`FechaCorte`)","style='line-height: 15px;'"."max=".date("Y-m-d"));
@@ -3458,6 +3657,8 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td>");
         
                         $css->CrearBotonEvento("btnGuardarConciliacion", "Cerrar Acta", 1, "onclick", "CerrarActaConciliacion()", "rojo", "");
+                        $css->ProgressBar("PgProgresoCruce", "LyProgresoCruce", "", 0, 0, 100, 0, "100%", "", "");
+                        $css->ProgressBar("PgProgresoNoCruce", "LyProgresoNoCruce", "", 0, 0, 100, 0, "100%", "", "");
                         $css->CrearDiv("DivMensajesCerrarActa", "", "center", 1, 1);
                         
                         $css->CerrarDiv();
@@ -3548,6 +3749,14 @@ if( !empty($_REQUEST["Accion"]) ){
             }
             
         break;//Fin caso 32    
+        
+        case 33: //Dibuja los totales del cruce
+            //$my = new My();
+            //$my->start();
+            register_shutdown_function('CalculeTotales');
+            
+            
+        break;// fin caso 33
     
         
     }

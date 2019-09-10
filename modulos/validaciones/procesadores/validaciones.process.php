@@ -646,6 +646,16 @@ if( !empty($_REQUEST["Accion"]) ){
             $obCon->ActualizaRegistro("actas_conciliaciones", $CampoAEditar, $NuevoValor, "ID", $idActaConciliacion, 0);
             $obCon->ActualizaRegistro("actas_conciliaciones", "Updated", date("Y-m-d H:i:s"), "ID", $idActaConciliacion, 0);
             $obCon->ActualizaRegistro("actas_conciliaciones", "idUserUpdate",$idUser, "ID", $idActaConciliacion, 0);
+            if($CampoAEditar=='FechaInicial'){
+                $DatosMesServicio = explode("-", $NuevoValor);
+                $MesServicioInicial=$DatosMesServicio[0].$DatosMesServicio[1];
+                $obCon->ActualizaRegistro("actas_conciliaciones", "MesServicioInicial", $MesServicioInicial, "ID", $idActaConciliacion, 0);
+            }
+            if($CampoAEditar=='FechaCorte'){
+                $DatosMesServicio = explode("-", $NuevoValor);
+                $MesServicioFinal=$DatosMesServicio[0].$DatosMesServicio[1];
+                $obCon->ActualizaRegistro("actas_conciliaciones", "MesServicioFinal", $MesServicioFinal, "ID", $idActaConciliacion, 0);
+            }
             print("OK;Campo $CampoAEditar del Acta de conciliación Editado");
         break;//Fin caso 17
         
@@ -825,6 +835,207 @@ if( !empty($_REQUEST["Accion"]) ){
             
             print("OK;Valores Generales Inicializados");
         break; //Fin caso 24    
+    
+        case 25:// guarde el soporte
+            
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $destino='';
+            $keyArchivo="Acta_$idActaConciliacion"."_";
+            $Extension="";
+            if(!empty($_FILES['UpSoporteActaConciliacionCierre']['name'])){
+                
+                $info = new SplFileInfo($_FILES['UpSoporteActaConciliacionCierre']['name']);
+                $Extension=($info->getExtension());  
+                if($Extension=='pdf'){
+                    $carpeta="../../../soportes/$CmbIPS/";
+                    if (!file_exists($carpeta)) {
+                        mkdir($carpeta, 0777);
+                    }
+                    $carpeta="../../../soportes/$CmbIPS/actas_conciliaciones/";
+                    if (!file_exists($carpeta)) {
+                        mkdir($carpeta, 0777);
+                    }
+                    opendir($carpeta);                
+                    $destino=$carpeta.$keyArchivo.".".$Extension;
+                    $NombreArchivo=$keyArchivo.".".$Extension;
+                    move_uploaded_file($_FILES['UpSoporteActaConciliacionCierre']['tmp_name'],$destino);
+                    
+                }else{
+                    exit("E1;Error el archivo debe ser tipo pdf;UpSoporteActaConciliacionCierre");
+                }
+            }else{
+                exit("E1;No se envió ningún archivo;UpSoporteActaConciliacionCierre");
+                
+            }
+            
+            if($idActaConciliacion==''){
+                exit("E1;No se recibió un acta de conciliación");
+            }
+            
+            if($CmbIPS==''){
+                exit("E1;No se recibió una IPS");
+            }
+            
+            print("OK;Soporte Guardado");
+        break; //Fin caso 25  
+        
+        case 26:// obtener total de items que cruzan
+            
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+                     
+            if($idActaConciliacion==''){
+                exit("E1;No se recibió un acta de conciliación");
+            }
+            
+            if($CmbIPS==''){
+                exit("E1;No se recibió una IPS");
+            }
+            $DatosActa=$obCon->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
+            $MesServicioInicial=$DatosActa["MesServicioInicial"];
+            $MesServicioFinal=$DatosActa["MesServicioFinal"];
+            $sql="SELECT COUNT(*) as TotalRegistros FROM $db.vista_reporte_ips 
+                  t1 WHERE 
+                EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato AND t2.idActaConciliacion='$idActaConciliacion') 
+                AND NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND t3.idActaConciliacion='$idActaConciliacion') 
+
+                AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal'
+                    ";
+            $DatosRegistros=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalRegistros=$DatosRegistros["TotalRegistros"];            
+            print("OK;Registros del cruce que deben copiarse: $TotalRegistros;$TotalRegistros");
+            
+        break; //Fin caso 26
+        
+        case 27:// COPIAR items del acta de la vista que cruza
+            $TotalItemsACopiar=$obCon->normalizar($_REQUEST["TotalRegistros"]);
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+                     
+            if($idActaConciliacion==''){
+                exit("E1;No se recibió un acta de conciliación");
+            }
+            
+            if($CmbIPS==''){
+                exit("E1;No se recibió una IPS");
+            }
+            
+            $obCon->CopiarItemsAlActaConciliacion($db, $idActaConciliacion,$idUser);
+            $sql="SELECT COUNT(*) as TotalItems FROM $db.actas_conciliaciones_items WHERE idActaConciliacion='$idActaConciliacion' AND NoRelacionada='0'";
+            $DatosTotales=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalRegistros=$DatosTotales["TotalItems"];
+            $Divisor=$TotalItemsACopiar;
+            if($TotalItemsACopiar==0){
+                $Divisor=1;
+            }
+            $porcentaje=round((100/$Divisor)*$TotalRegistros);
+            if($TotalRegistros>=$TotalItemsACopiar){
+                print("FIN;Registros del cruce copiados éxitosamente, Proceso Terminado");
+            }else{
+                print("OK;$TotalRegistros de $TotalItemsACopiar registros del cruce Copiados;$TotalItemsACopiar;$porcentaje");
+            }
+            
+        break; //Fin caso 27
+        
+        case 28:// obtener total de items que no cruzan
+            
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+                     
+            if($idActaConciliacion==''){
+                exit("E1;No se recibió un acta de conciliación");
+            }
+            
+            if($CmbIPS==''){
+                exit("E1;No se recibió una IPS");
+            }
+            $DatosActa=$obCon->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
+            $MesServicioInicial=$DatosActa["MesServicioInicial"];
+            $MesServicioFinal=$DatosActa["MesServicioFinal"];
+            $sql="SELECT COUNT(*) as TotalRegistros FROM $db.vista_cruce_cartera_eps_sin_relacion_segun_ags  
+                  t1 WHERE 
+                EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato AND t2.idActaConciliacion='$idActaConciliacion') 
+                AND NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND t3.idActaConciliacion='$idActaConciliacion') 
+
+                AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal'
+                    ";
+            $DatosRegistros=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalRegistros=$DatosRegistros["TotalRegistros"];            
+            print("OK;Registros de los archivos que no cruzan que deben copiarse: $TotalRegistros;$TotalRegistros");
+            
+        break; //Fin caso 28
+        
+        case 29:// COPIAR items del acta de la vista que no cruza
+            $TotalItemsACopiar=$obCon->normalizar($_REQUEST["TotalRegistros"]);
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+                     
+            if($idActaConciliacion==''){
+                exit("E1;No se recibió un acta de conciliación");
+            }
+            
+            if($CmbIPS==''){
+                exit("E1;No se recibió una IPS");
+            }
+            
+            $obCon->CopiarItemsNoCruceAlActaConciliacion($db, $idActaConciliacion,$idUser);
+            $sql="SELECT COUNT(*) as TotalItems FROM $db.actas_conciliaciones_items WHERE idActaConciliacion='$idActaConciliacion' AND NoRelacionada='1'";
+            $DatosTotales=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalRegistros=$DatosTotales["TotalItems"];
+            $Divisor=$TotalItemsACopiar;
+            if($TotalItemsACopiar==0){
+                $Divisor=1;
+            }
+            $porcentaje=round((100/$Divisor)*$TotalRegistros);
+            if($TotalRegistros>=$TotalItemsACopiar){
+                print("FIN;Registros no relacionados por la ips copiados éxitosamente, Proceso Terminado;Copia de Registros Finalizada");
+            }else{
+                print("OK;$TotalRegistros de $TotalItemsACopiar registros no relacionados por la ips copiados;$TotalItemsACopiar;$porcentaje");
+            }
+            
+        break; //Fin caso 29
+        
+        case 30:// Actualizar el estado de las Facturas y Acta
+            
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+                     
+            if($idActaConciliacion==''){
+                exit("E1;No se recibió un acta de conciliación");
+            }
+            
+            if($CmbIPS==''){
+                exit("E1;No se recibió una IPS");
+            }
+            
+            $obCon->ActualizaRegistro("actas_conciliaciones", "Estado", 1, "ID", $idActaConciliacion);
+            $sql="UPDATE $db.carteraeps t1 INNER JOIN $db.actas_conciliaciones_items t2 
+                    ON t1.NumeroFactura = t2.Numerofactura SET t1.Estado=2 
+                    WHERE t2.idActaConciliacion='$idActaConciliacion'";
+            $obCon->Query($sql);
+            print("OK;Se realizó la Actualización de los estados para cerrar el Acta");
+            
+        break; //Fin caso 30
         
     }
     
