@@ -350,6 +350,51 @@ if(isset($_REQUEST["Opcion"])){
             print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar</h1></a></div>");
         break;//Fin caso 5
         
+        case 6: //Exportar CSV Anexo Acta Cerrada
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $DatosActa=$obCon->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion); 
+            $MesServicioInicial=$DatosActa["MesServicioInicial"];
+            $MesServicioFinal=$DatosActa["MesServicioFinal"];
+            $NIT= $obCon->normalizar($_REQUEST["NIT_IPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $NIT);
+            $db=$DatosIPS["DataBase"];
+            
+            $Tabla="actas_conciliaciones_items";
+            $FileName="AnexoActa_$idActaConciliacion"."_".$idUser.".csv";
+            $Link.= $FileName;
+            $OuputFile.=$FileName;
+            
+            if(file_exists($Link)){
+                unlink($Link);
+            }
+            
+            
+            $Condicion=" WHERE idActaConciliacion='$idActaConciliacion'";
+            
+            $Separador=";";
+            $NumPage="";
+            $limit="";
+            $startpoint="";
+            
+            
+            $sqlColumnas="SELECT  ";
+            $Columnas=$obCon->ShowColums($db.".".$Tabla);
+            //print_r($Columnas);
+            foreach ($Columnas["Field"] as $key => $value) {
+                $sqlColumnas.="'$value',";
+            }
+            $sqlColumnas=substr($sqlColumnas, 0, -1);
+            $sqlColumnas.=" UNION ALL ";
+            
+            $sql=$sqlColumnas." SELECT * FROM $db.$Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
+            //print($sql);
+            $Fecha=date("Ymd_His");
+            $obCon->Query($sql);
+           
+            $NombreArchivo="Anexo_Acta_Conciliacion_$idActaConciliacion"."_$Fecha";
+            print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar</h1></a></div>");
+        break;//Fin caso 6
+        
         }
         
         

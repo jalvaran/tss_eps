@@ -2638,9 +2638,15 @@ $tbl.= "</table>";
                 $html.='<tr>';
             }
         }
-        $html.='</tr>';
-        $html.='</table>';
+        if($i==3){
+            $html= substr($html,0,-4);
+        }
+        if($i<>3){
+            $html.='</tr>';
+        }
         
+        $html.='</table>';
+        //print($html);
         return($html);
         
     }

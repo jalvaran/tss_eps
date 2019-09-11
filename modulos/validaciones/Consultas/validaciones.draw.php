@@ -68,6 +68,10 @@ function CalculeTotales(){
     print("<td colspan=1 style='text-align:center'>");
         print("<strong>Total Según IPS:</strong> <h4 style=color:red>". number_format($TotalIPS)."</h4>");
     print("</td>");
+    
+    print("<td colspan=1 style='text-align:center'>");
+        print("<strong>Diferencia:</strong> <h4 style=color:red>". number_format($TotalEPS-$TotalIPS)."</h4>");
+    print("</td>");
 
     print("<td colspan=1 style='text-align:center'>");
 

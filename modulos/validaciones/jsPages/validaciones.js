@@ -123,7 +123,7 @@ function MuestreFacturasNRIPS(Page=1){
 }
 
 function CambiePaginaFacturasIPS(Page=""){
-    console.log("entre");
+    
     if(Page==""){
         Page = document.getElementById('CmbPageFacturasIPS').value;
     }

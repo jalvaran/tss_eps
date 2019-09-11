@@ -1,3 +1,8 @@
+DROP VIEW IF EXISTS `vista_copagos_asmet`;
+CREATE VIEW vista_copagos_asmet AS 
+SELECT NumeroFactura,SUM(ABS(ValorTotal)) AS ValorTotal FROM notas_db_cr_2 WHERE (TipoOperacion='2258' 
+OR notas_db_cr_2.TipoOperacion='2225' OR notas_db_cr_2.TipoOperacion='2260' OR notas_db_cr_2.TipoOperacion='2254') AND (C13<>'N') GROUP BY NumeroFactura;
+
 DROP VIEW IF EXISTS `vista_facturasdvueltas_anticiposvscxp`;
 CREATE VIEW vista_facturasdvueltas_anticiposvscxp AS 
 SELECT (SELECT notas_db_cr_2.NumeroTransaccion) AS Numero_concidencia,
@@ -6,7 +11,7 @@ SELECT (SELECT notas_db_cr_2.NumeroTransaccion) AS Numero_concidencia,
 	   (SELECT notas_db_cr_2.TipoOperacion) AS TipoOperacioncxp,
 	   (SELECT anticipos2.NumeroInterno) AS TipoOperacionanticipos,
 	   (SELECT anticipos2.ValorAnticipado) AS ValorDevuelto
-FROM anticipos2 INNER JOIN notas_db_cr_2 ON notas_db_cr_2.NumeroTransaccion=anticipos2.NumeroOperacion AND notas_db_cr_2.TipoOperacion=anticipos2.NumeroInterno /*WHERE notas_db_cr_2.TipoOperacion='2259'*/;
+FROM anticipos2 INNER JOIN notas_db_cr_2 ON notas_db_cr_2.NumeroTransaccion=anticipos2.NumeroAnticipo AND notas_db_cr_2.TipoOperacion=anticipos2.NumeroInterno /*WHERE notas_db_cr_2.TipoOperacion='2259'*/;
 
 DROP VIEW IF EXISTS `vista_cruce_cartera_asmet`;
 CREATE VIEW vista_cruce_cartera_asmet AS
@@ -43,6 +48,7 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelaciona
         (SELECT IFNULL((SELECT (ValorGlosaContra) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t2.NumeroFactura ORDER BY FechaRegistro DESC LIMIT 1),0)) AS TotalGlosaContra,
         ((SELECT TotalGlosaInicial)-(SELECT TotalGlosaFavor)-(SELECT TotalGlosaContra) ) AS GlosaXConciliar,
         (SELECT IFNULL((SELECT COUNT(DISTINCT NumeroTransaccion) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND notas_db_cr_2.C13<>'N' AND (notas_db_cr_2.TipoOperacion='2259' OR notas_db_cr_2.TipoOperacion='2269' OR notas_db_cr_2.TipoOperacion='2039' ) ),0)) AS DevolucionesPresentadas,
+        
         (SELECT IFNULL((SELECT COUNT(DISTINCT NumeroTransaccion) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND notas_db_cr_2.C13<>'N' AND notas_db_cr_2.TipoOperacion LIKE '20%'  ),0)) AS FacturasPresentadas,/*(SELECT COUNT(Numerofactura_anticipos) FROM vista_facturasdvueltas_anticiposvscxp WHERE vista_facturasdvueltas_anticiposvscxp.Numerofactura_anticipos=t2.NumeroFactura AND TipoOperacionanticipos='2259' AND Numerofactura_anticipos!=Numerofactura_cxp)*/
         (SELECT IF((((SELECT FacturasPresentadas)) > ((SELECT DevolucionesPresentadas)+(SELECT NumeroFacturasDevueltasAnticipos)+(SELECT FacturasDevueltasCXPVSANT) ) ),'SI','NO')) AS FacturaActiva,
         (SELECT IF(FacturaActiva='SI',0,(SELECT IFNULL((SELECT (ValorTotal) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND (notas_db_cr_2.TipoOperacion='2259' OR notas_db_cr_2.TipoOperacion='2269' OR notas_db_cr_2.TipoOperacion='2039') AND notas_db_cr_2.FechaTransaccion>=t2.FechaRadicado LIMIT 1),0))) ) AS TotalDevolucionesNotas,
@@ -62,7 +68,7 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelaciona
         (SELECT IF((SELECT ROUND(TotalConciliaciones,2)<>(SELECT ROUND(ABS(Diferencia),2)) AND (SELECT TotalConciliaciones > 0)),'SI','NO')) AS ConciliacionesPendientes,
         (SELECT IF( (SELECT ABS(TotalPagos)) = (SELECT ABS(Diferencia)),1,0)) as DiferenciaXPagos 
         
-FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.NumeroFactura;
+FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.NumeroFactura WHERE t2.Estado<2;
 
 DROP VIEW IF EXISTS `vista_cruce_cartera_eps`;
 CREATE VIEW vista_cruce_cartera_eps AS
@@ -118,7 +124,7 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,(SELECT NoRela
         (SELECT IF((SELECT ROUND(TotalConciliaciones,2)<>(SELECT ROUND(ABS(Diferencia),2)) AND (SELECT TotalConciliaciones > 0)),'SI','NO')) AS ConciliacionesPendientes,
         (SELECT IF( (SELECT ABS(TotalPagos)) = (SELECT ABS(Diferencia)),1,0)) as DiferenciaXPagos    
 
-FROM carteraeps t2;
+FROM carteraeps t2 WHERE t2.Estado<2;
 
 DROP VIEW IF EXISTS `vista_cruce_cartera_eps_no_relacionadas_ips`;
 CREATE VIEW vista_cruce_cartera_eps_no_relacionadas_ips AS 
