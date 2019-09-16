@@ -1093,7 +1093,7 @@ if( !empty($_REQUEST["Accion"]) ){
             //$obCon->VaciarTabla($HojaDeTrabajo);
             $VistaACopiar=$db.".vista_cruce_cartera_asmet";
             $Limit=" LIMIT 10";
-            
+            /*
             $sql="INSERT INTO $HojaDeTrabajo (`NumeroFactura`,`Estado`,`DepartamentoRadicacion`,`NoRelacionada`,`FechaFactura`,`MesServicio`,
                     `NumeroRadicado`,`Pendientes`,`FechaConciliacion`,`FechaRadicado`,`NumeroContrato`,`ValorDocumento`,
                     `Impuestos`,`ImpuestosSegunASMET`,`ValorMenosImpuestos`,`TotalPagosNotas`,`Capitalizacion`,`TotalPagos`,
@@ -1114,8 +1114,103 @@ if( !empty($_REQUEST["Accion"]) ){
                     FROM $VistaACopiar WHERE NOT EXISTS (SELECT 1 FROM $HojaDeTrabajo WHERE $HojaDeTrabajo.NumeroFactura=$VistaACopiar.NumeroFactura) $Limit;
                          ";
             
+             * 
+             */
+            
+            $sql="DROP TABLE IF EXISTS $HojaDeTrabajo";
             $obCon->Query($sql);
             
+            $sql="CREATE TABLE hoja_de_trabajo AS
+                SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelacionada,
+
+                        (SELECT FechaFactura FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1) as FechaFactura,
+                        t2.MesServicio,
+                                t2.NumeroRadicado,
+                        (SELECT IFNULL((SELECT 'SI' FROM pendientes_de_envio WHERE pendientes_de_envio.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS Pendientes,
+                        (SELECT FechaRegistro FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND t2.Estado=1 ORDER BY FechaRegistro DESC LIMIT 1) AS FechaConciliacion,
+                        t2.FechaRadicado,
+                                t2.NumeroContrato,
+                                t2.ValorOriginal as ValorDocumento,
+                        (t2.ValorOriginal-t2.ValorMenosImpuestos) as Impuestos,
+                        (SELECT IFNULL((SELECT (Creditos-Debitos) FROM vista_retenciones_facturas WHERE vista_retenciones_facturas.NumeroFactura=t2.NumeroFactura ),0)) AS ImpuestosSegunASMET,
+                                t2.ValorMenosImpuestos,
+                        (SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND (notas_db_cr_2.TipoOperacion2='3090' OR notas_db_cr_2.TipoOperacion2='3070' OR notas_db_cr_2.TipoOperacion2='3071' OR notas_db_cr_2.TipoOperacion2='3072' OR notas_db_cr_2.TipoOperacion2='3086' OR notas_db_cr_2.TipoOperacion2='3089' OR notas_db_cr_2.TipoOperacion2='3090' OR notas_db_cr_2.TipoOperacion2='3091' OR notas_db_cr_2.TipoOperacion2='2260') AND (notas_db_cr_2.TipoOperacion!='2103') ),0)) AS TotalPagosNotas,
+                        (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2299' ),0)) AS Capitalizacion,
+                        ((SELECT ABS(TotalPagosNotas))+(SELECT ABS(Capitalizacion) ) ) AS TotalPagos,
+                                (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2216' ),0)) AS TotalAnticipos,
+                        (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2275' ),0)) AS DescuentoPGP,
+                        (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2039' ),0)) AS FacturasDevueltas,
+                        (SELECT IFNULL((SELECT COUNT(NumeroFactura) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2039' ),0)) AS NumeroFacturasDevueltasAnticipos,
+                           /* (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2039' ),(SELECT SUM(ValorDevuelto) FROM vista_facturasdvueltas_anticiposvscxp WHERE vista_facturasdvueltas_anticiposvscxp.Numerofactura_anticipos=t2.NumeroFactura AND TipoOperacionanticipos='2259' AND Numerofactura_anticipos!=Numerofactura_cxp))) AS FacturasDevueltas,*/
+                            (SELECT IFNULL((SELECT SUM(ValorDevuelto) FROM vista_facturasdvueltas_anticiposvscxp WHERE vista_facturasdvueltas_anticiposvscxp.Numerofactura_anticipos=t2.NumeroFactura AND TipoOperacionanticipos='2259' AND Numerofactura_anticipos!=Numerofactura_cxp),0)) AS ValorFacturasDevueltascxpvsant,
+                       /*(SELECT IFNULL((SELECT SUM(ValorDevuelto) FROM vista_facturasdvueltas_anticiposvscxp WHERE vista_facturasdvueltas_anticiposvscxp.Numerofactura_anticipos=t2.NumeroFactura AND TipoOperacionanticipos='2259' AND Numerofactura_anticipos!=Numerofactura_cxp),0)) AS FacDevueltasCXPVSANT,*/
+                        (SELECT IFNULL((SELECT COUNT(Numerofactura_anticipos) FROM vista_facturasdvueltas_anticiposvscxp WHERE vista_facturasdvueltas_anticiposvscxp.Numerofactura_anticipos=t2.NumeroFactura AND TipoOperacionanticipos='2259' AND vista_facturasdvueltas_anticiposvscxp.Numerofactura_anticipos!=vista_facturasdvueltas_anticiposvscxp.Numerofactura_cxp),0)) AS FacturasDevueltasCXPVSANT,
+                                (SELECT IFNULL((SELECT SUM(ValorTotal) FROM vista_copagos_asmet WHERE vista_copagos_asmet.NumeroFactura=t2.NumeroFactura ),0)) AS TotalCopagos,
+
+                        (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND (NumeroInterno='2215' OR NumeroInterno='2601' OR NumeroInterno='2214') ),0)) AS OtrosDescuentos,
+                        (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2260' ),0)) AS AjustesCartera,
+                        (SELECT IFNULL((SELECT (ValorTotalGlosa) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t2.NumeroFactura ORDER BY FechaRegistro DESC LIMIT 1),0)) AS TotalGlosaInicial,
+                        (SELECT IFNULL((SELECT (ValorGlosaFavor) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t2.NumeroFactura ORDER BY FechaRegistro DESC LIMIT 1),0)) AS TotalGlosaFavor,
+                        (SELECT IFNULL((SELECT (ValorGlosaContra) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t2.NumeroFactura ORDER BY FechaRegistro DESC LIMIT 1),0)) AS TotalGlosaContra,
+                        ((SELECT TotalGlosaInicial)-(SELECT TotalGlosaFavor)-(SELECT TotalGlosaContra) ) AS GlosaXConciliar,
+                        (SELECT IFNULL((SELECT COUNT(DISTINCT NumeroTransaccion) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND notas_db_cr_2.C13<>'N' AND (notas_db_cr_2.TipoOperacion='2259' OR notas_db_cr_2.TipoOperacion='2269' OR notas_db_cr_2.TipoOperacion='2039' ) ),0)) AS DevolucionesPresentadas,
+
+                        (SELECT IFNULL((SELECT COUNT(DISTINCT NumeroTransaccion) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND notas_db_cr_2.C13<>'N' AND notas_db_cr_2.TipoOperacion LIKE '20%'  ),0)) AS FacturasPresentadas,/*(SELECT COUNT(Numerofactura_anticipos) FROM vista_facturasdvueltas_anticiposvscxp WHERE vista_facturasdvueltas_anticiposvscxp.Numerofactura_anticipos=t2.NumeroFactura AND TipoOperacionanticipos='2259' AND Numerofactura_anticipos!=Numerofactura_cxp)*/
+                        (SELECT IF((((SELECT FacturasPresentadas)) > ((SELECT DevolucionesPresentadas)+(SELECT NumeroFacturasDevueltasAnticipos)+(SELECT FacturasDevueltasCXPVSANT) ) ),'SI','NO')) AS FacturaActiva,
+                        (SELECT IF(FacturaActiva='SI',0,(SELECT IFNULL((SELECT (ValorTotal) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND (notas_db_cr_2.TipoOperacion='2259' OR notas_db_cr_2.TipoOperacion='2269' OR notas_db_cr_2.TipoOperacion='2039') AND notas_db_cr_2.FechaTransaccion>=t2.FechaRadicado LIMIT 1),0))) ) AS TotalDevolucionesNotas,
+                        (SELECT IF(FacturaActiva='SI' ,0,((SELECT ABS(TotalDevolucionesNotas))+(SELECT ABS(FacturasDevueltas))+ (SELECT IF(FacturasDevueltasCXPVSANT=DevolucionesPresentadas,0,(SELECT ABS(ValorFacturasDevueltascxpvsant)))) ))) AS TotalDevoluciones,
+                        (SELECT IFNULL((SELECT SUM(ValorTotalcartera) FROM carteraxedades WHERE carteraxedades.NumeroFactura=t2.NumeroFactura LIMIT 1),0)) AS CarteraXEdades,
+
+                        (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=1),0)) AS ConciliacionesAFavorEPS,
+                        (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=2),0)) AS ConciliacionesAFavorIPS,
+
+                            (t2.ValorMenosImpuestos - (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT GlosaXConciliar)-(SELECT OtrosDescuentos)-(SELECT ABS(TotalCopagos))-(SELECT ABS(TotalDevoluciones)/*+(FacturasDevueltas)*/)-(SELECT ABS(DescuentoPGP))-(SELECT ABS(ConciliacionesAFavorEPS))+(SELECT ABS(ConciliacionesAFavorIPS)) ) AS ValorSegunEPS,
+                        (SELECT IFNULL((SELECT ROUND(ValorTotalpagar) FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1),0)) AS ValorSegunIPS,
+                        ((SELECT ValorSegunEPS)-(SELECT ValorSegunIPS)) AS Diferencia,
+                        (SELECT IF((SELECT Diferencia>0),'SI','NO')) AS ValorIPSMenor,
+                        (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura ),0)) AS TotalConciliaciones,
+
+                        ((SELECT ValorSegunEPS)  ) AS TotalAPagar, 
+                        (SELECT IF((SELECT ROUND(TotalConciliaciones,2)<>(SELECT ROUND(ABS(Diferencia),2)) AND (SELECT TotalConciliaciones > 0)),'SI','NO')) AS ConciliacionesPendientes,
+                        (SELECT IF( (SELECT ABS(TotalPagos)) = (SELECT ABS(Diferencia)),1,0)) as DiferenciaXPagos,
+                        '0' AS DiferenciaXPagosNoDescargados,
+                        '0' AS DiferenciaXGlosasPendientesXConciliar,
+                        '0' AS DiferenciaXFacturasDevueltas,
+                        '0' AS DiferenciaXDiferenciaXImpuestos,
+                        '0' AS DiferenciaXFacturasNoRelacionadasXIPS,
+                        '0' AS DiferenciaXAjustesDeCartera,
+                        '0' AS DiferenciaXValorFacturado,
+                        '0' AS DiferenciaXGlosasPendientesXDescargarIPS,
+                        '0' AS DiferenciaVariada
+
+                FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.NumeroFactura WHERE t2.Estado<2;
+                         ";
+            $obCon->Query2($sql, HOST, USER, PW, $db, "");
+            
+            $sql="ALTER TABLE `hoja_de_trabajo` ADD PRIMARY KEY(`ID`),
+                    CHANGE `ID` `ID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+                    ADD INDEX(`NumeroFactura`),
+                    ADD INDEX(`MesServicio`),
+                    ADD INDEX(`NumeroRadicado`),
+                    ADD INDEX(`NumeroContrato`),
+                    CHANGE `DiferenciaXPagosNoDescargados` `DiferenciaXPagosNoDescargados` DOUBLE NOT NULL,
+                    CHANGE `DiferenciaXGlosasPendientesXConciliar` `DiferenciaXGlosasPendientesXConciliar` DOUBLE NOT NULL,                    
+                    CHANGE `DiferenciaXFacturasDevueltas` `DiferenciaXFacturasDevueltas` DOUBLE NOT NULL,
+                    CHANGE `DiferenciaXDiferenciaXImpuestos` `DiferenciaXDiferenciaXImpuestos` DOUBLE NOT NULL,
+                    CHANGE `DiferenciaXFacturasNoRelacionadasXIPS` `DiferenciaXFacturasNoRelacionadasXIPS` DOUBLE NOT NULL,                    
+                    CHANGE `DiferenciaXAjustesDeCartera` `DiferenciaXAjustesDeCartera` DOUBLE NOT NULL,
+                    CHANGE `DiferenciaXValorFacturado` `DiferenciaXValorFacturado` DOUBLE NOT NULL,
+                    CHANGE `DiferenciaXGlosasPendientesXDescargarIPS` `DiferenciaXGlosasPendientesXDescargarIPS` DOUBLE NOT NULL,                    
+                    CHANGE `DiferenciaVariada` `DiferenciaVariada` DOUBLE NOT NULL
+                                    
+
+                    ;  
+                    
+
+                ";
+            $obCon->Query2($sql, HOST, USER, PW, $db, "");
+            //$obCon->Query($sql);
+            /*
             $sql="SELECT COUNT(ID) AS TotalRegistros FROM $HojaDeTrabajo";
             //$sql="SELECT MAX(ID) as TotalRegistros FROM $HojaDeTrabajo";
             $DatosHoja=$obCon->FetchAssoc($obCon->Query($sql));
@@ -1142,6 +1237,11 @@ if( !empty($_REQUEST["Accion"]) ){
             }else{
                print("OK;<h2>$TotalRegistrosCopiados copiados de $TotalRegistros</h2>;$Porcentaje");             
             }
+            
+             * 
+             */
+            
+                print("FIN;Se ha creado la hoja de trabajo correctamente;");
             
         break; //Fin caso 32
         
@@ -1179,7 +1279,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 exit("E1;No hay una IPS Seleccionada");
             }
             $HojaDeTrabajo=$db.".hoja_de_trabajo";
-            $obCon->VaciarTabla($HojaDeTrabajo);           
+            //$obCon->VaciarTabla($HojaDeTrabajo);           
             $VistaACopiar=$db.".vista_cruce_cartera_asmet";
             $sql="SELECT COUNT(*) as TotalRegistros FROM $VistaACopiar;";
             
@@ -1198,9 +1298,24 @@ if( !empty($_REQUEST["Accion"]) ){
             if($CmbIPS==''){
                 exit("E1;No hay una IPS Seleccionada");
             }
+            $HojaDeTrabajo="$db.hoja_de_trabajo";
+            $sql="UPDATE $HojaDeTrabajo t1 INNER JOIN $db.vista_cruce_diferencias t2 ON t1.NumeroFactura=t2.NumeroFactura 
+                    SET t1.DiferenciaXPagosNoDescargados=(t2.DiferenciaXPagos+t2.DiferenciaXAnticipos+t2.DiferenciaXGlosaContraEPS+t2.XPagos2),
+                        t1.DiferenciaXGlosasPendientesXConciliar=(t2.DiferenciaXGlosaXConciliar+t2.GlosasXConciliar2),
+                        t1.DiferenciaXFacturasDevueltas=(t2.DiferenciaXDevoluciones+t2.DiferenciaXDevolucionesNoIPS),
+                        t1.DiferenciaXDiferenciaXImpuestos=(t2.DiferenciaXImpuestos),
+                        t1.DiferenciaXFacturasNoRelacionadasXIPS=(SELECT Diferencia FROM $db.vista_cruce_cartera_asmet t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND t1.NoRelacionada=1),
+                        t1.DiferenciaXAjustesDeCartera=(t2.DiferenciaXCopagos+t2.DiferenciaXOtrosDescuentos+t2.DiferenciaXAjustesCartera),
+                        t1.DiferenciaXValorFacturado=t2.DiferenciaXValorFacturado,
+                        t1.DiferenciaXGlosasPendientesXDescargarIPS=(t2.DiferenciaXDescuentoPGP+t2.DiferenciaXGlosaFavorEPS),
+                        t1.DiferenciaVariada=t2.DiferenciaVariada;
+                    ";
+            $obCon->Query($sql);
+                
             $obCon->EncontrarDiferenciasVariadas($db);            
             print("OK;Diferencias Encontradas;");
         break;//Fin caso 35
+        
         
     }
     

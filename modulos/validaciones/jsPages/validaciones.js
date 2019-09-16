@@ -3402,6 +3402,8 @@ function ObtenerNumeroRegistrosACopiarEnHoja(){
 }
 
 function CronstruirHojaDeTrabajo(TotalRegistros){
+    document.getElementById("DivTotalesCruce").innerHTML='<div id="GifProcess">Construyendo hoja de trabajo...<br><img   src="../../images/loading.gif" alt="Cargando" height="50" width="50"></div>';
+    
     var idBoton="BtnConstruirHojaTrabajo";
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
@@ -3440,7 +3442,8 @@ function CronstruirHojaDeTrabajo(TotalRegistros){
                 document.getElementById("DivTotalesCruce").innerHTML=respuestas[1];
                 document.getElementById(idBoton).disabled=false;
                 document.getElementById("DivMensajes").innerHTML=respuestas[1];
-                MuestreCruce();
+                CalcularDiferenciasVaridas();
+                //MuestreCruce();
                 return;     
             }else if(respuestas[0]==="E1"){
                 
@@ -3527,6 +3530,63 @@ function ActualizarHojaDeTrabajo(){
       })
     
     
+}
+
+function CalcularDiferenciasVaridas(){
+    document.getElementById("DivTotalesCruce").innerHTML='<div id="GifProcess">Calculando diferencias...<br><img   src="../../images/loading.gif" alt="Cargando" height="50" width="50"></div>';
+     
+    var idBoton="BtnConstruirHojaTrabajo";
+    
+    document.getElementById(idBoton).disabled=true;
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 35);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+                    
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               
+                alertify.success(respuestas[1]);  
+                document.getElementById("DivTotalesCruce").innerHTML=respuestas[1];
+                MuestreCruce();               
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
 }
 
 document.getElementById('TabCuentas1').click();

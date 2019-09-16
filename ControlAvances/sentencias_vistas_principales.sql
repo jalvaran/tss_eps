@@ -66,7 +66,16 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelaciona
         
         ((SELECT ValorSegunEPS)  ) AS TotalAPagar, 
         (SELECT IF((SELECT ROUND(TotalConciliaciones,2)<>(SELECT ROUND(ABS(Diferencia),2)) AND (SELECT TotalConciliaciones > 0)),'SI','NO')) AS ConciliacionesPendientes,
-        (SELECT IF( (SELECT ABS(TotalPagos)) = (SELECT ABS(Diferencia)),1,0)) as DiferenciaXPagos 
+        (SELECT IF( (SELECT ABS(TotalPagos)) = (SELECT ABS(Diferencia)),1,0)) as DiferenciaXPagos,
+        '0' AS DiferenciaXPagosNoDescargados,
+        '0' AS DiferenciaXGlosasPendientesXConciliar,
+        '0' AS DiferenciaXFacturasDevueltas,
+        '0' AS DiferenciaXDiferenciaXImpuestos,
+        '0' AS DiferenciaXFacturasNoRelacionadasXIPS,
+        '0' AS DiferenciaXAjustesDeCartera,
+        '0' AS DiferenciaXValorFacturado,
+        '0' AS DiferenciaXGlosasPendientesXDescargarIPS,
+        '0' AS DiferenciaVariada
         
 FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.NumeroFactura WHERE t2.Estado<2;
 
@@ -122,7 +131,17 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,(SELECT NoRela
         
         ((SELECT ValorSegunEPS)  ) AS TotalAPagar, 
         (SELECT IF((SELECT ROUND(TotalConciliaciones,2)<>(SELECT ROUND(ABS(Diferencia),2)) AND (SELECT TotalConciliaciones > 0)),'SI','NO')) AS ConciliacionesPendientes,
-        (SELECT IF( (SELECT ABS(TotalPagos)) = (SELECT ABS(Diferencia)),1,0)) as DiferenciaXPagos    
+        (SELECT IF( (SELECT ABS(TotalPagos)) = (SELECT ABS(Diferencia)),1,0)) as DiferenciaXPagos,
+        '0' AS DiferenciaXPagosNoDescargados,
+        '0' AS DiferenciaXGlosasPendientesXConciliar,
+        '0' AS DiferenciaXFacturasDevueltas,
+        '0' AS DiferenciaXDiferenciaXImpuestos,
+        '0' AS DiferenciaXFacturasNoRelacionadasXIPS,
+        '0' AS DiferenciaXAjustesDeCartera,
+        '0' AS DiferenciaXValorFacturado,
+        '0' AS DiferenciaXGlosasPendientesXDescargarIPS,
+        '0' AS DiferenciaVariada
+
 
 FROM carteraeps t2 WHERE t2.Estado<2;
 
@@ -292,3 +311,4 @@ SELECT t1.NumeroFactura,t1.Diferencia,MesServicio,
 
 FROM hoja_de_trabajo t1
 WHERE Diferencia<>0;
+
