@@ -271,7 +271,7 @@ if(isset($_REQUEST["Opcion"])){
             $MesServicioFinal=$DatosActa["MesServicioFinal"];
             $db=$obCon->normalizar($_REQUEST["db"]);
             $NIT= str_replace("ts_eps_ips_", "", $db);
-            $Tabla="vista_reporte_ips";
+            $Tabla="vista_reporte_ips_completo";
             $FileName="AnexoActa$idActaConciliacion"."_".$idUser.".csv";
             $Link.= $FileName;
             $OuputFile.=$FileName;
@@ -287,7 +287,7 @@ if(isset($_REQUEST["Opcion"])){
             $NumPage="";
             $limit="";
             $startpoint="";
-            $Fecha=date("Ymd_His");
+            
             
             $sqlColumnas="SELECT  ";
             $Columnas=$obCon->ShowColums($db.".".$Tabla);
@@ -298,68 +298,13 @@ if(isset($_REQUEST["Opcion"])){
             $sqlColumnas=substr($sqlColumnas, 0, -1);
             $sqlColumnas.=" UNION ALL ";
             
-            $sql=$sqlColumnas." SELECT * FROM $db.$Tabla $Condicion ;";
-            
-            $Consulta=$obCon->Query($sql); 
-            
-            if($archivo = fopen($Link, "a")){
-                $mensaje="";
-                $r=0;
-                while($DatosExportacion= $obCon->FetchAssoc($Consulta)){
-                    $r++;
-                    foreach ($Columnas["Field"] as $NombreColumna){
-                        $Dato="";
-                        if(isset($DatosExportacion[$NombreColumna])){
-                            $Dato=$DatosExportacion[$NombreColumna];
-                        }
-                        $mensaje.='"'.str_replace(";", "", $Dato).'";'; 
-                    }
-                    $mensaje=substr($mensaje, 0, -1);
-                    $mensaje.="\r\n";
-                    if($r==1000){
-                        $r=0;
-                        fwrite($archivo, $mensaje);
-                        $mensaje="";
-                    }
-                }
+            $sql=$sqlColumnas." SELECT * FROM $db.$Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
                 
-
-                fwrite($archivo, $mensaje);
-                
-                $Tabla="vista_cruce_cartera_eps_sin_relacion_segun_ags";
-                $Condicion=" WHERE EXISTS (SELECT 1 FROM ts_eps.actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=$Tabla.NumeroContrato) AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
             
-                $sql=" SELECT * FROM $db.$Tabla $Condicion ;";
             
-                $Consulta=$obCon->Query($sql); 
-                
-                $mensaje="";
-                $r=0;
-                while($DatosExportacion= $obCon->FetchAssoc($Consulta)){
-                    $r++;
-                    foreach ($Columnas["Field"] as $NombreColumna){
-                        $Dato="";
-                        if(isset($DatosExportacion[$NombreColumna])){
-                            $Dato=$DatosExportacion[$NombreColumna];
-                        }
-                        $mensaje.='"'.str_replace(";", "", $Dato).'";'; 
-                    }
-                    $mensaje=substr($mensaje, 0, -1);
-                    $mensaje.="\r\n";
-                    if($r==1000){
-                        $r=0;
-                        fwrite($archivo, $mensaje);
-                        $mensaje="";
-                    }
-                }
-                fwrite($archivo, $mensaje);
-                fclose($archivo);
-                unset($mensaje);
-                unset($DatosExportacion);
-            }
             //print($sql);
             $Fecha=date("Ymd_His");
-            
+            $obCon->Query($sql);
            
             $NombreArchivo="ActaConciliacion$idActaConciliacion"."_$Fecha";
             print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar</h1></a></div>");

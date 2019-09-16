@@ -185,12 +185,8 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
             
         break;//Fin caso 1
-        
-        
-        
-        
+               
     }
-    
     
           
 }else{

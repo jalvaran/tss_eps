@@ -23,7 +23,7 @@ $sql="SELECT TipoUser,Role FROM usuarios WHERE idUsuarios='$idUser'";
 $DatosUsuario=$obCon->Query($sql);
 $DatosUsuario=$obCon->FetchAssoc($DatosUsuario);
 $TipoUser=$DatosUsuario["TipoUser"];
-
+$Role=$DatosUsuario["Role"];
 $css->PageInit($myTitulo);
     $css->Modal("ModalAcciones", "TS5", "", 1);
         $css->div("DivFrmModalAcciones", "", "", "", "", "", "");
@@ -33,13 +33,17 @@ $css->PageInit($myTitulo);
 print("<br>");
    $css->section("", "content", "", "");
    $css->CrearDiv("", "col-md-4", "center", 1, 1);
-        $sql="SELECT r.idIPS,i.Nombre,i.DataBase FROM relacion_usuarios_ips r INNER JOIN ips i ON i.NIT=r.idIPS WHERE idUsuario='$idUser' ";
+        if($Role=="SUPERVISOR"){
+            $sql="SELECT * FROM ips";
+        }else{
+            $sql="SELECT r.idIPS as NIT,i.Nombre,i.DataBase FROM relacion_usuarios_ips r INNER JOIN ips i ON i.NIT=r.idIPS WHERE idUsuario='$idUser' ";
+        }
         $Consulta=$obCon->Query($sql);
         
         $css->select("CmbIPS", "form-control", "CmbIPS", "IPS", "", "onchange=CargarAdminCarteraIPS()", "");
             while($DatosIPS=$obCon->FetchAssoc($Consulta)){
                 $css->option("", "", "", $DatosIPS["DataBase"], "", "");
-                    print($DatosIPS["Nombre"].$DatosIPS["idIPS"]);
+                    print($DatosIPS["Nombre"].$DatosIPS["NIT"]);
                 $css->Coption();
             }
         $css->Cselect();

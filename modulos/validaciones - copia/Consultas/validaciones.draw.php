@@ -312,7 +312,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
             
-            $statement=" $db.`hoja_de_trabajo` $Condicional ";
+            $statement=" $db.`vista_cruce_cartera_asmet` $Condicional ";
             if(isset($_REQUEST['st'])){
 
                 $statement= urldecode($_REQUEST['st']);
@@ -367,22 +367,30 @@ if( !empty($_REQUEST["Accion"]) ){
 
             $css->CerrarDiv();
             $css->CrearTabla();            
-            $st1= urlencode($st_reporte);
+            
                 $css->FilaTabla(16);
-                 print("<td colspan='1' style='text-align:center'>");
-                 
+                    print("<td colspan='1' style='text-align:center'>");
+                        $st1= urlencode($st_reporte);
+                        $css->CrearBotonEvento("BtnCargarTotales", "Ver Totales", 1, "onclick", "DibujaTotalesCruce()", "azul", "");
+                        
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_cruce_cartera_asmet','')", "verde", "");
+                        print('<br>');
+                        $css->CrearBotonEvento("BtnExportarReporteIps", "Exportar-Reporte_Ips", 1, "onclick", "ExportarExcel('$db','vista_reporte_ips','')", "verde", "");
+                        //$css->CrearImageLink("ProcesadoresJS/GeneradorCSVReportesCartera.php?Opcion=1&sp=$Separador&st=$st1", "../images/csv.png", "_blank", 50, 50);
+                        
+                    //print("</td>");
                 //$css->CierraFilaTabla();
                 
-                    $st= urlencode($st_reporte);
+                $st= urlencode($st_reporte);
                     if($ResultadosTotales>$limit){
-                        print("<strong>Paginador:</strong>");
+
                         //$css->FilaTabla(14);
                             
                             $TotalPaginas= ceil($ResultadosTotales/$limit);
                            // print("<td  style=text-align:center>");
                             //print("<strong>Página: </strong>");
                             
-                            print('<br><div class="input-group" style=width:180px>');
+                            print('<br><br><div class="input-group" style=width:180px>');
                             if($NumPage>1){
                                 $NumPage1=$NumPage-1;
                             print('<span class="input-group-addon" onclick=CambiePaginaCruce('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-left"></i></span>');
@@ -408,32 +416,13 @@ if( !empty($_REQUEST["Accion"]) ){
                                 $NumPage1=$NumPage+1;
                             print('<span class="input-group-addon" onclick=CambiePaginaCruce('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-right" ></i></span>');
                             }
-                            print("</div>");
-                        }
+                            //print("<div>");
                     print("</td>");
+                            
                     print("<td style='text-align:center;'>");
-                    
                         print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
                     print("</td>");
-                    print("<td colspan='1' style='text-align:center'>");                        
-                        $css->CrearBotonEvento("BtnConstruirHojaTrabajo", "Construir Hoja de Trabajo", 1, "onclick", "ObtenerNumeroRegistrosACopiarEnHoja()", "azulclaro", "");
-                    print("</td>"); 
-                    /*
-                    print("<td colspan='1' style='text-align:center'>");                        
-                        $css->CrearBotonEvento("BtnActualizarCruce", "Actualizar Hoja de Trabajo", 1, "onclick", "ActualizarHojaDeTrabajo()", "naranja", "");
-                    print("</td>"); 
-                     * 
-                     */
-                    print("<td colspan='1' style='text-align:center'>");
-                        $css->CrearBotonEvento("BtnCargarTotales", "Ver Totales", 1, "onclick", "DibujaTotalesCruce()", "azul", "");
-                    print("</td>"); 
-                    print("<td colspan='1' style='text-align:center'>");    
-                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','hoja_de_trabajo','')", "verde", "");
-                    print("</td>"); 
-                    print("<td colspan='1' style='text-align:center'>");
-                        $css->CrearBotonEvento("BtnExportarReporteIps", "Exportar-Reporte_Ips", 1, "onclick", "ExportarExcel('$db','vista_reporte_ips','')", "verde", "");
-                    print("</td>"); 
-                                       
+                    
                     print("<td style='text-align:left;' colspan=12>");
                         
                         
@@ -509,7 +498,7 @@ if( !empty($_REQUEST["Accion"]) ){
                        */     
                             
                            $css->CierraFilaTabla(); 
-                      
+                        }
                       
                 
                 $css->FilaTabla(16);
@@ -3629,7 +3618,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 SUM(ConciliacionesAFavorEPS) AS ConciliacionesAFavorEPS,
                 SUM(ConciliacionesAFavorIPS) AS ConciliacionesAFavorIPS,
                 (SELECT COUNT(*) FROM $db.vista_cruce_cartera_asmet WHERE Estado=1) as NumeroConciliaciones
-                FROM $db.hoja_de_trabajo                
+                FROM $db.vista_cruce_cartera_asmet                
                     ";
             $row=$obCon->FetchAssoc($obCon->Query($sql));
             $TotalEPS=$row['TotalEPS'];
@@ -3748,6 +3737,10 @@ if( !empty($_REQUEST["Accion"]) ){
 
             print("<td colspan=1 style='text-align:center'>");
                 print("<strong>Copagos:</strong> <h4 style=color:red>". number_format($TotalCopagos)."</h4>");
+            print("</td>");
+
+            print("<td colspan=1 style='text-align:center'>");
+                print("<strong>Otros Descuentos:</strong> <h4 style=color:red>". number_format($OtrosDescuentos)."</h4>");
             print("</td>");
 
             print("<td colspan=1 style='text-align:center'>");

@@ -86,10 +86,13 @@ if( !empty($_REQUEST["Accion"]) ){
                      
                     while($DatosMigration=$obCon->FetchAssoc($Consulta2)){
                         $db=$DatosMigration["database"];
+                        
                         $RegistreMigracion=1;
                         //print($DatosMigration["ID"]);
                         $sql="CREATE DATABASE IF NOT EXISTS $db CHARSET=utf8 COLLATE=utf8_spanish_ci; ";
+                       
                         $obCon->Query($sql);
+                        
                         $fileSQL = file_get_contents($directorio.$DatosMigration["migration"]);
                         $Consultas= explode(";", $fileSQL);
                         foreach ($Consultas as $key => $query) {
@@ -114,7 +117,8 @@ if( !empty($_REQUEST["Accion"]) ){
                             $sql=$obCon->getSQLInsert("migrations", $Datos);
                             $obCon->Query($sql);
                         }
-                                                                      
+                              
+                                                              
                     }
                     
                 
