@@ -496,7 +496,6 @@ class ValidacionesEPS extends conexion{
         $DatosActa= $this->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
         $MesServicioInicial=$DatosActa["MesServicioInicial"];
         $MesServicioFinal=$DatosActa["MesServicioFinal"];
-        /*
         $sql="SELECT SUM(DiferenciaXPagos) as DiferenciaXPagos,
                      SUM(DiferenciaXAnticipos) as DiferenciaXAnticipos,
                      SUM(DiferenciaXCopagos) as DiferenciaXCopagos,
@@ -515,33 +514,25 @@ class ValidacionesEPS extends conexion{
                      SUM(XPagos2) AS XPagos2,
                      SUM(DiferenciaVariada) AS DiferenciaVariada
                  FROM $db.vista_cruce_totales_actas_conciliaciones WHERE MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
-        */
-        $sql="SELECT SUM(t1.DiferenciaXPagosNoDescargados) as DiferenciaXPagosNoDescargados,
-                     SUM(t1.DiferenciaXGlosasPendientesXConciliar) as DiferenciaXGlosasPendientesXConciliar,
-                     SUM(t1.DiferenciaXFacturasDevueltas) as DiferenciaXFacturasDevueltas,
-                     SUM(t1.DiferenciaXDiferenciaXImpuestos) as DiferenciaXDiferenciaXImpuestos,
-                     SUM(t1.DiferenciaXFacturasNoRelacionadasXIPS) as DiferenciaXFacturasNoRelacionadasXIPS,
-                     SUM(t1.DiferenciaXAjustesDeCartera) as DiferenciaXAjustesDeCartera,
-                     SUM(t1.DiferenciaXValorFacturado) as DiferenciaXValorFacturado,
-                     SUM(t1.DiferenciaXGlosasPendientesXDescargarIPS) as DiferenciaXGlosasPendientesXDescargarIPS,
-                     SUM(t1.DiferenciaVariada) as DiferenciaVariada
-                 FROM $db.hoja_de_trabajo t1 WHERE  
-                    EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato AND t2.idActaConciliacion='$idActaConciliacion') 
-                    AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal' ";
+        
         $DatosTotales=$this->FetchAssoc($this->Query($sql));
         $TotalPendientesRadicados= $this->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
         if(!is_numeric($TotalPendientesRadicados)){
             $TotalPendientesRadicados=0;
         }
-        $FacturasNoRelacionadasXIPS= $this->SumeColumna("$db.hoja_de_trabajo", "ValorSegunEPS", "NoRelacionada", 1);
+        $FacturasNoRelacionadasXIPS= $this->SumeColumna("$db.vista_cruce_cartera_asmet", "ValorSegunEPS", "NoRelacionada", 1);
         if(!is_numeric($FacturasNoRelacionadasXIPS)){
             $FacturasNoRelacionadasXIPS=0;
         }
         $sql="SELECT SUM(ValorTotalpagar) AS Total FROM $db.vista_facturas_sr_ips";
         $TotalConsulta= $this->FetchAssoc($this->Query($sql));
         $TotalFacturasSinRelacionsrXIPS=$TotalConsulta["Total"];
+        //$TotalFacturasSinRelacionsrXIPS= $this->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
+       // print("prueba :".$TotalFacturasSinRelacionsrXIPS);
+        //if(!is_numeric($TotalFacturasSinRelacionsrXIPS)){
+         //   $TotalFacturasSinRelacionsrXIPS=0;
+        //}
         
-        /*
         $DetalleDiferencias["DiferenciaXPagos"]=(round(abs($DatosTotales["DiferenciaXPagos"])+abs($DatosTotales["DiferenciaXAnticipos"])+abs($DatosTotales["DiferenciaXGlosaContraEPS"])+abs($DatosTotales["XPagos2"])));
         $DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=abs(round($TotalFacturasSinRelacionsrXIPS));        
         $DetalleDiferencias["GlosasPendientesXConciliar"]=(round(abs($DatosTotales["DiferenciaXGlosaXConciliar"])+abs($DatosTotales["GlosasXConciliar2"])));
@@ -557,28 +548,9 @@ class ValidacionesEPS extends conexion{
         $DetalleDiferencias["AnticiposPendientesXCruzar"]=0;
         $DetalleDiferencias["DescuentosLMA"]=0;
         $DetalleDiferencias["PendientesAuditoria"]=abs(round($TotalPendientesRadicados));
-         * 
-         */
         //$DetalleDiferencias["DiferenciaVariada"]=abs(round($DatosTotales["DiferenciaVariada"]));
         
-        $DetalleDiferencias["DiferenciaXPagos"]=(abs($DatosTotales["DiferenciaXPagosNoDescargados"]));// + abs($DatosTotales["DiferenciaVariada"]));
-        $DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=abs(round($TotalFacturasSinRelacionsrXIPS));        
-        $DetalleDiferencias["GlosasPendientesXConciliar"]=$DatosTotales["DiferenciaXGlosasPendientesXConciliar"];
-        $DetalleDiferencias["FacturasDevueltas"]=$DatosTotales["DiferenciaXFacturasDevueltas"];
-        $DetalleDiferencias["DiferenciaXImpuestos"]=abs(round($DatosTotales["DiferenciaXDiferenciaXImpuestos"]));
-        $DetalleDiferencias["DescuentoXRetefuente"]=0;
-        $DetalleDiferencias["FacturasNoRelacionadasXIPS"]=abs(round($FacturasNoRelacionadasXIPS));
-        $DetalleDiferencias["RetencionesImpuestosNoProcedentes"]=0;
-        $DetalleDiferencias["AjustesDeCartera"]=$DatosTotales["DiferenciaXAjustesDeCartera"];
-        $DetalleDiferencias["DiferenciaXValorFacturado"]=abs(round($DatosTotales["DiferenciaXValorFacturado"]));
-        $DetalleDiferencias["DiferenciaXUPC"]=0;        
-        $DetalleDiferencias["GlosasPendientesXDescargarIPS"]=($DatosTotales["DiferenciaXGlosasPendientesXDescargarIPS"]);
-        $DetalleDiferencias["AnticiposPendientesXCruzar"]=0;
-        $DetalleDiferencias["DescuentosLMA"]=0;
-        $DetalleDiferencias["PendientesAuditoria"]=abs(round($TotalPendientesRadicados));
-        
         $TotalDiferencias= array_sum($DetalleDiferencias);
-        //print($TotalDiferencias);
         $DiferenciaFaltante=abs($Diferencia)-abs($TotalDiferencias);
         $DiferenciaTemporal=$DetalleDiferencias["DiferenciaXPagos"]+$DiferenciaFaltante;
         if($DiferenciaTemporal<0){
@@ -644,11 +616,17 @@ class ValidacionesEPS extends conexion{
         $TotalPendientesRadicados=$this->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
         $TotalFacturasSinRelacionsrXIPS= $this->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
             
-        $sql="SELECT SUM(ValorSegunEPS) AS TotalEPS,SUM(ValorSegunIPS) AS TotalIPS FROM $db.`hoja_de_trabajo` t1 WHERE "
-                . "EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE  t2.NumeroContrato = t1.NumeroContrato and t2.idActaConciliacion='$idActaConciliacion' ) AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal'";
+        $sql="SELECT SUM(ValorSegunEPS) AS TotalEPS,SUM(ValorSegunIPS) AS TotalIPS FROM $db.`vista_cruce_cartera_asmet` t1 WHERE "
+                . "EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato) AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal'";
                 
         $TotalesCruce=$this->FetchAssoc($this->Query($sql));
-        
+
+        //$sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='2' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura AND t2.MesServicio>='$MesServicioInicial' AND t2.MesServicio<='$MesServicioFinal') AND EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato); ";
+        //$TotalesConciliacionesFactura=$this->FetchAssoc($this->Query($sql));
+
+        //$sql="SELECT SUM(ValorConciliacion) as ValorConciliaciones FROM $db.conciliaciones_cruces t1 WHERE ConciliacionAFavorDe='1' AND EXISTS (SELECT 1 FROM $db.vista_cruce_cartera_asmet t2 WHERE t2.NumeroFactura=t1.NumeroFactura AND t2.MesServicio>='$MesServicioInicial' AND t2.MesServicio<='$MesServicioFinal') AND EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato); ";
+        //$TotalesConciliacionesFavorEPS=$this->FetchAssoc($this->Query($sql));
+
         $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados;
         $ValorSegunIPS=$TotalesCruce["TotalIPS"]+(abs($TotalFacturasSinRelacionsrXIPS));
         $Diferencia=$ValorSegunEPS-$ValorSegunIPS;
@@ -705,11 +683,11 @@ class ValidacionesEPS extends conexion{
                 SELECT '$idActa',`FechaFactura`,`MesServicio`,`DepartamentoRadicacion`,`NumeroRadicado`,`FechaRadicado`,`NumeroContrato`,`NumeroFactura`,`ValorDocumento`,`Impuestos`,`TotalPagos`,
                 `TotalAnticipos`,`TotalCopagos`,`DescuentoPGP`,`OtrosDescuentos`,`AjustesCartera`,`TotalGlosaInicial`,`TotalGlosaFavor`,`TotalGlosaContra`,`GlosaXConciliar`,`TotalDevoluciones`,`ValorSegunEPS`,
                 `ValorSegunIPS`,`Diferencia` ,'0','$FechaRegisto','$idUser'   
-                 FROM $db.hoja_de_trabajo t1 WHERE 
+                 FROM $db.vista_reporte_ips t1 WHERE 
                 EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato AND t2.idActaConciliacion='$idActa') 
                 AND NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND t3.idActaConciliacion='$idActa') 
 
-                AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal' limit 1000";
+                AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal' limit 20";
         
         $this->Query($sql);
                 
@@ -732,7 +710,7 @@ class ValidacionesEPS extends conexion{
                 EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato AND t2.idActaConciliacion='$idActa') 
                 AND NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND t3.idActaConciliacion='$idActa') 
 
-                AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal' limit 10000";
+                AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal' limit 100";
         
         $this->Query($sql);
                 
@@ -871,260 +849,161 @@ class ValidacionesEPS extends conexion{
         while($DatosHoja= $this->FetchAssoc($Consulta)){
            
             $keyComparacion1="TotalPagos";
-            $keyComparacion2="TotalAnticipos";
-            $keyComparacion3="TotalCopagos";
-            $keyComparacion4="DescuentoPGP";
-            $keyComparacion5="OtrosDescuentos";
-            $keyComparacion6="AjustesCartera";
-            $keyComparacion7="TotalGlosaFavor";
-            $keyComparacion8="TotalGlosaContra";
-            $keyComparacion9="GlosaXConciliar";
-            $keyComparacion10="TotalDevoluciones";
-            $keyComparacion11="Impuestos";
-            
-            $flag=0;
-            
             foreach ($DatosHoja as $key => $value) {
                 if($key<>$keyComparacion1 and $key<>'NumeroFactura' and $key<>'Diferencia'){
                     if((abs($DatosHoja[$keyComparacion1]) + abs($value) ) ==(abs($DatosHoja["Diferencia"])) ){
-                        
-                            $flag=1;
-                            $d=$d+1;                         
-                            $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion1]."= $ColumnaActualizar[$keyComparacion1] + ABS($DatosHoja[$keyComparacion1]),".$ColumnaActualizar[$key]." = $ColumnaActualizar[$key]+ ABS(".$DatosHoja[$key].")";
-                            $sql.=",DiferenciaVariada=0 ";
-                            $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
-                            $this->Query($sql);
-                            
-                        
+                                               
+                        $d=$d+1;                        
+                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion1]."= ABS(".$ColumnaActualizar[$keyComparacion1].") + ABS($DatosHoja[$keyComparacion1]),".$ColumnaActualizar[$key]." = ABS(".$ColumnaActualizar[$key].") + ".$DatosHoja[$key]." ";
+                        $sql.=",DiferenciaVariada=0 ";
+                        $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
+                        $this->Query($sql);
                         
                     }
                 }
             }   
-            
-            if($flag==0){
-            
+
+            $keyComparacion2="TotalAnticipos";
             foreach ($DatosHoja as $key => $value) {
                 if($key<>$keyComparacion1 and $key<>$keyComparacion2 and $key<>'NumeroFactura' and $key<>'Diferencia'){
                     if((abs($DatosHoja[$keyComparacion2]) + abs($value) ) ==(abs($DatosHoja["Diferencia"])) ){
-                        $flag=1;         
+                                       
                         $d=$d+1;                        
-                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion2]."= $ColumnaActualizar[$keyComparacion2] + ABS($DatosHoja[$keyComparacion2]),".$ColumnaActualizar[$key]." =  $ColumnaActualizar[$key]+ ABS(".$DatosHoja[$key].")";
+                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion2]."= ABS(".$ColumnaActualizar[$keyComparacion2].") + ABS($DatosHoja[$keyComparacion2]),".$ColumnaActualizar[$key]." = ABS(".$ColumnaActualizar[$key].") + ".$DatosHoja[$key]." ";
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
+                        
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion2: ".$DatosHoja[$keyComparacion2]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
             } 
-             
-            }
             
-            if($flag==0){
-                
-         
+            $keyComparacion3="TotalCopagos";
             foreach ($DatosHoja as $key => $value) {
                 if($key<>$keyComparacion1 and $key<>$keyComparacion2 and $key<>$keyComparacion3 and $key<>'NumeroFactura' and $key<>'Diferencia'){
                     if((abs($DatosHoja[$keyComparacion3]) + abs($value) ) ==(abs($DatosHoja["Diferencia"])) ){
-                        $flag=1;         
+                                       
                         $d=$d+1;
-                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion3]."= $ColumnaActualizar[$keyComparacion3] + ABS($DatosHoja[$keyComparacion3]),".$ColumnaActualizar[$key]." = $ColumnaActualizar[$key]+ ABS(".$DatosHoja[$key].")";
+                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion3]."= ABS(".$ColumnaActualizar[$keyComparacion3].") + ABS($DatosHoja[$keyComparacion3]),".$ColumnaActualizar[$key]." = ABS(".$ColumnaActualizar[$key].") + ".$DatosHoja[$key]." ";
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion3: ".$DatosHoja[$keyComparacion3]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
             } 
             
-            }
-            
-            if($flag==0){
+            $keyComparacion4="DescuentoPGP";
             foreach ($DatosHoja as $key => $value) {
                 if($key<>$keyComparacion1 and $key<>$keyComparacion2 and $key<>$keyComparacion3 and $key<>$keyComparacion4 and $key<>'NumeroFactura' and $key<>'Diferencia'){
                     if((abs($DatosHoja[$keyComparacion4]) + abs($value) ) ==(abs($DatosHoja["Diferencia"])) ){
-                        $flag=1;              
+                                           
                         $d=$d+1;
-                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion4]."= $ColumnaActualizar[$keyComparacion4] + ABS($DatosHoja[$keyComparacion4]),".$ColumnaActualizar[$key]." = $ColumnaActualizar[$key]+ ABS(".$DatosHoja[$key].")";
+                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion4]."= ABS(".$ColumnaActualizar[$keyComparacion4].") + ABS($DatosHoja[$keyComparacion4]),".$ColumnaActualizar[$key]." = ABS(".$ColumnaActualizar[$key].") + ".$DatosHoja[$key]." ";
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion4: ".$DatosHoja[$keyComparacion4]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
             } 
             
-            }
-            
-            if($flag==0){
+            $keyComparacion5="OtrosDescuentos";
             foreach ($DatosHoja as $key => $value) {
                 if($key<>$keyComparacion1 and $key<>$keyComparacion2 and $key<>$keyComparacion3 and $key<>$keyComparacion4 and $key<>$keyComparacion5 and $key<>'NumeroFactura' and $key<>'Diferencia'){
                     if((abs($DatosHoja[$keyComparacion5]) + abs($value) ) == (abs($DatosHoja["Diferencia"])) ){
-                        $flag=1;               
+                                              
                         $d=$d+1;
-                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion5]."= $ColumnaActualizar[$keyComparacion5] + ABS($DatosHoja[$keyComparacion5]),".$ColumnaActualizar[$key]." = $ColumnaActualizar[$key]+ ABS(".$DatosHoja[$key].")";
+                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion5]."= ABS(".$ColumnaActualizar[$keyComparacion5].") + ABS($DatosHoja[$keyComparacion5]),".$ColumnaActualizar[$key]." = ABS(".$ColumnaActualizar[$key].") + ".$DatosHoja[$key]." ";
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                        
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion5: ".$DatosHoja[$keyComparacion5]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
             } 
             
-            }
-            
-            if($flag==0){
+            $keyComparacion6="AjustesCartera";
             foreach ($DatosHoja as $key => $value) {
                 if($key<>$keyComparacion1 and $key<>$keyComparacion2 and $key<>$keyComparacion3 and $key<>$keyComparacion4 and $key<>$keyComparacion5 and $key<>$keyComparacion6 and $key<>'NumeroFactura' and $key<>'Diferencia'){
                     if((abs($DatosHoja[$keyComparacion6]) + abs($value) ) == (abs($DatosHoja["Diferencia"])) ){
-                        $flag=1;
+                        //$Diferencia=$DatosHoja["Diferencia"];                         
                         $d=$d+1;
-                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion6]."= $ColumnaActualizar[$keyComparacion6] + ABS($DatosHoja[$keyComparacion6]),".$ColumnaActualizar[$key]." = $ColumnaActualizar[$key]+ ABS(".$DatosHoja[$key].")";
+                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion6]."= ABS(".$ColumnaActualizar[$keyComparacion6].") + ABS($DatosHoja[$keyComparacion6]),".$ColumnaActualizar[$key]." = ABS(".$ColumnaActualizar[$key].") + ".$DatosHoja[$key]." ";
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion6: ".$DatosHoja[$keyComparacion6]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
             } 
-             
-            }
             
-            if($flag==0){
+            $keyComparacion7="TotalGlosaFavor";
             foreach ($DatosHoja as $key => $value) {
                 if($key<>$keyComparacion1 and $key<>$keyComparacion2 and $key<>$keyComparacion3 and $key<>$keyComparacion4 and $key<>$keyComparacion5 and $key<>$keyComparacion6 and $key<>$keyComparacion7 and $key<>'NumeroFactura' and $key<>'Diferencia'){
                     if((abs($DatosHoja[$keyComparacion7]) + abs($value) ) == (abs($DatosHoja["Diferencia"])) ){
-                        $flag=1;                  
+                                                
                         $d=$d+1;
-                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion7]."= $ColumnaActualizar[$keyComparacion7] + ABS($DatosHoja[$keyComparacion7]),".$ColumnaActualizar[$key]." = $ColumnaActualizar[$key]+ ABS(".$DatosHoja[$key].")";
+                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion7]."= ABS(".$ColumnaActualizar[$keyComparacion7].") + ABS($DatosHoja[$keyComparacion7]),".$ColumnaActualizar[$key]." = ABS(".$ColumnaActualizar[$key].") + ".$DatosHoja[$key]." ";
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion7: ".$DatosHoja[$keyComparacion7]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
             } 
             
-            }
-            
-            if($flag==0){
+            $keyComparacion8="TotalGlosaContra";
             foreach ($DatosHoja as $key => $value) {
                 if($key<>$keyComparacion1 and $key<>$keyComparacion2 and $key<>$keyComparacion3 and $key<>$keyComparacion4 and $key<>$keyComparacion5 and $key<>$keyComparacion6 and $key<>$keyComparacion7 and $key<>$keyComparacion8 and $key<>'NumeroFactura' and $key<>'Diferencia'){
                     if((abs($DatosHoja[$keyComparacion8]) + abs($value) ) == (abs($DatosHoja["Diferencia"])) ){
-                        $flag=1;            
+                                       
                         $d=$d+1;
-                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion8]."= $ColumnaActualizar[$keyComparacion8] + ABS($DatosHoja[$keyComparacion8]),".$ColumnaActualizar[$key]." = $ColumnaActualizar[$key]+ ABS(".$DatosHoja[$key].")";
+                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion8]."= ABS(".$ColumnaActualizar[$keyComparacion8].") + ABS($DatosHoja[$keyComparacion8]),".$ColumnaActualizar[$key]." = ABS(".$ColumnaActualizar[$key].") + ".$DatosHoja[$key]." ";
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion8: ".$DatosHoja[$keyComparacion8]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
             }
             
-            }
-            
-            if($flag==0){
+            $keyComparacion9="GlosaXConciliar";
             foreach ($DatosHoja as $key => $value) {
                 if($key<>$keyComparacion1 and $key<>$keyComparacion2 and $key<>$keyComparacion3 and $key<>$keyComparacion4 and $key<>$keyComparacion5 and $key<>$keyComparacion6 and $key<>$keyComparacion7 and $key<>$keyComparacion8 and $key<>$keyComparacion9 and $key<>'NumeroFactura' and $key<>'Diferencia'){
                     if((abs($DatosHoja[$keyComparacion9]) + abs($value) ) == (abs($DatosHoja["Diferencia"])) ){
-                        $flag=1;                     
+                        $Diferencia=$DatosHoja["Diferencia"];                         
                         $d=$d+1;
-                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion9]."=$ColumnaActualizar[$keyComparacion9] + ABS($DatosHoja[$keyComparacion9]),".$ColumnaActualizar[$key]." = $ColumnaActualizar[$key]+ ABS(".$DatosHoja[$key].")";
+                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion9]."= ABS(".$ColumnaActualizar[$keyComparacion9].") + ABS($DatosHoja[$keyComparacion9]),".$ColumnaActualizar[$key]." = ABS(".$ColumnaActualizar[$key].") + ".$DatosHoja[$key]." ";
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                        
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion9: ".$DatosHoja[$keyComparacion9]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
             }
-             
-            }
             
-            if($flag==0){
+            $keyComparacion10="TotalDevoluciones";
             foreach ($DatosHoja as $key => $value) {
                 if($key<>$keyComparacion1 and $key<>$keyComparacion2 and $key<>$keyComparacion3 and $key<>$keyComparacion4 and $key<>$keyComparacion5 and $key<>$keyComparacion6 and $key<>$keyComparacion7 and $key<>$keyComparacion8 and $key<>$keyComparacion9 and $key<>$keyComparacion10 and $key<>'NumeroFactura' and $key<>'Diferencia'){
                     if((abs($DatosHoja[$keyComparacion10]) + abs($value) ) == (abs($DatosHoja["Diferencia"])) ){
-                        $flag=1;             
+                                             
                         $d=$d+1;
-                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion10]."=$ColumnaActualizar[$keyComparacion10] + ABS($DatosHoja[$keyComparacion10]),".$ColumnaActualizar[$key]." = $ColumnaActualizar[$key]+ ABS(".$DatosHoja[$key].")";
+                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$keyComparacion10]."= ABS(".$ColumnaActualizar[$keyComparacion10].") + ABS($DatosHoja[$keyComparacion10]),".$ColumnaActualizar[$key]." = ABS(".$ColumnaActualizar[$key].") + ".$DatosHoja[$key]." ";
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                        
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion10: ".$DatosHoja[$keyComparacion10]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
-                }
             }
-            
-            
                     
         }
         
         return($d);
     }
     
-    
-    public function EncontrarDiferenciasComunes($db) {
-        $sql="SELECT NumeroFactura,Diferencia,TotalPagos,TotalAnticipos,TotalCopagos,DescuentoPGP,
-               OtrosDescuentos,AjustesCartera,TotalGlosaFavor,TotalGlosaContra,GlosaXConciliar,
-               TotalDevoluciones,Impuestos FROM $db.hoja_de_trabajo;
-                ";
-        
-        $Consulta=$this->Query($sql);
-        $d=0;
-        $ColumnaActualizar["TotalPagos"]="DiferenciaXPagosNoDescargados";
-        $ColumnaActualizar["TotalAnticipos"]="DiferenciaXPagosNoDescargados";
-        $ColumnaActualizar["TotalCopagos"]="DiferenciaXPagosNoDescargados";
-        $ColumnaActualizar["DescuentoPGP"]="DiferenciaXGlosasPendientesXDescargarIPS";
-        $ColumnaActualizar["OtrosDescuentos"]="DiferenciaXAjustesDeCartera";
-        
-        $ColumnaActualizar["AjustesCartera"]="DiferenciaXAjustesDeCartera";
-        $ColumnaActualizar["TotalGlosaFavor"]="DiferenciaXGlosasPendientesXDescargarIPS";
-        $ColumnaActualizar["TotalGlosaContra"]="DiferenciaXPagosNoDescargados";
-        $ColumnaActualizar["GlosaXConciliar"]="DiferenciaXGlosasPendientesXConciliar";
-        $ColumnaActualizar["TotalDevoluciones"]="DiferenciaXFacturasDevueltas";
-        $ColumnaActualizar["Impuestos"]="DiferenciaXDiferenciaXImpuestos";
-        
-        while($DatosHoja= $this->FetchAssoc($Consulta)){
-                       
-            $flag=0;
-            
-            foreach ($DatosHoja as $key => $value) {
-                
-                if($key<>'NumeroFactura' and $key<>'Diferencia' and $flag==0){
-                    
-                    if(( abs($value) ) ==(abs($DatosHoja["Diferencia"])) ){
-                        $flag=1;
-                        
-                        $sql="UPDATE $db.hoja_de_trabajo SET ".$ColumnaActualizar[$key]." = ABS(".$DatosHoja[$key].")";
-                        $sql.=",DiferenciaVariada=0 ";
-                        $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
-                        $this->Query($sql);
-                        
-                    }
-                }
-            }
-            
-            if($flag==0){
-                $sql="UPDATE $db.hoja_de_trabajo SET ";
-                $sql.=" DiferenciaVariada=$DatosHoja[Diferencia] ";
-                $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
-                $this->Query($sql);
-            }
-                   
-        }
-        
-        return($d);
-    }
     
     public function ActualizarRegistroHojaDeTrabajo($db,$Condicion) {
         $HojaDeTrabajo=$db.".hoja_de_trabajo";

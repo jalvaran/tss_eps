@@ -418,11 +418,14 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td colspan='1' style='text-align:center'>");                        
                         $css->CrearBotonEvento("BtnConstruirHojaTrabajo", "Construir Hoja de Trabajo", 1, "onclick", "ObtenerNumeroRegistrosACopiarEnHoja()", "azulclaro", "");
                     print("</td>"); 
+                   
+                    print("<td colspan='1' style='text-align:center'>");                        
+                        $css->CrearBotonEvento("BtnCalcularDiferencias", "Calcular Diferencias", 1, "onclick", "CalcularDiferenciasVaridas()", "naranja", "");
+                    print("</td>"); 
                     /*
                     print("<td colspan='1' style='text-align:center'>");                        
-                        $css->CrearBotonEvento("BtnActualizarCruce", "Actualizar Hoja de Trabajo", 1, "onclick", "ActualizarHojaDeTrabajo()", "naranja", "");
+                        $css->CrearBotonEvento("BtnActualizarCruce", "Actualizar Hoja de Trabajo", 1, "onclick", "ActualizarHojaDeTrabajo()", "azulclaro", "");
                     print("</td>"); 
-                     * 
                      */
                     print("<td colspan='1' style='text-align:center'>");
                         $css->CrearBotonEvento("BtnCargarTotales", "Ver Totales", 1, "onclick", "DibujaTotalesCruce()", "azul", "");
@@ -1620,6 +1623,9 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
             $DatosFactura=$obCon->DevuelveValores("$db.vista_cruce_cartera_asmet", "NumeroFactura", $NumeroFactura);
+            if($DatosFactura["Diferencia"]==0){
+                exit("<h2>Esta Factura no tiene una diferencia para conciliar</h2>");
+            }
             $css->CrearInputText("TxtNumeroFactura", "hidden", "", $NumeroFactura, "", "", "", "", "", "", 0, 0);        
             
             $sql="SELECT SUM(ValorConciliacion) as TotalConciliaciones FROM $db.conciliaciones_cruces WHERE NumeroFactura='$NumeroFactura' AND Estado<>'ANULADO'";
@@ -2973,7 +2979,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td colspan=1 style=font-size:16px;>");
                         print("<span style='text-decoration: underline;cursor:pointer;'><strong >Contratos Disponibles en el cruce entre el Mes de Servicio $MesServicioInicial y $MesServicioFinal: </strong></span>");
                         $css->div("DivContratosDisponiblesActaConciliacion", "", "", "", "", "", "");
-                            $sql="SELECT DISTINCT NumeroContrato FROM $db.vista_cruce_cartera_asmet WHERE MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
+                            $sql="SELECT DISTINCT NumeroContrato FROM $db.hoja_de_trabajo WHERE MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal' ";
                             $Consulta=$obCon->Query($sql);
 
                             while($Contratos=$obCon->FetchAssoc($Consulta)){

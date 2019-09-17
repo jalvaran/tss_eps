@@ -3409,7 +3409,8 @@ function CronstruirHojaDeTrabajo(TotalRegistros){
     var CmbIPS=document.getElementById('CmbIPS').value;
     
     var form_data = new FormData();
-        form_data.append('Accion', 32);
+        form_data.append('Accion', 32);//Construirla completa
+        //form_data.append('Accion', 36); //Construirla por partes
         
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
@@ -3428,7 +3429,7 @@ function CronstruirHojaDeTrabajo(TotalRegistros){
             var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){   
                
-                //console.log(data);               
+                console.log(data);               
                 document.getElementById("DivTotalesCruce").innerHTML=respuestas[1];
                 var porcentaje=respuestas[2];
                 $('.progress-bar').css('width',porcentaje+"%").attr('aria-valuenow', porcentaje);  
@@ -3442,8 +3443,8 @@ function CronstruirHojaDeTrabajo(TotalRegistros){
                 document.getElementById("DivTotalesCruce").innerHTML=respuestas[1];
                 document.getElementById(idBoton).disabled=false;
                 document.getElementById("DivMensajes").innerHTML=respuestas[1];
-                CalcularDiferenciasVaridas();
-                //MuestreCruce();
+                //CalcularDiferenciasVaridas();
+                MuestreCruce();
                 return;     
             }else if(respuestas[0]==="E1"){
                 
@@ -3535,7 +3536,7 @@ function ActualizarHojaDeTrabajo(){
 function CalcularDiferenciasVaridas(){
     document.getElementById("DivTotalesCruce").innerHTML='<div id="GifProcess">Calculando diferencias...<br><img   src="../../images/loading.gif" alt="Cargando" height="50" width="50"></div>';
      
-    var idBoton="BtnConstruirHojaTrabajo";
+    var idBoton="BtnCalcularDiferencias";
     
     document.getElementById(idBoton).disabled=true;
     

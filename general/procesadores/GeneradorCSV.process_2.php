@@ -134,7 +134,7 @@ if(isset($_REQUEST["Opcion"])){
             $MesServicioFinal=$DatosActa["MesServicioFinal"];
             $db=$obCon->normalizar($_REQUEST["db"]);
             $NIT= str_replace("ts_eps_ips_", "", $db);
-            $Tabla="hoja_de_trabajo";
+            $Tabla="vista_reporte_ips";
             $FileName="AnexoActa$idActaConciliacion"."_".$idUser.".csv";
             $Link.= $FileName;
             $OuputFile.=$FileName;
@@ -144,7 +144,7 @@ if(isset($_REQUEST["Opcion"])){
             }
             
             
-            $Condicion=" WHERE EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=$Tabla.NumeroContrato AND t2.idActaConciliacion='$idActaConciliacion') AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
+            $Condicion=" WHERE EXISTS (SELECT 1 FROM ts_eps.actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=$Tabla.NumeroContrato) AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
             
             $Separador=";";
             $NumPage="";
@@ -279,7 +279,7 @@ if(isset($_REQUEST["Opcion"])){
             $MesServicioFinal=$DatosActa["MesServicioFinal"];
             $db=$obCon->normalizar($_REQUEST["db"]);
             $NIT= str_replace("ts_eps_ips_", "", $db);
-            $Tabla="hoja_de_trabajo";
+            $Tabla="vista_reporte_ips";
             $FileName="AnexoActa$idActaConciliacion"."_".$idUser.".csv";
             $Link.= $FileName;
             $OuputFile.=$FileName;
@@ -289,7 +289,7 @@ if(isset($_REQUEST["Opcion"])){
             }
             
             
-            $Condicion=" WHERE EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=$Tabla.NumeroContrato AND t2.idActaConciliacion='$idActaConciliacion') AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
+            $Condicion=" WHERE EXISTS (SELECT 1 FROM ts_eps.actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=$Tabla.NumeroContrato) AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
             
             $Separador=";";
             $NumPage="";

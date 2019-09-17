@@ -57,7 +57,7 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z++].$i,"TotalConciliaciones")
             ;
             
-        $sql="SELECT * FROM $db.vista_cruce_cartera_asmet WHERE Estado=0 AND Diferencia<>0";
+        $sql="SELECT * FROM $db.hoja_de_trabajo WHERE Estado=0 AND Diferencia<>0";
         $Consulta=$this->Query($sql);
         $i=1;
         while($DatosVista= $this->FetchAssoc($Consulta)){
