@@ -144,7 +144,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
-            $NumeroColumnasEncabezado=11;// 51 para mutual y 52 para sas
+            $NumeroColumnasEncabezado=12;// 51 para mutual y 52 para sas
             
             $keyArchivo=$obCon->getKeyArchivoEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $NumLineasArchivo=$obCon->CalcularNumeroRegistros($keyArchivo,$CmbIPS,$Separador,$NumeroColumnasEncabezado,$CmbEPS,$idUser);

@@ -537,19 +537,7 @@ class ValidacionesEPS extends conexion{
         $sql="SELECT SUM(ValorSegunEPS) as Total FROM $db.hoja_de_trabajo t1 WHERE EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato AND t2.idActaConciliacion='$idActaConciliacion') 
                     AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal' AND t1.NoRelacionada='1' ";
         $TotalIPSDato=$this->FetchAssoc($this->Query($sql));
-        
-        $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips t3 "
-                . "INNER JOIN $db.hoja_de_trabajo t1 ON t1.NumeroFactura=t3.NumeroFactura WHERE EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE  t2.NumeroContrato = t1.NumeroContrato and t2.idActaConciliacion='$idActaConciliacion' ) AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal'";
-        $DatosIPS= $this->FetchAssoc($this->Query($sql));
-        $TotalIPSEnCruce=$DatosIPS["Total"];
-        
-        $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips t3 ";
-        $DatosIPS= $this->FetchAssoc($this->Query($sql));
-        $TotalIPS=$DatosIPS["Total"];
-        
-        //$FacturasNoRelacionadasXIPS=$TotalIPSDato["Total"];
-        
-        $FacturasNoRelacionadasXIPS=$TotalIPS-$TotalIPSEnCruce;
+        $FacturasNoRelacionadasXIPS=$TotalIPSDato["Total"];
         if(!is_numeric($FacturasNoRelacionadasXIPS)){
             $FacturasNoRelacionadasXIPS=0;
         }
@@ -581,13 +569,12 @@ class ValidacionesEPS extends conexion{
         //$DetalleDiferencias["DiferenciaVariada"]=abs(round($DatosTotales["DiferenciaVariada"]));
         
         $DetalleDiferencias["DiferenciaXPagos"]=(abs($DatosTotales["DiferenciaXPagosNoDescargados"]));// + abs($DatosTotales["DiferenciaVariada"]));
-        //$DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=abs(round($TotalFacturasSinRelacionsrXIPS ));  
-        $DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=abs(round($FacturasNoRelacionadasXIPS ));
+        $DetalleDiferencias["FacturasIPSNoRelacionadasEPS"]=abs(round($TotalFacturasSinRelacionsrXIPS));        
         $DetalleDiferencias["GlosasPendientesXConciliar"]=$DatosTotales["DiferenciaXGlosasPendientesXConciliar"];
         $DetalleDiferencias["FacturasDevueltas"]=$DatosTotales["DiferenciaXFacturasDevueltas"];
         $DetalleDiferencias["DiferenciaXImpuestos"]=abs(round($DatosTotales["DiferenciaXDiferenciaXImpuestos"]));
         $DetalleDiferencias["DescuentoXRetefuente"]=0;
-        //$DetalleDiferencias["FacturasNoRelacionadasXIPS"]=abs(round($TotalFacturasSinRelacionsrXIPS));
+        //$DetalleDiferencias["FacturasNoRelacionadasXIPS"]=abs(round($FacturasNoRelacionadasXIPS));
         $DetalleDiferencias["FacturasNoRelacionadasXIPS"]=0;
         $DetalleDiferencias["RetencionesImpuestosNoProcedentes"]=0;
         $DetalleDiferencias["AjustesDeCartera"]=$DatosTotales["DiferenciaXAjustesDeCartera"];
@@ -676,16 +663,9 @@ class ValidacionesEPS extends conexion{
                 . "EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE  t2.NumeroContrato = t1.NumeroContrato and t2.idActaConciliacion='$idActaConciliacion' ) AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal'";
                 
         $TotalesCruce=$this->FetchAssoc($this->Query($sql));
-        /*
         $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips t3 "
                 . "INNER JOIN $db.hoja_de_trabajo t1 ON t1.NumeroFactura=t3.NumeroFactura WHERE EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE  t2.NumeroContrato = t1.NumeroContrato and t2.idActaConciliacion='$idActaConciliacion' ) AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal'";
         $DatosIPS= $this->FetchAssoc($this->Query($sql));
-        
-         * 
-         */
-        $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips ";
-        $DatosIPS= $this->FetchAssoc($this->Query($sql));
-        
         $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados;
         $ValorSegunIPS=$DatosIPS["Total"];
         $Diferencia=$ValorSegunEPS-$ValorSegunIPS;

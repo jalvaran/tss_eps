@@ -1104,7 +1104,10 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $VistaACopiar=$db.".vista_cruce_cartera_asmet";
             $Limit=" LIMIT 10";
-                        
+            $sql="UPDATE carteraeps SET NumeroContrato=trim(NumeroContrato)";
+            $obCon->Query2($sql, HOST, USER, PW, $db, "");
+            $sql="UPDATE carteraeps SET NumeroContrato= REPLACE(NumeroContrato,'\n','')";
+            $obCon->Query2($sql, HOST, USER, PW, $db, "");            
             $sql="DROP TABLE IF EXISTS $HojaDeTrabajo";
             $obCon->Query($sql);
             
@@ -1130,7 +1133,7 @@ if( !empty($_REQUEST["Accion"]) ){
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2259' ),0)) AS FacturasDevueltasAnticipos,
 
         
-        (SELECT IFNULL((SELECT COUNT(NumeroFactura) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2039' ),0)) AS NumeroFacturasDevueltasAnticipos,
+        (SELECT IFNULL((SELECT COUNT((NumeroFactura)) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND (NumeroInterno='2039' or NumeroInterno='2259') ),0)) AS NumeroFacturasDevueltasAnticipos,
 	  
 	(SELECT IFNULL((SELECT SUM(ValorTotal) FROM vista_copagos_asmet WHERE vista_copagos_asmet.NumeroFactura=t2.NumeroFactura ),0)) AS TotalCopagos,
         
@@ -1142,7 +1145,7 @@ if( !empty($_REQUEST["Accion"]) ){
         ((SELECT TotalGlosaInicial)-(SELECT TotalGlosaFavor)-(SELECT TotalGlosaContra) ) AS GlosaXConciliar,
         (SELECT IFNULL((SELECT COUNT(DISTINCT NumeroTransaccion) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND notas_db_cr_2.C13<>'N' AND (notas_db_cr_2.TipoOperacion='2259' OR notas_db_cr_2.TipoOperacion='2269' OR notas_db_cr_2.TipoOperacion='2039' ) ),0)) AS DevolucionesPresentadas,
         (SELECT IFNULL((SELECT COUNT(DISTINCT NumeroTransaccion) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND notas_db_cr_2.C13<>'N' AND notas_db_cr_2.TipoOperacion LIKE '20%'  ),0)) AS FacturasPresentadas,
-        (SELECT IF((((SELECT FacturasPresentadas)) > ((SELECT DevolucionesPresentadas)+(SELECT NumeroFacturasDevueltasAnticipos) ) ),'SI','NO')) AS FacturaActiva,
+        (SELECT IF(((SELECT DevolucionesPresentadas ) >= ((SELECT FacturasPresentadas)) OR (SELECT NumeroFacturasDevueltasAnticipos ) >= ((SELECT FacturasPresentadas) ) ),'NO','SI')) AS FacturaActiva,
 
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2039' ),0)) AS FacturasDevueltas,
         (SELECT IF(FacturaActiva='SI',0,(SELECT IFNULL((SELECT (ValorTotal) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND (notas_db_cr_2.TipoOperacion='2259' OR notas_db_cr_2.TipoOperacion='2269' OR notas_db_cr_2.TipoOperacion='2039') AND notas_db_cr_2.FechaTransaccion>=t2.FechaRadicado LIMIT 1),0))) ) AS TotalDevolucionesNotas,
@@ -1199,10 +1202,7 @@ if( !empty($_REQUEST["Accion"]) ){
 
                 ";
                 $obCon->Query2($sql, HOST, USER, PW, $db, "");
-                $sql="UPDATE hoja_de_trabajo SET NumeroContrato=trim(NumeroContrato)";
-                $obCon->Query2($sql, HOST, USER, PW, $db, "");
-                $sql="UPDATE hoja_de_trabajo SET NumeroContrato= REPLACE(NumeroContrato,'\n','')";
-                $obCon->Query2($sql, HOST, USER, PW, $db, "");
+                
             
                 print("FIN;Se ha creado la hoja de trabajo correctamente;");
             
@@ -1260,7 +1260,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         t1.DiferenciaXGlosasPendientesXConciliar=(abs(t2.DiferenciaXGlosaXConciliar)),
                         t1.DiferenciaXFacturasDevueltas=(abs(t2.DiferenciaXDevoluciones)+abs(t2.DiferenciaXDevolucionesNoIPS)),
                         t1.DiferenciaXDiferenciaXImpuestos=(abs(t2.DiferenciaXImpuestos)),
-                        t1.DiferenciaXFacturasNoRelacionadasXIPS=(SELECT abs(Diferencia) FROM $db.vista_cruce_cartera_asmet t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND t1.NoRelacionada=1),
+                        
                         t1.DiferenciaXAjustesDeCartera=(abs(t2.DiferenciaXCopagos)+abs(t2.DiferenciaXOtrosDescuentos)+abs(t2.DiferenciaXAjustesCartera)),
                         t1.DiferenciaXValorFacturado=(abs(t2.DiferenciaXValorFacturado)),
                         t1.DiferenciaXGlosasPendientesXDescargarIPS=(abs(t2.DiferenciaXDescuentoPGP)+abs(t2.DiferenciaXGlosaFavorEPS)),

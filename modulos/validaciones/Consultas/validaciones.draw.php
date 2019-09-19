@@ -1623,9 +1623,12 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
             $DatosFactura=$obCon->DevuelveValores("$db.vista_cruce_cartera_asmet", "NumeroFactura", $NumeroFactura);
+            /*
             if($DatosFactura["Diferencia"]==0){
                 exit("<h2>Esta Factura no tiene una diferencia para conciliar</h2>");
             }
+             * 
+             */
             $css->CrearInputText("TxtNumeroFactura", "hidden", "", $NumeroFactura, "", "", "", "", "", "", 0, 0);        
             
             $sql="SELECT SUM(ValorConciliacion) as TotalConciliaciones FROM $db.conciliaciones_cruces WHERE NumeroFactura='$NumeroFactura' AND Estado<>'ANULADO'";
@@ -2979,7 +2982,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td colspan=1 style=font-size:16px;>");
                         print("<span style='text-decoration: underline;cursor:pointer;'><strong >Contratos Disponibles en el cruce entre el Mes de Servicio $MesServicioInicial y $MesServicioFinal: </strong></span>");
                         $css->div("DivContratosDisponiblesActaConciliacion", "", "", "", "", "", "");
-                            $sql="SELECT DISTINCT NumeroContrato FROM $db.hoja_de_trabajo WHERE MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal' ";
+                            $sql="SELECT DISTINCT NumeroContrato FROM $db.carteraeps WHERE MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal' ";
                             $Consulta=$obCon->Query($sql);
 
                             while($Contratos=$obCon->FetchAssoc($Consulta)){
@@ -3113,7 +3116,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("<strong>Total Cuenta por Pagar del proveedor  al corte:</strong>");
                     print("</td>");
                     print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
-                        $css->input("hidden", "ACValorSegunIPS", "form-control", "ACValorSegunIPS", "", ($ValorSegunIPS), "Valor IPS", "off", "", "");
+                        $css->input("hidden", "ACValorSegunIPS", "form-control", "ACValorSegunIPS", "", (round($ValorSegunIPS)), "Valor IPS", "off", "", "");
                         print("<span id='spValorSegunIPS'>".number_format($ValorSegunIPS)."</span>");
                     print("</td>");
                 print("</tr>");
@@ -3639,7 +3642,9 @@ if( !empty($_REQUEST["Accion"]) ){
                     ";
             $row=$obCon->FetchAssoc($obCon->Query($sql));
             $TotalEPS=$row['TotalEPS'];
-            $TotalIPS=$row['TotalIPS'];
+            $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips";
+            $DatosIPS= $obCon->FetchAssoc($obCon->Query($sql));
+            $TotalIPS=round($DatosIPS['Total']);
             $TotalConciliaciones=$row['TotalConciliaciones'];
             $NumeroConciliaciones=$row['NumeroConciliaciones'];
             $Valormenosimpuesto = $row['Valormenosimpuesto'];           
