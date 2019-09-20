@@ -77,7 +77,7 @@ $css->PageInit($myTitulo);
     
     $css->CerrarDiv();
    $css->TabInit();
-            $css->TabLabel("TabCuentas1", "<strong >Historial de Actas de Conciliación</strong>", "Tab_1", 1,"onclick=CargarHistorialActas()");
+            $css->TabLabel("TabCuentas1", "<strong >Historial de Actas de Conciliación</strong>", "Tab_1", 1,"onclick=DibujaSelectorActas()");
             $css->TabLabel("TabCuentas2", "<strong >Detalles</strong>", "Tab_2",0,"onclick=DetallesActas()");
             
         $css->TabInitEnd();
@@ -86,10 +86,13 @@ $css->PageInit($myTitulo);
         
         $css->TabPaneInit("Tab_1", 1);
             $css->CrearDiv("DivTab1General", "col-sm-2", "center", 1, 1);
-                $css->CrearBotonEvento("BtnNuevaActaLiquidacion", "Crear", 1, "onclick", "AbrirFormularioNuevo", "verde", "");
+                $css->CrearBotonEvento("BtnNuevaActaLiquidacion", "Crear", 1, "onclick", "AbrirFormularioNuevo()", "verde", "");
             $css->CerrarDiv();
             
             $css->CrearDiv("DivTab1SelectorActas", "col-sm-4", "center", 1, 1);
+                
+            $css->CerrarDiv();
+            $css->CrearDiv("DivContratosDisponiblesActaLiquidacion", "", "center", 1, 1);
                 
             $css->CerrarDiv();
             print("<br><br>");

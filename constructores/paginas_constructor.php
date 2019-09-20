@@ -1033,7 +1033,7 @@ class PageConstruct extends html_estruct_class{
      * @param type $Color
      * @param type $VectorBoton
      */
-    function CrearBotonEvento($nombre,$value,$enabled,$evento,$funcion,$Color,$VectorBoton){
+    function CrearBotonEvento($nombre,$value,$enabled,$evento,$funcion,$Color,$style=""){
             
             switch ($Color){
                 case "verde":
@@ -1056,9 +1056,9 @@ class PageConstruct extends html_estruct_class{
                     break;
             }
             if($enabled==1){
-                print('<input type="submit" id="'.$nombre.'"  name="'.$nombre.'" value="'.$value.'" '.$evento.'="'.$funcion.' ; return false" class="form-control '.$Clase.'">');
+                print('<input type="submit" id="'.$nombre.'"  name="'.$nombre.'" value="'.$value.'" '.$evento.'="'.$funcion.' ; return false" class="form-control '.$Clase.'" '.$style.'  >');
             }else{
-                print('<input type="submit" id="'.$nombre.'" disabled="true" name="'.$nombre.'" value="'.$value.'" '.$evento.'="'.$funcion.' ; return false" class="form-control '.$Clase.'">');  
+                print('<input type="submit" id="'.$nombre.'" disabled="true" name="'.$nombre.'" value="'.$value.'" '.$evento.'="'.$funcion.' ; return false" class="form-control '.$Clase.'" '.$style.' >');  
             }
 		
 		

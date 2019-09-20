@@ -378,6 +378,11 @@ class NotasCRBD extends conexion{
                    }
                }
                
+               if($data[18]<>$idIPS){
+                   $NumeroColumnas=count($data);
+                   exit("E1;<h3>El NIT: $data[18] archivo no corresponde a la IPS Seleccionada: $idIPS, en la linea $i</h3>");
+               }
+               
                $r++;//Contador de filas a insertar
                $sql.="(";
                $z=1*(-1);
@@ -451,6 +456,7 @@ class NotasCRBD extends conexion{
                 
                 
             }
+            //print($r);
             if($r<>5000){
                 $sql=substr($sql, 0, -1);
                 $this->Query($sql);

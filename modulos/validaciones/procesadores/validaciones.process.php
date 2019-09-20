@@ -615,7 +615,7 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;Compromiso o Resultado Agregado");
         break;//Fin caso 15
         
-        case 16://Agregar Compromiso a Acta
+        case 16://Edita Compromiso a Acta
             $idCompromiso=$obCon->normalizar($_REQUEST["idCompromiso"]);
             $idCajaEdicion="TxtCompromiso_".$idCompromiso;
             $TxtCompromisoEditado=$obCon->normalizar($_REQUEST["TxtCompromisoEditado"]);
@@ -879,7 +879,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $destino=$carpeta.$keyArchivo.".".$Extension;
                     $NombreArchivo=$keyArchivo.".".$Extension;
                     move_uploaded_file($_FILES['UpSoporteActaConciliacionCierre']['tmp_name'],$destino);
-                    
+                    $obCon->ActualizaRegistro("actas_conciliaciones", "Soporte", $destino, "ID", $idActaConciliacion);
                 }else{
                     exit("E1;Error el archivo debe ser tipo pdf;UpSoporteActaConciliacionCierre");
                 }
