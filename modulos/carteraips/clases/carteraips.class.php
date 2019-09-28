@@ -106,12 +106,15 @@ class CarteraIPS extends conexion{
                 $_DATOS_EXCEL[$i]['NitEPS']= $objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['NitIPS']= $objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
                 if($_DATOS_EXCEL[$i]['NitIPS']<>$idIPS){
-                    exit("E1;El archivo enviado contiene registros de una IPS diferente con NIT: ".$_DATOS_EXCEL[$i]['NitIPS']);
+                    exit("E1;El archivo enviado contiene registros de una IPS diferente en la fila $i, NIT enviado: ".$_DATOS_EXCEL[$i]['NitIPS']);
                 }
                 $_DATOS_EXCEL[$i]['NumeroFactura'] = $objPHPExcel->getActiveSheet()->getCell('C'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['NumeroCuentaGlobal'] = $objPHPExcel->getActiveSheet()->getCell('E'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['NumeroRadicado'] = $objPHPExcel->getActiveSheet()->getCell('F'.$i)->getCalculatedValue();
-                $_DATOS_EXCEL[$i]['TipoNegociacion'] = $objPHPExcel->getActiveSheet()->getCell('H'.$i)->getCalculatedValue();
+                $_DATOS_EXCEL[$i]['TipoNegociacion'] =trim(strtoupper($objPHPExcel->getActiveSheet()->getCell('H'.$i)->getCalculatedValue()));
+                if($_DATOS_EXCEL[$i]['TipoNegociacion']<>'' AND $_DATOS_EXCEL[$i]['TipoNegociacion'] <> 'EVENTO' AND $_DATOS_EXCEL[$i]['TipoNegociacion']<>'CAPITA'){
+                    exit("E1;El Campo H en la Fila $i debe contener el tipo de negociación, se acepta vacío o 'Evento' o 'Capita' y contiene: ".$_DATOS_EXCEL[$i]['TipoNegociacion']);
+                }
                 $_DATOS_EXCEL[$i]['NumeroContrato'] = $objPHPExcel->getActiveSheet()->getCell('I'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['DiasPactados'] = $objPHPExcel->getActiveSheet()->getCell('J'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['TipoRegimen'] = $objPHPExcel->getActiveSheet()->getCell('K'.$i)->getCalculatedValue();

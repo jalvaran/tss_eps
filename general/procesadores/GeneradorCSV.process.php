@@ -88,6 +88,8 @@ if(isset($_REQUEST["Opcion"])){
         case 2: //Exportar CSV directamente
             
             $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
+            $st=($obCon->normalizar($_REQUEST["st"]));
+            //print($st);
             $FileName=$Tabla."_".$idUser.".csv";
             $Link.= $FileName;
             $OuputFile.=$FileName;
@@ -460,6 +462,50 @@ if(isset($_REQUEST["Opcion"])){
             $NombreArchivo="Anexo_Acta_Conciliacion_$idActaConciliacion"."_$Fecha";
             print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar</h1></a></div>");
         break;//Fin caso 6
+        
+        case 7: //Exportar hoja de trabajo
+            
+            $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
+            $Condicion=($obCon->normalizar($_REQUEST["TxtCondicional"]));
+            //print($st);
+            $FileName=$Tabla."_".$idUser.".csv";
+            $Link.= $FileName;
+            $OuputFile.=$FileName;
+            
+            if(file_exists($Link)){
+                unlink($Link);
+            }
+            //print($OuputFile);
+            if(file_exists($OuputFile)){
+                unlink($OuputFile);
+            }
+            
+            $db=$obCon->normalizar($_REQUEST["db"]);
+            $NIT= str_replace("ts_eps_ips_", "", $db);
+            //$Condicion="";
+            
+            $Separador=";";
+            $NumPage="";
+            $limit="";
+            $startpoint="";
+            
+            
+            $sqlColumnas="SELECT  ";
+            $Columnas=$obCon->ShowColums($db.".".$Tabla);
+            //print_r($Columnas);
+            foreach ($Columnas["Field"] as $key => $value) {
+                $sqlColumnas.="'$value',";
+            }
+            $sqlColumnas=substr($sqlColumnas, 0, -1);
+            $sqlColumnas.=" UNION ALL ";
+            
+            $sql=$sqlColumnas." SELECT * FROM $db.$Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
+            $Fecha=date("Ymd_His");
+            $obCon->Query($sql);
+            $Inical= str_replace("ips", "proveedor", $Tabla);
+            $NombreArchivo=$Inical."_$NIT"."_$Fecha";
+            print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar</h1></a></div>");
+            break;//Fin caso 7
         
         }
         

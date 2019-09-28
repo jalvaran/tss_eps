@@ -291,44 +291,130 @@ if( !empty($_REQUEST["Accion"]) ){
             
         break; //Fin caso 2 
         
-        case 3: //Dibuja las facturas que tienen las dos
+        case 3: //Dibuja el cruce de la cartera
+            $TipoNegociacion=$obCon->normalizar($_REQUEST["CmbTipoNegociacion"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
+            
+            
+            $css->CrearDiv("DivTotalesCruce", "", "left", 1, 1);
+
+            $css->CerrarDiv();
             //Paginacion
             if(isset($_REQUEST['Page'])){
                 $NumPage=$obCon->normalizar($_REQUEST['Page']);
             }else{
                 $NumPage=1;
             }
-            $Condicional=" ";
+            $Condicional=" WHERE TipoNegociacion='$TipoNegociacion' ";
             if(isset($_REQUEST['Busqueda'])){
                 $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
                 if($Busqueda<>''){
-                    $Condicional=" WHERE NumeroContrato like '$Busqueda%' or NumeroFactura like '%$Busqueda%' or NumeroRadicado like '%$Busqueda%' ";
+                    $Condicional=" AND NumeroContrato like '$Busqueda%' or NumeroFactura like '%$Busqueda%' or NumeroRadicado like '%$Busqueda%' ";
                 }
                 
             }
-            
+            $css->input("hidden", "TxtCondicional", "", "TxtCondicional", "", $Condicional, "", "", "", "");
+            //$css->CrearInputText("TxtCondicional", "", "", $Condicional, "", "", "", "", "", "", "", "");
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
             
+            $sql="SELECT COLUMN_NAME 
+                    FROM information_schema.COLUMNS 
+                    WHERE 
+                        TABLE_SCHEMA = '$db' 
+                    AND TABLE_NAME = 'hoja_de_trabajo' 
+                    AND COLUMN_NAME = 'TipoNegociacion' ";
+            $Verificacion=$obCon->FetchAssoc($obCon->Query($sql));
+            if($Verificacion["COLUMN_NAME"]==""){
+                $css->CrearBotonEvento("BtnConstruirHojaTrabajo", "Construir Hoja de Trabajo", 1, "onclick", "ObtenerNumeroRegistrosACopiarEnHoja()", "azulclaro", "");
+                exit();
+                
+            }
+            if($TipoNegociacion=='CAPITA'){
+                $css->CrearTabla();
+                    $css->FilaTabla(16);
+                        $css->ColTabla("<strong>CONTRATOS DISPONIBLES EN ESTE CRUCE:</strong>", 3,"C");
+                    $css->CierraFilaTabla();
+                    $css->FilaTabla(16);
+                        $css->ColTabla("<strong>CONTRATOS</strong>", 1,"C");
+                        $css->ColTabla("<strong>DATOS GENERALES</strong>", 1,"C");
+                        $css->ColTabla("<strong>VALORES PERCAPITA POR MUNICIPIO</strong>", 1,"C");
+                    $css->CierraFilaTabla();
+               
+                $sql="SELECT DISTINCT NumeroContrato FROM $db.hoja_de_trabajo WHERE TipoNegociacion='CAPITA' ";
+                
+                $Consulta=$obCon->Query($sql);
+                $i=0;
+                while ($DatosContratos=$obCon->FetchAssoc($Consulta)){
+                    $i++;
+                    $idContrato=$DatosContratos["NumeroContrato"];
+                    $sql="SELECT * FROM contratos WHERE NitIPSContratada='$CmbIPS' AND (ContratoEquivalente='$idContrato')";
+                    
+                    $DatosContratoExistente=$obCon->FetchArray($obCon->Query($sql));
+                    
+                    $css->FilaTabla(16);
+                        print("<td>");
+                            print("<span id='idContratoCapita'>");
+                                print($DatosContratos["NumeroContrato"]);
+                            print("</span>");
+                        print("</td>");
+                        print("<td>");
+                            if($DatosContratoExistente["NumeroContrato"]==''){
+                                $css->select("CmbContratoExistente_$i", "selector", "CmbContratoExistente", "", "", "", "style=width:100%;");
+                                    $css->option("", "", "", "", "", "");
+                                        print("Buscar contrato para asociar");
+                                    $css->Coption();
+                                $css->Cselect();
+                                $css->CrearBotonEvento("btnAsociarContrato", "Asociar Contrato", 1, "onclick", "AsociarContratoEquivalente(`".$DatosContratos["NumeroContrato"]."`,`CmbContratoExistente_$i`)", "verde", "style='width:150px;'");
+                                $css->CrearBotonEvento("btnCrearContrato", "Crear Contrato", 1, "onclick", "AbreFormularioCrearContrato(`".$DatosContratos["NumeroContrato"]."`)", "azul", "style='width:150px;'");
+                            }else{
+                                $css->input("date", "FechaInicioContratoCapita", "form-control", "FechaInicioContratoCapita", "", $DatosContratoExistente["FechaInicioContrato"], "Fecha Inicio Contrato", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
+                                $css->input("date", "FechaFinalContratoCapita", "form-control", "FechaFinalContratoCapita", "", $DatosContratoExistente["FechaFinalContrato"], "Fecha Final Contrato", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
+                                $css->input("text", "TxtValorCapita", "form-control", "TxtValorCapita", "", $DatosContratoExistente["ValorContrato"], "Valor Contrato", "off", "", "script");
+                            }    
+                            
+                        print("</td>");
+                        
+                        print("<td>");
+                            $Contrato=$DatosContratoExistente["Contrato"];
+                            $sql="SELECT *,(SELECT Ciudad FROM municipios_dane WHERE contrato_percapita.CodigoDane=municipios_dane.CodigoDane LIMIT 1) AS NombreMunicipio FROM contrato_percapita WHERE NIT_IPS='$CmbIPS' AND Contrato='$Contrato'";
+                            $ConsultaPercapita=$obCon->Query($sql);
+                            while($DatosPercapita=$obCon->FetchAssoc($ConsultaPercapita)){
+                                $css->div("", "col-md-3", "", "", "", "", "");
+                                    print($DatosPercapita["NombreMunicipio"]);
+                                $css->Cdiv();
+                                $css->div("", "col-md-2", "", "", "", "", "");
+                                    print($DatosPercapita["PorcentajePoblacional"]);
+                                $css->Cdiv();
+                                $css->div("", "col-md-2", "", "", "", "", "");
+                                    print($DatosPercapita["ValorPercapitaXDia"]);
+                                $css->Cdiv();
+                                $css->div("", "col-md-2", "", "", "", "", "");
+                                    print($DatosPercapita["FechaInicioPercapita"]);
+                                $css->Cdiv();
+                                $css->div("", "col-md-2", "", "", "", "", "");
+                                    print($DatosPercapita["FechaFinPercapita"]);
+                                $css->Cdiv();
+                            }
+                        print("</td>");
+                        
+                    $css->CierraFilaTabla();
+                }
+                
+                $css->CerrarTabla();
+            
+            
+                 
+               
+            }
             $statement=" $db.`hoja_de_trabajo` $Condicional ";
             if(isset($_REQUEST['st'])){
 
                 $statement= urldecode($_REQUEST['st']);
                 //print($statement);
             }
-            /*
-            $TotalPendientesDevoluciones=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Devoluciones");
-            $TotalPendientesCopagos=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Copagos");
-            $TotalPendientesRadicados=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
-            $TotalPendientesNotas=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Notas");
             
-            $TotalPendientesDevoluciones=0;
-            $TotalPendientesCopagos=0;
-            $TotalPendientesRadicados=0;
-            $TotalPendientesNotas=0;
-            */
             $limit = 10;
             $startpoint = ($NumPage * $limit) - $limit;
             $VectorST = explode("LIMIT", $statement);
@@ -337,51 +423,27 @@ if( !empty($_REQUEST["Accion"]) ){
                      FROM {$statement}";
             $row = $obCon->FetchArray($obCon->Query($query));
             $ResultadosTotales = $row['num'];
-            //$ResultadosTotales = 10;
-            /*
-            $Total=$row['Total'];
-            $TotalIPS=$row['TotalIPS'];
-            $TotalConciliaciones=$row['TotalConciliaciones'];
-            $NumeroConciliaciones=$row['NumeroConciliaciones'];
-            $Valormenosimpuesto = $row['Valormenosimpuesto'];
-           
-            $TotalPagos= $row['TotalPagos'];
-                    $TotalAnticipos= $row['TotalAnticipos'];
-                    $TotalGlosaFavor= $row['TotalGlosaFavor'];
-                    $GlosaXConciliar= $row['GlosaXConciliar'];
-                    $OtrosDescuentos= $row['OtrosDescuentos'];
-                    $TotalCopagos= $row['TotalCopagos'];
-                    $TotalDevoluciones= $row['TotalDevoluciones'];
-                    $DescuentoPGP= $row['DescuentoPGP'];
-                    $ConciliacionesAFavorEPS= $row['ConciliacionesAFavorEPS'];
-                    $ConciliacionesAFavorIPS= $row['ConciliacionesAFavorIPS'];
-             * 
-             */
+            
             $st_reporte=$statement;
             $Limit=" LIMIT $startpoint,$limit";
             
             $query="SELECT * ";
             $Consulta=$obCon->Query("$query FROM $statement $Limit");
             
-            $css->CrearDiv("DivTotalesCruce", "", "left", 1, 1);
-
-            $css->CerrarDiv();
+            
             $css->CrearTabla();            
             $st1= urlencode($st_reporte);
                 $css->FilaTabla(16);
                  print("<td colspan='1' style='text-align:center'>");
-                 
-                //$css->CierraFilaTabla();
+                
                 
                     $st= urlencode($st_reporte);
                     if($ResultadosTotales>$limit){
                         print("<strong>Paginador:</strong>");
-                        //$css->FilaTabla(14);
+                        
                             
                             $TotalPaginas= ceil($ResultadosTotales/$limit);
-                           // print("<td  style=text-align:center>");
-                            //print("<strong>Página: </strong>");
-                            
+                          
                             print('<br><div class="input-group" style=width:180px>');
                             if($NumPage>1){
                                 $NumPage1=$NumPage-1;
@@ -431,10 +493,10 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CrearBotonEvento("BtnCargarTotales", "Ver Totales", 1, "onclick", "DibujaTotalesCruce()", "azul", "");
                     print("</td>"); 
                     print("<td colspan='1' style='text-align:center'>");    
-                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','hoja_de_trabajo','')", "verde", "");
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarHojaDeTrabajo('$db','hoja_de_trabajo','')", "verde", "");
                     print("</td>"); 
                     print("<td colspan='1' style='text-align:center'>");
-                        $css->CrearBotonEvento("BtnExportarReporteIps", "Exportar-Reporte_Ips", 1, "onclick", "ExportarExcel('$db','vista_reporte_ips','')", "verde", "");
+                        $css->CrearBotonEvento("BtnExportarReporteIps", "Exportar-Reporte_Ips", 1, "onclick", "ExportarHojaDeTrabajo('$db','vista_reporte_ips','')", "verde", "");
                     print("</td>"); 
                                        
                     print("<td style='text-align:left;' colspan=12>");
@@ -3035,8 +3097,15 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("<strong>Proveedor:</strong>");
                     print("</td>");
                     print("<td>");
+                      $css->input("text", "TxtRazonSocialIPS", "form-control", "TxtRazonSocialIPS", "", $DatosActa["RazonSocialIPS"], "Representante IPS", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TxtRazonSocialIPS`,`RazonSocialIPS`)");
+                        
+                    print("</td>");
+                    /*
+                    print("<td>");
                         print(utf8_decode($DatosActa["RazonSocialIPS"]));
                     print("</td>");
+                     * 
+                     */
                 print("</tr>");
                 print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
                     print("<td>");
@@ -3062,7 +3131,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("<strong>Departamento:</strong>");
                     print("</td>");
                     print("<td>");
-                        print(utf8_decode($DatosActa["Departamento"]));
+                        $css->input("text", "TxtDepartamentoRadicacion", "form-control", "TxtDepartamentoRadicacion", "", $DatosActa["Departamento"], "Departamento", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TxtDepartamentoRadicacion`,`Departamento`)");
+                       
+                        //print(utf8_decode($DatosActa["Departamento"]));
                     print("</td>");
                 print("</tr>");
                 
@@ -3619,7 +3690,7 @@ if( !empty($_REQUEST["Accion"]) ){
         break;//Fin caso 32    
         
         case 33: //Dibuja los totales del cruce
-            
+            $TipoNegociacion=$obCon->normalizar($_REQUEST["CmbTipoNegociacion"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
@@ -3638,11 +3709,11 @@ if( !empty($_REQUEST["Accion"]) ){
                 SUM(ConciliacionesAFavorEPS) AS ConciliacionesAFavorEPS,
                 SUM(ConciliacionesAFavorIPS) AS ConciliacionesAFavorIPS,
                 (SELECT COUNT(*) FROM $db.vista_cruce_cartera_asmet WHERE Estado=1) as NumeroConciliaciones
-                FROM $db.hoja_de_trabajo                
+                FROM $db.hoja_de_trabajo WHERE TipoNegociacion='$TipoNegociacion';             
                     ";
             $row=$obCon->FetchAssoc($obCon->Query($sql));
             $TotalEPS=$row['TotalEPS'];
-            $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips";
+            $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips WHERE TipoNegociacion='$TipoNegociacion'";
             $DatosIPS= $obCon->FetchAssoc($obCon->Query($sql));
             $TotalIPS=round($DatosIPS['Total']);
             $TotalConciliaciones=$row['TotalConciliaciones'];
@@ -3781,6 +3852,59 @@ if( !empty($_REQUEST["Accion"]) ){
 
             $css->CerrarTabla();
         break;// fin caso 33
+    
+        case 34://DIbuja los contratos disponibles en el cruce
+            
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            //$css->div("DivContratosDisponiblesActaLiquidacion", "col-md-6", "", "", "", "", "");
+            $css->CrearTitulo("<strong>Contratos Disponibles:</strong>","verde");                
+            $css->CrearTabla();    
+
+                $sql="SELECT DISTINCT NumeroContrato FROM $db.vista_cruce_cartera_eps ";
+               //print($sql);
+                $Consulta=$obCon->Query($sql);
+                $i=0;
+                while($Contratos=$obCon->FetchAssoc($Consulta)){
+                    $i++;
+                    print("<tr>");
+                        $idContrato= str_replace(" ", "", $Contratos["NumeroContrato"]);
+                        $sql="SELECT * FROM `contratos` WHERE REPLACE(`ContratoEquivalente`,' ','')= '$idContrato' LIMIT 1";
+                        //$sql="SELECT * FROM `contratos` WHERE `ContratoEquivalente` like trim('".$Contratos["NumeroContrato"]."') LIMIT 1";
+                        //print($sql);
+                        $DatosContratos=$obCon->FetchAssoc($obCon->Query($sql));
+                        //print_r($DatosContratos);
+                        print("<td>");
+                        print("<strong>".$Contratos["NumeroContrato"]."</strong> ");
+                        print("</td>");
+                        
+                        if($DatosContratos["ID"]==""){   
+                            print("<td>");
+                            $css->CrearBotonEvento("btnCrearContrato", "Crear Contrato", 1, "onclick", "AbreFormularioCrearContrato(`".$Contratos["NumeroContrato"]."`)", "azul", "style='width:150px;'");
+                            print("</td>");
+                            print("<td>");
+                            $css->select("CmbContratoExistente_$i", "selector", "CmbContratoExistente", "", "", "", "style=width:600px;");
+                                $css->option("", "", "", "", "", "");
+                                    print("Buscar contrato para asociar");
+                                $css->Coption();
+                            $css->Cselect();
+                            print("</td>");
+                            print("<td>");
+                            $css->CrearBotonEvento("btnAsociarContrato", "Asociar Contrato", 1, "onclick", "AsociarContratoEquivalente(`".$Contratos["NumeroContrato"]."`,`CmbContratoExistente_$i`)", "verde", "style='width:150px;'");
+                            print("</td>");
+                        }else{
+                            print("<td colspan =3>");
+                                print("<strong>Clasificación: </strong>".$DatosContratos["ClasificacionContrato"]."; <strong>Tipo: </strong>".$DatosContratos["TipoContrato"]."; <strong>Valor: </strong> ".number_format($DatosContratos["ValorContrato"])."; <strong>Inicio: </strong> ".$DatosContratos["FechaInicioContrato"]."; <strong>Fin: </strong> ".$DatosContratos["FechaFinalContrato"]);
+                            print("</td>");
+                        }
+                        
+                    print("</tr>");
+                }
+                $css->CerrarTabla();
+            //print("</div>");
+        break;//Fin caso 34    
     
         
     }

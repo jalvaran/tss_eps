@@ -1107,14 +1107,32 @@ if( !empty($_REQUEST["Accion"]) ){
             $sql="UPDATE carteraeps SET NumeroContrato=trim(NumeroContrato)";
             $obCon->Query2($sql, HOST, USER, PW, $db, "");
             $sql="UPDATE carteraeps SET NumeroContrato= REPLACE(NumeroContrato,'\n','')";
-            $obCon->Query2($sql, HOST, USER, PW, $db, "");            
+            $obCon->Query2($sql, HOST, USER, PW, $db, ""); 
+            $sql="UPDATE carteracargadaips SET TipoNegociacion='EVENTO' WHERE TipoNegociacion=''";
+            $obCon->Query2($sql, HOST, USER, PW, $db, "");
             $sql="DROP TABLE IF EXISTS $HojaDeTrabajo";
             $obCon->Query($sql);
             
             $sql="CREATE TABLE hoja_de_trabajo AS
                 SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelacionada,
-
-                    (SELECT FechaFactura FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1) as FechaFactura,
+                    t2.CodigoSucursal,
+        (SELECT Contrato FROM ts_eps.contratos c WHERE c.ContratoEquivalente=t2.NumeroContrato LIMIT 1) AS Contrato,
+        (SELECT TipoNegociacion FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1) as TipoNegociacion,
+        (SELECT IF(TipoNegociacion='CAPITA',
+                                 (SELECT SUM(NumeroAfiliadosPleno) FROM ts_eps.lma_asmet la WHERE la.CodigoDane= (t2.CodigoSucursal) AND la.MesServicio=t2.MesServicio),
+                                  0)) AS NumeroAfiliadosLMA,
+        (SELECT IF(TipoNegociacion='CAPITA',
+                                 (SELECT SUM(DiasLiquidadosSubsidioPleno) FROM ts_eps.lma_asmet la WHERE la.CodigoDane= (t2.CodigoSucursal) AND la.MesServicio=t2.MesServicio),
+                                  0)) AS NumeroDiasLMA,
+        (SELECT IF(TipoNegociacion='CAPITA',
+                                 (SELECT (ValorPercapitaXDia) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT Contrato) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) ),
+                                  0)) AS ValorPercapita, 
+        (SELECT IF(TipoNegociacion='CAPITA',
+                                 (SELECT (PorcentajePoblacional) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT Contrato) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) ),
+                                  0)) AS PorcentajePoblacional,                           
+        (SELECT ROUND((SELECT NumeroDiasLMA) * (SELECT ValorPercapita) * ((SELECT PorcentajePoblacional)/100),2 )) AS ValorAPagarLMA,
+        
+        (SELECT FechaFactura FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1) as FechaFactura,
         t2.MesServicio,
 		t2.NumeroRadicado,
         (SELECT IFNULL((SELECT 'SI' FROM pendientes_de_envio WHERE pendientes_de_envio.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS Pendientes,
@@ -1128,7 +1146,10 @@ if( !empty($_REQUEST["Accion"]) ){
 		(SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND (notas_db_cr_2.TipoOperacion2='3090' OR notas_db_cr_2.TipoOperacion2='3070' OR notas_db_cr_2.TipoOperacion2='3071' OR notas_db_cr_2.TipoOperacion2='3072' OR notas_db_cr_2.TipoOperacion2='3086' OR notas_db_cr_2.TipoOperacion2='3089' OR notas_db_cr_2.TipoOperacion2='3090' OR notas_db_cr_2.TipoOperacion2='3091' OR notas_db_cr_2.TipoOperacion2='2260') AND (notas_db_cr_2.TipoOperacion!='2103') ),0)) AS TotalPagosNotas,
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2299' ),0)) AS Capitalizacion,
         ((SELECT ABS(TotalPagosNotas))+(SELECT ABS(Capitalizacion) ) ) AS TotalPagos,
-		(SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND (NumeroInterno='2216' or NumeroInterno='2117' or NumeroInterno='2254') ),0)) AS TotalAnticipos,
+        
+        (SELECT IF( (SELECT TipoNegociacion)='CAPITA', ((SELECT ValorAPagarLMA)-(t2.ValorOriginal)),0)) AS DescuentoReconocimientoBDUA,
+        
+		(SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND (NumeroInterno='2216' or NumeroInterno='2117' OR NumeroInterno='2254') ),0)) AS TotalAnticipos,
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2275' ),0)) AS DescuentoPGP,
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND NumeroInterno='2259' ),0)) AS FacturasDevueltasAnticipos,
 
@@ -1157,7 +1178,7 @@ if( !empty($_REQUEST["Accion"]) ){
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=1),0)) AS ConciliacionesAFavorEPS,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=2),0)) AS ConciliacionesAFavorIPS,
 
-	    (t2.ValorMenosImpuestos - (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT GlosaXConciliar)-(SELECT OtrosDescuentos)-(SELECT ABS(TotalCopagos))-(SELECT ABS(TotalDevoluciones)/*+(FacturasDevueltas)*/)-(SELECT ABS(DescuentoPGP))-(SELECT ABS(ConciliacionesAFavorEPS))+(SELECT ABS(ConciliacionesAFavorIPS)) ) AS ValorSegunEPS,
+	    (t2.ValorMenosImpuestos - (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT GlosaXConciliar)-(SELECT OtrosDescuentos)-(SELECT ABS(TotalCopagos))-(SELECT ABS(TotalDevoluciones)/*+(FacturasDevueltas)*/)-(SELECT ABS(DescuentoPGP))-(SELECT ABS(ConciliacionesAFavorEPS))+(SELECT ABS(ConciliacionesAFavorIPS)) + (SELECT DescuentoReconocimientoBDUA) ) AS ValorSegunEPS,
         (SELECT IFNULL((SELECT ROUND(ValorTotalpagar) FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1),0)) AS ValorSegunIPS,
         ((SELECT ValorSegunEPS)-(SELECT ValorSegunIPS)) AS Diferencia,
         (SELECT IF((SELECT Diferencia>0),'SI','NO')) AS ValorIPSMenor,
@@ -1174,6 +1195,7 @@ if( !empty($_REQUEST["Accion"]) ){
         '0' AS DiferenciaXAjustesDeCartera,
         '0' AS DiferenciaXValorFacturado,
         '0' AS DiferenciaXGlosasPendientesXDescargarIPS,
+        '0' AS DiferenciaXDescuentoReconocimientoLMA,
         '0' AS DiferenciaVariada
 
                 FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.NumeroFactura WHERE t2.Estado<2;
@@ -1186,6 +1208,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     ADD INDEX(`MesServicio`),
                     ADD INDEX(`NumeroRadicado`),
                     ADD INDEX(`NumeroContrato`),
+                    ADD INDEX(`CodigoSucursal`),
                     CHANGE `DiferenciaXPagosNoDescargados` `DiferenciaXPagosNoDescargados` DOUBLE NOT NULL,
                     CHANGE `DiferenciaXGlosasPendientesXConciliar` `DiferenciaXGlosasPendientesXConciliar` DOUBLE NOT NULL,                    
                     CHANGE `DiferenciaXFacturasDevueltas` `DiferenciaXFacturasDevueltas` DOUBLE NOT NULL,
@@ -1193,7 +1216,8 @@ if( !empty($_REQUEST["Accion"]) ){
                     CHANGE `DiferenciaXFacturasNoRelacionadasXIPS` `DiferenciaXFacturasNoRelacionadasXIPS` DOUBLE NOT NULL,                    
                     CHANGE `DiferenciaXAjustesDeCartera` `DiferenciaXAjustesDeCartera` DOUBLE NOT NULL,
                     CHANGE `DiferenciaXValorFacturado` `DiferenciaXValorFacturado` DOUBLE NOT NULL,
-                    CHANGE `DiferenciaXGlosasPendientesXDescargarIPS` `DiferenciaXGlosasPendientesXDescargarIPS` DOUBLE NOT NULL,                    
+                    CHANGE `DiferenciaXGlosasPendientesXDescargarIPS` `DiferenciaXGlosasPendientesXDescargarIPS` DOUBLE NOT NULL,   
+                    CHANGE `DiferenciaXDescuentoReconocimientoLMA` `DiferenciaXDescuentoReconocimientoLMA` DOUBLE NOT NULL,                    
                     CHANGE `DiferenciaVariada` `DiferenciaVariada` DOUBLE NOT NULL,
                     ENGINE = MyISAM                                    
 
@@ -1248,6 +1272,7 @@ if( !empty($_REQUEST["Accion"]) ){
         case 35://Encontrar diferencias variadas
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $TipoNegociacion=$obCon->normalizar($_REQUEST["CmbTipoNegociacion"]);
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
                      
@@ -1281,7 +1306,23 @@ if( !empty($_REQUEST["Accion"]) ){
               OR DiferenciaXGlosasPendientesXDescargarIPS<>0 
               ;";
             $obCon->Query($sql);
-            $obCon->EncontrarDiferenciasVariadas($db);            
+            $obCon->EncontrarDiferenciasVariadas($db);   
+            if($TipoNegociacion=="CAPITA"){
+                $sql="UPDATE $db.hoja_de_trabajo SET DiferenciaXDescuentoReconocimientoLMA=ABS(Diferencia),
+                    DiferenciaXPagosNoDescargados=0,
+                    DiferenciaXGlosasPendientesXConciliar=0,
+                    DiferenciaXFacturasDevueltas=0,
+                    DiferenciaXDiferenciaXImpuestos=0,
+                    DiferenciaXFacturasNoRelacionadasXIPS=0,
+                    DiferenciaXAjustesDeCartera=0,
+                    DiferenciaXValorFacturado=0,
+                    DiferenciaXGlosasPendientesXDescargarIPS=0
+                    
+                    WHERE ABS(DescuentoReconocimientoBDUA)=ABS(Diferencia);
+                         ";
+            }
+            
+            
             print("OK;Diferencias Encontradas;");
         break;//Fin caso 35
         

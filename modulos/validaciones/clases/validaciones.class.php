@@ -932,7 +932,7 @@ class ValidacionesEPS extends conexion{
                             $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                             $this->Query($sql);
                             
-                        
+                        break;
                         
                     }
                 }
@@ -949,7 +949,7 @@ class ValidacionesEPS extends conexion{
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
+                       break;
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion2: ".$DatosHoja[$keyComparacion2]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
@@ -969,7 +969,7 @@ class ValidacionesEPS extends conexion{
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
+                       break;
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion3: ".$DatosHoja[$keyComparacion3]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
@@ -987,7 +987,7 @@ class ValidacionesEPS extends conexion{
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
+                       break;
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion4: ".$DatosHoja[$keyComparacion4]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
@@ -1005,7 +1005,7 @@ class ValidacionesEPS extends conexion{
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                        
+                        break;
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion5: ".$DatosHoja[$keyComparacion5]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
@@ -1023,7 +1023,7 @@ class ValidacionesEPS extends conexion{
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
+                       break;
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion6: ".$DatosHoja[$keyComparacion6]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
@@ -1041,7 +1041,7 @@ class ValidacionesEPS extends conexion{
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
+                       break;
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion7: ".$DatosHoja[$keyComparacion7]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
@@ -1059,7 +1059,7 @@ class ValidacionesEPS extends conexion{
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                       
+                       break;
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion8: ".$DatosHoja[$keyComparacion8]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
@@ -1077,7 +1077,7 @@ class ValidacionesEPS extends conexion{
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                        
+                        break;
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion9: ".$DatosHoja[$keyComparacion9]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }
@@ -1095,7 +1095,7 @@ class ValidacionesEPS extends conexion{
                         $sql.=",DiferenciaVariada=0 ";
                         $sql.=" WHERE NumeroFactura= '".$DatosHoja["NumeroFactura"]."'";
                         $this->Query($sql);
-                        
+                        break;
                         //print("$d . Diferencia $Diferencia encontrada en llaves $keyComparacion10: ".$DatosHoja[$keyComparacion10]." y $key: ".$DatosHoja[$key]." en Factura: ".$DatosHoja["NumeroFactura"]."<br>");
                     }
                 }

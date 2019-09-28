@@ -92,7 +92,9 @@ $css->PageInit($myTitulo);
     $css->CrearDiv("", "col-md-12", "center", 1, 1);   
         
         $css->TabInit();
+                       
             $css->TabLabel("TabCuentas1", "<strong >Facturas sin Relación IPS</strong>", "Tab_1", 1,"onclick=MuestreFacturasNRIPS()");
+            //$css->TabLabel("TabCuentas9", "<strong >Contratos</strong>", "Tab_9",0,"onclick=VerContratos()");  
             $css->TabLabel("TabCuentas2", "<strong >Facturas sin Relación EPS</strong>", "Tab_2",0,"onclick=FacturasSinRelacionarPorIPS()");
             $css->TabLabel("TabCuentas3", "<strong >Facturas Pagadas Sin Relación</strong>", "Tab_3",0,"onclick=MuestrePagadasSR()"); 
             $css->TabLabel("TabCuentas6", "<strong >Facturas a Favor de EPS</strong>", "Tab_6",0,"onclick=FacturasAFavor()");  
@@ -145,9 +147,31 @@ $css->PageInit($myTitulo);
              * Contenido de Cruce de cartera Factura por factura
              * 
              */
-             
+             $css->CrearTabla();
+                $css->FilaTabla(16);
+                    print("<td style= width:20%>");
+                    print("</td>");
+                    print("<td>");
+                        $css->CrearTitulo("<strong>CRUCE DE CARTERA PARA EL TIPO DE NEGOCIACIÓN:</strong> ");
+                    print("</td>");
+                    print("<td>");
+                        $css->select("CmbTipoNegociacion", "form-control", "CmbTipoNegociacion", "", "", "onchange=MuestreCruce()", "");
+                            $css->option("", "", "", "EVENTO", "", "");
+                                print("EVENTO");
+                            $css->Coption();
+                            $css->option("", "", "", "CAPITA", "", "");
+                                print("CAPITA");
+                            $css->Coption();        
+                        $css->Cselect();
+                    print("</td>");
+                    print("<td style= width:20%>");
+                    print("</td>");
+                $css->CierraFilaTabla();
+             $css->CerrarTabla();
+            
             $css->CrearDiv("DivCruce", "", "center", 1, 1);
-
+            
+                
             $css->CerrarDiv();
             
         $css->TabPaneEnd();
@@ -195,7 +219,17 @@ $css->PageInit($myTitulo);
             $css->CerrarDiv();
             
         $css->TabPaneEnd();
+        /*
+        $css->TabPaneInit("Tab_9", 1);
+           
+            $css->CrearDiv("DivTab9", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            
+        $css->TabPaneEnd();
         
+         * 
+         */
         
         
         
@@ -203,6 +237,7 @@ $css->PageInit($myTitulo);
     print("<br><br><br><br><br><br><br><br><br><br>");
 $css->PageFin();
 print('<script src="jsPages/validaciones.js"></script>');  //script propio de la pagina
+print('<script src="../../general/js/CreacionContratos.js"></script>');  //script para la creacion de contratos
 $css->AddJSExcel();
 
 $css->Cbody();

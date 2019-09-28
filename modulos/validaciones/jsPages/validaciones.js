@@ -194,6 +194,7 @@ function CambiePaginaFacturasEPS(Page=""){
 function MuestreCruce(Page=1){
     document.getElementById("DivCruce").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
     
+    var CmbTipoNegociacion=document.getElementById('CmbTipoNegociacion').value;
     var Busqueda=document.getElementById('TxtBusquedas').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
@@ -204,6 +205,7 @@ function MuestreCruce(Page=1){
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('Page', Page);
         form_data.append('Busqueda', Busqueda);
+        form_data.append('CmbTipoNegociacion', CmbTipoNegociacion);
         $.ajax({
         url: './Consultas/validaciones.draw.php',
         //dataType: 'json',
@@ -216,6 +218,23 @@ function MuestreCruce(Page=1){
             
            document.getElementById('DivCruce').innerHTML=data;
            $('#CmbPageCruce').select2();
+           $('.selector').select2({
+		
+                placeholder: 'Asociar a un contrato existente',
+                ajax: {
+                  url: 'buscadores/contratos.search.php?nit='+CmbIPS,
+                  dataType: 'json',
+                  delay: 250,
+                                    
+                  processResults: function (data) {
+                      
+                    return {                     
+                      results: data
+                    };
+                  },
+                 cache: true
+                }
+              });
            
            //DibujaTotalesCruce();
            //startWorkerTotalesCruce(CmbIPS);
@@ -863,6 +882,51 @@ function ExportarExcel(db,Tabla,st){
         form_data.append('Tabla', Tabla);
         form_data.append('db', db);
         form_data.append('st', st);
+              
+    $.ajax({
+        
+        url: '../../general/procesadores/GeneradorCSV.process.php',
+        
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            document.getElementById(idBoton).disabled=false; 
+               console.log(data)
+                
+            document.getElementById("DivMensajes").innerHTML=data;
+                
+           
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function ExportarHojaDeTrabajo(db,Tabla,st){
+    
+    document.getElementById("DivMensajes").innerHTML='<div id="GifProcess">Exportando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    var idBoton="BtnExportarExcelCruce";
+    document.getElementById(idBoton).disabled=true; 
+    var TxtCondicional=document.getElementById('TxtCondicional').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    
+    var form_data = new FormData();
+        form_data.append('Opcion', 7);
+        
+        form_data.append('Tabla', Tabla);
+        form_data.append('db', db);
+        form_data.append('TxtCondicional', TxtCondicional);
               
     $.ajax({
         
@@ -2762,13 +2826,15 @@ function InicializarValoresGeneralesActaConciliacion(){
 function DibujaTotalesCruce(){
     document.getElementById("DivTotalesCruce").innerHTML='<div id="GifProcess">Calculando Totales...<br><img   src="../../images/loading.gif" alt="Cargando" height="50" width="50"></div>';
     
+    var CmbTipoNegociacion=document.getElementById('CmbTipoNegociacion').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
     
     var form_data = new FormData();
         form_data.append('Accion', 33);
         form_data.append('CmbIPS', CmbIPS);   
-        form_data.append('CmbEPS', CmbEPS);        
+        form_data.append('CmbEPS', CmbEPS);   
+        form_data.append('CmbTipoNegociacion', CmbTipoNegociacion);     
         
         $.ajax({
         url: './Consultas/validaciones.draw.php',
@@ -3539,7 +3605,7 @@ function CalcularDiferenciasVaridas(){
     var idBoton="BtnCalcularDiferencias";
     
     document.getElementById(idBoton).disabled=true;
-    
+    var CmbTipoNegociacion=document.getElementById('CmbTipoNegociacion').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
     
@@ -3548,6 +3614,7 @@ function CalcularDiferenciasVaridas(){
         
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
+        form_data.append('CmbTipoNegociacion', CmbTipoNegociacion);
                     
     $.ajax({
         //async:false,
@@ -3589,6 +3656,56 @@ function CalcularDiferenciasVaridas(){
           }
       })
 }
+
+function VerContratos(){
+    document.getElementById("DivTab9").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 34);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivTab9').innerHTML=data;
+            $('.selector').select2({
+		
+                placeholder: 'Selecciona un Contrato',
+                ajax: {
+                  url: 'buscadores/contratos.search.php?nit='+CmbIPS,
+                  dataType: 'json',
+                  delay: 250,
+                                    
+                  processResults: function (data) {
+                      
+                    return {                     
+                      results: data
+                    };
+                  },
+                 cache: true
+                }
+              });
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
 
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();
