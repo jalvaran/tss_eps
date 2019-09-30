@@ -174,7 +174,8 @@ if( !empty($_REQUEST["Accion"]) ){
         case 3:// dibuje el acta de liquidacion
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
-            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
             if($idActaLiquidacion==""){
                 $css->CrearTitulo("Seleccione un acta de liquidación");
                 exit();
@@ -190,44 +191,85 @@ if( !empty($_REQUEST["Accion"]) ){
             
             
                 
-                $css->div("DivContratosDisponiblesActaLiquidacion", "col-md-6", "", "", "", "", "");
-                    $css->CrearTitulo("<strong>Contratos Disponibles:</strong>","verde");                
-                    $css->CrearTabla();    
-                        
-                        $sql="SELECT DISTINCT t1.NumeroContrato FROM actas_conciliaciones_contratos t1 "
+                $css->div("DivContratosDisponiblesActaLiquidacion", "", "", "", "", "", "");
+                    
+                $css->CrearTabla();
+                    $css->FilaTabla(16);
+                        $css->ColTabla("<strong>CONTRATOS DISPONIBLES PARA LIQUIDAR:</strong>", 3,"C");
+                    $css->CierraFilaTabla();
+                    $css->FilaTabla(16);
+                        $css->ColTabla("<strong>CONTRATOS</strong>", 1,"C");
+                        $css->ColTabla("<strong>DATOS GENERALES</strong>", 1,"C");
+                        $css->ColTabla("<strong>VALORES PERCAPITA POR MUNICIPIO</strong>", 1,"C");
+                    $css->CierraFilaTabla();
+               
+               
+                $sql="SELECT DISTINCT t1.NumeroContrato FROM actas_conciliaciones_contratos t1 "
                                 . "INNER JOIN actas_conciliaciones t2 ON t1.idActaConciliacion=t2.ID "
-                                . "WHERE t2.Estado=1 AND t2.MesServicioInicial>='$MesServicioInicial' AND t2.MesServicioFinal<='$MesServicioFinal' ;";
-                       //print($sql);
-                        $Consulta=$obCon->Query($sql);
-
-                        while($Contratos=$obCon->FetchAssoc($Consulta)){
-                            print("<tr>");
-                                $idContrato=$Contratos["NumeroContrato"];
-                                $sql="SELECT ID FROM contratos WHERE ContratoEquivalente='$idContrato'";
-                                $DatosContratos=$obCon->FetchAssoc($obCon->Query($sql));
-                                print("<td>");
-                                print("<strong>".$Contratos["NumeroContrato"]."</strong> ");
-                                print("</td>");
-                                print("<td>");
-                                if($DatosContratos["ID"]==""){                                    
-                                    $css->CrearBotonEvento("btnCrearContrato", "Crear Contrato", 1, "onclick", "AbreFormularioCrearContrato(`$idActaLiquidacion`,`$idContrato`)", "azul", "style='width:150px;'");
-                                }else{
-                                    $css->CrearBotonEvento("btnAgregarContrato", "Agregar Contrato", 1, "onclick", "AgregarContratoLiquidacion(`$idActaLiquidacion`,`$idContrato`)", "verde", "");
-                                }
-                                print("</td>");
-                            print("</tr>");
-                        }
-                        $css->CerrarTabla();
-                    print("</div>");
-
-
-                $css->div("DivContratosAgregadosActaLiquidacion", "col-md-6", "", "", "", "", "");
-                    $css->CrearTitulo("<strong>Contratos Agregados al Acta</strong>","verde");                
-                        $css->CrearTabla();  
+                                . "WHERE t2.Estado=1 AND t2.MesServicioInicial>='$MesServicioInicial' AND t2.MesServicioFinal<='$MesServicioFinal' AND t2.NIT_IPS='$CmbIPS';";
+                       
+                
+                $Consulta=$obCon->Query($sql);
+                $i=0;
+                while ($DatosContratos=$obCon->FetchAssoc($Consulta)){
+                    $i++;
+                    $idContrato=$DatosContratos["NumeroContrato"];
+                    $sql="SELECT * FROM contratos WHERE NitIPSContratada='$CmbIPS' AND (ContratoEquivalente='$idContrato')";
+                    
+                    $DatosContratoExistente=$obCon->FetchArray($obCon->Query($sql));
+                    
+                    $css->FilaTabla(16);
+                        print("<td>");
+                            print("<span id='idContratoCapita'>");
+                                print($DatosContratos["NumeroContrato"]);
+                            print("</span>");
+                        print("</td>");
+                        print("<td>");
+                            if($DatosContratoExistente["NumeroContrato"]==''){
+                                $css->select("CmbContratoExistente_$i", "selector", "CmbContratoExistente", "", "", "", "style=width:100%;");
+                                    $css->option("", "", "", "", "", "");
+                                        print("Buscar contrato para asociar");
+                                    $css->Coption();
+                                $css->Cselect();
+                                $css->CrearBotonEvento("btnAsociarContrato", "Asociar Contrato", 1, "onclick", "AsociarContratoEquivalente(`".$DatosContratos["NumeroContrato"]."`,`CmbContratoExistente_$i`)", "verde", "style='width:150px;'");
+                                $css->CrearBotonEvento("btnCrearContrato", "Crear Contrato", 1, "onclick", "AbreFormularioCrearContrato(`".$DatosContratos["NumeroContrato"]."`)", "azul", "style='width:150px;'");
+                            }else{
+                                $css->input("date", "FechaInicioContratoCapita", "form-control", "FechaInicioContratoCapita", "", $DatosContratoExistente["FechaInicioContrato"], "Fecha Inicio Contrato", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
+                                $css->input("date", "FechaFinalContratoCapita", "form-control", "FechaFinalContratoCapita", "", $DatosContratoExistente["FechaFinalContrato"], "Fecha Final Contrato", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
+                                $css->input("text", "TxtValorCapita", "form-control", "TxtValorCapita", "", $DatosContratoExistente["ValorContrato"], "Valor Contrato", "off", "", "script");
+                                $css->CrearBotonEvento("btnAgregarContrato", "Agregar Contrato", 1, "onclick", "AgregarContratoActaLiquidacion(`".$DatosContratoExistente["ContratoEquivalente"]."`,`$idActaLiquidacion`)", "verde", "style='width:150px;'");
+                            }    
+                            
+                        print("</td>");
                         
-                        $css->CerrarTabla();    
-                $css->Cdiv();
-                $css->section("", "", "", "");
+                        print("<td>");
+                            $Contrato=$DatosContratoExistente["Contrato"];
+                            $sql="SELECT *,(SELECT Ciudad FROM municipios_dane WHERE contrato_percapita.CodigoDane=municipios_dane.CodigoDane LIMIT 1) AS NombreMunicipio FROM contrato_percapita WHERE NIT_IPS='$CmbIPS' AND Contrato='$Contrato'";
+                            $ConsultaPercapita=$obCon->Query($sql);
+                            while($DatosPercapita=$obCon->FetchAssoc($ConsultaPercapita)){
+                                $css->div("", "col-md-3", "", "", "", "", "");
+                                    print($DatosPercapita["NombreMunicipio"]);
+                                $css->Cdiv();
+                                $css->div("", "col-md-2", "", "", "", "", "");
+                                    print($DatosPercapita["PorcentajePoblacional"]);
+                                $css->Cdiv();
+                                $css->div("", "col-md-2", "", "", "", "", "");
+                                    print($DatosPercapita["ValorPercapitaXDia"]);
+                                $css->Cdiv();
+                                $css->div("", "col-md-2", "", "", "", "", "");
+                                    print($DatosPercapita["FechaInicioPercapita"]);
+                                $css->Cdiv();
+                                $css->div("", "col-md-2", "", "", "", "", "");
+                                    print($DatosPercapita["FechaFinPercapita"]);
+                                $css->Cdiv();
+                            }
+                        print("</td>");
+                        
+                    $css->CierraFilaTabla();
+                }
+                
+                $css->CerrarTabla();
+                
             $css->div("DivDatosGeneralesActaLiquidacion", "col-md-12", "", "", "", "", "");
                 $css->CrearTabla();
 
@@ -307,161 +349,172 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->input("text", "TelefonoRepresentanteIPS", "form-control", "TelefonoRepresentanteIPS", "Teléfono Representante IPS", $DatosActa["IPS_Telefono"], "Teléfono Representante IPS", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TelefonoRepresentanteIPS`,`IPS_Telefono`)");
                         print("</td>");
                     $css->CierraFilaTabla();
-
+                    
+                    $css->FilaTabla(14);
+                        
+                        $css->ColTabla("<strong>CONTRATOS AGREGADOS AL ACTA DE LIQUIDACIÓN No. $idActaLiquidacion:</strong>", 4);
+                    
+                    $css->CierraFilaTabla();
+                    
+                    $sql="SELECT t1.ID,t2.Contrato,t2.FechaInicioContrato,t2.FechaFinalContrato,t2.ValorContrato
+                             FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente 
+                             WHERE t1.idActaLiquidacion='$idActaLiquidacion' AND NitIPSContratada='$CmbIPS'";
+                    $Consulta=$obCon->Query($sql);
+                    
+                    while($DatosContratos=$obCon->FetchAssoc($Consulta)){
+                        $idItem=$DatosContratos["ID"];
+                        $css->FilaTabla(14);                        
+                            $css->ColTabla("<strong>CONTRATO DE PRESTACIÓN DE SERVICIOS No:</strong>", 2);                            
+                            $css->ColTabla("<strong>".$DatosContratos["Contrato"]."</strong>", 1);
+                            print("<td style=text-align:right>");
+                                $css->CrearBotonEvento("btnEliminarContratoActaLiquidacion", "X", 1, "onclick", "EliminarContratoActa($idItem)", "rojo","style=width:50px;");
+                            print("</td>");
+                        $css->CierraFilaTabla();
+                        $css->FilaTabla(14);       
+                            $css->ColTabla("<strong>Fecha Inicial:</strong>", 3,"R");
+                            $css->ColTabla($DatosContratos["FechaInicioContrato"], 1);
+                        $css->CierraFilaTabla();
+                        $css->FilaTabla(14);       
+                            $css->ColTabla("<strong>Fecha Final:</strong>", 3,"R");
+                            $css->ColTabla($DatosContratos["FechaFinalContrato"], 1);
+                        $css->CierraFilaTabla();
+                        $css->FilaTabla(14);       
+                            $css->ColTabla("<strong>Valor del Contrato:</strong>", 3,"R");
+                            $css->ColTabla(number_format($DatosContratos["ValorContrato"]), 1);
+                        $css->CierraFilaTabla();
+                    }
+                    
+                    
                 $css->CerrarTabla();
+                $css->CrearTabla();
+                    $sql="SELECT SUM(t1.ValorDocumento) as TotalFacturado, 
+                        SUM(t1.Impuestos) as Impuestos, SUM(t1.TotalDevoluciones) AS Devoluciones,
+                        SUM(t1.TotalGlosaInicial) as Glosa, SUM(t1.TotalGlosaFavor) AS GlosaFavor,
+                        SUM(t1.TotalCopagos) as Copagos, SUM(t1.OtrosDescuentos) AS OtrosDescuentos,
+                        SUM(t1.TotalPagos) as TotalPagos,SUM(t1.TotalAnticipos) as TotalAnticipos,
+                        SUM(t1.AjustesCartera) as AjustesCartera,SUM(t1.ValorSegunEPS) AS Saldo 
+                        FROM $db.actas_conciliaciones_items t1 
+                        WHERE EXISTS 
+                        (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato);  ";
+                    $TotalesActa=$obCon->FetchAssoc($obCon->Query($sql));
+                    $css->FilaTabla(16);
+                        $css->ColTabla("<strong>TOTALES ACTA DE LIQUIDACIÓN:</strong>", 5,'C');
+                    $css->CierraFilaTabla();
+                    $css->FilaTabla(16);
+                        $css->ColTabla("<strong>VALOR FACTURADO</strong>", 1);
+                        $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);
+                        $css->ColTabla("<strong>DEVOLUCION</strong>", 1);
+                        $css->ColTabla("<strong>GLOSA</strong>", 1);
+                        $css->ColTabla("<strong>GLOSA A FAVOR DE ASMET</strong>", 1);
+                    $css->CierraFilaTabla();
+                    
+                    $css->FilaTabla(16);
+                        $css->ColTabla(number_format($TotalesActa["TotalFacturado"]), 1);
+                        $css->ColTabla(number_format($TotalesActa["Impuestos"]), 1);
+                        $css->ColTabla(number_format($TotalesActa["Devoluciones"]), 1);
+                        $css->ColTabla(number_format($TotalesActa["Glosa"]), 1);
+                        $css->ColTabla(number_format($TotalesActa["GlosaFavor"]), 1);
+                    $css->CierraFilaTabla();
+                    
+                    $css->FilaTabla(16);
+                        $css->ColTabla("<strong>NOTA CREDITO / COPAGOS</strong>", 1);
+                        $css->ColTabla("<strong>RECUPERACION EN IMPUESTOS</strong>", 1);
+                        $css->ColTabla("<strong>OTROS DESCUENTOS</strong>", 1);
+                        $css->ColTabla("<strong>VALOR PAGADO</strong>", 1);
+                        $css->ColTabla("<strong>SALDO</strong>", 1);
+                    $css->CierraFilaTabla();
+                    
+                    $css->FilaTabla(16);
+                        $css->ColTabla(number_format($TotalesActa["Copagos"]+$TotalesActa["TotalAnticipos"]), 1);
+                        $css->ColTabla(number_format(0), 1);
+                        $css->ColTabla(number_format($TotalesActa["OtrosDescuentos"]+$TotalesActa["AjustesCartera"]), 1);
+                        $css->ColTabla(number_format($TotalesActa["TotalPagos"]), 1);
+                        $css->ColTabla(number_format($TotalesActa["Saldo"]), 1);
+                    $css->CierraFilaTabla();
+                    
+                    print("<tr>");
+                    print("<td colspan=5 style=font-size:16px;text-align:center>");
+                        print("<strong>AGREGAR FIRMAS:</strong>");
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr>");
+                    print("<td>");
+                    print("</td>");
+                    print("<td colspan=3>");
+                        print("<strong>DEL BANCO DE FIRMAS AGS:</strong>");
+                    print("</td>");
+                     print("<td>");
+                    print("</td>");
+                print("</tr>");
+                
+                print("<tr>");
+                     print("<td>");
+                    print("</td>");
+                    print("<td colspan=3>");
+                        $css->select("CmbFirmaUsual", "form-control", "CmbFirmaUsual", "", "", "", "style=width:100%");
+                        $ConsultaFirmas=$obCon->ConsultarTabla("actas_conciliaciones_firmas_usuales", " ORDER BY ID");
+                            $css->option("", "", "", "", "", "");
+                                print("Seleccione una firma");
+                            $css->Coption();
+                            $css->option("", "", "", "RI", "", "");
+                                print("REPRESENTANTE IPS");
+                            $css->Coption();
+                            while($DatosFirmas=$obCon->FetchAssoc($ConsultaFirmas)){
+                                $css->option("", "", "", $DatosFirmas["ID"], "", "");
+                                    print($DatosFirmas["Nombre"]." ".$DatosFirmas["Cargo"]);
+                                $css->Coption();
+                            }
+                        $css->Cselect();
+                        
+                                    
+                        $css->CrearBotonEvento("btnAgregarFirma1", "Agregar", 1, "onclick", "AgregueFirma(1)", "azul", "","","");
+                        
+                        
+                        
+                    print("</td>");
+                     print("<td>");
+                    print("</td>");
+                $css->CerrarTabla();
+                print("<br><br>");
+                $css->CrearDiv("DivFirmasActaConciliacion", "", "", 1, 1);
+                    
+                $css->CerrarDiv();
+                
             $css->Cdiv();
             print("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>");
             $css->Csection();
         break;   //Fin caso 3
        
-        case 4: //Dibujar el formulario para crear un contrato
-            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
-            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $DatosEPS=$obCon->DevuelveValores("eps", "ID", $CmbEPS);
-                   
+        case 4://Se dibujan las firmas
             $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
-            $Contrato=$obCon->normalizar($_REQUEST["Contrato"]);
-            $css->CrearTitulo("Crear Contrato No. <span id='spContratoEquivalente'>".$Contrato."</span>");
-            $css->CrearTabla();
-                $css->FilaTabla(16);
-                    $css->ColTabla("<strong>CONTRATANTE:</strong>", 1);
-                    print("<td>");
-                        $css->span("spNitEPS", "", "", "");
-                            print("<strong>".$DatosEPS["NIT"]."</strong>");
-                        $css->Cspan();
-                    print("</td>");
-                    $css->ColTabla("<strong>CONTRATISTA:</strong>", 1);
-                    print("<td>");
-                        $css->span("spNitIPS", "", "", "");
-                            print("<strong>".$CmbIPS."</strong>");
-                        $css->Cspan();
-                    print("</td>");
-                $css->CierraFilaTabla();
-                
-                $css->FilaTabla(16);
-                    $css->ColTabla("<strong>Clasificación</strong>", 1);
-                    $css->ColTabla("<strong>Número de Contrato</strong>", 1);
-                    $css->ColTabla("<strong>Fecha Inicial</strong>", 1);
-                    $css->ColTabla("<strong>Fecha Final</strong>", 1);
-                $css->CierraFilaTabla();
-                $css->FilaTabla(16);
-                    print("<td>");
-                        $css->select("CmbClasificacionContrato", "form-control", "CmbClasificacionContrato", "", "", "onchange=ValidarClasificacionContrato()", "");
-                            $css->option("", "", "", "", "", "");
-                                print("Seleccione Clasificación");
-                            $css->Coption();
-                            $css->option("", "", "", "ACUERDO", "", "");
-                                print("ACUERDO");
-                            $css->Coption();
-                            
-                            $css->option("", "", "", "CONTRATO", "", "");
-                                print("CONTRATO");
-                            $css->Coption();
-                            
-                            $css->option("", "", "", "OTRO SI", "", "");
-                                print("OTRO SI");
-                            $css->Coption();
-                            
-                            $css->option("", "", "", "SIN CONTRATO", "", "");
-                                print("SIN CONTRATO");
-                            $css->Coption();
-                            
-                            $css->option("", "", "", "COTIZACION", "", "");
-                                print("COTIZACIÓN");
-                            $css->Coption();
-                            
-                            $css->option("", "", "", "URGENCIAS", "", "");
-                                print("URGENCIAS");
-                            $css->Coption();
-                        $css->Cselect();
-                        $css->CrearDiv("DivSelectoresOtroSI", "", "", 0, 1);
-                            $css->select("CmbContratoPadre", "form-control", "CmbContratoPadre", "<strong>Contrato Padre:</strong><br>", "", "", "");
-                                $css->option("", "", "", "", "", "");
-                                    print("Seleccione el contrato padre");
-                                $css->Coption();
-                                $sql="SELECT NumeroContrato FROM contratos WHERE NitIPSContratada='$CmbIPS' AND ClasificacionContrato='CONTRATO' AND (EstadoContrato='ACTIVO' OR EstadoContrato='CONCILIADO') ";
-                                $Consulta=$obCon->Query($sql);
-                                while($DatosContratos=$obCon->FetchAssoc($Consulta)){
-                                    $css->option("", "", "", $DatosContratos["NumeroContrato"], "", "");
-                                        print($DatosContratos["NumeroContrato"]);
-                                    $css->Coption();
-                                }
-                            $css->Cselect();
-                            print("<br>");
-                            
-                            $css->select("CmbNumeroOtroSI", "form-control", "CmbNumeroOtroSI", "<strong>Número de Otro SI:</strong><br>", "", "", "");
-                                $css->option("", "", "", "1", "", "");
-                                    print("OTRO SI 001");
-                                $css->Coption();
-                                $css->option("", "", "", "2", "", "");
-                                    print("OTRO SI 002");
-                                $css->Coption();
-                                $css->option("", "", "", "3", "", "");
-                                    print("OTRO SI 003");
-                                $css->Coption();
-                                $css->option("", "", "", "4", "", "");
-                                    print("OTRO SI 004");
-                                $css->Coption();
-                                $css->option("", "", "", "5", "", "");
-                                    print("OTRO SI 005");
-                                $css->Coption();
-                                $css->option("", "", "", "6", "", "");
-                                    print("OTRO SI 006");
-                                $css->Coption();
-                                $css->option("", "", "", "7", "", "");
-                                    print("OTRO SI 007");
-                                $css->Coption();
-                                $css->option("", "", "", "8", "", "");
-                                    print("OTRO SI 008");
-                                $css->Coption();
-                                
-                            $css->Cselect();
-                            
-                        $css->CerrarDiv();
-                        
-                        $css->CrearDiv("DivSelectorTipoContrato", "", "", 0, 1);
-                            $css->select("CmbTipoContrato", "form-control", "CmbTipoContrato", "Tipo de Contrato", "", "onchange=ValidaOpcionesTipoContrato();", "");
-                                $css->option("", "", "", "", "", "");
-                                    print("Seleccione el Tipo de Contrato");
-                                $css->Coption();
-                                $sql="SELECT Nombre FROM contratos_tipo;";
-                                $Consulta=$obCon->Query($sql);
-                                while($DatosContratos=$obCon->FetchAssoc($Consulta)){
-                                    $css->option("", "", "", $DatosContratos["Nombre"], "", "");
-                                        print($DatosContratos["Nombre"]);
-                                    $css->Coption();
-                                }
-                            $css->Cselect();
-                            
-                            $css->CrearDiv("DivUPCCapita", "", "", 0, 1);
-                                $css->input("text", "TxtUPC", "form-control", "TxtUPC", "UPC", "", "UPC", "off", "", "");
-                                $css->input("text", "TxtNumeroAfiliados", "form-control", "TxtNumeroAfiliados", "Número de Afiliados", "", "Número de Afiliados", "off", "", "");
-                            $css->CerrarDiv();
-                        
-                        $css->CerrarDiv();
-                        
-                        
-                        
-                    print("</td>");
-                    print("<td>");
-                        $css->input("text", "NumeroContrato", "form-control", "NumeroContrato", "", "", "Número de Contrato", "off", "", "");
-                    print("</td>");
-                    print("<td>");                    
-                        $css->input("date", "FechaInicial", "form-control", "FechaInicial", "", date("Y-m-d"), "Fecha Inicial", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
-                    print("</td>");                    
-                    print("<td>");                    
-                        $css->input("date", "FechaFinal", "form-control", "FechaInicial", "", date("Y-m-d"), "Fecha Inicial", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
-                    print("</td>");  
-                    
-                $css->CierraFilaTabla();
-                
-                $css->FilaTabla(16);
-                    
-                $css->CierraFilaTabla();
-                            
-            $css->CerrarTabla();
             
-        break;  //Fin caso 4  
+            if($idActaLiquidacion==''){
+                $css->CrearTitulo("Por favor Seleccione un Acta", "rojo");
+                exit();
+            }
+            
+            $Consulta=$obCon->ConsultarTabla("actas_liquidaciones_firmas", "WHERE idActaLiquidacion='$idActaLiquidacion'");
+            $i=0;
+            while($DatosFirmas=$obCon->FetchAssoc($Consulta)){
+                
+                $css->CrearDiv("", "col-md-4", "left", 1, 1);
+                    print("<br><br><hr></hr>");
+                    $idFirma=$DatosFirmas["ID"];
+                    $css->li("", "fa  fa-remove", "", "onclick=EliminarFirma(`$idFirma`) style=font-size:16px;cursor:pointer;text-align:center;color:red");
+                    $css->Cli();
+                    $NombreCaja="TxtFirmaNombreActa_".$idFirma; 
+                    $css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosFirmas["Nombre"], "Nombre", "off", "", "onchange=EditeFirmaActaConciliacion(`$idFirma`,`$NombreCaja`,`Nombre`);");
+                    $NombreCaja="TxtFirmaCargoActa_".$idFirma; 
+                    $css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosFirmas["Cargo"], "Cargo", "off", "", "onchange=EditeFirmaActaConciliacion(`$idFirma`,`$NombreCaja`,`Cargo`);");
+                    $NombreCaja="TxtFirmaEmpresaActa_".$idFirma; 
+                    $css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosFirmas["Empresa"], "Empresa", "off", "", "onchange=EditeFirmaActaConciliacion(`$idFirma`,`$NombreCaja`,`Empresa`);");
+                    
+                $css->CerrarDiv();
+                
+            }  
+        break;//Fin caso 4    
+        
     }
     
           

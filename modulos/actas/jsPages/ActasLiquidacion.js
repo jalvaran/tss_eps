@@ -241,7 +241,26 @@ function MostrarActa(){
         success: function(data){
             
            document.getElementById('DivTab1').innerHTML=data;
-            
+           $('.selector').select2({
+		
+                placeholder: 'Selecciona un Contrato',
+                ajax: {
+                  url: 'buscadores/contratos.search.php?nit='+CmbIPS,
+                  dataType: 'json',
+                  delay: 250,
+                                    
+                  processResults: function (data) {
+                      
+                    return {                     
+                      results: data
+                    };
+                  },
+                 cache: true
+                }
+              }); 
+              
+              $('#CmbFirmaUsual').select2();
+              DibujeFirmasActaConciliacion();
         },
         error: function (xhr, ajaxOptions, thrownError) {
             LimpiarDivs();
@@ -250,6 +269,100 @@ function MostrarActa(){
           }
       });
 }
+
+
+function AgregueFirma(TipoFirma){
+    
+    var idActaLiquidacion=document.getElementById('idActaLiquidacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    var CmbFirmaUsual=document.getElementById('CmbFirmaUsual').value;
+    var NombreRepresentanteIPS=document.getElementById('NombreRepresentanteIPS').value;
+    var ApellidosRepresentanteIPS=document.getElementById('ApellidosRepresentanteIPS').value;
+    
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 5);
+        form_data.append('idActaLiquidacion', idActaLiquidacion);        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('TipoFirma', TipoFirma);
+        form_data.append('CmbFirmaUsual', CmbFirmaUsual);
+        form_data.append('NombreRepresentanteIPS', NombreRepresentanteIPS);
+        form_data.append('ApellidosRepresentanteIPS', ApellidosRepresentanteIPS);
+                
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                DibujeFirmasActaConciliacion();                
+                alertify.success(respuestas[1]);                
+                
+                document.getElementById('CmbFirmaUsual').value='';
+                document.getElementById('select2-CmbFirmaUsual-container').innerHTML='Seleccione una Firma';
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function DibujeFirmasActaConciliacion(){
+    
+    var idActaLiquidacion=document.getElementById('idActaLiquidacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 4);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('idActaLiquidacion', idActaLiquidacion);
+        
+        $.ajax({
+        url: './Consultas/ActasLiquidacion.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+            document.getElementById('DivFirmasActaConciliacion').innerHTML=data;
+                        
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
 
 function EditeActaLiquidacion(idActaLiquidacion,idCampoTexto,CampoAEditar){
     
@@ -302,23 +415,23 @@ function EditeActaLiquidacion(idActaLiquidacion,idCampoTexto,CampoAEditar){
       })
 }
 
-
-function AbreFormularioCrearContrato(idActaLiquidacion,Contrato){
-        
-    AbreModal('ModalAcciones');
+function AgregarContratoActaLiquidacion(Contrato,idActaLiquidacion){
+    
     
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
     
     var form_data = new FormData();
-        form_data.append('Accion', 4);
-        form_data.append('CmbIPS', CmbIPS);   
-        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('Accion', 3);
         form_data.append('idActaLiquidacion', idActaLiquidacion);
-        form_data.append('Contrato', Contrato);
+        form_data.append('Contrato', Contrato); 
         
-        $.ajax({
-        url: './Consultas/ActasLiquidacion.draw.php',
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -326,52 +439,116 @@ function AbreFormularioCrearContrato(idActaLiquidacion,Contrato){
         data: form_data,
         type: 'post',
         success: function(data){
-            
-           document.getElementById('DivFrmModalAcciones').innerHTML=data;
-           $('#CmbContratoPadre').select2();           
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]);                
+                MostrarActa();
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
             
         },
         error: function (xhr, ajaxOptions, thrownError) {
-            LimpiarDivs();
+            
             alert(xhr.status);
             alert(thrownError);
           }
-      });
+      })
+}
+
+function EliminarContratoActa(idItem){
+     
+    var form_data = new FormData();
+        form_data.append('Accion', 4);
+        form_data.append('idItem', idItem);
+        
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.error(respuestas[1]);                
+                MostrarActa();
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function EliminarFirma(idItem){
+     
+    var form_data = new FormData();
+        form_data.append('Accion', 6);
+        form_data.append('idItem', idItem);
+        
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.error(respuestas[1]);                
+                DibujeFirmasActaConciliacion();
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
 }
 
 
-function ValidarClasificacionContrato(){
-    var Clasificacion = document.getElementById('CmbClasificacionContrato').value;
-    
-    if( Clasificacion=='ACUERDO' || Clasificacion=='CONTRATO' || Clasificacion=='SIN CONTRATO' || Clasificacion=='COTIZACION' || Clasificacion=='URGENCIAS'){
-        OcultaXID('DivSelectoresOtroSI');
-    }else{
-        MuestraXID('DivSelectoresOtroSI');
-    }
-    
-    if(Clasificacion=='ACUERDO' || Clasificacion=='OTRO SI' || Clasificacion=='SIN CONTRATO' || Clasificacion=='COTIZACION' || Clasificacion=='URGENCIAS'){
-        OcultaXID('DivSelectorTipoContrato');
-    }else{
-        MuestraXID('DivSelectorTipoContrato');
-    }
-    
-    if(Clasificacion==''){
-        OcultaXID('DivSelectoresOtroSI');
-        OcultaXID('DivSelectorTipoContrato');
-    }
-    
-}
-
-function ValidaOpcionesTipoContrato(){
-    var TipoContrato = document.getElementById('CmbTipoContrato').value;
-        if(TipoContrato == 'CAPITA' || TipoContrato == 'CAPITA MORVILIDAD' || TipoContrato == 'CAPITA PDYDT' || TipoContrato == 'CAPITA ACTIVIDADES MINIMAS' ){
-            MuestraXID('DivUPCCapita');
-        }else{
-            OcultaXID('DivUPCCapita');
-        }
-    
-    
-}
 document.getElementById('BtnMuestraMenuLateral').click();
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();

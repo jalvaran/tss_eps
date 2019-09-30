@@ -310,7 +310,7 @@ if( !empty($_REQUEST["Accion"]) ){
             if(isset($_REQUEST['Busqueda'])){
                 $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
                 if($Busqueda<>''){
-                    $Condicional=" AND NumeroContrato like '$Busqueda%' or NumeroFactura like '%$Busqueda%' or NumeroRadicado like '%$Busqueda%' ";
+                    $Condicional.=" AND NumeroContrato like '$Busqueda%' or NumeroFactura like '%$Busqueda%' or NumeroRadicado like '%$Busqueda%' ";
                 }
                 
             }

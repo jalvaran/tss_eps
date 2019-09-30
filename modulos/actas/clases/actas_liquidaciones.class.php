@@ -62,6 +62,15 @@ class ActasLiquidacion extends conexion{
         
     }
     
+    public function AgregueFirmaActa($idActa,$Nombre,$Cargo,$Empresa) {
+        $Datos["idActaLiquidacion"]=$idActa;
+        $Datos["Nombre"]=$Nombre;
+        $Datos["Cargo"]=$Cargo;
+        $Datos["Empresa"]=$Empresa;
+        $sql=$this->getSQLInsert("actas_liquidaciones_firmas", $Datos);
+        $this->Query($sql);
+        
+    }
        
     
     

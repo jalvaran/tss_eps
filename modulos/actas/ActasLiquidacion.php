@@ -41,7 +41,7 @@ $css->PageInit($myTitulo);
         }
         $Consulta=$obCon->Query($sql);
         
-        $css->select("CmbIPS", "form-control", "CmbIPS", "IPS", "", "onchange=CargarHistorialActas()", "");
+        $css->select("CmbIPS", "form-control", "CmbIPS", "IPS", "", "", "onchange=DibujaSelectorActas()");
             while($DatosIPS=$obCon->FetchAssoc($Consulta)){
                 $css->option("", "", "", $DatosIPS["idIPS"], "", "");
                     print($DatosIPS["Nombre"].$DatosIPS["idIPS"]);
@@ -115,7 +115,7 @@ $css->PageInit($myTitulo);
 $css->PageFin();
 
 print('<script src="jsPages/ActasLiquidacion.js"></script>');  //script propio de la pagina
-
+print('<script src="../../general/js/CreacionContratos.js"></script>');  //script para la creacion de contratos
 $css->Cbody();
 $css->Chtml();
 

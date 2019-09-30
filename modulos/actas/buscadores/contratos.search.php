@@ -11,15 +11,16 @@ if($idUser==''){
 }
 $obRest=new conexion($idUser);
 $key=$obRest->normalizar($_REQUEST['q']);
+$nit=$obRest->normalizar($_REQUEST['nit']);
 
-$sql = "SELECT NumeroContrato FROM contratos 
-		WHERE (Nombre LIKE '%$key%' or PUC LIKE '$key%') AND LENGTH(PUC)>=6
-		LIMIT 10"; 
+$sql = "SELECT * FROM contratos 
+		WHERE (NumeroContrato LIKE '%$key%' AND NitIPSContratada = '$nit') 
+		LIMIT 200"; 
 $result = $obRest->Query($sql);
 $json = [];
 
 while($row = $obRest->FetchAssoc($result)){
-    $Texto=$row['Nombre']." ".$row['PUC'];
-     $json[] = ['id'=>$row['PUC'], 'text'=>$Texto];
+    $Texto=$row['Contrato']." ".$row['NitIPSContratada']." ".$row['ClasificacionContrato']." ".number_format($row['ValorContrato'])." ".$row['FechaInicioContrato']." ".$row['FechaFinalContrato'];
+     $json[] = ['id'=>$row['Contrato'], 'text'=>$Texto];
 }
 echo json_encode($json);
