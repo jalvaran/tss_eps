@@ -9,11 +9,12 @@ $idUser=$_SESSION['idUser'];
 
 include_once("../../../modelo/php_conexion.php");
 include_once("../../../constructores/paginas_constructor.php");
+include_once '../../../general/clases/numeros_letras.class.php';
 
 if( !empty($_REQUEST["Accion"]) ){
     $css =  new PageConstruct("", "", 1, "", 1, 0);
     $obCon = new conexion($idUser);
-    
+    $obNumLetra=new numeros_letras();
     switch ($_REQUEST["Accion"]) {
         case 1: //dibuje el formulario para crear un acta de liquidacion
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
@@ -397,6 +398,23 @@ if( !empty($_REQUEST["Accion"]) ){
                         WHERE EXISTS 
                         (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato);  ";
                     $TotalesActa=$obCon->FetchAssoc($obCon->Query($sql));
+                    $sql="UPDATE actas_liquidaciones 
+                            SET ValorFacturado=$TotalesActa[TotalFacturado], 
+                                
+                                RetencionImpuestos=$TotalesActa[Impuestos], 
+                                Devolucion=$TotalesActa[Devoluciones], 
+                                Glosa=$TotalesActa[Glosa],
+                                GlosaFavor=$TotalesActa[GlosaFavor],
+                                NotasCopagos=$TotalesActa[Copagos] + $TotalesActa[TotalAnticipos],
+                                RecuperacionImpuestos=0, 
+                                OtrosDescuentos=$TotalesActa[OtrosDescuentos] + $TotalesActa[AjustesCartera] , 
+                                ValorPagado=$TotalesActa[TotalPagos],
+                                Saldo=$TotalesActa[Saldo]
+                              
+                            WHERE ID='$idActaLiquidacion'
+                             ";
+                    $obCon->Query($sql);
+                    $DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);
                     $css->FilaTabla(16);
                         $css->ColTabla("<strong>TOTALES ACTA DE LIQUIDACIÓN:</strong>", 5,'C');
                     $css->CierraFilaTabla();
@@ -409,11 +427,11 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->CierraFilaTabla();
                     
                     $css->FilaTabla(16);
-                        $css->ColTabla(number_format($TotalesActa["TotalFacturado"]), 1);
-                        $css->ColTabla(number_format($TotalesActa["Impuestos"]), 1);
-                        $css->ColTabla(number_format($TotalesActa["Devoluciones"]), 1);
-                        $css->ColTabla(number_format($TotalesActa["Glosa"]), 1);
-                        $css->ColTabla(number_format($TotalesActa["GlosaFavor"]), 1);
+                        $css->ColTabla(number_format($DatosActa["ValorFacturado"]), 1);
+                        $css->ColTabla(number_format($DatosActa["RetencionImpuestos"]), 1);
+                        $css->ColTabla(number_format($DatosActa["Devolucion"]), 1);
+                        $css->ColTabla(number_format($DatosActa["Glosa"]), 1);
+                        $css->ColTabla(number_format($DatosActa["GlosaFavor"]), 1);
                     $css->CierraFilaTabla();
                     
                     $css->FilaTabla(16);
@@ -425,11 +443,11 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->CierraFilaTabla();
                     
                     $css->FilaTabla(16);
-                        $css->ColTabla(number_format($TotalesActa["Copagos"]+$TotalesActa["TotalAnticipos"]), 1);
-                        $css->ColTabla(number_format(0), 1);
-                        $css->ColTabla(number_format($TotalesActa["OtrosDescuentos"]+$TotalesActa["AjustesCartera"]), 1);
-                        $css->ColTabla(number_format($TotalesActa["TotalPagos"]), 1);
-                        $css->ColTabla(number_format($TotalesActa["Saldo"]), 1);
+                        $css->ColTabla(number_format($DatosActa["NotasCopagos"]), 1);
+                        $css->ColTabla(number_format($DatosActa["RecuperacionImpuestos"]), 1);
+                        $css->ColTabla(number_format($DatosActa["OtrosDescuentos"]), 1);
+                        $css->ColTabla(number_format($DatosActa["ValorPagado"]), 1);
+                        $css->ColTabla(number_format($DatosActa["Saldo"]), 1);
                     $css->CierraFilaTabla();
                     
                     print("<tr>");
@@ -475,12 +493,86 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                      print("<td>");
                     print("</td>");
-                $css->CerrarTabla();
-                print("<br><br>");
-                $css->CrearDiv("DivFirmasActaConciliacion", "", "", 1, 1);
-                    
-                $css->CerrarDiv();
                 
+                print("<tr><td></td></tr>");
+                print("<tr>");
+                    print("<td colspan=1 style=font-size:16px;>");
+                        print("<strong>Fecha de Firma: </strong>");
+                        $css->input("date", "TxtFechaDeFirma", "", "TxtFechaDeFirma", "", ($DatosActa["FechaFirma"]), "Fecha de la firma", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaDeFirma`,`FechaFirma`);DibujeConstanciaFirmaActa();","style='line-height: 15px;'"."max=".date("Y-m-d"));
+                    
+                    print("</td>");
+                    print("<td colspan=2 style=font-size:16px;>");
+                        print("<strong>Ciudad de Firma: </strong>");
+                        $css->input("text", "TxtCiudadDeFirma", "", "TxtCiudadDeFirma", "", $DatosActa["CiudadFirma"], "Ciudad", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtCiudadDeFirma`,`CiudadFirma`);DibujeConstanciaFirmaActa();");
+                    print("</td>");
+                print("</tr>");
+                print("<tr>");
+                    print("<td colspan=3 style=font-size:16px;>");
+                        $css->CrearDiv("DivConstanciaFirma", "","", 1, 1);
+                            $DatosFechaFirma= explode("-", $DatosActa["FechaFirma"]);  
+                            $dia=$obNumLetra->convertir($DatosFechaFirma[2]);
+                            $mes=$obNumLetra->meses($DatosFechaFirma[1]);
+                            $anio=$obNumLetra->convertir($DatosFechaFirma[0]);
+                            print("Para constancia se firma en <strong>".($DatosActa["CiudadFirma"])."</strong>");
+                            
+                            print(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]):");
+                        $css->CerrarDiv();
+                    print("</td>");
+                print("</tr>");
+                print("<tr>");
+                    print("<td colspan=5>");
+                   // $css->CerrarTabla();
+                    $css->CrearDiv("DivFirmasActaConciliacion", "", "", 1, 1);
+
+                    $css->CerrarDiv();
+                   // $css->CrearTabla();
+                    print("</td>");
+                print("</tr>");
+                print("<tr>");
+                    print("<td colspan=6>");
+                        print("<strong>Opciones del Documento:<strong>");
+                    print("</td>");
+                print("</tr>");
+                print("<tr>");
+                
+                print("<tr>");
+                    print("<td colspan=2>");
+                        print("<strong>Imprimir<strong>");
+                    print("</td>");
+                    print("<td>");
+                        print("<strong>Soporte del Acta<strong>");
+                    print("</td>");
+                    
+                    print("<td colspan=2>");
+                        print("<strong>Cerrar Acta<strong>");
+                    print("</td>");
+                print("</tr>");
+                print("<tr>");
+                    
+                    print("<td colspan=2>");
+                        $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=37&idActaLiquidacion=$idActaLiquidacion";
+                        print("<a href='$Ruta' target='_BLANK'><button class='btn btn-success'>Imprimir PDF</button></a>");
+                        $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=3&idActaConciliacion=$idActaLiquidacion&db=$db";
+                        print(" <a href='$Ruta' target='_BLANK'><button class='btn btn-primary'>Anexo por facturas</button></a>");
+                        $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=4&idActaConciliacion=$idActaLiquidacion&db=$db";
+                        print(" <a href='$Ruta' target='_BLANK'><button class='btn btn-warning'>Anexo por radicados</button></a>");
+                        
+                    print("</td>");
+                    print("<td>");        
+                       $css->input("file", "UpSoporteActaLiquidacionCierre", "", "UpSoporteActaLiquidacionCierre", "Soporte Acta", "Subir Acta Firmada", "Subir Acta Firmada", "off", "", "");
+                    print("</td>");
+                    print("<td colspan=2>");
+        
+                        $css->CrearBotonEvento("btnGuardarActaLiquidacion", "Cerrar Acta", 1, "onclick", "CerrarActaLiquidacion()", "rojo", "");
+                        $css->ProgressBar("PgProgresoCruce", "LyProgresoCruce", "", 0, 0, 100, 0, "100%", "", "");
+                        
+                        $css->CrearDiv("DivMensajesCerrarActa", "", "center", 1, 1);
+                        
+                        $css->CerrarDiv();
+                    print("</td>");
+                    
+                print("</tr>");
+                $css->CerrarTabla();
             $css->Cdiv();
             print("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>");
             $css->Csection();
@@ -514,6 +606,19 @@ if( !empty($_REQUEST["Accion"]) ){
                 
             }  
         break;//Fin caso 4    
+        
+        case 5://Dibuja la constancia de la firma
+            $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
+            $DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);
+            $DatosFechaFirma= explode("-", $DatosActa["FechaFirma"]);  
+            $dia=$obNumLetra->convertir($DatosFechaFirma[2]);
+            //$dia=$obNumLetra->convertir(31);
+            $mes=$obNumLetra->meses($DatosFechaFirma[1]);
+            $anio=$obNumLetra->convertir($DatosFechaFirma[0]);
+            print("Para constancia, se firma en <strong>".($DatosActa["CiudadFirma"])."</strong>");
+
+            print(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]):");
+        break;// Fin caso 5
         
     }
     

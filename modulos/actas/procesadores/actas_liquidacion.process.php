@@ -182,6 +182,32 @@ if( !empty($_REQUEST["Accion"]) ){
             $obCon->BorraReg("actas_liquidaciones_firmas", "ID", $idItem);
             print("OK;Firma eliminada del acta");
         break;//  fin caso 6  
+    
+    case 7://Editar las firmas de un acta
+            $idFirma=$obCon->normalizar($_REQUEST["idFirma"]);
+            $idCajaFirma=$obCon->normalizar($_REQUEST["idCajaFirma"]);
+            $TxtValorNuevo=$obCon->normalizar($_REQUEST["TxtValorNuevo"]);
+            $CampoEditar=$obCon->normalizar($_REQUEST["CampoEditar"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);            
+            if($idFirma==''){
+                exit("E1;No se recibió el id de la Firma a Editar");
+                
+            }
+            if($TxtValorNuevo==''){
+                exit("E1;la caja de texto no puede estar vacía;$idCajaFirma");
+                
+            }
+            if($CampoEditar==''){
+                exit("E1;No se recibió el campo a Editar;$CampoEditar");
+                
+            }
+                        
+            $obCon->ActualizaRegistro("actas_liquidaciones_firmas", $CampoEditar, $TxtValorNuevo, "ID", $idFirma, 0);
+            
+            print("OK;Campo $CampoEditar de las firmas ha sido Editado");
+        break;//Fin caso 7
     }
     
     

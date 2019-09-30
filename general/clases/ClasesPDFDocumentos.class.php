@@ -5,6 +5,7 @@
  * Techno Soluciones SAS
  */
 include_once 'numeros_letras.class.php';
+ 
 class Documento{
     /**
      * Constructor 
@@ -45,6 +46,8 @@ class Documento{
         
         // set header and footer fonts
         //$this->PDF->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE, PDF_HEADER_STRING);
+        //$this->PDF->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 001', PDF_HEADER_STRING, array(0,64,255), array(0,64,128));
+        //$this->PDF->setFooterData(array(0,64,0), array(0,64,128));
         $this->PDF->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
         $this->PDF->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
         // set default monospaced font
@@ -72,6 +75,64 @@ class Documento{
         // add a page
         $this->PDF->AddPage();
         $this->PDF->SetFont('helvetica', '', 6);
+        
+    }
+    
+    public function PDF_IniActaLiquidacion($TituloFormato,$TextHeader,$TextFooter,$Margenes=1,$Patch="../../") {
+        
+        //require_once('../../librerias/tcpdf/examples/config/tcpdf_config_alt.php');
+        $tcpdf_include_dirs = array(realpath($Patch.'librerias/tcpdf/tcpdf.php'), '/usr/share/php/tcpdf/tcpdf.php', '/usr/share/tcpdf/tcpdf.php', '/usr/share/php-tcpdf/tcpdf.php', '/var/www/tcpdf/tcpdf.php', '/var/www/html/tcpdf/tcpdf.php', '/usr/local/apache2/htdocs/tcpdf/tcpdf.php');
+        foreach ($tcpdf_include_dirs as $tcpdf_include_path) {
+                if (@file_exists($tcpdf_include_path)) {
+                        require_once($tcpdf_include_path);
+                        break;
+                }
+        }
+        // create new PDF document
+        $this->PDF = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF8', false);
+        // set document information
+        $this->PDF->SetCreator(PDF_CREATOR);
+        $this->PDF->SetAuthor('Techno Soluciones');
+        $this->PDF->SetTitle($TituloFormato);
+        $this->PDF->SetSubject($TituloFormato);
+        $this->PDF->SetKeywords('Techno Soluciones, PDF, '.$TituloFormato.' , CCTV, Alarmas, Computadores, Software');
+        // set default header data
+        
+        // set header and footer fonts
+        //$this->PDF->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE, PDF_HEADER_STRING);
+        $this->PDF->SetHeaderData(PDF_HEADER_LOGO, 50, "", "$TextHeader", array(0,0,0), array(0,0,0));
+        $this->PDF->setFooterData(array(0,0,0), array(0,0,0));
+        $this->PDF->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', 5));
+        $this->PDF->setFooterFont(Array(PDF_FONT_NAME_DATA, '', 5));
+        // set default monospaced font
+        $this->PDF->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        // set margins
+        //$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+        //$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        //$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        // set margins
+        if($Margenes==1){
+            $this->PDF->SetMargins(25, 25, 25);
+            $this->PDF->SetHeaderMargin(PDF_MARGIN_HEADER);
+            $this->PDF->SetFooterMargin(10);
+        }
+        
+        // set auto page breaks
+        $this->PDF->SetAutoPageBreak(TRUE, 10);
+        // set image scale factor
+        $this->PDF->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        // set some language-dependent strings (optional)
+        if (@file_exists(dirname(__FILE__).'/lang/spa.php')) {
+                require_once(dirname(__FILE__).'/lang/spa.php');
+                $this->PDF->setLanguageArray(1);
+        }
+        
+        // ---------------------------------------------------------
+        // set font
+        //$pdf->SetFont('helvetica', 'B', 6);
+        // add a page
+        $this->PDF->AddPage();
+        $this->PDF->SetFont('helvetica', '', 7);
         
     }
     /**
@@ -497,6 +558,306 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         return($html);
         
     }
+    
+    public function ActaLiquidacionPDF($idActaLiquidacion) {
+        
+        $DatosActa=$this->obCon->DevuelveValores("actas_liquidaciones","ID",$idActaLiquidacion);
+        $DatosTipoActa=$this->obCon->DevuelveValores("actas_liquidaciones_tipo","ID",$DatosActa["TipoActaLiquidacion"]);     
+        $NIT_IPS=$DatosActa["NIT_IPS"];
+        $TipoActa=$DatosActa["TipoActaLiquidacion"];
+        $this->PDF_IniActaLiquidacion("ACTA DE LIQUIDACIÓN No.", utf8_encode($DatosTipoActa["Header"]), "Footer text");
+        
+        
+        $Titulo='<p align="center"><h3>ACTA DE LIQUIDACIÓN No. '.utf8_encode($DatosActa["IdentificadorActaEPS"].'</h3></p>');
+        $Titulo.="<br>";
+        $Titulo.='<p align="center"><h3>'.utf8_encode($DatosTipoActa["Titulo"]).'</h3></p>';
+        $this->PDF->writeHTML($Titulo, true, false, false, false, '');
+        
+        $html= $this->EncabezadoActaLiquidacion($DatosActa);
+        $this->PDF->writeHTML($html, true, false, false, false, '');
+        
+        $html= $this->ContratosActaLiquidacion($idActaLiquidacion,$NIT_IPS);
+        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        
+        $html= $this->RepresentantesLegalesActaLiquidacion($DatosActa);
+        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        
+        $html= $this->ObservacionesActaLiquidacion1($idActaLiquidacion,$TipoActa);        
+        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        
+        $html= $this->ConsideracionesActa($idActaLiquidacion,$TipoActa);        
+        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        
+        $html= $this->ObservacionesActaLiquidacion2($idActaLiquidacion,$TipoActa);        
+        $this->PDF->writeHTML("".$html, true, false, false, false, '');
+        
+        $html= $this->TotalesActaLiquidacion($DatosActa);
+        $this->PDF->writeHTML("<br><br>".$html, true, false, false, false, '');
+        
+        /*
+        
+        $html=$this->FirmasActaConciliacion($DatosActa);
+        $this->PDF->writeHTML("<hr>".$html."", true, false, false, false, '');
+        
+         * 
+         */
+        $this->PDF_Output("Acta_Conciliacion_$idActaLiquidacion");
+    }
+    
+    public function TotalesActaLiquidacion($DatosActa) {
+        $SaldoAPagarContratista=0;
+        $SaldoAPagarContratante=0;
+        if($DatosActa["Saldo"]>0){
+            $SaldoAPagarContratista=$DatosActa["Saldo"];
+        }else{
+            $SaldoAPagarContratante=$DatosActa["Saldo"];
+        }
+        $html='<table cellspacing="3" cellpadding="2" border="1">
+                    <tr>
+                        <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
+                        <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
+                        <td style="text-align:center;"><strong>DEVOLUCIÓN</strong></td>
+                        <td style="text-align:center;"><strong>GLOSA</strong></td>
+                        <td style="text-align:center;"><strong>GLOSA A FAVOR ASMET</strong></td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
+                        <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
+                        <td style="text-align:rigth;">'. number_format($DatosActa["Devolucion"]).'</td>
+                        <td style="text-align:rigth;">'. number_format($DatosActa["Glosa"]).'</td>
+                        <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]).'</td>
+                        
+                    </tr>
+                    <tr>
+                        <td colspan="5">
+                             
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;"><strong>NOTA CREDITO / COPAGOS</strong></td>
+                        <td style="text-align:center;"><strong>RECUPERACION EN IMPUESTOS</strong></td>
+                        <td style="text-align:center;"><strong>OTROS DESCUENTOS</strong></td>
+                        <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
+                        <td style="text-align:center;"><strong>SALDO</strong></td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td style="text-align:rigth;">'. number_format($DatosActa["NotasCopagos"]).'</td>
+                        <td style="text-align:rigth;">'. number_format($DatosActa["RecuperacionImpuestos"]).'</td>
+                        <td style="text-align:rigth;">'. number_format($DatosActa["OtrosDescuentos"]).'</td>
+                        <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]).'</td>
+                        <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td colspan="5">
+                             
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE $</strong></td>
+                        <td style="text-align:rigth;">'. number_format($SaldoAPagarContratista).'</td>
+                       
+                    </tr>
+                    <tr>
+                        <td  colspan="4" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE $</strong></td>
+                        <td style="text-align:rigth;">'. number_format($SaldoAPagarContratante).'</td>
+                       
+                    </tr>
+                                        
+                </table>';
+            
+        return($html);
+    }
+    
+    public function ConsideracionesActa($idActaLiquidacion,$TipoActa) {
+        $obCon=new conexion(1);
+        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND SUBSTRING(Numeral,1,2)<>'op'";
+        
+        $Consulta=$obCon->Query($sql);
+        $html="";
+        while($DatosConsideraciones=$obCon->FetchAssoc($Consulta)){
+            $html.='<p align="justify"><strong>'.($DatosConsideraciones["Numeral"])."</strong> ".utf8_encode($DatosConsideraciones["Texto"])."</p><br>";
+            
+        }
+        
+        //$html= str_replace("@NumerosContratos", $ContratosActa, $html);
+        return($html);
+    }
+    
+    public function ObservacionesActaLiquidacion1($idActaLiquidacion,$TipoActa) {
+        $obCon=new conexion(1);
+        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op1' LIMIT 1";
+        $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));
+        
+        $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";
+        $sql="SELECT t2.Contrato FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente WHERE t1.idActaLiquidacion='$idActaLiquidacion' ORDER BY t1.ID";
+        $Consulta=$obCon->Query($sql);
+        $ContratosActa="<strong>";
+        while($DatosContratos=$obCon->FetchAssoc($Consulta)){
+            $ContratosActa.=$DatosContratos["Contrato"].", ";
+        }
+        $ContratosActa=substr($ContratosActa,0,-2);
+        $ContratosActa.="</strong>";
+        $html= str_replace("@NumerosContratos", $ContratosActa, $html);
+        return($html);
+    }
+    
+    public function ObservacionesActaLiquidacion2($idActaLiquidacion,$TipoActa) {
+        $obCon=new conexion(1);
+        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op2' LIMIT 1";
+        $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
+        $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";        
+        return($html);
+    }
+    
+    public function RepresentantesLegalesActaLiquidacion($DatosActa) {
+        $html="<h3>REPRESENTANTES LEGALES:</h3>";
+        $html.='<table cellspacing="3" cellpadding="2" border="1">
+                    <tr>
+                        <td colspan="2" style="width:50%;text-align:center;"><h2>E.P.S.</h2></td>
+                        <td colspan="2" style="width:50%;text-align:center;"><h2>I.P.S.</h2></td>
+                    
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:20%;text-align:left;"><h3>Nombres</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["EPS_Nombres_Representante_Legal"])).'</td>
+                        <td style="width:20%;text-align:left;"><h3>Nombres</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["IPS_Nombres_Representante_Legal"])).'</td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:20%;text-align:left;"><h3>Apellidos</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["EPS_Apellidos_Representante_Legal"])).'</td>
+                        <td style="width:20%;text-align:left;"><h3>Apellidos</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["IPS_Apellidos_Representante_Legal"])).'</td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:20%;text-align:left;"><h3>Identificación</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["EPS_Identificacion_Representante_Legal"])).'</td>
+                        <td style="width:20%;text-align:left;"><h3>Identificación</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["IPS_Identificacion_Representante_Legal"])).'</td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:20%;text-align:left;"><h3>Domicilio</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["EPS_Domicilio"])).'</td>
+                        <td style="width:20%;text-align:left;"><h3>Domicilio</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["IPS_Domicilio"])).'</td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:20%;text-align:left;"><h3>Dirección</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["EPS_Direccion"])).'</td>
+                        <td style="width:20%;text-align:left;"><h3>Dirección</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["IPS_Direccion"])).'</td>
+                        
+                    </tr>
+                    
+                    <tr>
+                        <td style="width:20%;text-align:left;"><h3>Teléfono</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["EPS_Telefono"])).'</td>
+                        <td style="width:20%;text-align:left;"><h3>Teléfono</h3></td>
+                        <td style="width:30%;text-align:left;">'. utf8_encode(strtoupper($DatosActa["IPS_Telefono"])).'</td>
+                        
+                    </tr>
+                    
+                </table>';
+            
+        return($html);
+    }
+    
+    public function EncabezadoActaLiquidacion($DatosActa) {
+        $html="<h3>PARTES CONTRATANTES:</h3><br>";
+        $html.='<table cellspacing="3" cellpadding="2" border="1">
+                    <tr>
+                        <td style="width:20%;"><strong>Contratista IPS:</strong></td>
+                    
+                        <td style="width:30%;"><strong>'.$DatosActa["RazonSocialIPS"].'</strong></td>
+                    
+                        <td style="width:20%;"><strong>NIT IPS:</strong></td>
+                    
+                        <td style="width:30%;" ><strong>'.$DatosActa["NIT_IPS"].'</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="width:20%;"><strong>Contratante EPS:</strong></td>
+                    
+                        <td style="width:30%;"><strong>'.$DatosActa["RazonSocialEPS"].'</strong></td>
+                    
+                        <td style="width:20%;"><strong>NIT EPS:</strong></td>
+                    
+                        <td style="width:30%;" ><strong>'.$DatosActa["NIT_EPS"].'</strong></td>
+                    </tr>
+                </table>';
+            
+        return($html);
+    }
+    
+    public function ContratosActaLiquidacion($idActaLiquidacion,$NIT_IPS) {
+        $obCon=new conexion(1);
+        $sql="SELECT t1.ID,t2.Contrato,t2.FechaInicioContrato,t2.FechaFinalContrato,t2.ValorContrato
+                FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente 
+                WHERE t1.idActaLiquidacion='$idActaLiquidacion' AND NitIPSContratada='$NIT_IPS'";
+        $Consulta=$obCon->Query($sql);
+        $html='<table cellspacing="3" cellpadding="2" border="1">';
+            while($DatosContratos=$obCon->FetchAssoc($Consulta)){
+                $html.='<tr>';
+                    $html.='<td colspan="2" style="text-align:rigth">';
+                        $html.='PRESTACIÓN DE SERVICIOS NO.';
+                    $html.='</td>';
+                    $html.='<td>';
+                        $html.="<h4>".$DatosContratos["Contrato"]."</h4>";
+                    $html.='</td>';
+                $html.='</tr>';
+                $html.='<tr>';
+                    $html.='<td rowspan="2" style="text-align:center">';
+                        $html.='<h4>Vigencia Contrato</h4>';
+                    $html.='</td>';
+                    $html.='<td style="text-align:rigth">';
+                        $html.='<h4>Inicial:</h4>';
+                    $html.='</td>';
+                    $html.='<td>';
+                        $html.=$DatosContratos["FechaInicioContrato"];
+                    $html.='</td>';
+                    
+                    
+                $html.='</tr>';
+                $html.='<tr>';
+                    $html.='<td style="text-align:rigth">';
+                        $html.='<h4>Final:</h4>';
+                    $html.='</td>';
+                    $html.='<td>';
+                        $html.=$DatosContratos["FechaFinalContrato"];
+                    $html.='</td>';
+                    
+                $html.='</tr>';
+                
+                $html.='<tr>';
+                    $html.='<td style="text-align:rigth" colspan="2">';
+                        $html.='<h4>Valor:</h4>';
+                    $html.='</td>';
+                    $html.='<td>';
+                        $html.="<h4>".number_format($DatosContratos["ValorContrato"])."</h4>";
+                    $html.='</td>';
+                    
+                $html.='</tr>';
+                    
+                
+            }
+        $html.='</table>';
+        return($html);
+    }
+    
    //Fin Clases
 }
     

@@ -549,6 +549,90 @@ function EliminarFirma(idItem){
 }
 
 
+function EditeFirmaActaConciliacion(idFirma,idCajaFirma,CampoEditar){
+    var idActaLiquidacion=document.getElementById('idActaLiquidacion').value;
+    var TxtValorNuevo = document.getElementById(idCajaFirma).value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 7);
+        form_data.append('idFirma', idFirma);
+        form_data.append('TxtValorNuevo', TxtValorNuevo);  
+        form_data.append('CampoEditar', CampoEditar);  
+        form_data.append('idCajaFirma', idCajaFirma);  
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('idActaLiquidacion', idActaLiquidacion);
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]);                
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function DibujeConstanciaFirmaActa(){
+    
+    var idActaLiquidacion=document.getElementById('idActaLiquidacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 5);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('idActaLiquidacion', idActaLiquidacion);
+        
+        $.ajax({
+        url: './Consultas/ActasLiquidacion.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+            document.getElementById('DivConstanciaFirma').innerHTML=data;
+                        
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
 document.getElementById('BtnMuestraMenuLateral').click();
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();

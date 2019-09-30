@@ -96,7 +96,11 @@ if(isset($_REQUEST["idDocumento"])){
         case 36: //PDF de un acta de conciliacion
             $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
             $obDoc->ActaConciliacionPDF($idActaConciliacion,"");            
-        break;//Fin caso 35
+        break;//Fin caso 36
+        case 37: //PDF de un acta de conciliacion
+            $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
+            $obDoc->ActaLiquidacionPDF($idActaLiquidacion,"");            
+        break;//Fin caso 37
     }
 }else{
     print("No se recibió parametro de documento");

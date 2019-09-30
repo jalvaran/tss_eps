@@ -888,7 +888,7 @@ class ValidacionesEPS extends conexion{
         $sql="SELECT NumeroFactura,Diferencia,TotalPagos,TotalAnticipos,TotalCopagos,DescuentoPGP,
                OtrosDescuentos,AjustesCartera,TotalGlosaFavor,TotalGlosaContra,GlosaXConciliar,
                TotalDevoluciones,Impuestos FROM $db.hoja_de_trabajo WHERE ABS(DiferenciaVariada)>1;
-                ";
+                 ";
         
         $Consulta=$this->Query($sql);
         $d=0;

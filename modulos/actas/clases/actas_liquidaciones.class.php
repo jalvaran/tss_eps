@@ -54,6 +54,8 @@ class ActasLiquidacion extends conexion{
         $Datos["IPS_Domicilio"]=$DomicilioRepresentanteIPS;
         $Datos["IPS_Direccion"]=$DireccionRepresentanteIPS;
         $Datos["IPS_Telefono"]=$TelefonoRepresentanteIPS;
+        $Datos["FechaFirma"]=$Fecha;
+        $Datos["CiudadFirma"]='POPAYAN';
         $Datos["idUser"]=$idUser;
         $Datos["FechaRegistro"]=$Fecha;
         $sql=$this->getSQLInsert("actas_liquidaciones", $Datos);
