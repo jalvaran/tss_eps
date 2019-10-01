@@ -277,6 +277,18 @@ if( !empty($_REQUEST["Accion"]) ){
                     ";
             $obCon->Query($sql);
             
+            $obCon->ActualizaRegistro("actas_liquidaciones", "Estado", 1, "ID", $idActaLiquidacion);
+            $sql="UPDATE $db.carteraeps t1 INNER JOIN $db.actas_liquidaciones_items t2 
+                    ON t1.NumeroFactura = t2.Numerofactura SET t1.Estado=3 
+                    WHERE t2.idActaLiquidacion='$idActaLiquidacion'";
+            $obCon->Query($sql);
+            $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=37&idActaLiquidacion=$idActaLiquidacion";
+            $html=("<br><a href='$Ruta' target='_BLANK'><button class='btn btn-success'>Imprimir PDF</button></a>");
+            $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=10&idActaLiquidacion=$idActaLiquidacion&NIT_IPS=$CmbIPS";
+            $html.=(" <a href='$Ruta' target='_BLANK'><button class='btn btn-primary'>Anexo por Facturas del Acta</button></a>");
+            $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=11&idActaLiquidacion=$idActaLiquidacion&NIT_IPS=$CmbIPS";
+            $html.=(" <a href='$Ruta' target='_BLANK'><button class='btn btn-warning'>Anexo por Radicados del Acta</button></a>");
+            print("OK;Se realizó la Actualización de los estados para cerrar el Acta $html");
             print("OK;Anexo por radicados del acta de liquidación $idActaLiquidacion Guardado");
         break;//Fin caso 9
     }

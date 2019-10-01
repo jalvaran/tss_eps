@@ -680,8 +680,10 @@ function CerrarActaLiquidacionRadicados(){
            if(respuestas[0]==="OK"){   
                 
                 alertify.success(respuestas[1]); 
-                document.getElementById('DivMensajesCerrarActa').innerHTML=document.getElementById('DivMensajesCerrarActa').innerHTML+"<br>"+respuestas[1];
-                
+                //document.getElementById('DivMensajesCerrarActa').innerHTML=document.getElementById('DivMensajesCerrarActa').innerHTML+"<br>"+respuestas[1];
+                document.getElementById('DivTab1').innerHTML=respuestas[1];
+                document.getElementById('DivTab1').innerHTML='';
+                document.getElementById('DivTab1SelectorActas').innerHTML='';
                 document.getElementById(idBoton).disabled=false;
             }else if(respuestas[0]==="E1"){
                 document.getElementById(idBoton).disabled=false;
