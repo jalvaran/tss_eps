@@ -592,9 +592,9 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td colspan=2>");
                         $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=37&idActaLiquidacion=$idActaLiquidacion";
                         print("<a href='$Ruta' target='_BLANK'><button class='btn btn-success'>Imprimir PDF</button></a>");
-                        $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=3&idActaConciliacion=$idActaLiquidacion&db=$db";
+                        $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=8&idActaLiquidacion=$idActaLiquidacion&db=$db";
                         print(" <a href='$Ruta' target='_BLANK'><button class='btn btn-primary'>Anexo por facturas</button></a>");
-                        $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=4&idActaConciliacion=$idActaLiquidacion&db=$db";
+                        $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=9&idActaLiquidacion=$idActaLiquidacion&db=$db";
                         print(" <a href='$Ruta' target='_BLANK'><button class='btn btn-warning'>Anexo por radicados</button></a>");
                         
                     print("</td>");

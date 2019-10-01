@@ -507,9 +507,110 @@ if(isset($_REQUEST["Opcion"])){
             print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar</h1></a></div>");
             break;//Fin caso 7
         
+       
+        
+        case 8: //Exportar CSV Anexo Acta Liquidacion por facturas
+            $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
+            $DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion); 
+            $MesServicioInicial=$DatosActa["MesServicioInicial"];
+            $MesServicioFinal=$DatosActa["MesServicioFinal"];
+            $db=$obCon->normalizar($_REQUEST["db"]);
+            $NIT= str_replace("ts_eps_ips_", "", $db);
+            $Tabla="actas_conciliaciones_items";
+            $FileName="AnexoActa_Liquidacion_$idActaLiquidacion"."_".$idUser.".csv";
+            $Link.= $FileName;
+            $OuputFile.=$FileName;
+            
+            if(file_exists($Link)){
+                unlink($Link);
+            }
+            
+            
+            //$Condicion=" WHERE EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=$Tabla.NumeroContrato AND t2.idActaConciliacion='$idActaConciliacion') AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
+            $Condicion=" WHERE ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato) ";
+            
+            $Separador=";";
+            $NumPage="";
+            $limit="";
+            $startpoint="";
+            
+            
+            $sqlColumnas="SELECT  ";
+            $Columnas=$obCon->ShowColums($db.".".$Tabla);
+            //print_r($Columnas);
+            foreach ($Columnas["Field"] as $key => $value) {
+                $sqlColumnas.="'$value',";
+            }
+            $sqlColumnas=substr($sqlColumnas, 0, -1);
+            $sqlColumnas.=" UNION ALL ";
+            
+            $sql=$sqlColumnas." SELECT * FROM $db.$Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
+            //print($sql);
+            $Fecha=date("Ymd_His");
+            $obCon->Query($sql);
+           
+            $NombreArchivo="ActaLiquidacion_por_facturas_$idActaLiquidacion"."_$Fecha";
+            print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar</h1></a></div>");
+        break;//Fin caso 8
+        
+        case 9: //Exportar CSV Anexo Acta Liquidacion por radicados
+            $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
+            $DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion); 
+            $MesServicioInicial=$DatosActa["MesServicioInicial"];
+            $MesServicioFinal=$DatosActa["MesServicioFinal"];
+            $db=$obCon->normalizar($_REQUEST["db"]);
+            $NIT= str_replace("ts_eps_ips_", "", $db);
+            $Tabla="actas_conciliaciones_items";
+            $FileName="AnexoActa_Liquidacion_$idActaLiquidacion"."_".$idUser.".csv";
+            $Link.= $FileName;
+            $OuputFile.=$FileName;
+            
+            if(file_exists($Link)){
+                unlink($Link);
+            }
+            
+            
+            //$Condicion=" WHERE EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=$Tabla.NumeroContrato AND t2.idActaConciliacion='$idActaConciliacion') AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
+            $Condicion=" WHERE ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato) GROUP BY NumeroRadicado,MesServicio,NumeroContrato";
+            
+            $Separador=";";
+            $NumPage="";
+            $limit="";
+            $startpoint="";
+            
+            
+            $sqlColumnas="SELECT 'Mes de Servicio','Departamento de Radicacion','Numero de Radicado','Fecha de Radicado',
+                    'Numer de oContrato','Valor del Documento','Impuestos','Total Pagos','Total Anticipos','Total Copagos',
+                    'DescuentoPGP','Descuento BDUA','Otros Descuentos','Ajustes de Cartera','Total Glosa Inicial','Total Glosa Favor',
+                    'Total Glosa Contra','Glosa por Conciliar','Total de Devoluciones','Valor Segun EPS','Valor Segun IPS','Diferencia'
+                    ";
+            /*
+            $Columnas=$obCon->ShowColums($db.".".$Tabla);
+            //print_r($Columnas);
+            foreach ($Columnas["Field"] as $key => $value) {
+                $sqlColumnas.="'$value',";
+            }
+            $sqlColumnas=substr($sqlColumnas, 0, -1);
+             * 
+             */
+            $sqlColumnas.=" UNION ALL ";
+            
+            $sql=$sqlColumnas." SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,FechaRadicado,NumeroContrato,SUM(ValorDocumento) AS ValorDocumento,
+                                SUM(Impuestos) AS Impuestos,SUM(TotalPagos) AS TotalPagos,SUM(TotalAnticipos) AS TotalAnticipos,SUM(TotalCopagos) AS TotalCopagos,
+                                SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos) AS OtrosDescuentos,SUM(AjustesCartera) AS AjustesCartera
+                                ,SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,SUM(TotalGlosaContra) AS TotalGlosaContra,
+                                SUM(GlosaXConciliar) AS GlosaXConciliar,SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS ValorSegunEPS,
+                                SUM(ValorSegunIPS) AS ValorSegunIPS,SUM(Diferencia) AS Diferencia 
+                                FROM $db.$Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
+            //print($sql);
+            $Fecha=date("Ymd_His");
+            $obCon->Query($sql);
+           
+            $NombreArchivo="ActaLiquidacion_Radicados_$idActaLiquidacion"."_$Fecha";
+            print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar</h1></a></div>");
+        break;//Fin caso 9
+        
         }
-        
-        
 }else{
     print("No se recibió parametro de opcion");
 }

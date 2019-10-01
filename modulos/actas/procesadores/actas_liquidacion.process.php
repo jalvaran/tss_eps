@@ -208,6 +208,77 @@ if( !empty($_REQUEST["Accion"]) ){
             
             print("OK;Campo $CampoEditar de las firmas ha sido Editado");
         break;//Fin caso 7
+        
+        case 8://Cerrar el acta de liquidacion copiar los registros en la tabla de anexo del acta de liquidacion por facturas
+            $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
+            
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            
+            $DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion); 
+            $MesServicioInicial=$DatosActa["MesServicioInicial"];
+            $MesServicioFinal=$DatosActa["MesServicioFinal"];
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $FechaRegistra=date("Y-m-d H:i:s");
+            $TablaDestino="actas_liquidaciones_items";
+            $TablaOrigen="actas_conciliaciones_items";
+            $sql="INSERT INTO $db.$TablaDestino 
+                    (idActaLiquidacion,FechaFactura,MesServicio,DepartamentoRadicacion,NumeroRadicado,
+                    FechaRadicado,NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,TotalPagos,TotalAnticipos,
+                    TotalCopagos,DescuentoPGP,DescuentoBDUA,OtrosDescuentos,AjustesCartera,TotalGlosaInicial,TotalGlosaFavor,
+                    TotalGlosaContra,GlosaXConciliar,TotalDevoluciones,ValorSegunEPS,ValorSegunIPS,Diferencia,
+                    NoRelacionada,idUser,FechaRegistro)
+                    SELECT '$idActaLiquidacion',FechaFactura,MesServicio,DepartamentoRadicacion,NumeroRadicado,
+                    FechaRadicado,NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,TotalPagos,TotalAnticipos,
+                    TotalCopagos,DescuentoPGP,DescuentoBDUA,OtrosDescuentos,AjustesCartera,TotalGlosaInicial,TotalGlosaFavor,
+                    TotalGlosaContra,GlosaXConciliar,TotalDevoluciones,ValorSegunEPS,ValorSegunIPS,Diferencia,
+                    NoRelacionada,'$idUser','$FechaRegistra' 
+                    FROM $db.$TablaOrigen WHERE                    
+                      ($TablaOrigen.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$TablaOrigen.NumeroContrato) 
+                    ";
+            $obCon->Query($sql);
+            
+            print("OK;Anexo por facturas del acta de liquidación $idActaLiquidacion Guardado");
+        break;//Fin caso 8  
+    
+        case 9://Copiar anexo por radicados
+            $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
+            
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            
+            $DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion); 
+            $MesServicioInicial=$DatosActa["MesServicioInicial"];
+            $MesServicioFinal=$DatosActa["MesServicioFinal"];
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            $FechaRegistra=date("Y-m-d H:i:s");
+            $TablaDestino="actas_liquidaciones_radicados_items";
+            $TablaOrigen="actas_conciliaciones_items";
+            $sql="INSERT INTO $db.$TablaDestino 
+                    (idActaLiquidacion,MesServicio,DepartamentoRadicacion,NumeroRadicado,
+                    FechaRadicado,NumeroContrato,ValorDocumento,Impuestos,TotalPagos,TotalAnticipos,
+                    TotalCopagos,DescuentoPGP,DescuentoBDUA,OtrosDescuentos,AjustesCartera,TotalGlosaInicial,TotalGlosaFavor,
+                    TotalGlosaContra,GlosaXConciliar,TotalDevoluciones,ValorSegunEPS,ValorSegunIPS,Diferencia,
+                    NoRelacionada,idUser,FechaRegistro)
+                    SELECT '$idActaLiquidacion',MesServicio,DepartamentoRadicacion,NumeroRadicado,FechaRadicado,NumeroContrato,SUM(ValorDocumento) AS ValorDocumento,
+                                SUM(Impuestos) AS Impuestos,SUM(TotalPagos) AS TotalPagos,SUM(TotalAnticipos) AS TotalAnticipos,SUM(TotalCopagos) AS TotalCopagos,
+                                SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos) AS OtrosDescuentos,SUM(AjustesCartera) AS AjustesCartera
+                                ,SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,SUM(TotalGlosaContra) AS TotalGlosaContra,
+                                SUM(GlosaXConciliar) AS GlosaXConciliar,SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS ValorSegunEPS,
+                                SUM(ValorSegunIPS) AS ValorSegunIPS,SUM(Diferencia) AS Diferencia,
+                    NoRelacionada,'$idUser','$FechaRegistra' 
+                    FROM $db.$TablaOrigen WHERE                    
+                      ($TablaOrigen.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$TablaOrigen.NumeroContrato)
+                    GROUP BY NumeroRadicado,MesServicio,NumeroContrato;      
+                    ";
+            $obCon->Query($sql);
+            
+            print("OK;Anexo por radicados del acta de liquidación $idActaLiquidacion Guardado");
+        break;//Fin caso 9
     }
     
     

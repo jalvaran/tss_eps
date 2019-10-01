@@ -600,6 +600,110 @@ function EditeFirmaActaConciliacion(idFirma,idCajaFirma,CampoEditar){
       })
 }
 
+function CerrarActaLiquidacion(){
+    var idBoton="btnGuardarActaLiquidacion";    
+    document.getElementById(idBoton).disabled=true;
+    var idActaLiquidacion=document.getElementById('idActaLiquidacion').value;
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 8);
+         
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('idActaLiquidacion', idActaLiquidacion);
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]); 
+                CerrarActaLiquidacionRadicados();
+                document.getElementById('DivMensajesCerrarActa').innerHTML=respuestas[1];
+                
+            }else if(respuestas[0]==="E1"){
+                document.getElementById(idBoton).disabled=false;
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById(idBoton).disabled=false;
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function CerrarActaLiquidacionRadicados(){
+    var idBoton="btnGuardarActaLiquidacion";    
+    document.getElementById(idBoton).disabled=true;
+    var idActaLiquidacion=document.getElementById('idActaLiquidacion').value;
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 9);
+         
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('idActaLiquidacion', idActaLiquidacion);
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]); 
+                document.getElementById('DivMensajesCerrarActa').innerHTML=document.getElementById('DivMensajesCerrarActa').innerHTML+"<br>"+respuestas[1];
+                
+                document.getElementById(idBoton).disabled=false;
+            }else if(respuestas[0]==="E1"){
+                document.getElementById(idBoton).disabled=false;
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById(idBoton).disabled=false;
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
 function DibujeConstanciaFirmaActa(){
     
     var idActaLiquidacion=document.getElementById('idActaLiquidacion').value;

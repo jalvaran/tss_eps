@@ -604,7 +604,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
         
         $html= $this->FirmasActaLiquidacion($DatosActa);        
-        $this->PDF->writeHTML("<br><br><br><br><br>".$html, true, false, false, false, '');
+        $this->PDF->writeHTML("<br><br><br>".$html, true, false, false, false, '');
         /*
         
         $html=$this->FirmasActaConciliacion($DatosActa);
@@ -624,7 +624,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $SaldoAPagarContratante=$DatosActa["Saldo"];
         }
         $html="";
-        if($TipoActa==1){
+        if($TipoActa==1 or $TipoActa==7 or $TipoActa==9){
             $html='<table cellspacing="3" cellpadding="2" border="1">
                         <tr>
                             <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
@@ -737,8 +737,8 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         //$dia=$obNumLetra->convertir(31);
         $mes=$obNumLetra->meses($DatosFechaFirma[1]);
         $anio=$obNumLetra->convertir($DatosFechaFirma[0]);
-        $html=("Para constancia se firma en <strong>".($DatosActa["CiudadFirma"])."</strong>");
-        $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]):<br><br><br><br><br>");
+        $html=('<p align="justify">Para constancia se firma en <strong>'.($DatosActa["CiudadFirma"])."</strong>");
+        $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]),  en dos Originales uno para la IPS y otro para la EPS:<br><br><br><br><br></p>");
         
         $sql="SELECT * FROM actas_liquidaciones_firmas WHERE idActaLiquidacion='$idActaLiquidacion'";
         $Consulta=$this->obCon->Query($sql);
@@ -823,7 +823,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
     
     public function ConsideracionesActa($idActaLiquidacion,$TipoActa) {
         $obCon=new conexion(1);
-        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND SUBSTRING(Numeral,1,2)<>'op'";
+        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND SUBSTRING(Numeral,1,2)<>'op' ORDER BY ID";
         
         $Consulta=$obCon->Query($sql);
         $html="";
