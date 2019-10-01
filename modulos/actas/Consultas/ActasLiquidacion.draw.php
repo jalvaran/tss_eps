@@ -659,7 +659,151 @@ if( !empty($_REQUEST["Accion"]) ){
 
             print(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]):");
         break;// Fin caso 5
-        
+        case 6: //dibuje el listado de actas de liquidacion
+            //$CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
+            //Paginacion
+            if(isset($_REQUEST['Page'])){
+                $NumPage=$obCon->normalizar($_REQUEST['Page']);
+            }else{
+                $NumPage=1;
+            }
+            $Condicional="";
+            if(isset($_REQUEST['Busqueda'])){
+                $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
+                if($Busqueda<>''){
+                    $Condicional=" WHERE ID = '$Busqueda%' or NIT_IPS='$Busqueda' or RazonSocialIPS like '%$Busqueda%' ";
+                }
+                
+            }
+            
+            $dbPrincipal=DB;
+            $statement=" `actas_liquidaciones` $Condicional ";
+            if(isset($_REQUEST['st'])){
+
+                $statement= urldecode($_REQUEST['st']);
+                //print($statement);
+            }
+            
+            $limit = 20;
+            $startpoint = ($NumPage * $limit) - $limit;
+            $VectorST = explode("LIMIT", $statement);
+            $statement = $VectorST[0]; 
+            $query = "SELECT COUNT(*) as `num`,SUM(Saldo) AS TotalEPS FROM {$statement}";
+            $row = $obCon->FetchArray($obCon->Query($query));
+            $ResultadosTotales = $row['num'];
+            $TotalEPS=$row['TotalEPS'];
+            
+            $st_reporte=$statement;
+            $Limit=" LIMIT $startpoint,$limit";
+            
+            $query="SELECT * ";
+            $Consulta=$obCon->Query("$query FROM $statement $Limit");
+            
+            $css->CrearTabla();
+            
+            
+                $css->FilaTabla(16);
+                    print("<td style='text-align:center'>");
+                        print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
+                    print("</td>");
+                    print("<td colspan=3 style='text-align:center'>");
+                        print("<strong>Saldo:</strong> <h4 style=color:red>". number_format($TotalEPS)."</h4>");
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$dbPrincipal','actas_liquidaciones','$st_reporte')", "verde", "");
+                    print("</td>");
+                    
+                //$css->CierraFilaTabla();
+                
+                $st= urlencode($st_reporte);
+                    if($ResultadosTotales>$limit){
+
+                        //$css->FilaTabla(14);
+                            
+                            $TotalPaginas= ceil($ResultadosTotales/$limit);
+                            print("<td  style=text-align:center>");
+                            //print("<strong>Página: </strong>");
+                            
+                            print('<div class="input-group" style=width:150px>');
+                            if($NumPage>1){
+                                $NumPage1=$NumPage-1;
+                            print('<span class="input-group-addon" onclick=CambiePagina('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-left"></i></span>');
+                            }
+                            $FuncionJS="onchange=CambiePagina();";
+                            $css->select("CmbPage", "form-control", "CmbPage", "", "", $FuncionJS, "");
+                            
+                                for($p=1;$p<=$TotalPaginas;$p++){
+                                    if($p==$NumPage){
+                                        $sel=1;
+                                    }else{
+                                        $sel=0;
+                                    }
+                                    
+                                    $css->option("", "", "", $p, "", "",$sel);
+                                        print($p);
+                                    $css->Coption();
+                                    
+                                }
+
+                            $css->Cselect();
+                            if($ResultadosTotales>($startpoint+$limit)){
+                                $NumPage1=$NumPage+1;
+                            print('<span class="input-group-addon" onclick=CambiePagina('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-right" ></i></span>');
+                            }
+                            print("<div>");
+                            print("</td>");
+                            
+                            
+                           $css->CierraFilaTabla(); 
+                        }
+                      
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Acciones</strong>", 1);
+                    $css->ColTabla("<strong>ID</strong>", 1);
+                    $css->ColTabla("<strong>Fecha Inicial</strong>", 1);
+                    $css->ColTabla("<strong>Fecha Final</strong>", 1);
+                    $css->ColTabla("<strong>Tipo de Acta</strong>", 1);
+                    $css->ColTabla("<strong>Razon Social de la IPS</strong>", 1);
+                    $css->ColTabla("<strong>NIT IPS</strong>", 1);
+                    
+                    $css->ColTabla("<strong>Usuario Creador</strong>", 1);
+                    $css->ColTabla("<strong>Fecha de Registro</strong>", 1);
+                    
+                $css->CierraFilaTabla();
+                
+                
+                while($DatosConciliacion=$obCon->FetchAssoc($Consulta)){
+                    $css->FilaTabla(14);
+                        $idActaConciliacion=$DatosConciliacion["ID"];
+                        $NIT_IPS=$DatosConciliacion["NIT_IPS"];
+                        print("<td>");
+                            $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=37&idActaLiquidacion=$idActaConciliacion";
+                            print("<a href='$Ruta' target='_BLANK'><button class='form-control btn btn-success'>Imprimir PDF</button></a>");
+                            if($DatosConciliacion["Estado"]=="1"){ //Si el acta está cerrada
+                                print("<br>");
+                                $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=6&idActaConciliacion=$idActaConciliacion&NIT_IPS=$NIT_IPS";
+                                print(" <a href='$Ruta' target='_BLANK'><button class='form-control btn btn-primary'>Anexo del Acta</button></a>");
+                            }
+                        print("</td>");
+                        
+                        $css->ColTabla($DatosConciliacion["ID"], 1);
+                        $css->ColTabla($DatosConciliacion["FechaInicial"], 1);
+                        $css->ColTabla($DatosConciliacion["FechaFinal"], 1);
+                        $css->ColTabla($DatosConciliacion["TipoActaLiquidacion"], 1);
+                        $css->ColTabla($DatosConciliacion["RazonSocialIPS"], 1);
+                        $css->ColTabla($DatosConciliacion["NIT_IPS"], 1);
+                        
+                        $css->ColTabla($DatosConciliacion["idUser"], 1);
+                        $css->ColTabla($DatosConciliacion["FechaRegistro"], 1);
+                        
+                    $css->CierraFilaTabla();
+                }
+            $css->CerrarTabla();
+            
+        break;//Fin caso 6
     }
     
           

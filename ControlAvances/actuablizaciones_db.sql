@@ -84,3 +84,10 @@ ALTER TABLE `actas_conciliaciones` ADD `MesServicioInicial` INT(6) NOT NULL AFTE
 
 ALTER TABLE `actas_conciliaciones_items` ADD `DescuentoBDUA` DOUBLE NOT NULL AFTER `DescuentoPGP`;
 
+INSERT INTO `menu_carpetas` (`ID`, `Ruta`, `Updated`, `Sync`) VALUES
+(12,	'../modulos/actas/',	'2019-05-20 09:17:15',	'0000-00-00 00:00:00');
+
+INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
+(31,	'Actas de Liquidación',	13,	12,	4,	'',	1,	'',	'ActasLiquidacion.php',	'_SELF',	1,	'af.png',	3,	'2019-05-27 17:55:48',	'0000-00-00 00:00:00'),
+(30,	'Actas de Conciliación',	13,	12,	4,	'',	1,	'',	'ActasConciliacion.php',	'_SELF',	1,	'acta.png',	2,	'2019-05-27 17:55:48',	'0000-00-00 00:00:00');
+
