@@ -185,6 +185,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     . "INNER JOIN actas_liquidaciones_tipo t2 ON t2.ID=t1.TipoActaLiquidacion WHERE t1.ID='$idActaLiquidacion';";
             
             $DatosActa=$obCon->FetchAssoc($obCon->Query($sql));
+            $TipoActa=$DatosActa["TipoActaLiquidacion"];
             $MesServicioInicial=$DatosActa["MesServicioInicial"];
             $MesServicioFinal=$DatosActa["MesServicioFinal"];
                     
@@ -393,7 +394,8 @@ if( !empty($_REQUEST["Accion"]) ){
                         SUM(t1.TotalGlosaInicial) as Glosa, SUM(t1.TotalGlosaFavor) AS GlosaFavor,
                         SUM(t1.TotalCopagos) as Copagos, SUM(t1.OtrosDescuentos) AS OtrosDescuentos,
                         SUM(t1.TotalPagos) as TotalPagos,SUM(t1.TotalAnticipos) as TotalAnticipos,
-                        SUM(t1.AjustesCartera) as AjustesCartera,SUM(t1.ValorSegunEPS) AS Saldo 
+                        SUM(t1.AjustesCartera) as AjustesCartera,SUM(t1.ValorSegunEPS) AS Saldo,
+                        SUM(t1.DescuentoBDUA) as DescuentoBDUA
                         FROM $db.actas_conciliaciones_items t1 
                         WHERE EXISTS 
                         (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato);  ";
@@ -409,7 +411,8 @@ if( !empty($_REQUEST["Accion"]) ){
                                 RecuperacionImpuestos=0, 
                                 OtrosDescuentos=$TotalesActa[OtrosDescuentos] + $TotalesActa[AjustesCartera] , 
                                 ValorPagado=$TotalesActa[TotalPagos],
-                                Saldo=$TotalesActa[Saldo]
+                                Saldo=$TotalesActa[Saldo],
+                                DescuentoBDUA=$TotalesActa[DescuentoBDUA]    
                               
                             WHERE ID='$idActaLiquidacion'
                              ";
@@ -418,38 +421,75 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->FilaTabla(16);
                         $css->ColTabla("<strong>TOTALES ACTA DE LIQUIDACIÓN:</strong>", 5,'C');
                     $css->CierraFilaTabla();
-                    $css->FilaTabla(16);
-                        $css->ColTabla("<strong>VALOR FACTURADO</strong>", 1);
-                        $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);
-                        $css->ColTabla("<strong>DEVOLUCION</strong>", 1);
-                        $css->ColTabla("<strong>GLOSA</strong>", 1);
-                        $css->ColTabla("<strong>GLOSA A FAVOR DE ASMET</strong>", 1);
-                    $css->CierraFilaTabla();
+                    if($TipoActa==1){
+                        $css->FilaTabla(16);
+                            $css->ColTabla("<strong>VALOR FACTURADO</strong>", 1);
+                            $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);
+                            $css->ColTabla("<strong>DEVOLUCION</strong>", 1);
+                            $css->ColTabla("<strong>GLOSA</strong>", 1);
+                            $css->ColTabla("<strong>GLOSA A FAVOR DE ASMET</strong>", 1);
+                        $css->CierraFilaTabla();
+
+                        $css->FilaTabla(16);
+                            $css->ColTabla(number_format($DatosActa["ValorFacturado"]), 1);
+                            $css->ColTabla(number_format($DatosActa["RetencionImpuestos"]), 1);
+                            $css->ColTabla(number_format($DatosActa["Devolucion"]), 1);
+                            $css->ColTabla(number_format($DatosActa["Glosa"]), 1);
+                            $css->ColTabla(number_format($DatosActa["GlosaFavor"]), 1);
+                        $css->CierraFilaTabla();
+
+                        $css->FilaTabla(16);
+                            $css->ColTabla("<strong>NOTA CREDITO / COPAGOS</strong>", 1);
+                            $css->ColTabla("<strong>RECUPERACION EN IMPUESTOS</strong>", 1);
+                            $css->ColTabla("<strong>OTROS DESCUENTOS</strong>", 1);
+                            $css->ColTabla("<strong>VALOR PAGADO</strong>", 1);
+                            $css->ColTabla("<strong>SALDO</strong>", 1);
+                        $css->CierraFilaTabla();
+
+                        $css->FilaTabla(16);
+                            $css->ColTabla(number_format($DatosActa["NotasCopagos"]), 1);
+                            $css->ColTabla(number_format($DatosActa["RecuperacionImpuestos"]), 1);
+                            $css->ColTabla(number_format($DatosActa["OtrosDescuentos"]), 1);
+                            $css->ColTabla(number_format($DatosActa["ValorPagado"]), 1);
+                            $css->ColTabla(number_format($DatosActa["Saldo"]), 1);
+                        $css->CierraFilaTabla();
+                    }
                     
-                    $css->FilaTabla(16);
-                        $css->ColTabla(number_format($DatosActa["ValorFacturado"]), 1);
-                        $css->ColTabla(number_format($DatosActa["RetencionImpuestos"]), 1);
-                        $css->ColTabla(number_format($DatosActa["Devolucion"]), 1);
-                        $css->ColTabla(number_format($DatosActa["Glosa"]), 1);
-                        $css->ColTabla(number_format($DatosActa["GlosaFavor"]), 1);
-                    $css->CierraFilaTabla();
-                    
-                    $css->FilaTabla(16);
-                        $css->ColTabla("<strong>NOTA CREDITO / COPAGOS</strong>", 1);
-                        $css->ColTabla("<strong>RECUPERACION EN IMPUESTOS</strong>", 1);
-                        $css->ColTabla("<strong>OTROS DESCUENTOS</strong>", 1);
-                        $css->ColTabla("<strong>VALOR PAGADO</strong>", 1);
-                        $css->ColTabla("<strong>SALDO</strong>", 1);
-                    $css->CierraFilaTabla();
-                    
-                    $css->FilaTabla(16);
-                        $css->ColTabla(number_format($DatosActa["NotasCopagos"]), 1);
-                        $css->ColTabla(number_format($DatosActa["RecuperacionImpuestos"]), 1);
-                        $css->ColTabla(number_format($DatosActa["OtrosDescuentos"]), 1);
-                        $css->ColTabla(number_format($DatosActa["ValorPagado"]), 1);
-                        $css->ColTabla(number_format($DatosActa["Saldo"]), 1);
-                    $css->CierraFilaTabla();
-                    
+                    if($TipoActa==4){
+                        $css->FilaTabla(16);
+                            $css->ColTabla("<strong>VALOR FACTURADO</strong>", 1);
+                            $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);
+                            $css->ColTabla("<strong>Descuento o Reconocimiento por BDUA</strong>", 1);
+                            $css->ColTabla("<strong>DESCUENTOS CONCILIADO A FAVOR ASMET</strong>", 1);
+                            $css->ColTabla("<strong>VALOR PAGADO</strong>", 1);
+                            $css->ColTabla("<strong>SALDO</strong>", 1);
+                        $css->CierraFilaTabla();
+
+                        $css->FilaTabla(16);
+                            $css->ColTabla(number_format($DatosActa["ValorFacturado"]), 1);
+                            $css->ColTabla(number_format($DatosActa["RetencionImpuestos"]), 1);
+                            $css->ColTabla(number_format($DatosActa["DescuentoBDUA"]), 1);
+                            $css->ColTabla(number_format($DatosActa["GlosaFavor"]), 1);
+                            $css->ColTabla(number_format($DatosActa["ValorPagado"]), 1);
+                            $css->ColTabla(number_format($DatosActa["Saldo"]), 1);
+                        $css->CierraFilaTabla();
+
+                        $css->FilaTabla(16);
+                            $css->ColTabla("<strong>NOTA CREDITO / COPAGOS</strong>", 1);
+                            $css->ColTabla("<strong>RECUPERACION EN IMPUESTOS</strong>", 1);
+                            $css->ColTabla("<strong>OTROS DESCUENTOS</strong>", 1);
+                            $css->ColTabla("<strong>VALOR PAGADO</strong>", 1);
+                            $css->ColTabla("<strong>SALDO</strong>", 1);
+                        $css->CierraFilaTabla();
+
+                        $css->FilaTabla(16);
+                            $css->ColTabla(number_format($DatosActa["NotasCopagos"]), 1);
+                            $css->ColTabla(number_format($DatosActa["RecuperacionImpuestos"]), 1);
+                            $css->ColTabla(number_format($DatosActa["OtrosDescuentos"]), 1);
+                            $css->ColTabla(number_format($DatosActa["ValorPagado"]), 1);
+                            $css->ColTabla(number_format($DatosActa["Saldo"]), 1);
+                        $css->CierraFilaTabla();
+                    }
                     print("<tr>");
                     print("<td colspan=5 style=font-size:16px;text-align:center>");
                         print("<strong>AGREGAR FIRMAS:</strong>");

@@ -591,9 +591,20 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $html= $this->ObservacionesActaLiquidacion2($idActaLiquidacion,$TipoActa);        
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
-        $html= $this->TotalesActaLiquidacion($DatosActa);
+        $html= $this->TotalesActaLiquidacion($DatosActa,$TipoActa);
         $this->PDF->writeHTML("<br><br>".$html, true, false, false, false, '');
         
+        $html= $this->ObservacionesActaLiquidacion3($idActaLiquidacion,$TipoActa,$DatosActa);        
+        $this->PDF->writeHTML("".$html, true, false, false, false, '');
+        
+        $html= $this->ObservacionesActaLiquidacion4($idActaLiquidacion,$TipoActa);        
+        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        
+        $html= $this->ObservacionesActaLiquidacion5($idActaLiquidacion,$TipoActa);        
+        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        
+        $html= $this->FirmasActaLiquidacion($DatosActa);        
+        $this->PDF->writeHTML("<br><br><br><br><br>".$html, true, false, false, false, '');
         /*
         
         $html=$this->FirmasActaConciliacion($DatosActa);
@@ -601,10 +612,10 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         
          * 
          */
-        $this->PDF_Output("Acta_Conciliacion_$idActaLiquidacion");
+        $this->PDF_Output("Acta_Liquidacion_$idActaLiquidacion");
     }
     
-    public function TotalesActaLiquidacion($DatosActa) {
+    public function TotalesActaLiquidacion($DatosActa,$TipoActa) {
         $SaldoAPagarContratista=0;
         $SaldoAPagarContratante=0;
         if($DatosActa["Saldo"]>0){
@@ -612,65 +623,201 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         }else{
             $SaldoAPagarContratante=$DatosActa["Saldo"];
         }
-        $html='<table cellspacing="3" cellpadding="2" border="1">
-                    <tr>
-                        <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
-                        <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
-                        <td style="text-align:center;"><strong>DEVOLUCIÓN</strong></td>
-                        <td style="text-align:center;"><strong>GLOSA</strong></td>
-                        <td style="text-align:center;"><strong>GLOSA A FAVOR ASMET</strong></td>
+        $html="";
+        if($TipoActa==1){
+            $html='<table cellspacing="3" cellpadding="2" border="1">
+                        <tr>
+                            <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
+                            <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
+                            <td style="text-align:center;"><strong>DEVOLUCIÓN</strong></td>
+                            <td style="text-align:center;"><strong>GLOSA</strong></td>
+                            <td style="text-align:center;"><strong>GLOSA A FAVOR ASMET</strong></td>
+
+                        </tr>
+
+                        <tr>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["Devolucion"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["Glosa"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]).'</td>
+
+                        </tr>
+                        <tr>
+                            <td colspan="5">
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center;"><strong>NOTA CREDITO / COPAGOS</strong></td>
+                            <td style="text-align:center;"><strong>RECUPERACION EN IMPUESTOS</strong></td>
+                            <td style="text-align:center;"><strong>OTROS DESCUENTOS</strong></td>
+                            <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
+                            <td style="text-align:center;"><strong>SALDO</strong></td>
+
+                        </tr>
+
+                        <tr>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["NotasCopagos"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["RecuperacionImpuestos"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["OtrosDescuentos"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>
+
+                        </tr>
+
+                        <tr>
+                            <td colspan="5">
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE $</strong></td>
+                            <td style="text-align:rigth;">'. number_format($SaldoAPagarContratista).'</td>
+
+                        </tr>
+                        <tr>
+                            <td  colspan="4" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE $</strong></td>
+                            <td style="text-align:rigth;">'. number_format($SaldoAPagarContratante).'</td>
+
+                        </tr>
+
+                    </table>';
+        }
+        
+        if($TipoActa==4){
+            $html='<table cellspacing="3" cellpadding="2" border="1">
+                        <tr>
+                            <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
+                            <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
+                            <td style="text-align:center;"><strong>Descuento o Reconocimiento por BDUA</strong></td>
+                            <td style="text-align:center;"><strong>DESCUENTOS CONCILIADO A FAVOR ASMET</strong></td>
+                            <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
+                            <td style="text-align:center;"><strong>SALDO</strong></td>
+
+                        </tr>
+
+                        <tr>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["DescuentoBDUA"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>    
+
+                        </tr>
+                        <tr>
+                            <td colspan="6">
+
+                            </td>
+                        </tr>
                         
-                    </tr>
-                    
-                    <tr>
-                        <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
-                        <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
-                        <td style="text-align:rigth;">'. number_format($DatosActa["Devolucion"]).'</td>
-                        <td style="text-align:rigth;">'. number_format($DatosActa["Glosa"]).'</td>
-                        <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]).'</td>
-                        
-                    </tr>
-                    <tr>
-                        <td colspan="5">
-                             
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="text-align:center;"><strong>NOTA CREDITO / COPAGOS</strong></td>
-                        <td style="text-align:center;"><strong>RECUPERACION EN IMPUESTOS</strong></td>
-                        <td style="text-align:center;"><strong>OTROS DESCUENTOS</strong></td>
-                        <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
-                        <td style="text-align:center;"><strong>SALDO</strong></td>
-                        
-                    </tr>
-                    
-                    <tr>
-                        <td style="text-align:rigth;">'. number_format($DatosActa["NotasCopagos"]).'</td>
-                        <td style="text-align:rigth;">'. number_format($DatosActa["RecuperacionImpuestos"]).'</td>
-                        <td style="text-align:rigth;">'. number_format($DatosActa["OtrosDescuentos"]).'</td>
-                        <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]).'</td>
-                        <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>
-                        
-                    </tr>
-                    
-                    <tr>
-                        <td colspan="5">
-                             
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="4" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE $</strong></td>
-                        <td style="text-align:rigth;">'. number_format($SaldoAPagarContratista).'</td>
-                       
-                    </tr>
-                    <tr>
-                        <td  colspan="4" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE $</strong></td>
-                        <td style="text-align:rigth;">'. number_format($SaldoAPagarContratante).'</td>
-                       
-                    </tr>
-                                        
-                </table>';
+                        <tr>
+                            <td colspan="5" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE $</strong></td>
+                            <td style="text-align:rigth;">'. number_format($SaldoAPagarContratista).'</td>
+
+                        </tr>
+                        <tr>
+                            <td  colspan="5" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE $</strong></td>
+                            <td style="text-align:rigth;">'. number_format($SaldoAPagarContratante).'</td>
+
+                        </tr>
+
+                    </table>';
+        }
             
+        return($html);
+    }
+    
+    public function FirmasActaLiquidacion($DatosActa) {
+        $idActaLiquidacion=$DatosActa["ID"];
+        $obNumLetra=new numeros_letras();
+        $DatosFechaFirma= explode("-", $DatosActa["FechaFirma"]);  
+        $dia=$obNumLetra->convertir($DatosFechaFirma[2]);
+        //$dia=$obNumLetra->convertir(31);
+        $mes=$obNumLetra->meses($DatosFechaFirma[1]);
+        $anio=$obNumLetra->convertir($DatosFechaFirma[0]);
+        $html=("Para constancia se firma en <strong>".($DatosActa["CiudadFirma"])."</strong>");
+        $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]):<br><br><br><br><br>");
+        
+        $sql="SELECT * FROM actas_liquidaciones_firmas WHERE idActaLiquidacion='$idActaLiquidacion'";
+        $Consulta=$this->obCon->Query($sql);
+        $html.='<table cellspacing="2" cellpadding="2" border="0">';
+        $html.='<tr>';
+        $i=0;
+        while($DatosFirmas=$this->obCon->FetchArray($Consulta)){
+            $i++;
+            $html.='<td><hr>';
+            $html.=''.$DatosFirmas["Nombre"];
+            $html.='<br>'.$DatosFirmas["Cargo"];
+            $html.='<br>'.$DatosFirmas["Empresa"];
+            $html.='</td>';
+            if($i==3){
+                $html.='</tr><br><br><br>';
+                $html.='<tr>';
+            }
+        }
+        if($i==3){
+            $html= substr($html,0,-4);
+        }
+        if($i<>3){
+            $html.='</tr>';
+        }
+        
+        $html.='</table>';
+        //print($html);
+        return($html);
+        
+    }
+    
+    public function ObservacionesActaLiquidacion5($idActaLiquidacion,$TipoActa) {
+        $obCon=new conexion(1);
+        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op5' LIMIT 1";
+        $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
+        $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";        
+        return($html);
+    }
+    public function ObservacionesActaLiquidacion4($idActaLiquidacion,$TipoActa) {
+        $obCon=new conexion(1);
+        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op4' LIMIT 1";
+        $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
+        $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";        
+        return($html);
+    }
+    
+    public function ObservacionesActaLiquidacion3($idActaLiquidacion,$TipoActa,$DatosActa) {
+        $obCon=new conexion(1);
+        $obNumLetra=new numeros_letras();
+        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op3' LIMIT 1";
+        $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
+        $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";
+        $SaldoEnLetras=$obNumLetra->convertir($DatosActa["Saldo"]);
+        $SaldoEnLetras.=" PESOS ($ ".number_format($DatosActa["Saldo"]).")";
+        
+        $html= str_replace("@ValorLetras",strtoupper("<strong>".$SaldoEnLetras."</strong>"), $html);
+        $sql="SELECT t2.* FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente WHERE t1.idActaLiquidacion='$idActaLiquidacion' ORDER BY t1.ID";
+        $Consulta=$obCon->Query($sql);
+        $ContratosActa="";
+        while($DatosContratos=$obCon->FetchAssoc($Consulta)){
+            $FechaInicial=explode("-",$DatosContratos["FechaInicioContrato"]);             
+            $dia=$obNumLetra->convertir($FechaInicial[2]); 
+            if($dia=="un"){
+                $dia="primero";
+            }
+            $mes=$obNumLetra->meses($FechaInicial[1]);
+            $anio=$obNumLetra->convertir($FechaInicial[0]);
+            $FechaFinal=explode("-",$DatosContratos["FechaFinalContrato"]);
+            $diaFin=$obNumLetra->convertir($FechaFinal[2]); 
+            if($diaFin=="un"){
+                $diaFin="primero";
+            }
+            $mesFin=$obNumLetra->meses($FechaFinal[1]);
+            $anioFin=$obNumLetra->convertir($FechaFinal[0]);
+            $ContratosActa.="<strong>".$DatosContratos["Contrato"]."</strong> con vigencia del $dia de $mes del $anio al $diaFin de $mesFin del $anioFin, ";
+        }
+        $ContratosActa=substr($ContratosActa,0,-2);
+        
+        $html= str_replace("@Numerocontratos", $ContratosActa, $html);
         return($html);
     }
     

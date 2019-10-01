@@ -82,4 +82,5 @@ INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`,
 ALTER TABLE `actas_conciliaciones` ADD `FechaInicial` DATE NOT NULL AFTER `ID`;
 ALTER TABLE `actas_conciliaciones` ADD `MesServicioInicial` INT(6) NOT NULL AFTER `Estado`, ADD `MesServicioFinal` INT(6) NOT NULL AFTER `MesServicioInicial`;
 
+ALTER TABLE `actas_conciliaciones_items` ADD `DescuentoBDUA` DOUBLE NOT NULL AFTER `DescuentoPGP`;
 
