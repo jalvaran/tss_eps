@@ -415,6 +415,57 @@ function EditeActaLiquidacion(idActaLiquidacion,idCampoTexto,CampoAEditar){
       })
 }
 
+function EditeContrato(idContrato,idCampoTexto,CampoAEditar){
+    
+    var NuevoValor = document.getElementById(idCampoTexto).value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 10);
+        form_data.append('idContrato', idContrato);
+        form_data.append('NuevoValor', NuevoValor); 
+        form_data.append('idCampoTexto', idCampoTexto); 
+        form_data.append('CampoAEditar', CampoAEditar); 
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]);                
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
 function AgregarContratoActaLiquidacion(Contrato,idActaLiquidacion){
     
     
@@ -743,13 +794,13 @@ function CargarHistorialActas(Page=1){
     document.getElementById("DivTab1").innerHTML='<div id="GifProcess">Cargando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
     
     var Busqueda=document.getElementById('TxtBusquedas').value;
-    //var CmbEPS=document.getElementById('CmbEPS').value;
-    //var CmbIPS=document.getElementById('CmbIPS').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
     
     var form_data = new FormData();
         form_data.append('Accion', 6);
-        //form_data.append('CmbIPS', CmbIPS);   
-        //form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
         form_data.append('Page', Page);
         form_data.append('Busqueda', Busqueda);
         $.ajax({

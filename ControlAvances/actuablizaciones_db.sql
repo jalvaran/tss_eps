@@ -91,3 +91,7 @@ INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`,
 (31,	'Actas de Liquidación',	13,	12,	4,	'',	1,	'',	'ActasLiquidacion.php',	'_SELF',	1,	'af.png',	3,	'2019-05-27 17:55:48',	'0000-00-00 00:00:00'),
 (30,	'Actas de Conciliación',	13,	12,	4,	'',	1,	'',	'ActasConciliacion.php',	'_SELF',	1,	'acta.png',	2,	'2019-05-27 17:55:48',	'0000-00-00 00:00:00');
 
+ALTER TABLE `actas_conciliaciones_items` ADD `NumeroDiasLMA` DOUBLE NOT NULL AFTER `NumeroFactura`, ADD `ValorAPagarLMA` DOUBLE NOT NULL AFTER `NumeroDiasLMA`, ADD `CodigoSucursal` DOUBLE NOT NULL AFTER `ValorAPagarLMA`;
+ALTER TABLE `actas_liquidaciones_items` ADD `NumeroDiasLMA` DOUBLE NOT NULL AFTER `NumeroFactura`, ADD `ValorAPagarLMA` DOUBLE NOT NULL AFTER `NumeroDiasLMA`, ADD `CodigoSucursal` DOUBLE NOT NULL AFTER `ValorAPagarLMA`;
+
+

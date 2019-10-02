@@ -181,6 +181,28 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CrearTitulo("Seleccione un acta de liquidación");
                 exit();
             }
+            
+            $DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);
+            
+            if($DatosActa["IPS_Nombres_Representante_Legal"]==''){
+                $obCon->ActualizaRegistro("actas_liquidaciones", "IPS_Nombres_Representante_Legal", $DatosIPS["NombresRepresentante"], "ID", $idActaLiquidacion);
+            }
+            if($DatosActa["IPS_Apellidos_Representante_Legal"]==''){
+                $obCon->ActualizaRegistro("actas_liquidaciones", "IPS_Apellidos_Representante_Legal", $DatosIPS["ApellidosRepresentante"], "ID", $idActaLiquidacion);
+            }
+            if($DatosActa["IPS_Identificacion_Representante_Legal"]==''){
+                $obCon->ActualizaRegistro("actas_liquidaciones", "IPS_Identificacion_Representante_Legal", $DatosIPS["CedulaRepresentante"], "ID", $idActaLiquidacion);
+            }
+            if($DatosActa["IPS_Domicilio"]==''){
+                $obCon->ActualizaRegistro("actas_liquidaciones", "IPS_Domicilio", $DatosIPS["Municipio"], "ID", $idActaLiquidacion);
+            }
+            if($DatosActa["IPS_Direccion"]==''){
+                $obCon->ActualizaRegistro("actas_liquidaciones", "IPS_Direccion", $DatosIPS["Direccion"], "ID", $idActaLiquidacion);
+            }
+            if($DatosActa["IPS_Telefono"]==''){
+                $obCon->ActualizaRegistro("actas_liquidaciones", "IPS_Telefono", $DatosIPS["Telefono"], "ID", $idActaLiquidacion);
+            }
+            
             $sql="SELECT t1.*, t2.Nombre AS NombreTipoActa,t2.Titulo FROM actas_liquidaciones t1 "
                     . "INNER JOIN actas_liquidaciones_tipo t2 ON t2.ID=t1.TipoActaLiquidacion WHERE t1.ID='$idActaLiquidacion';";
             
@@ -215,11 +237,12 @@ if( !empty($_REQUEST["Accion"]) ){
                 $i=0;
                 while ($DatosContratos=$obCon->FetchAssoc($Consulta)){
                     $i++;
+                    
                     $idContrato=$DatosContratos["NumeroContrato"];
                     $sql="SELECT * FROM contratos WHERE NitIPSContratada='$CmbIPS' AND (ContratoEquivalente='$idContrato')";
                     
                     $DatosContratoExistente=$obCon->FetchArray($obCon->Query($sql));
-                    
+                    $idItem=$DatosContratoExistente["ID"];
                     $css->FilaTabla(16);
                         print("<td>");
                             print("<span id='idContratoCapita'>");
@@ -236,9 +259,10 @@ if( !empty($_REQUEST["Accion"]) ){
                                 $css->CrearBotonEvento("btnAsociarContrato", "Asociar Contrato", 1, "onclick", "AsociarContratoEquivalente(`".$DatosContratos["NumeroContrato"]."`,`CmbContratoExistente_$i`)", "verde", "style='width:150px;'");
                                 $css->CrearBotonEvento("btnCrearContrato", "Crear Contrato", 1, "onclick", "AbreFormularioCrearContrato(`".$DatosContratos["NumeroContrato"]."`)", "azul", "style='width:150px;'");
                             }else{
-                                $css->input("date", "FechaInicioContratoCapita", "form-control", "FechaInicioContratoCapita", "", $DatosContratoExistente["FechaInicioContrato"], "Fecha Inicio Contrato", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
-                                $css->input("date", "FechaFinalContratoCapita", "form-control", "FechaFinalContratoCapita", "", $DatosContratoExistente["FechaFinalContrato"], "Fecha Final Contrato", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
-                                $css->input("text", "TxtValorCapita", "form-control", "TxtValorCapita", "", $DatosContratoExistente["ValorContrato"], "Valor Contrato", "off", "", "script");
+                                //$css->input($type, $id, $class, $name, $title, $value, $placeholder, $autocomplete, $vectorhtml, $Script, $styles, $Pattern, $np_app)
+                                $css->input("date", "FechaInicioContratoCapita", "form-control", "FechaInicioContratoCapita", "", $DatosContratoExistente["FechaInicioContrato"], "Fecha Inicio Contrato", "","", "onchange=EditeContrato(`$idItem`,`FechaInicioContratoCapita`,`FechaInicioContrato`)", "style='line-height: 15px;'"."max=".date("Y-m-d"));
+                                $css->input("date", "FechaFinalContratoCapita", "form-control", "FechaFinalContratoCapita", "", $DatosContratoExistente["FechaFinalContrato"], "Fecha Final Contrato", "", "","onchange=EditeContrato(`$idItem`,`FechaFinalContratoCapita`,`FechaFinalContrato`)", "style='line-height: 15px;'"."max=".date("Y-m-d"));
+                                $css->input("text", "TxtValorCapita", "form-control", "TxtValorCapita", "", $DatosContratoExistente["ValorContrato"], "Valor Contrato", "off", "", "onchange=EditeContrato(`$idItem`,`TxtValorCapita`,`ValorContrato`)");
                                 $css->CrearBotonEvento("btnAgregarContrato", "Agregar Contrato", 1, "onclick", "AgregarContratoActaLiquidacion(`".$DatosContratoExistente["ContratoEquivalente"]."`,`$idActaLiquidacion`)", "verde", "style='width:150px;'");
                             }    
                             
@@ -401,18 +425,18 @@ if( !empty($_REQUEST["Accion"]) ){
                         (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato);  ";
                     $TotalesActa=$obCon->FetchAssoc($obCon->Query($sql));
                     $sql="UPDATE actas_liquidaciones 
-                            SET ValorFacturado=$TotalesActa[TotalFacturado], 
+                            SET ValorFacturado=".$TotalesActa["TotalFacturado"].", 
                                 
-                                RetencionImpuestos=$TotalesActa[Impuestos], 
-                                Devolucion=$TotalesActa[Devoluciones], 
-                                Glosa=$TotalesActa[Glosa],
-                                GlosaFavor=$TotalesActa[GlosaFavor],
-                                NotasCopagos=$TotalesActa[Copagos] + $TotalesActa[TotalAnticipos],
+                                RetencionImpuestos=".$TotalesActa["Impuestos"].", 
+                                Devolucion=".$TotalesActa["Devoluciones"].", 
+                                Glosa=".$TotalesActa["Glosa"].",
+                                GlosaFavor=".$TotalesActa["GlosaFavor"].",
+                                NotasCopagos=".$TotalesActa["Copagos"]." + ".$TotalesActa["TotalAnticipos"].",
                                 RecuperacionImpuestos=0, 
-                                OtrosDescuentos=$TotalesActa[OtrosDescuentos] + $TotalesActa[AjustesCartera] , 
-                                ValorPagado=$TotalesActa[TotalPagos],
-                                Saldo=$TotalesActa[Saldo],
-                                DescuentoBDUA=$TotalesActa[DescuentoBDUA]    
+                                OtrosDescuentos=".$TotalesActa["OtrosDescuentos"]." + ".$TotalesActa["AjustesCartera"]." , 
+                                ValorPagado=".$TotalesActa["TotalPagos"].",
+                                Saldo=".$TotalesActa["Saldo"].",
+                                DescuentoBDUA=".$TotalesActa["DescuentoBDUA"]."    
                               
                             WHERE ID='$idActaLiquidacion'
                              ";
@@ -592,9 +616,9 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td colspan=2>");
                         $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=37&idActaLiquidacion=$idActaLiquidacion";
                         print("<a href='$Ruta' target='_BLANK'><button class='btn btn-success'>Imprimir PDF</button></a>");
-                        $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=8&idActaLiquidacion=$idActaLiquidacion&db=$db";
+                        $Ruta="../../general/procesadores/GeneradorExcel.php?idDocumento=2&CmbIPS=$CmbIPS&idActaLiquidacion=$idActaLiquidacion&TipoConsulta=1&FacturaRadicado=0";
                         print(" <a href='$Ruta' target='_BLANK'><button class='btn btn-primary'>Anexo por facturas</button></a>");
-                        $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=9&idActaLiquidacion=$idActaLiquidacion&db=$db";
+                        $Ruta="../../general/procesadores/GeneradorExcel.php?idDocumento=2&CmbIPS=$CmbIPS&idActaLiquidacion=$idActaLiquidacion&TipoConsulta=1&FacturaRadicado=1";
                         print(" <a href='$Ruta' target='_BLANK'><button class='btn btn-warning'>Anexo por radicados</button></a>");
                         
                     print("</td>");
@@ -660,7 +684,7 @@ if( !empty($_REQUEST["Accion"]) ){
             print(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]):");
         break;// Fin caso 5
         case 6: //dibuje el listado de actas de liquidacion
-            //$CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
             //Paginacion
             if(isset($_REQUEST['Page'])){
@@ -777,15 +801,18 @@ if( !empty($_REQUEST["Accion"]) ){
                 
                 while($DatosConciliacion=$obCon->FetchAssoc($Consulta)){
                     $css->FilaTabla(14);
-                        $idActaConciliacion=$DatosConciliacion["ID"];
+                        $idActaLiquidacion=$DatosConciliacion["ID"];
                         $NIT_IPS=$DatosConciliacion["NIT_IPS"];
                         print("<td>");
-                            $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=37&idActaLiquidacion=$idActaConciliacion";
+                            $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=37&idActaLiquidacion=$idActaLiquidacion";
                             print("<a href='$Ruta' target='_BLANK'><button class='form-control btn btn-success'>Imprimir PDF</button></a>");
                             if($DatosConciliacion["Estado"]=="1"){ //Si el acta está cerrada
                                 print("<br>");
-                                $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=6&idActaConciliacion=$idActaConciliacion&NIT_IPS=$NIT_IPS";
-                                print(" <a href='$Ruta' target='_BLANK'><button class='form-control btn btn-primary'>Anexo del Acta</button></a>");
+                                $Ruta="../../general/procesadores/GeneradorExcel.php?idDocumento=2&CmbIPS=$CmbIPS&idActaLiquidacion=$idActaLiquidacion&TipoConsulta=2&FacturaRadicado=0";
+                                print(" <a href='$Ruta' target='_BLANK'><button class='form-control btn btn-primary'>Anexo del Acta X Facturas</button></a>");
+                                print("<br>");
+                                $Ruta="../../general/procesadores/GeneradorExcel.php?idDocumento=2&CmbIPS=$CmbIPS&idActaLiquidacion=$idActaLiquidacion&TipoConsulta=2&FacturaRadicado=1";
+                                print(" <a href='$Ruta' target='_BLANK'><button class='form-control btn btn-warning'>Anexo del Acta X Radicados</button></a>");
                             }
                         print("</td>");
                         

@@ -69,9 +69,27 @@ if( !empty($_REQUEST["Accion"]) ){
             if($NuevoValor==''){
                 exit("E1;la caja de texto no puede estar vacía;$idCampoTexto");
                 
-            }
-                        
+            }                        
             $obCon->ActualizaRegistro("actas_liquidaciones", $CampoAEditar, $NuevoValor, "ID", $idActaLiquidacion, 0);
+            
+            if($CampoAEditar=='IPS_Nombres_Representante_Legal'){
+                $obCon->ActualizaRegistro("ips", "NombresRepresentante", $NuevoValor, "NIT", $CmbIPS, 0);
+            }
+            if($CampoAEditar=='IPS_Apellidos_Representante_Legal'){
+                $obCon->ActualizaRegistro("ips", "ApellidosRepresentante", $NuevoValor, "NIT", $CmbIPS, 0);
+            }
+            if($CampoAEditar=='IPS_Identificacion_Representante_Legal'){
+                $obCon->ActualizaRegistro("ips", "CedulaRepresentante", $NuevoValor, "NIT", $CmbIPS, 0);
+            }
+            if($CampoAEditar=='IPS_Domicilio'){
+                $obCon->ActualizaRegistro("ips", "Municipio", $NuevoValor, "NIT", $CmbIPS, 0);
+            }
+            if($CampoAEditar=='IPS_Direccion'){
+                $obCon->ActualizaRegistro("ips", "Direccion", $NuevoValor, "NIT", $CmbIPS, 0);
+            }
+            if($CampoAEditar=='IPS_Telefono'){
+                $obCon->ActualizaRegistro("ips", "Telefono", $NuevoValor, "NIT", $CmbIPS, 0);
+            }
             
             if($CampoAEditar=='FechaInicial'){
                 $DatosMesServicio = explode("-", $NuevoValor);
@@ -291,6 +309,30 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;Se realizó la Actualización de los estados para cerrar el Acta $html");
             print("OK;Anexo por radicados del acta de liquidación $idActaLiquidacion Guardado");
         break;//Fin caso 9
+    
+        case 10: //Editar un contrato
+            $idContrato=$obCon->normalizar($_REQUEST["idContrato"]);
+            $idCampoTexto=$obCon->normalizar($_REQUEST["idCampoTexto"]);
+            $NuevoValor=$obCon->normalizar($_REQUEST["NuevoValor"]);
+            $CampoAEditar=$obCon->normalizar($_REQUEST["CampoAEditar"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+                        
+            if($idContrato==''){
+                exit("E1;No se recibió el id del Contrato a Editar");
+                
+            }
+            if($NuevoValor==''){
+                exit("E1;la caja de texto no puede estar vacía;$idCampoTexto");
+                
+            } 
+            if($CampoAEditar=='ValorContrato' and ! is_numeric($NuevoValor) and $NuevoValor<0){
+                exit("E1;El valor del contrato debe ser un Valor Númerico mayor o igual Cero;$idCampoTexto");
+            }
+            $obCon->ActualizaRegistro("contratos", $CampoAEditar, $NuevoValor, "ID", $idContrato, 0);
+            
+            print("OK;Campo $CampoAEditar del Contrato se ha Editado");
+        break; // Fin caso 10
     }
     
     
