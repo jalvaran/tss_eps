@@ -50,6 +50,7 @@ if( !empty($_REQUEST["Accion"]) ){
             }
             
             $obCon->CrearActaLiquidacion($FechaInicial,$FechaFinal,$CmbIPS,$CmbEPS,$TipoActa,$TxtPrefijo, $TxtConsecutivo, $TxtAnio, $NombreRepresentanteEPS,$NombreRepresentanteIPS, $ApellidosRepresentanteEPS,$ApellidosRepresentanteIPS,$IdentificacionRepresentanteEPS, $IdentificacionRepresentanteIPS,$DomicilioRepresentanteEPS, $DomicilioRepresentanteIPS, $DireccionRepresentanteEPS,$DireccionRepresentanteIPS, $TelefonoRepresentanteEPS, $TelefonoRepresentanteIPS, $idUser);
+            $obCon->ActualizaRegistro("ips", "CedulaRepresentante", $IdentificacionRepresentanteIPS, "NIT", $CmbIPS);
             print("OK;Acta de Liquidación Creada Correctamente");
             
         break; //fin caso 1
@@ -247,12 +248,12 @@ if( !empty($_REQUEST["Accion"]) ){
                     FechaRadicado,NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,TotalPagos,TotalAnticipos,
                     TotalCopagos,DescuentoPGP,DescuentoBDUA,OtrosDescuentos,AjustesCartera,TotalGlosaInicial,TotalGlosaFavor,
                     TotalGlosaContra,GlosaXConciliar,TotalDevoluciones,ValorSegunEPS,ValorSegunIPS,Diferencia,
-                    NoRelacionada,idUser,FechaRegistro)
+                    NoRelacionada,idUser,FechaRegistro,NumeroDiasLMA,ValorAPagarLMA,CodigoSucursal)
                     SELECT '$idActaLiquidacion',FechaFactura,MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     FechaRadicado,NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,TotalPagos,TotalAnticipos,
                     TotalCopagos,DescuentoPGP,DescuentoBDUA,OtrosDescuentos,AjustesCartera,TotalGlosaInicial,TotalGlosaFavor,
                     TotalGlosaContra,GlosaXConciliar,TotalDevoluciones,ValorSegunEPS,ValorSegunIPS,Diferencia,
-                    NoRelacionada,'$idUser','$FechaRegistra' 
+                    NoRelacionada,'$idUser','$FechaRegistra',NumeroDiasLMA,ValorAPagarLMA,CodigoSucursal
                     FROM $db.$TablaOrigen WHERE                    
                       ($TablaOrigen.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$TablaOrigen.NumeroContrato) 
                     ";

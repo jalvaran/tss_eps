@@ -92,7 +92,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     $css->ColTabla("<strong>Nombres:</strong>", 1);  
                     print("<td>");
-                        $css->input("text", "NombreRepresentanteIPS", "form-control", "NombreRepresentanteIPS", "Representante IPS", "", "Representante IPS", "off", "", "");
+                        $css->input("text", "NombreRepresentanteIPS", "form-control", "NombreRepresentanteIPS", "Representante IPS", $DatosIPS["NombresRepresentante"], "Representante IPS", "off", "", "");
                     print("</td>");
                 $css->CierraFilaTabla();
                 
@@ -103,7 +103,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     $css->ColTabla("<strong>Apellidos:</strong>", 1);  
                     print("<td>");
-                        $css->input("text", "ApellidosRepresentanteIPS", "form-control", "ApellidosRepresentanteIPS", "Representante IPS", "", "Apellidos Representante IPS", "off", "", "");
+                        $css->input("text", "ApellidosRepresentanteIPS", "form-control", "ApellidosRepresentanteIPS", "Representante IPS", $DatosIPS["ApellidosRepresentante"], "Apellidos Representante IPS", "off", "", "");
                     print("</td>");
                 $css->CierraFilaTabla();
                 
@@ -115,7 +115,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     $css->ColTabla("<strong>Identificación:</strong>", 1);  
                     print("<td>");
-                        $css->input("text", "IdentificacionRepresentanteIPS", "form-control", "IdentificacionRepresentanteIPS", "IdentificaciónRepresentante IPS", "", "Identificación Representante IPS", "off", "", "");
+                        $css->input("text", "IdentificacionRepresentanteIPS", "form-control", "IdentificacionRepresentanteIPS", "IdentificaciónRepresentante IPS", $DatosIPS["CedulaRepresentante"], "Identificación Representante IPS", "off", "", "");
                     print("</td>");
                 $css->CierraFilaTabla();
                 
@@ -127,7 +127,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     $css->ColTabla("<strong>Domicilio:</strong>", 1);  
                     print("<td>");
-                        $css->input("text", "DomicilioRepresentanteIPS", "form-control", "DomicilioRepresentanteIPS", "Domicilio Representante IPS", "", "Domicilio Representante IPS", "off", "", "");
+                        $css->input("text", "DomicilioRepresentanteIPS", "form-control", "DomicilioRepresentanteIPS", "Domicilio Representante IPS", $DatosIPS["Municipio"], "Domicilio Representante IPS", "off", "", "");
                     print("</td>");
                 $css->CierraFilaTabla();
                 
@@ -138,7 +138,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     $css->ColTabla("<strong>Dirección:</strong>", 1);  
                     print("<td>");
-                        $css->input("text", "DireccionRepresentanteIPS", "form-control", "DireccionRepresentanteIPS", "Dirección Representante IPS", "", "Dirección Representante IPS", "off", "", "");
+                        $css->input("text", "DireccionRepresentanteIPS", "form-control", "DireccionRepresentanteIPS", "Dirección Representante IPS", $DatosIPS["Direccion"], "Dirección Representante IPS", "off", "", "");
                     print("</td>");
                 $css->CierraFilaTabla();
                 
@@ -149,7 +149,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     $css->ColTabla("<strong>Teléfono:</strong>", 1);  
                     print("<td>");
-                        $css->input("text", "TelefonoRepresentanteIPS", "form-control", "TelefonoRepresentanteIPS", "Teléfono Representante IPS", "", "Teléfono Representante IPS", "off", "", "");
+                        $css->input("text", "TelefonoRepresentanteIPS", "form-control", "TelefonoRepresentanteIPS", "Teléfono Representante IPS", $DatosIPS["Telefono"], "Teléfono Representante IPS", "off", "", "");
                     print("</td>");
                 $css->CierraFilaTabla();
                 
@@ -811,8 +811,11 @@ if( !empty($_REQUEST["Accion"]) ){
                                 $Ruta="../../general/procesadores/GeneradorExcel.php?idDocumento=2&CmbIPS=$CmbIPS&idActaLiquidacion=$idActaLiquidacion&TipoConsulta=2&FacturaRadicado=0";
                                 print(" <a href='$Ruta' target='_BLANK'><button class='form-control btn btn-primary'>Anexo del Acta X Facturas</button></a>");
                                 print("<br>");
-                                $Ruta="../../general/procesadores/GeneradorExcel.php?idDocumento=2&CmbIPS=$CmbIPS&idActaLiquidacion=$idActaLiquidacion&TipoConsulta=2&FacturaRadicado=1";
-                                print(" <a href='$Ruta' target='_BLANK'><button class='form-control btn btn-warning'>Anexo del Acta X Radicados</button></a>");
+                                if($DatosConciliacion["TipoActaLiquidacion"]<>4){
+                                    $Ruta="../../general/procesadores/GeneradorExcel.php?idDocumento=2&CmbIPS=$CmbIPS&idActaLiquidacion=$idActaLiquidacion&TipoConsulta=2&FacturaRadicado=1";
+                                    print(" <a href='$Ruta' target='_BLANK'><button class='form-control btn btn-warning'>Anexo del Acta X Radicados</button></a>");
+                                }
+                                
                             }
                         print("</td>");
                         
