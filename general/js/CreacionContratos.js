@@ -90,12 +90,13 @@ function ValidarClasificacionContrato(){
         MuestraXID('DivSelectoresOtroSI');
     }
     
+    /*
     if(Clasificacion=='ACUERDO' || Clasificacion=='OTRO SI' || Clasificacion=='SIN CONTRATO' || Clasificacion=='COTIZACION' || Clasificacion=='URGENCIAS'){
         OcultaXID('DivSelectorTipoContrato');
     }else{
         MuestraXID('DivSelectorTipoContrato');
     }
-    
+    */
     if(Clasificacion==''){
         OcultaXID('DivSelectoresOtroSI');
         OcultaXID('DivSelectorTipoContrato');

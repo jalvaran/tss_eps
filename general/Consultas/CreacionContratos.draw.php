@@ -123,7 +123,7 @@ if( !empty($_REQUEST["Accion"]) ){
                             
                         $css->CerrarDiv();
                         
-                        $css->CrearDiv("DivSelectorTipoContrato", "", "", 0, 1);
+                        $css->CrearDiv("DivSelectorTipoContrato", "", "", 1, 1);
                             $css->select("CmbTipoContrato", "form-control", "CmbTipoContrato", "Tipo de Contrato", "", "onchange=ValidaOpcionesTipoContrato();", "");
                                 $css->option("", "", "", "", "", "");
                                     print("Seleccione el Tipo de Contrato");
