@@ -303,12 +303,12 @@ if( !empty($_REQUEST["Accion"]) ){
             $obCon->Query($sql);
             $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=37&idActaLiquidacion=$idActaLiquidacion";
             $html=("<br><a href='$Ruta' target='_BLANK'><button class='btn btn-success'>Imprimir PDF</button></a>");
-            $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=10&idActaLiquidacion=$idActaLiquidacion&NIT_IPS=$CmbIPS";
+            $Ruta="../../general/procesadores/GeneradorExcel.php?idDocumento=2&CmbIPS=$CmbIPS&idActaLiquidacion=$idActaLiquidacion&TipoConsulta=1&FacturaRadicado=0";
             $html.=(" <a href='$Ruta' target='_BLANK'><button class='btn btn-primary'>Anexo por Facturas del Acta</button></a>");
-            $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=11&idActaLiquidacion=$idActaLiquidacion&NIT_IPS=$CmbIPS";
+            $Ruta="../../general/procesadores/GeneradorExcel.php?idDocumento=2&CmbIPS=$CmbIPS&idActaLiquidacion=$idActaLiquidacion&TipoConsulta=1&FacturaRadicado=1";
             $html.=(" <a href='$Ruta' target='_BLANK'><button class='btn btn-warning'>Anexo por Radicados del Acta</button></a>");
-            print("OK;Se realizó la Actualización de los estados para cerrar el Acta $html");
-            print("OK;Anexo por radicados del acta de liquidación $idActaLiquidacion Guardado");
+            print("OK;Acta de liquidación $idActaLiquidacion cerrada $html");
+            
         break;//Fin caso 9
     
         case 10: //Editar un contrato

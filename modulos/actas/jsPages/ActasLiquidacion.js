@@ -679,9 +679,9 @@ function CerrarActaLiquidacion(){
             var respuestas = data.split(';'); 
            if(respuestas[0]==="OK"){   
                 
-                alertify.success(respuestas[1]); 
+                //alertify.success(respuestas[1]); 
                 CerrarActaLiquidacionRadicados();
-                document.getElementById('DivMensajesCerrarActa').innerHTML=respuestas[1];
+                //document.getElementById('DivMensajesCerrarActa').innerHTML=respuestas[1];
                 
             }else if(respuestas[0]==="E1"){
                 document.getElementById(idBoton).disabled=false;
@@ -734,7 +734,7 @@ function CerrarActaLiquidacionRadicados(){
                 alertify.success(respuestas[1]); 
                 //document.getElementById('DivMensajesCerrarActa').innerHTML=document.getElementById('DivMensajesCerrarActa').innerHTML+"<br>"+respuestas[1];
                 document.getElementById('DivTab1').innerHTML=respuestas[1];
-                document.getElementById('DivTab1').innerHTML='';
+                
                 document.getElementById('DivTab1SelectorActas').innerHTML='';
                 document.getElementById(idBoton).disabled=false;
             }else if(respuestas[0]==="E1"){
