@@ -165,6 +165,7 @@ function SeleccioneAccionFormularios(){
     var idFormulario=document.getElementById('idFormulario').value;
     if(idFormulario==1){
         CrearActaLiquidacion();
+        document.getElementById('TabCuentas1').click();
     }
     
 }

@@ -3197,7 +3197,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("<strong>Diferencia por conciliar:</strong>");
                     print("</td>");
                     print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
-                        $css->input("hidden", "ACDiferencia", "form-control", "ACDiferencia", "", ($Diferencia), "Diferencia", "off", "", "");
+                        $css->input("hidden", "ACDiferencia", "form-control", "ACDiferencia", "", round($Diferencia), "Diferencia", "off", "", "");
                         print("<span id='spACDiferencia'>".number_format(($Diferencia))."</span>");
                     print("</td>");
                 print("</tr>");

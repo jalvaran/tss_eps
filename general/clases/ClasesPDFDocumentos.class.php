@@ -702,7 +702,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                             <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
                             <td style="text-align:rigth;">'. number_format($DatosActa["DescuentoBDUA"]).'</td>
                             <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]).'</td>
                             <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>    
 
                         </tr>

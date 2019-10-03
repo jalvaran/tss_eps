@@ -230,7 +230,7 @@ if( !empty($_REQUEST["Accion"]) ){
                
                 $sql="SELECT DISTINCT t1.NumeroContrato FROM actas_conciliaciones_contratos t1 "
                                 . "INNER JOIN actas_conciliaciones t2 ON t1.idActaConciliacion=t2.ID "
-                                . "WHERE t2.Estado=1 AND t2.MesServicioInicial>='$MesServicioInicial' AND t2.MesServicioFinal<='$MesServicioFinal' AND t2.NIT_IPS='$CmbIPS';";
+                                . "WHERE t2.Estado=1 AND t2.MesServicioInicial>='$MesServicioInicial' AND t2.MesServicioFinal<='$MesServicioFinal' AND t2.NIT_IPS='$CmbIPS' ORDER BY t1.NumeroContrato;";
                        
                 
                 $Consulta=$obCon->Query($sql);
@@ -239,7 +239,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $i++;
                     
                     $idContrato=$DatosContratos["NumeroContrato"];
-                    $sql="SELECT * FROM contratos WHERE NitIPSContratada='$CmbIPS' AND (ContratoEquivalente='$idContrato')";
+                    $sql="SELECT * FROM contratos WHERE NitIPSContratada='$CmbIPS' AND (ContratoEquivalente='$idContrato') ORDER BY Contrato";
                     
                     $DatosContratoExistente=$obCon->FetchArray($obCon->Query($sql));
                     $idItem=$DatosContratoExistente["ID"];
@@ -381,7 +381,11 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla("<strong>CONTRATOS AGREGADOS AL ACTA DE LIQUIDACIÓN No. $idActaLiquidacion:</strong>", 4);
                     
                     $css->CierraFilaTabla();
-                    
+                    $Verificacion=$obCon->DevuelveValores("actas_liquidaciones_contratos", "idActaLiquidacion", $idActaLiquidacion);
+                    if($Verificacion["ID"]==""){
+                        $css->CrearTitulo("Debe agregar al menos un contrato a esta acta",'rojo');
+                        exit();
+                    }
                     $sql="SELECT t1.ID,t2.Contrato,t2.FechaInicioContrato,t2.FechaFinalContrato,t2.ValorContrato
                              FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente 
                              WHERE t1.idActaLiquidacion='$idActaLiquidacion' AND NitIPSContratada='$CmbIPS'";
@@ -485,8 +489,7 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);
                             $css->ColTabla("<strong>Descuento o Reconocimiento por BDUA</strong>", 1);
                             $css->ColTabla("<strong>DESCUENTOS CONCILIADO A FAVOR ASMET</strong>", 1);
-                            $css->ColTabla("<strong>VALOR PAGADO</strong>", 1);
-                            $css->ColTabla("<strong>SALDO</strong>", 1);
+                            
                         $css->CierraFilaTabla();
 
                         $css->FilaTabla(16);
@@ -494,12 +497,11 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->ColTabla(number_format($DatosActa["RetencionImpuestos"]), 1);
                             $css->ColTabla(number_format($DatosActa["DescuentoBDUA"]), 1);
                             $css->ColTabla(number_format($DatosActa["GlosaFavor"]), 1);
-                            $css->ColTabla(number_format($DatosActa["ValorPagado"]), 1);
-                            $css->ColTabla(number_format($DatosActa["Saldo"]), 1);
+                            
                         $css->CierraFilaTabla();
 
                         $css->FilaTabla(16);
-                            $css->ColTabla("<strong>NOTA CREDITO / COPAGOS</strong>", 1);
+                            //$css->ColTabla("<strong>NOTA CREDITO / COPAGOS</strong>", 1);
                             $css->ColTabla("<strong>RECUPERACION EN IMPUESTOS</strong>", 1);
                             $css->ColTabla("<strong>OTROS DESCUENTOS</strong>", 1);
                             $css->ColTabla("<strong>VALOR PAGADO</strong>", 1);
@@ -507,10 +509,10 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CierraFilaTabla();
 
                         $css->FilaTabla(16);
-                            $css->ColTabla(number_format($DatosActa["NotasCopagos"]), 1);
+                            //$css->ColTabla(number_format($DatosActa["NotasCopagos"]), 1);
                             $css->ColTabla(number_format($DatosActa["RecuperacionImpuestos"]), 1);
                             $css->ColTabla(number_format($DatosActa["OtrosDescuentos"]), 1);
-                            $css->ColTabla(number_format($DatosActa["ValorPagado"]), 1);
+                            $css->ColTabla(number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]), 1);
                             $css->ColTabla(number_format($DatosActa["Saldo"]), 1);
                         $css->CierraFilaTabla();
                     }

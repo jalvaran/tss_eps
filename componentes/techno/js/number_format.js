@@ -1,5 +1,5 @@
     function number_format(numero){
-
+        //var numero = Math.round(input);
         // Variable que contendra el resultado final
 
         var resultado = "";

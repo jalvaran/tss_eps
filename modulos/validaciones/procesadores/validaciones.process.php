@@ -683,6 +683,9 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
             $DetalleDiferencias=$obCon->CalculeDiferenciasProceso1($idActaConciliacion,$db,$Diferencia);
+            foreach ($DetalleDiferencias as $key => $value) {
+                $DetalleDiferencias[$key]=round($value);
+            }
             $CamposDiferencias= json_encode($DetalleDiferencias, JSON_FORCE_OBJECT);
             print("OK;Proceso 1 terminado;$CamposDiferencias");
             unset($DetalleDiferencias);

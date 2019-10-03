@@ -2207,9 +2207,16 @@ function CalcularDiferenciasActaConciliacion(){
                 DivMensajes.innerHTML=DivMensajes.innerHTML+"<br><strong>("+HoraActual+") 1 de 2 procesos terminado...</strong>";
                 var DetalleDiferencias= JSON.parse(respuestas[2]);                
                 
+                //EscribaDiferenciasActas(DetalleDiferencias);
+                //CalcularDiferenciasActaConciliacionProceso2(respuestas[2]);
+                
                 EscribaDiferenciasActas(DetalleDiferencias);
-                CalcularDiferenciasActaConciliacionProceso2(respuestas[2]);
+                EscribaValoresEnSpanDiferenciasActas();
+                GuardarDiferenciasActaConciliacion();
                 alertify.success(respuestas[1]);                
+                document.getElementById('GifProcess').innerHTML='';
+                
+                //alertify.success(respuestas[1]);                
                 
             }else if(respuestas[0]==="E1"){
                 

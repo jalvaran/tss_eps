@@ -799,6 +799,32 @@ class TS_Excel extends conexion{
             
                 ;
         $objPHPExcel->getActiveSheet()->getStyle($Campos[0].$i)->applyFromArray($styleTitle);
+        $i++;
+        $sql="SELECT t3.PorcentajePoblacional,t3.ValorPercapitaXDia,
+                (SELECT Ciudad FROM municipios_dane t4 WHERE t3.CodigoDane=t4.CodigoDane LIMIT 1) as Municipio 
+                             FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente
+                             INNER JOIN contrato_percapita t3 ON t2.Contrato=t3.Contrato                             
+                             WHERE t1.idActaLiquidacion='$idActaLiquidacion' AND NitIPSContratada='$CmbIPS'";
+        //print($sql);
+        $Consulta= $this->Query($sql);
+        while($DatosPercapita= $this->FetchAssoc($Consulta)){
+            $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue($Campos[0].$i,"Municipio:")
+            ->setCellValue($Campos[1].$i++,$DatosPercapita["Municipio"])
+            ->setCellValue($Campos[0].$i,"Valor percapita día:")
+            ->setCellValue($Campos[1].$i++,$DatosPercapita["ValorPercapitaXDia"])      
+             
+                ;
+            $objPHPExcel->getActiveSheet()->getStyle($Campos[1].($i-1))->getNumberFormat()->setFormatCode('#,##0');
+            $objPHPExcel->setActiveSheetIndex(0)                 
+            ->setCellValue($Campos[0].$i,"% Poblacional:")
+            ->setCellValue($Campos[1].$i++,$DatosPercapita["PorcentajePoblacional"]."%")             
+           
+                ;
+            
+            
+        }
+        
         $z=0;
         $i++;
         $i++;
@@ -826,8 +852,8 @@ class TS_Excel extends conexion{
             $Tabla="actas_conciliaciones_items";
             $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     (SELECT Ciudad FROM municipios_dane WHERE CodigoDane=$Tabla.CodigoSucursal LIMIT 1) as Municipio,
-                    NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,TotalPagos,
-                    (TotalCopagos+TotalAnticipos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
+                    NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos+TotalCopagos+TotalAnticipos) as TotalPagos,
+                    DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
                     TotalDevoluciones,ValorSegunEPS as Saldo,NumeroDiasLMA,ValorAPagarLMA                   
                     FROM $db.$Tabla WHERE                    
                       ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato) ";
@@ -836,8 +862,8 @@ class TS_Excel extends conexion{
             $Tabla="actas_liquidaciones_items";
             $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     (SELECT Ciudad FROM municipios_dane WHERE CodigoDane=$Tabla.CodigoSucursal LIMIT 1) as Municipio,
-                    NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,TotalPagos,
-                    (TotalCopagos+TotalAnticipos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
+                    NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos+TotalCopagos+TotalAnticipos) as TotalPagos,
+                    DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
                     TotalDevoluciones,ValorSegunEPS as Saldo,NumeroDiasLMA,ValorAPagarLMA                 
                     FROM $db.$Tabla WHERE idActaLiquidacion='$idActaLiquidacion'                  
                       ";
@@ -849,7 +875,7 @@ class TS_Excel extends conexion{
         $Totales["TotalDevoluciones"]=0;
         $Totales["TotalGlosaInicial"]=0;
         $Totales["TotalGlosaFavor"]=0;
-        $Totales["TotalNotasCopagos"]=0;
+        //$Totales["TotalNotasCopagos"]=0;
         $Totales["TotalOtrosDescuentos"]=0;
         $Totales["TotalPagos"]=0;
         $Totales["Saldo"]=0;
@@ -864,7 +890,7 @@ class TS_Excel extends conexion{
         $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
         $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
         $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]; 
-        $Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
+        //$Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
         $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
         $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
         $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
@@ -913,6 +939,39 @@ class TS_Excel extends conexion{
             ; 
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
          
+        $i++;
+        $i++;
+        $z=0;
+        $objPHPExcel->setActiveSheetIndex(0)
+            
+            ->setCellValue($Campos[12].$i,"VR A PAGAR IPS S/N LMA")
+            ->setCellValue($Campos[13].$i++,$Totales["ValorAPagarLMA"])
+            ->setCellValue($Campos[12].$i,"VALOR RETENCION DE IMPUESTOS")
+            ->setCellValue($Campos[13].$i++,$Totales["Impuestos"])
+            ->setCellValue($Campos[12].$i,"DESCUENTOS A FAVOR ASMET")
+            ->setCellValue($Campos[13].$i++,$Totales["TotalGlosaInicial"])
+            ->setCellValue($Campos[12].$i,"OTRO DESCUENTOS CONCILIADOS")
+            ->setCellValue($Campos[13].$i++,$Totales["TotalGlosaFavor"])
+            ->setCellValue($Campos[12].$i,"VALOR PAGADO")
+            ->setCellValue($Campos[13].$i++,$Totales["TotalPagos"])
+            ->setCellValue($Campos[12].$i,"SALDO")
+            ->setCellValue($Campos[13].$i++,$Totales["Saldo"])
+                        
+            ; 
+        $i=$i-6;
+        $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+        $i++;
+        $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+        $i++;
+        $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+        $i++;
+        $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+        $i++;
+        $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+        $i++;
+        $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+        $i++;
+        $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
         $i=$i+5;
         $z=0;
         $Consulta=$this->ConsultarTabla("actas_liquidaciones_firmas", "WHERE idActaLiquidacion='$idActaLiquidacion'");
