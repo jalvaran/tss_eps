@@ -1983,6 +1983,14 @@ class PageConstruct extends html_estruct_class{
             print('<script src="../../componentes/jspdf/jspdf.min.js"></script>');
         }
         
+        function CrearBotonImagen($Titulo,$Nombre,$target,$RutaImage,$javascript,$Alto,$Ancho,$posicion,$margenes,$VectorBim){
+             
+          //print("<a href='$target' title='$Titulo'><image name='$Nombre' id='$Nombre' src='$RutaImage' $javascript style='display:scroll; position:".$posicion."; right:10px; height:".$Alto."px; width: ".$Ancho."px;'></a>");
+          
+          print('<a href="'.$target.'" role="button"  data-toggle="modal" title="'.$Titulo.'" >
+			<image src='.$RutaImage.' name='.$Nombre.' id='.$Nombre.' src='.$RutaImage.' '.$javascript.' style="display:scroll; position:'.$posicion.'; '.$margenes.'; height:'.$Alto.'px; width: '.$Ancho.'px;"></a>');
+	} 
+        
         //////////////////////////////////FIN
 }
 	

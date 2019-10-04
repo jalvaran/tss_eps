@@ -21,7 +21,8 @@ if( !empty($_REQUEST["Accion"]) ){
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
             
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
-            $DatosRepresentanteEPS=$obCon->DevuelveValores("eps_representantes_legales", "idEPS", $CmbEPS);
+            $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
+            $DatosRepresentanteEPS=$obCon->DevuelveValores("eps_representantes_legales", "idEPS", $DatosEPS["ID"]);
             print("<h3><strong>Crear Acta de Liquidación para la IPS: $DatosIPS[Nombre], NIT: $CmbIPS</strong></h3>");
             //$css->Notificacion("Crear Acta de Liquidación para la IPS: $DatosIPS[Nombre], NIT: $CmbIPS", "", "azulclaro", "", "");
             $css->input("hidden", "idFormulario", "", "idFormulario", "", 1, "", "", "", "");
@@ -182,6 +183,14 @@ if( !empty($_REQUEST["Accion"]) ){
                 exit();
             }
             
+            $Titulo="Ajustes";
+            $Nombre="ImgShowMenu";
+            $RutaImage="../../images/actualizar.gif";
+            $javascript="onclick=MostrarActa()";
+            $VectorBim["f"]=0;
+            $target="#DialTabla";
+            $css->CrearBotonImagen($Titulo,$Nombre,$target,$RutaImage,$javascript,50,50,"fixed","right:10px;top:200;z-index:100;",$VectorBim);
+            
             $DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);
             
             if($DatosActa["IPS_Nombres_Representante_Legal"]==''){
@@ -213,11 +222,30 @@ if( !empty($_REQUEST["Accion"]) ){
                     
             $css->CrearTitulo("<strong>Acta de Liquidación No. $idActaLiquidacion, Tipo: " .utf8_encode($DatosActa["Titulo"])."</strong>");
             
-            
+                $css->CrearTabla();
+                    print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
+                        print("<td>");
+                            print("<strong>Fecha Inicial:</strong>");
+                        print("</td>");
+                        print("<td>");
+                            $css->input("date", "TxtFechaInicialActaLiquidacion", "form-control", "TxtFechaInicialActaLiquidacion", "", ($DatosActa["FechaInicial"]), "Fecha Inicial", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaInicialActaLiquidacion`,`FechaInicial`)","style='line-height: 15px;'"."max=".date("Y-m-d"));
+
+                        print("</td>");
+                    print("</tr>");
+                    print("<tr style=font-size:18px;border-left-style:double;border-bottom-style:double;border-right-style:double;border-width:5px;>");
+                        print("<td>");
+                            print("<strong>Fecha Final:</strong>");
+                        print("</td>");
+                        print("<td>");
+                            $css->input("date", "TxtFechaFinalLiquidacion", "form-control", "TxtFechaFinalLiquidacion", "", ($DatosActa["FechaFinal"]), "Fecha Final", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaFinalLiquidacion`,`FechaFinal`)","style='line-height: 15px;'"."max=".date("Y-m-d"));
+
+                            //print(utf8_decode($DatosActa["FechaCorte"]));
+                        print("</td>");
+                    print("</tr>");
                 
                 $css->div("DivContratosDisponiblesActaLiquidacion", "", "", "", "", "", "");
                     
-                $css->CrearTabla();
+                
                     $css->FilaTabla(16);
                         $css->ColTabla("<strong>CONTRATOS DISPONIBLES PARA LIQUIDAR:</strong>", 3,"C");
                     $css->CierraFilaTabla();
@@ -227,11 +255,17 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla("<strong>VALORES PERCAPITA POR MUNICIPIO</strong>", 1,"C");
                     $css->CierraFilaTabla();
                
-               
+               /*
                 $sql="SELECT DISTINCT t1.NumeroContrato FROM actas_conciliaciones_contratos t1 "
                                 . "INNER JOIN actas_conciliaciones t2 ON t1.idActaConciliacion=t2.ID "
                                 . "WHERE t2.Estado=1 AND t2.MesServicioInicial>='$MesServicioInicial' AND t2.MesServicioFinal<='$MesServicioFinal' AND t2.NIT_IPS='$CmbIPS' ORDER BY t1.NumeroContrato;";
-                       
+                
+                * 
+                */
+                $sql="SELECT DISTINCT t1.NumeroContrato FROM $db.actas_conciliaciones_items t1 "
+                                . "INNER JOIN actas_conciliaciones t2 ON t1.idActaConciliacion=t2.ID "
+                                . "WHERE t2.Estado=1 AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal' AND t2.NIT_IPS='$CmbIPS' ORDER BY t1.NumeroContrato;";
+                
                 
                 $Consulta=$obCon->Query($sql);
                 $i=0;
@@ -564,7 +598,8 @@ if( !empty($_REQUEST["Accion"]) ){
                 print("<tr>");
                     print("<td colspan=1 style=font-size:16px;>");
                         print("<strong>Fecha de Firma: </strong>");
-                        $css->input("date", "TxtFechaDeFirma", "", "TxtFechaDeFirma", "", ($DatosActa["FechaFirma"]), "Fecha de la firma", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaDeFirma`,`FechaFirma`);DibujeConstanciaFirmaActa();","style='line-height: 15px;'"."max=".date("Y-m-d"));
+                        
+                        $css->input("date", "TxtFechaDeFirma", "", "TxtFechaDeFirma", "", ($DatosActa["FechaFirma"]), "Fecha de la firma", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaDeFirma`,`FechaFirma`);DibujeConstanciaFirmaActa();","style='line-height: 15px;'"."max=".date("Y-m-d",strtotime(date("Y-m-d")."+ 15 days")));
                     
                     print("</td>");
                     print("<td colspan=2 style=font-size:16px;>");

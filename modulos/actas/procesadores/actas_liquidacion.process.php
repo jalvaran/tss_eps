@@ -95,12 +95,12 @@ if( !empty($_REQUEST["Accion"]) ){
             if($CampoAEditar=='FechaInicial'){
                 $DatosMesServicio = explode("-", $NuevoValor);
                 $MesServicioInicial=$DatosMesServicio[0].$DatosMesServicio[1];
-                $obCon->ActualizaRegistro("actas_liquidaciones", "MesServicioInicial", $MesServicioInicial, "ID", $idActaConciliacion, 0);
+                $obCon->ActualizaRegistro("actas_liquidaciones", "MesServicioInicial", $MesServicioInicial, "ID", $idActaLiquidacion, 0);
             }
             if($CampoAEditar=='FechaFinal'){
                 $DatosMesServicio = explode("-", $NuevoValor);
                 $MesServicioFinal=$DatosMesServicio[0].$DatosMesServicio[1];
-                $obCon->ActualizaRegistro("actas_liquidaciones", "MesServicioFinal", $MesServicioFinal, "ID", $idActaConciliacion, 0);
+                $obCon->ActualizaRegistro("actas_liquidaciones", "MesServicioFinal", $MesServicioFinal, "ID", $idActaLiquidacion, 0);
             }
             print("OK;Campo $CampoAEditar del Acta de Liquidación se ha Editado");
         break; // Fin caso 2 

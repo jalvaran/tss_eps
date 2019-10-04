@@ -46,7 +46,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $Datos["FechaActualizacion"]=date("Y-m-d"); 
             
             foreach ($_POST as $key => $value) {
-                if($value=='' and $key<>'TxtUPC' AND $key<>'TxtNumeroAfiliados'){
+                if($value=='' and $key<>'TxtUPC' AND $key<>'TxtNumeroAfiliados' AND $key<>'CmbContratoPadre'){
                     exit("E1;El campo $key No Puede estar vacío;$key");
                 }
             }

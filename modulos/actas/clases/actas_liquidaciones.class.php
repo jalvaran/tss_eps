@@ -28,7 +28,7 @@ class ActasLiquidacion extends conexion{
         
         $Fecha=date("Y-m-d H:i:s");
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $CmbIPS);
-        $DatosEPS=$this->DevuelveValores("eps", "ID", $CmbEPS);
+        $DatosEPS=$this->DevuelveValores("eps", "NIT", $CmbEPS);
         $Datos["FechaInicial"]=$FechaInicial;
         $Datos["FechaFinal"]=$FechaFinal;
         $Datos["MesServicioInicial"]=$MesServicioInicial;
