@@ -460,7 +460,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         SUM(t1.DescuentoBDUA) as DescuentoBDUA
                         FROM $db.actas_conciliaciones_items t1 
                         WHERE EXISTS 
-                        (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato);  ";
+                        (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato AND idActaLiquidacion='$idActaLiquidacion') AND t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal;  ";
                     $TotalesActa=$obCon->FetchAssoc($obCon->Query($sql));
                     $sql="UPDATE actas_liquidaciones 
                             SET ValorFacturado=".$TotalesActa["TotalFacturado"].", 
@@ -469,10 +469,10 @@ if( !empty($_REQUEST["Accion"]) ){
                                 Devolucion=".$TotalesActa["Devoluciones"].", 
                                 Glosa=".$TotalesActa["Glosa"].",
                                 GlosaFavor=".$TotalesActa["GlosaFavor"].",
-                                NotasCopagos=".$TotalesActa["Copagos"]." + ".$TotalesActa["TotalAnticipos"].",
+                                NotasCopagos=".$TotalesActa["Copagos"].",
                                 RecuperacionImpuestos=0, 
                                 OtrosDescuentos=".$TotalesActa["OtrosDescuentos"]." + ".$TotalesActa["AjustesCartera"]." , 
-                                ValorPagado=".$TotalesActa["TotalPagos"].",
+                                ValorPagado=".$TotalesActa["TotalPagos"]." + ".$TotalesActa["TotalAnticipos"]." ,
                                 Saldo=".$TotalesActa["Saldo"].",
                                 DescuentoBDUA=".$TotalesActa["DescuentoBDUA"]."    
                               
@@ -483,7 +483,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->FilaTabla(16);
                         $css->ColTabla("<strong>TOTALES ACTA DE LIQUIDACIÓN:</strong>", 5,'C');
                     $css->CierraFilaTabla();
-                    if($TipoActa==1){
+                    if($TipoActa==1 OR $TipoActa==7 OR $TipoActa==9){
                         $css->FilaTabla(16);
                             $css->ColTabla("<strong>VALOR FACTURADO</strong>", 1);
                             $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);

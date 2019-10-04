@@ -117,7 +117,9 @@ if( !empty($_REQUEST["Accion"]) ){
             if($idContrato==''){
                 exit("E1;No se recibió un número de contrato");
             }
-            $Validacion=$obCon->DevuelveValores("actas_liquidaciones_contratos", "idContrato", $idContrato);
+            //$Validacion=$obCon->DevuelveValores("actas_liquidaciones_contratos", "idContrato", $idContrato);
+            $sql="SELECT ID FROM actas_liquidaciones_contratos WHERE idContrato='$idContrato' AND idActaLiquidacion='$idActaLiquidacion'";
+            $Validacion=$obCon->FetchAssoc($obCon->Query($sql));
             if($Validacion["ID"]<>''){
                 exit("E1;El contrato ya está agregado al acta");
             }
