@@ -840,9 +840,14 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $obCon=new conexion(1);
         $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op1' LIMIT 1";
         $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));
-        
+        $DatosActa= $obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);
+        $NIT_IPS=$DatosActa["NIT_IPS"];
         $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";
         $sql="SELECT t2.Contrato FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente WHERE t1.idActaLiquidacion='$idActaLiquidacion' ORDER BY t1.ID";
+        $sql="SELECT 
+                (SELECT Contrato FROM contratos t2 WHERE t1.idContrato=t2.ContratoEquivalente AND t2.NitIPSContratada='$NIT_IPS' LIMIT 1) AS Contrato
+                FROM actas_liquidaciones_contratos t1  
+                WHERE t1.idActaLiquidacion='$idActaLiquidacion'";
         $Consulta=$obCon->Query($sql);
         $ContratosActa="<strong>";
         while($DatosContratos=$obCon->FetchAssoc($Consulta)){
@@ -955,6 +960,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $sql="SELECT t1.ID,t2.Contrato,t2.FechaInicioContrato,t2.FechaFinalContrato,t2.ValorContrato
                 FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente 
                 WHERE t1.idActaLiquidacion='$idActaLiquidacion' AND NitIPSContratada='$NIT_IPS'";
+        
         $Consulta=$obCon->Query($sql);
         $html='<table cellspacing="3" cellpadding="2" border="1">';
             while($DatosContratos=$obCon->FetchAssoc($Consulta)){

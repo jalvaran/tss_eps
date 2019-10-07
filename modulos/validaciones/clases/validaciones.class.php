@@ -724,7 +724,8 @@ class ValidacionesEPS extends conexion{
         $Datos["FacturasPendienteAuditoria"]=0;
 
         $sql=$this->getSQLUpdate("actas_conciliaciones", $Datos);
-        $sql." WHERE ID='$idActaConciliacion'";
+        $sql.=" WHERE ID='$idActaConciliacion'";
+        //print($sql);
         $this->Query($sql);
     }
     
