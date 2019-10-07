@@ -467,8 +467,17 @@ function EditeContrato(idContrato,idCampoTexto,CampoAEditar){
       })
 }
 
-function AgregarContratoActaLiquidacion(Contrato,idActaLiquidacion){
+function AgregarContratoActaLiquidacion(Contrato,idActaLiquidacion,idInput){
     
+    var idCajaNombreContrato="TxtNombreContrato_"+idInput;
+    var idCajaFechaInicial="FechaInicioContratoCapita_"+idInput;
+    var idCajaFechaFinal="FechaFinalContratoCapita_"+idInput;
+    var idCajaValor="TxtValorCapita_"+idInput;
+    
+    var NombreContrato=document.getElementById(idCajaNombreContrato).value;
+    var FechaInicial=document.getElementById(idCajaFechaInicial).value;
+    var FechaFinal=document.getElementById(idCajaFechaFinal).value;
+    var ValorContrato=document.getElementById(idCajaValor).value;
     
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
@@ -477,6 +486,10 @@ function AgregarContratoActaLiquidacion(Contrato,idActaLiquidacion){
         form_data.append('Accion', 3);
         form_data.append('idActaLiquidacion', idActaLiquidacion);
         form_data.append('Contrato', Contrato); 
+        form_data.append('NombreContrato', NombreContrato);
+        form_data.append('FechaInicial', FechaInicial); 
+        form_data.append('FechaFinal', FechaFinal);
+        form_data.append('ValorContrato', ValorContrato); 
         
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);

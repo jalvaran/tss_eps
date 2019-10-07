@@ -108,6 +108,10 @@ if( !empty($_REQUEST["Accion"]) ){
         case 3://Agregar contrato a acta liquidacion
             $idActaLiquidacion = $obCon->normalizar($_REQUEST["idActaLiquidacion"]);
             $idContrato = $obCon->normalizar($_REQUEST["Contrato"]);
+            $NombreContrato = $obCon->normalizar($_REQUEST["NombreContrato"]);
+            $FechaInicial = $obCon->normalizar($_REQUEST["FechaInicial"]);
+            $FechaFinal = $obCon->normalizar($_REQUEST["FechaFinal"]);
+            $ValorContrato = $obCon->normalizar($_REQUEST["ValorContrato"]);
             $CmbIPS = $obCon->normalizar($_REQUEST["CmbIPS"]);
             
             if($idActaLiquidacion==''){
@@ -117,6 +121,22 @@ if( !empty($_REQUEST["Accion"]) ){
             if($idContrato==''){
                 exit("E1;No se recibió un número de contrato");
             }
+            
+            if($NombreContrato==''){
+                exit("E1;No se recibió el nombre del contrato");
+            }
+            
+            if($FechaInicial==''){
+                exit("E1;No se recibió la fecha inicial del contrato");
+            }
+            
+            if($FechaFinal==''){
+                exit("E1;No se recibió la fecha final del contrato");
+            }
+            
+            if(!is_numeric($ValorContrato) or $ValorContrato<0 ){
+                exit("E1;El Valor del contrato debe ser un Número mayor o igual a Cero");
+            }
             //$Validacion=$obCon->DevuelveValores("actas_liquidaciones_contratos", "idContrato", $idContrato);
             $sql="SELECT ID FROM actas_liquidaciones_contratos WHERE idContrato='$idContrato' AND idActaLiquidacion='$idActaLiquidacion'";
             $Validacion=$obCon->FetchAssoc($obCon->Query($sql));
@@ -125,6 +145,10 @@ if( !empty($_REQUEST["Accion"]) ){
             }
             $Datos["idActaLiquidacion"]=$idActaLiquidacion;
             $Datos["idContrato"]=$idContrato;
+            $Datos["FechaInicial"]=$FechaInicial;
+            $Datos["FechaFinal"]=$FechaFinal;
+            $Datos["Valor"]=$ValorContrato;
+            $Datos["NombreContrato"]=$NombreContrato;
             $sql=$obCon->getSQLInsert("actas_liquidaciones_contratos", $Datos);
             $obCon->Query($sql);
             print("OK;Se agregó el contrato satisfactoriamente");

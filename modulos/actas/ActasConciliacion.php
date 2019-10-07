@@ -32,7 +32,7 @@ $css->PageInit($myTitulo);
     
 //print("<br>");
    $css->section("", "content", "", "");
-   /*
+   
    $css->CrearDiv("", "col-md-4", "center", 1, 1);
         if($Role=="SUPERVISOR"){
             $sql="SELECT NIT as idIPS, Nombre FROM ips";
@@ -50,15 +50,18 @@ $css->PageInit($myTitulo);
         $css->Cselect();
     $css->CerrarDiv();    
     $css->CrearDiv("", "col-md-4", "center", 1, 1);
+        $sql="SELECT * FROM eps";
+        $Consulta=$obCon->Query($sql);
+        
         $css->select("CmbEPS", "form-control", "CmbEPS", "EPS", "", "", "");
-           
-            $css->option("", "", "", 1, "", "");
-                print("ASMET");
-            $css->Coption();
-           
+            while($DatosEPS=$obCon->FetchAssoc($Consulta)){
+                $css->option("", "", "", $DatosEPS["NIT"], "", "");
+                    print($DatosEPS["Nombre"]." ".$DatosEPS["NIT"]);
+                $css->Coption();
+            }
         $css->Cselect();
     $css->CerrarDiv();
-    */
+   
    $css->CrearDiv("", "col-md-4", "center", 1, 1);
    $css->CerrarDiv();
    $css->CrearDiv("", "col-md-4", "center", 1, 1);

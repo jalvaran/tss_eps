@@ -298,7 +298,7 @@ if( !empty($_REQUEST["Accion"]) ){
                                 $css->input("date", "FechaInicioContratoCapita_$i", "form-control", "FechaInicioContratoCapita_$i", "", $DatosContratoExistente["FechaInicioContrato"], "Fecha Inicio Contrato", "","", "onchange=EditeContrato(`$idItem`,`FechaInicioContratoCapita_$i`,`FechaInicioContrato`)", "style='line-height: 15px;'"."max=".date("Y-m-d"));
                                 $css->input("date", "FechaFinalContratoCapita_$i", "form-control", "FechaFinalContratoCapita_$i", "", $DatosContratoExistente["FechaFinalContrato"], "Fecha Final Contrato", "", "","onchange=EditeContrato(`$idItem`,`FechaFinalContratoCapita_$i`,`FechaFinalContrato`)", "style='line-height: 15px;'"."max=".date("Y-m-d"));
                                 $css->input("text", "TxtValorCapita_$i", "form-control", "TxtValorCapita", "", $DatosContratoExistente["ValorContrato"], "Valor Contrato", "off", "", "onchange=EditeContrato(`$idItem`,`TxtValorCapita_$i`,`ValorContrato`)");
-                                $css->CrearBotonEvento("btnAgregarContrato", "Agregar Contrato", 1, "onclick", "AgregarContratoActaLiquidacion(`".$DatosContratoExistente["ContratoEquivalente"]."`,`$idActaLiquidacion`)", "verde", "style='width:150px;'");
+                                $css->CrearBotonEvento("btnAgregarContrato", "Agregar Contrato", 1, "onclick", "AgregarContratoActaLiquidacion(`".$DatosContratoExistente["ContratoEquivalente"]."`,`$idActaLiquidacion`,`$i`)", "verde", "style='width:150px;'");
                             }    
                             
                         print("</td>");
@@ -421,31 +421,31 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CrearTitulo("Debe agregar al menos un contrato a esta acta",'rojo');
                         exit();
                     }
-                    $sql="SELECT t1.ID,t2.Contrato,t2.FechaInicioContrato,t2.FechaFinalContrato,t2.ValorContrato
-                             FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente 
-                             WHERE t1.idActaLiquidacion='$idActaLiquidacion' AND NitIPSContratada='$CmbIPS'";
+                    $sql="SELECT ID,FechaInicial,FechaFinal,Valor,NombreContrato 
+                             FROM actas_liquidaciones_contratos
+                             WHERE idActaLiquidacion='$idActaLiquidacion'";
                     $Consulta=$obCon->Query($sql);
                     
                     while($DatosContratos=$obCon->FetchAssoc($Consulta)){
                         $idItem=$DatosContratos["ID"];
                         $css->FilaTabla(14);                        
                             $css->ColTabla("<strong>CONTRATO DE PRESTACIÓN DE SERVICIOS No:</strong>", 2);                            
-                            $css->ColTabla("<strong>".$DatosContratos["Contrato"]."</strong>", 1);
+                            $css->ColTabla("<strong>".$DatosContratos["NombreContrato"]."</strong>", 1);
                             print("<td style=text-align:right>");
                                 $css->CrearBotonEvento("btnEliminarContratoActaLiquidacion", "X", 1, "onclick", "EliminarContratoActa($idItem)", "rojo","style=width:50px;");
                             print("</td>");
                         $css->CierraFilaTabla();
                         $css->FilaTabla(14);       
                             $css->ColTabla("<strong>Fecha Inicial:</strong>", 3,"R");
-                            $css->ColTabla($DatosContratos["FechaInicioContrato"], 1);
+                            $css->ColTabla($DatosContratos["FechaInicial"], 1);
                         $css->CierraFilaTabla();
                         $css->FilaTabla(14);       
                             $css->ColTabla("<strong>Fecha Final:</strong>", 3,"R");
-                            $css->ColTabla($DatosContratos["FechaFinalContrato"], 1);
+                            $css->ColTabla($DatosContratos["FechaFinal"], 1);
                         $css->CierraFilaTabla();
                         $css->FilaTabla(14);       
                             $css->ColTabla("<strong>Valor del Contrato:</strong>", 3,"R");
-                            $css->ColTabla(number_format($DatosContratos["ValorContrato"]), 1);
+                            $css->ColTabla(number_format($DatosContratos["Valor"]), 1);
                         $css->CierraFilaTabla();
                     }
                     
@@ -551,6 +551,25 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->ColTabla(number_format($DatosActa["Saldo"]), 1);
                         $css->CierraFilaTabla();
                     }
+                    print("<tr>");
+                        print("<td>");
+                        print("</td>");
+                    print("</tr>");
+                    print("<tr>");
+                        print("<td colspan=5 style=font-size:16px;text-align:center>");
+                            print("<strong>OBSERVACIONES:</strong>");
+                        print("</td>");
+                    print("</tr>");
+                
+                    print("<tr>");
+                        print("<td colspan=5>");
+                            $css->textarea("ObservacionesActaLiquidacion", "form-control", "ObservacionesActaLiquidacion", "", "Observaciones", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`ObservacionesActaLiquidacion`,`Observaciones`)");
+                                print(utf8_decode($DatosActa["Observaciones"]));
+                            $css->Ctextarea();
+                           // $css->input("text", "ObservacionesActaLiquidacion", "form-control", "ObservacionesActaLiquidacion", "Observaciones", $DatosActa["Observaciones"], "Observaciones", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`ObservacionesActaLiquidacion`,`Observaciones`)");
+                        print("</td>");
+                    print("</tr>");
+                    
                     print("<tr>");
                     print("<td colspan=5 style=font-size:16px;text-align:center>");
                         print("<strong>AGREGAR FIRMAS:</strong>");
@@ -730,11 +749,11 @@ if( !empty($_REQUEST["Accion"]) ){
             }else{
                 $NumPage=1;
             }
-            $Condicional="";
+            $Condicional=" WHERE NIT_IPS='$CmbIPS' ";
             if(isset($_REQUEST['Busqueda'])){
                 $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
                 if($Busqueda<>''){
-                    $Condicional=" WHERE ID = '$Busqueda%' or NIT_IPS='$Busqueda' or RazonSocialIPS like '%$Busqueda%' ";
+                    $Condicional.=" AND ID = '$Busqueda' ";
                 }
                 
             }

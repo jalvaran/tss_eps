@@ -600,6 +600,9 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $html= $this->ObservacionesActaLiquidacion4($idActaLiquidacion,$TipoActa);        
         $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
         
+        $html= $this->ObservacionesGenerales($idActaLiquidacion,$DatosActa);        
+        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        
         $html= $this->ObservacionesActaLiquidacion5($idActaLiquidacion,$TipoActa);        
         $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
         
@@ -613,6 +616,12 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
          * 
          */
         $this->PDF_Output("Acta_Liquidacion_$idActaLiquidacion");
+    }
+    
+    public function ObservacionesGenerales($idActaLiquidacion,$DatosActa) {
+           
+        $html='<p align="justify">'. ($DatosActa["Observaciones"])."</p>";        
+        return($html);
     }
     
     public function TotalesActaLiquidacion($DatosActa,$TipoActa) {
@@ -957,9 +966,9 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
     
     public function ContratosActaLiquidacion($idActaLiquidacion,$NIT_IPS) {
         $obCon=new conexion(1);
-        $sql="SELECT t1.ID,t2.Contrato,t2.FechaInicioContrato,t2.FechaFinalContrato,t2.ValorContrato
-                FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente 
-                WHERE t1.idActaLiquidacion='$idActaLiquidacion' AND NitIPSContratada='$NIT_IPS'";
+        $sql="SELECT t1.ID,t1.NombreContrato AS Contrato,t1.FechaInicial as FechaInicioContrato,t1.FechaFinal  as FechaFinalContrato,t1.Valor as ValorContrato
+                FROM actas_liquidaciones_contratos t1 
+                WHERE t1.idActaLiquidacion='$idActaLiquidacion'";
         
         $Consulta=$obCon->Query($sql);
         $html='<table cellspacing="3" cellpadding="2" border="1">';

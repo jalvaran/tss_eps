@@ -16,7 +16,7 @@ if( !empty($_REQUEST["Accion"]) ){
     
     switch ($_REQUEST["Accion"]) {
         case 1: //dibuje el listado de actas de conciliacion
-            //$CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
             //Paginacion
             if(isset($_REQUEST['Page'])){
@@ -24,11 +24,11 @@ if( !empty($_REQUEST["Accion"]) ){
             }else{
                 $NumPage=1;
             }
-            $Condicional="";
+            $Condicional=" WHERE NIT_IPS='$CmbIPS' ";
             if(isset($_REQUEST['Busqueda'])){
                 $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
                 if($Busqueda<>''){
-                    $Condicional=" WHERE ID = '$Busqueda%' or NIT_IPS='$Busqueda' or RazonSocialIPS like '%$Busqueda%' ";
+                    $Condicional.=" AND ID = '$Busqueda' ";
                 }
                 
             }

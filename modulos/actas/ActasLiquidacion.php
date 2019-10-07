@@ -41,7 +41,7 @@ $css->PageInit($myTitulo);
         }
         $Consulta=$obCon->Query($sql);
         
-        $css->select("CmbIPS", "form-control", "CmbIPS", "IPS", "", "", "onchange=DibujaSelectorActas()");
+        $css->select("CmbIPS", "form-control", "CmbIPS", "IPS", "", "", "onchange=DibujaSelectorActas();CargarHistorialActas();");
             while($DatosIPS=$obCon->FetchAssoc($Consulta)){
                 $css->option("", "", "", $DatosIPS["idIPS"], "", "");
                     print($DatosIPS["Nombre"].$DatosIPS["idIPS"]);
