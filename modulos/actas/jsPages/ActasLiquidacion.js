@@ -892,6 +892,101 @@ function ExportarExcel(db,Tabla,st){
       })
 }
 
+function ModalRenombrarContrato(NumeroContrato){
+        
+    AbreModal('ModalAcciones');
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 7);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('NumeroContrato', NumeroContrato);
+        
+        $.ajax({
+        url: './Consultas/ActasLiquidacion.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivFrmModalAcciones').innerHTML=data;
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+function RenombrarContrato(NumeroContrato){
+    var idBoton="BtnRenombrarContrato";    
+    document.getElementById(idBoton).disabled=true;
+    var idActaLiquidacion=document.getElementById('idActaLiquidacion').value;
+    var ContratoNuevo=document.getElementById('TxtNumeroContratoRenombrar').value;
+    var FechaInicial=document.getElementById('TxtFechaInicialActaLiquidacion').value;
+    var FechaFinal=document.getElementById('TxtFechaFinalLiquidacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 11);
+         
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('ContratoNuevo', ContratoNuevo);
+        form_data.append('idActaLiquidacion', idActaLiquidacion);
+        form_data.append('NumeroContrato', NumeroContrato);
+        form_data.append('FechaInicial', FechaInicial);
+        form_data.append('FechaFinal', FechaFinal);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]); 
+                //document.getElementById('DivMensajesCerrarActa').innerHTML=document.getElementById('DivMensajesCerrarActa').innerHTML+"<br>"+respuestas[1];
+                //document.getElementById('DivTab1').innerHTML=respuestas[1];
+                MostrarActa();
+                
+                document.getElementById(idBoton).disabled=false;
+            }else if(respuestas[0]==="E1"){
+                document.getElementById(idBoton).disabled=false;
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById(idBoton).disabled=false;
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
 
 document.getElementById('BtnMuestraMenuLateral').click();
 document.getElementById('TabCuentas2').click();

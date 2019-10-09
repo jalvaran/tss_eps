@@ -360,6 +360,57 @@ if( !empty($_REQUEST["Accion"]) ){
             
             print("OK;Campo $CampoAEditar del Contrato se ha Editado");
         break; // Fin caso 10
+        
+        case 11: // Renormar un contrato
+            $ContratoNuevo=trim($obCon->normalizar($_REQUEST["ContratoNuevo"]));
+            $NumeroContrato=$obCon->normalizar($_REQUEST["NumeroContrato"]);
+            $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            
+            $FechaInicial=$obCon->normalizar($_REQUEST["FechaInicial"]);
+            $FechaFinal=$obCon->normalizar($_REQUEST["FechaFinal"]);
+            $DatosMesServicio = explode("-", $FechaInicial);
+            $MesServicioInicial=$DatosMesServicio[0].$DatosMesServicio[1];
+            
+            $DatosMesServicio = explode("-", $FechaFinal);
+            $MesServicioFinal=$DatosMesServicio[0].$DatosMesServicio[1];
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            if($ContratoNuevo==''){
+                exit("E1;La caja de texto Contrato Nuevo no puede estar vacío");
+            }
+            
+            if($NumeroContrato==''){
+                exit("E1;No se recibió un contrato a reemplazar");
+            }
+            $FechaRegistro=date("Y-m-d H:i:s");
+            $sql="INSERT INTO registra_ediciones_contratos (NumeroFactura,ContratoAnterior,ContratoNuevo,idUser,FechaRegistro) 
+                    SELECT NumeroFactura,NumeroContrato,'$ContratoNuevo','$idUser','$FechaRegistro' 
+                    FROM  $db.carteraeps WHERE NumeroContrato='$NumeroContrato' AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
+            $obCon->Query($sql);
+            
+            $sql="UPDATE $db.carteraeps SET NumeroContrato='$ContratoNuevo' WHERE NumeroContrato='$NumeroContrato' AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
+            $obCon->Query($sql);
+            
+            $sql="UPDATE $db.historial_carteracargada_eps SET NumeroContrato='$ContratoNuevo' WHERE NumeroContrato='$NumeroContrato' AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
+            $obCon->Query($sql);
+            
+            $sql="UPDATE $db.hoja_de_trabajo SET NumeroContrato='$ContratoNuevo' WHERE NumeroContrato='$NumeroContrato' AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
+            $obCon->Query($sql);
+            
+            $sql="UPDATE $db.actas_conciliaciones_items SET NumeroContrato='$ContratoNuevo' WHERE NumeroContrato='$NumeroContrato' AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
+            $obCon->Query($sql);
+            
+            $sql="UPDATE actas_liquidaciones_contratos SET idContrato='$ContratoNuevo' WHERE idContrato='$NumeroContrato' AND idActaLiquidacion='$idActaLiquidacion'";
+            $obCon->Query($sql);
+            
+            print("OK;Contrato Renombrado");
+            
+        break; // Fin caso 11    
+        
+        
     }
     
     

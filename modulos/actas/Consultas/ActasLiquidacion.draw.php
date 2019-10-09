@@ -300,7 +300,7 @@ if( !empty($_REQUEST["Accion"]) ){
                                 $css->input("text", "TxtValorCapita_$i", "form-control", "TxtValorCapita", "", $DatosContratoExistente["ValorContrato"], "Valor Contrato", "off", "", "onchange=EditeContrato(`$idItem`,`TxtValorCapita_$i`,`ValorContrato`)");
                                 $css->CrearBotonEvento("btnAgregarContrato", "Agregar Contrato", 1, "onclick", "AgregarContratoActaLiquidacion(`".$DatosContratoExistente["ContratoEquivalente"]."`,`$idActaLiquidacion`,`$i`)", "verde", "style='width:150px;'");
                             }    
-                            
+                            $css->CrearBotonEvento("btnRenombrarContrato", "Renombrar Contrato", 1, "onclick", "ModalRenombrarContrato(`".$DatosContratos["NumeroContrato"]."`)", "rojo", "style='width:150px;'");
                         print("</td>");
                         
                         print("<td>");
@@ -564,7 +564,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<tr>");
                         print("<td colspan=5>");
                             $css->textarea("ObservacionesActaLiquidacion", "form-control", "ObservacionesActaLiquidacion", "", "Observaciones", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`ObservacionesActaLiquidacion`,`Observaciones`)");
-                                print(utf8_decode($DatosActa["Observaciones"]));
+                                print(($DatosActa["Observaciones"]));
                             $css->Ctextarea();
                            // $css->input("text", "ObservacionesActaLiquidacion", "form-control", "ObservacionesActaLiquidacion", "Observaciones", $DatosActa["Observaciones"], "Observaciones", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`ObservacionesActaLiquidacion`,`Observaciones`)");
                         print("</td>");
@@ -749,11 +749,11 @@ if( !empty($_REQUEST["Accion"]) ){
             }else{
                 $NumPage=1;
             }
-            $Condicional=" WHERE NIT_IPS='$CmbIPS' ";
+            $Condicional="";
             if(isset($_REQUEST['Busqueda'])){
                 $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
                 if($Busqueda<>''){
-                    $Condicional.=" AND ID = '$Busqueda' ";
+                    $Condicional.=" WHERE NIT_IPS='$CmbIPS' or ID = '$Busqueda' ";
                 }
                 
             }
@@ -891,6 +891,26 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
             
         break;//Fin caso 6
+        case 7://Dibuja el formaulario para renombrar un contrato
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $NumeroContrato=$obCon->normalizar($_REQUEST["NumeroContrato"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $css->input("hidden", "idFormulario", "", "idFormulario", "", 1, "", "", "", "");
+            
+            $css->CrearTitulo("Renombrar Contrato: ".$NumeroContrato, "naranja");
+            
+            $css->CrearTabla();
+                print("<td>");
+                    $css->input("text", "TxtNumeroContratoRenombrar", "form-control", "TxtNumeroContratoRenombrar", "", "", "Contrato Nuevo", "off", "", "", "");
+                print("</td>");
+                print("<td>");
+                    $css->CrearBotonEvento("BtnRenombrarContrato", "Renombrar", 1, "onclick", "RenombrarContrato(`$NumeroContrato`)", "rojo");
+                print("</td>");
+            $css->CerrarTabla();
+            
+        break;//Fin caso 7
     }
     
           
