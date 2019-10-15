@@ -1,0 +1,7 @@
+UPDATE carteraeps t1 
+                SET t1.ValorOriginal=(SELECT ValorOriginal FROM historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.FechaRadicado=(SELECT FechaFactura FROM historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.MesServicio=(SELECT MesServicio FROM historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.NumeroRadicado=(SELECT NumeroRadicado FROM historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.NumeroOperacion=(SELECT NumeroOperacion FROM historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.ValorMenosImpuestos=(SELECT ValorMenosImpuestos FROM historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1);

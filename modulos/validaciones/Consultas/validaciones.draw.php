@@ -596,8 +596,8 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Fecha de Radicado</strong>", 1);
                     $css->ColTabla("<strong>Departamento de Radicacion</strong>", 1);
                     $css->ColTabla("<strong>Valor</strong>", 1);
-                    $css->ColTabla("<strong>Impuestos Conciliaciones</strong>", 1);
                     $css->ColTabla("<strong>Impuestos Segun Retencion</strong>", 1);
+                    $css->ColTabla("<strong>Impuestos Calculados</strong>", 1);
                     $css->ColTabla("<strong>Valor Menos Impuestos</strong>", 1);
                     $css->ColTabla("<strong>Total Pagos</strong>", 1);
                     $css->ColTabla("<strong>Capitalización</strong>", 1);
@@ -662,7 +662,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla($DatosFactura["DepartamentoRadicacion"], 1);
                         $css->ColTabla(number_format($DatosFactura["ValorDocumento"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["Impuestos"]), 1,'R');
-                        $css->ColTabla(number_format($DatosFactura["ImpuestosSegunASMET"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["ImpuestosCalculados"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["ValorMenosImpuestos"]), 1,'R');
                         print("<td>");
                             $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,`4`)", "style=cursor:pointer;");

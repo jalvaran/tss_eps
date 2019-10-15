@@ -529,7 +529,10 @@ class ValidacionesEPS extends conexion{
                     EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato AND t2.idActaConciliacion='$idActaConciliacion') 
                     AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal' ";
         $DatosTotales=$this->FetchAssoc($this->Query($sql));
-        $TotalPendientesRadicados= $this->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
+        //$TotalPendientesRadicados= $this->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
+        $sql="SELECT SUM(Total) as TotalPendientes FROM $db.vista_pendientes";
+        $TotalPendientes = $this->FetchAssoc($this->Query($sql));
+        $TotalPendientesRadicados=$TotalPendientes["TotalPendientes"];
         if(!is_numeric($TotalPendientesRadicados)){
             $TotalPendientesRadicados=0;
         }
@@ -601,23 +604,22 @@ class ValidacionesEPS extends conexion{
         $DetalleDiferencias["DiferenciaXPagos"]=$DetalleDiferencias["DiferenciaXPagos"]+$DiferenciaVariada;
         $TotalDiferencias= array_sum($DetalleDiferencias);
         //print($TotalDiferencias);
-        /*
+        
         //print($TotalDiferencias);
         $DiferenciaFaltante=abs($Diferencia)-abs($TotalDiferencias);
-        print($DiferenciaFaltante);
-        $DiferenciaTemporal=$DetalleDiferencias["DiferenciaXPagos"]+$DiferenciaFaltante;
-        if($DiferenciaTemporal<0){
+        //print($DiferenciaFaltante);
+        //$DiferenciaTemporal=$DetalleDiferencias["DiferenciaXPagos"]+$DiferenciaFaltante;
+        if($DiferenciaFaltante<>0){
             $keyMax=array_keys($DetalleDiferencias,max($DetalleDiferencias));            
             $idKey=$keyMax[0];
-            $DetalleDiferencias[$idKey]=$DetalleDiferencias[$idKey]+$DiferenciaTemporal;
-            $DetalleDiferencias["DiferenciaXPagos"]=0;
+            $DetalleDiferencias[$idKey]=$DetalleDiferencias[$idKey]+$DiferenciaFaltante;
+            //$DetalleDiferencias["DiferenciaXPagos"]=0;
         }else{
-            $DetalleDiferencias["DiferenciaXPagos"]=$DetalleDiferencias["DiferenciaXPagos"]+$DiferenciaFaltante;
+           // $DetalleDiferencias["DiferenciaXPagos"]=$DetalleDiferencias["DiferenciaXPagos"]+$DiferenciaFaltante;
         }
         $DetalleDiferencias["TotalDiferencias"]= array_sum($DetalleDiferencias);
-         * 
-         */
-        $DetalleDiferencias["TotalDiferencias"]=$TotalDiferencias;
+         
+        //$DetalleDiferencias["TotalDiferencias"]=$TotalDiferencias;
         return($DetalleDiferencias);
     }
     
@@ -669,7 +671,11 @@ class ValidacionesEPS extends conexion{
         $DatosActa=$this->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
         $MesServicioInicial=$DatosActa["MesServicioInicial"];
         $MesServicioFinal=$DatosActa["MesServicioFinal"];
-        $TotalPendientesRadicados=$this->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
+        $sql="SELECT SUM(Total) as TotalPendientes FROM $db.vista_pendientes";
+        $TotalPendientes = $this->FetchAssoc($this->Query($sql));
+        
+        //$TotalPendientesRadicados=$this->SumeColumna("$db.vista_pendientes", "Total", 1, "");
+        //print("Total Pendientes: ".$TotalPendientes["TotalPendientes"]);
         $TotalFacturasSinRelacionsrXIPS= $this->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
             
         $sql="SELECT SUM(ValorSegunEPS) AS TotalEPS,SUM(ValorSegunIPS) AS TotalIPS FROM $db.`hoja_de_trabajo` t1 WHERE "
@@ -686,7 +692,7 @@ class ValidacionesEPS extends conexion{
         $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips ";
         $DatosIPS= $this->FetchAssoc($this->Query($sql));
         
-        $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientesRadicados;
+        $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientes["TotalPendientes"];
         $ValorSegunIPS=$DatosIPS["Total"];
         $Diferencia=$ValorSegunEPS-$ValorSegunIPS;
         $SaldoConciliadoParaPago=$ValorSegunEPS;
@@ -695,7 +701,7 @@ class ValidacionesEPS extends conexion{
         $TotalesActa["ValorSegunIPS"]=$ValorSegunIPS;
         $TotalesActa["Diferencia"]=$Diferencia;
         $TotalesActa["SaldoConciliadoParaPago"]=$SaldoConciliadoParaPago;
-        $TotalesActa["TotalPendientesRadicados"]=$TotalPendientesRadicados;
+        $TotalesActa["TotalPendientesRadicados"]=$TotalPendientes["TotalPendientes"];
         $TotalesActa["TotalFacturasSinRelacionsrXIPS"]=$TotalFacturasSinRelacionsrXIPS;
         return($TotalesActa);
         

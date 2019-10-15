@@ -172,6 +172,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     t1.FechaRadicado=(SELECT FechaFactura FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
                     t1.MesServicio=(SELECT MesServicio FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
                     t1.NumeroRadicado=(SELECT NumeroRadicado FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.NumeroOperacion=(SELECT NumeroOperacion FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),    
                     t1.ValorMenosImpuestos=(SELECT ValorMenosImpuestos FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1);";
               
            $obCon->Query($sql);

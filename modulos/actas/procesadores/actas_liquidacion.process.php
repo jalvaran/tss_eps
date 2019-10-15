@@ -386,8 +386,8 @@ if( !empty($_REQUEST["Accion"]) ){
                 exit("E1;No se recibió un contrato a reemplazar");
             }
             $FechaRegistro=date("Y-m-d H:i:s");
-            $sql="INSERT INTO registra_ediciones_contratos (NumeroFactura,ContratoAnterior,ContratoNuevo,idUser,FechaRegistro) 
-                    SELECT NumeroFactura,NumeroContrato,'$ContratoNuevo','$idUser','$FechaRegistro' 
+            $sql="INSERT INTO registra_ediciones_contratos (NumeroFactura,ContratoAnterior,ContratoNuevo,idUser,FechaRegistro,NIT_IPS) 
+                    SELECT NumeroFactura,NumeroContrato,'$ContratoNuevo','$idUser','$FechaRegistro', '$CmbIPS' 
                     FROM  $db.carteraeps WHERE NumeroContrato='$NumeroContrato' AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
             $obCon->Query($sql);
             
