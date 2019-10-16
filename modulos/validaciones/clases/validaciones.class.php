@@ -745,10 +745,10 @@ class ValidacionesEPS extends conexion{
         $sql="INSERT INTO $db.actas_conciliaciones_items 
                 (`idActaConciliacion`,`FechaFactura`,`MesServicio`,`DepartamentoRadicacion`,`NumeroRadicado`,`FechaRadicado`,`NumeroContrato`,`NumeroFactura`,`ValorDocumento`,`Impuestos`,`TotalPagos`,
                 `TotalAnticipos`,`TotalCopagos`,`DescuentoPGP`,`OtrosDescuentos`,`AjustesCartera`,`TotalGlosaInicial`,`TotalGlosaFavor`,`TotalGlosaContra`,`GlosaXConciliar`,`TotalDevoluciones`,`ValorSegunEPS`,
-                `ValorSegunIPS`,`Diferencia`,`NoRelacionada`,`FechaRegistro`,`idUser`,`DescuentoBDUA`,`NumeroDiasLMA`,`ValorAPagarLMA`,`CodigoSucursal`)  
+                `ValorSegunIPS`,`Diferencia`,`NoRelacionada`,`FechaRegistro`,`idUser`,`DescuentoBDUA`,`NumeroDiasLMA`,`ValorAPagarLMA`,`CodigoSucursal`,`NumeroOperacion`,`ImpuestosPorRecuperar`)  
                 SELECT '$idActa',`FechaFactura`,`MesServicio`,`DepartamentoRadicacion`,`NumeroRadicado`,`FechaRadicado`,`NumeroContrato`,`NumeroFactura`,`ValorDocumento`,`Impuestos`,`TotalPagos`,
                 `TotalAnticipos`,`TotalCopagos`,`DescuentoPGP`,`OtrosDescuentos`,`AjustesCartera`,`TotalGlosaInicial`,`TotalGlosaFavor`,`TotalGlosaContra`,`GlosaXConciliar`,`TotalDevoluciones`,`ValorSegunEPS`,
-                `ValorSegunIPS`,`Diferencia` ,'0','$FechaRegisto','$idUser',`DescuentoReconocimientoBDUA` ,`NumeroDiasLMA`,`ValorAPagarLMA`,`CodigoSucursal`  
+                `ValorSegunIPS`,`Diferencia` ,'0','$FechaRegisto','$idUser',`DescuentoReconocimientoBDUA` ,`NumeroDiasLMA`,`ValorAPagarLMA`,`CodigoSucursal`,`NumeroOperacion`,`ImpuestosPorRecuperar`   
                  FROM $db.hoja_de_trabajo t1 WHERE 
                 EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato AND t2.idActaConciliacion='$idActa') 
                 AND NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND t3.idActaConciliacion='$idActa') 
@@ -768,10 +768,10 @@ class ValidacionesEPS extends conexion{
         $sql="INSERT INTO $db.actas_conciliaciones_items 
                 (`idActaConciliacion`,`FechaFactura`,`MesServicio`,`DepartamentoRadicacion`,`NumeroRadicado`,`FechaRadicado`,`NumeroContrato`,`NumeroFactura`,`ValorDocumento`,`Impuestos`,`TotalPagos`,
                 `TotalAnticipos`,`TotalCopagos`,`DescuentoPGP`,`OtrosDescuentos`,`AjustesCartera`,`TotalGlosaInicial`,`TotalGlosaFavor`,`TotalGlosaContra`,`GlosaXConciliar`,`TotalDevoluciones`,`ValorSegunEPS`,
-                `ValorSegunIPS`,`Diferencia`,`NoRelacionada`,`FechaRegistro`,`idUser`,`DescuentoBDUA`)  
+                `ValorSegunIPS`,`Diferencia`,`NoRelacionada`,`FechaRegistro`,`idUser`,`DescuentoBDUA`,`NumeroDiasLMA`,`ValorAPagarLMA`,`CodigoSucursal`,`NumeroOperacion`,`ImpuestosPorRecuperar`)  
                 SELECT '$idActa',`FechaFactura`,`MesServicio`,`DepartamentoRadicacion`,`NumeroRadicado`,`FechaRadicado`,`NumeroContrato`,`NumeroFactura`,`ValorDocumento`,`Impuestos`,`TotalPagos`,
                 `TotalAnticipos`,`TotalCopagos`,`DescuentoPGP`,`OtrosDescuentos`,`AjustesCartera`,`TotalGlosaInicial`,`TotalGlosaFavor`,`TotalGlosaContra`,`GlosaXConciliar`,`TotalDevoluciones`,`ValorSegunEPS`,
-                `ValorSegunIPS`,`Diferencia` ,'1','$FechaRegisto','$idUser',`DescuentoReconocimientoBDUA`   
+                `ValorSegunIPS`,`Diferencia` ,'1','$FechaRegisto','$idUser',`DescuentoReconocimientoBDUA`,`NumeroDiasLMA`,`ValorAPagarLMA`,`CodigoSucursal`,`NumeroOperacion`,`ImpuestosPorRecuperar`    
                  FROM $db.vista_cruce_cartera_eps_sin_relacion_segun_ags t1 WHERE 
                 EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE t2.NumeroContrato=t1.NumeroContrato AND t2.idActaConciliacion='$idActa') 
                 AND NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND t3.idActaConciliacion='$idActa') 

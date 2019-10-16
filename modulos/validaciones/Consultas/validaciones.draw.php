@@ -592,7 +592,10 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Mes de Servicio</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Factura</strong>", 1);
                     $css->ColTabla("<strong>Radicado</strong>", 1);
-                    $css->ColTabla("<strong>Pendientes</strong>", 1);
+                    $css->ColTabla("<strong>Pendientes Por Radicados</strong>", 1);
+                    $css->ColTabla("<strong>Pendientes Por Devoluciones</strong>", 1);
+                    $css->ColTabla("<strong>Pendientes Por Notas</strong>", 1);
+                    $css->ColTabla("<strong>Pendientes Por Copagos</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Radicado</strong>", 1);
                     $css->ColTabla("<strong>Departamento de Radicacion</strong>", 1);
                     $css->ColTabla("<strong>Valor</strong>", 1);
@@ -657,7 +660,11 @@ if( !empty($_REQUEST["Accion"]) ){
                            $css->CerrarDiv();
                          print("</td>"); 
                         
-                        $css->ColTabla($DatosFactura["Pendientes"], 1);
+                        $css->ColTabla($DatosFactura["PendientesPorRadicados"], 1);
+                        $css->ColTabla($DatosFactura["PendientesPorDevoluciones"], 1);
+                        $css->ColTabla($DatosFactura["PendientesPorNotas"], 1);
+                        $css->ColTabla($DatosFactura["PendientesPorCopagos"], 1);
+                        
                         $css->ColTabla($DatosFactura["FechaRadicado"], 1);
                         $css->ColTabla($DatosFactura["DepartamentoRadicacion"], 1);
                         $css->ColTabla(number_format($DatosFactura["ValorDocumento"]), 1,'R');
