@@ -42,7 +42,7 @@ $css->PageInit($myTitulo);
     $css->CrearDiv("", "col-md-4", "center", 1, 1);
     
             
-        if($Role=="SUPERVISOR"){
+        if($TipoUser=="administrador"){
             $sql="SELECT * FROM ips";
         }else{
             $sql="SELECT * FROM ips i INNER JOIN relacion_usuarios_ips ri ON ri.idIPS=i.NIT WHERE ri.idUsuario='$idUser' ";
