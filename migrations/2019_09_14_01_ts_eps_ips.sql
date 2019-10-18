@@ -1,4 +1,4 @@
-CREATE TABLE `actas_conciliaciones_items` (
+CREATE TABLE IF NOT EXISTS `actas_conciliaciones_items` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `idActaConciliacion` bigint(20) NOT NULL,
   `FechaFactura` date DEFAULT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE `actas_conciliaciones_items` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-CREATE TABLE `actas_liquidaciones_items` (
+CREATE TABLE IF NOT EXISTS `actas_liquidaciones_items` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `idActaLiquidacion` bigint(20) NOT NULL,
   `FechaFactura` date DEFAULT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE `actas_liquidaciones_items` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-CREATE TABLE `actas_liquidaciones_radicados_items` (
+CREATE TABLE IF NOT EXISTS `actas_liquidaciones_radicados_items` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `idActaLiquidacion` bigint(20) NOT NULL,
   `MesServicio` int(6) DEFAULT NULL,
@@ -121,7 +121,7 @@ CREATE TABLE `actas_liquidaciones_radicados_items` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-CREATE TABLE `actualizacioncarteracargadaips` (
+CREATE TABLE IF NOT EXISTS `actualizacioncarteracargadaips` (
   `ID` int(20) NOT NULL AUTO_INCREMENT,
   `NitEPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del entidad promomotora de salud ',
   `NitIPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del prestador de servicios de salud ',
@@ -161,7 +161,7 @@ CREATE TABLE `actualizacioncarteracargadaips` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de cargue de cartera temporal de cargues cartera ips';
 
 
-CREATE TABLE `anticipos2` (
+CREATE TABLE IF NOT EXISTS `anticipos2` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `NumeroInterno` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero del documento',
   `NumeroAnticipo` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero del anticipo',
@@ -193,7 +193,7 @@ CREATE TABLE `anticipos2` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de Anticipos2';
 
 
-CREATE TABLE `anticipos_asmet` (
+CREATE TABLE IF NOT EXISTS `anticipos_asmet` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `Nit_IPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del prestador de servicios de salud',
   `DescripcionNC` varchar(100) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Descripcion de la Nota',
@@ -217,7 +217,7 @@ CREATE TABLE `anticipos_asmet` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de Glosas';
 
 
-CREATE TABLE `carteracargadaips` (
+CREATE TABLE IF NOT EXISTS `carteracargadaips` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `NitEPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del entidad promomotora de salud ',
   `NitIPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del prestador de servicios de salud ',
@@ -257,7 +257,7 @@ CREATE TABLE `carteracargadaips` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de cargue de cartera temporal de cargues cartera ips';
 
 
-CREATE TABLE `carteraeps` (
+CREATE TABLE IF NOT EXISTS `carteraeps` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `NitEPS` bigint(20) NOT NULL,
   `CodigoSucursal` int(6) DEFAULT NULL COMMENT 'Codigo Dane sucursal',
@@ -288,7 +288,7 @@ CREATE TABLE `carteraeps` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla tibco de asmet mutual';
 
 
-CREATE TABLE `carteraxedades` (
+CREATE TABLE IF NOT EXISTS `carteraxedades` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `TipoOperacion` int(6) NOT NULL,
   `NumeroDocumento` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la transaccion',
@@ -316,7 +316,7 @@ CREATE TABLE `carteraxedades` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo cartera x edadaes';
 
 
-CREATE TABLE `comprobantesegresoasmet` (
+CREATE TABLE IF NOT EXISTS `comprobantesegresoasmet` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `TipoOperacion` int(5) DEFAULT NULL COMMENT 'Tipo de Operacion',
   `NumeroComprobante` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero del comprobante',
@@ -353,7 +353,7 @@ CREATE TABLE `comprobantesegresoasmet` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo comprobantes de egreso';
 
 
-CREATE TABLE `conciliaciones_anulaciones` (
+CREATE TABLE IF NOT EXISTS `conciliaciones_anulaciones` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `Fecha` datetime NOT NULL,
   `idConciliacion` bigint(20) NOT NULL,
@@ -366,7 +366,7 @@ CREATE TABLE `conciliaciones_anulaciones` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-CREATE TABLE `conciliaciones_cruces` (
+CREATE TABLE IF NOT EXISTS `conciliaciones_cruces` (
   `ID` int(20) NOT NULL AUTO_INCREMENT,
   `NumeroContrato` varchar(40) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Numero de contrato al que esta sujeto la factura',
   `NumeroFactura` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la factura del prestador',
@@ -409,7 +409,7 @@ CREATE TABLE `conciliaciones_cruces` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Conciliaciones de cruces';
 
 
-CREATE TABLE `controlcargueseps` (
+CREATE TABLE IF NOT EXISTS `controlcargueseps` (
   `ID` int(20) NOT NULL AUTO_INCREMENT,
   `NombreCargue` varchar(65) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Nombre del cargue ',
   `ValorCargue` double(15,2) NOT NULL COMMENT 'Valor total del cargue ',
@@ -427,7 +427,7 @@ CREATE TABLE `controlcargueseps` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de control de cargues';
 
 
-CREATE TABLE `controlcarguesips` (
+CREATE TABLE IF NOT EXISTS `controlcarguesips` (
   `ID` int(20) NOT NULL AUTO_INCREMENT,
   `NombreCargue` varchar(65) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Nombre del cargue ',
   `ValorCargue` double(15,2) NOT NULL COMMENT 'Valor total del cargue ',
@@ -445,7 +445,7 @@ CREATE TABLE `controlcarguesips` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de control de cargues';
 
 
-CREATE TABLE `copagos_pendientes` (
+CREATE TABLE IF NOT EXISTS `copagos_pendientes` (
   `ID` int(20) NOT NULL AUTO_INCREMENT,
   `NumeroRadicado` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la radicado que genera la EPS',
   `Origen` varchar(10) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Origien',
@@ -473,7 +473,7 @@ CREATE TABLE `copagos_pendientes` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Envios de copagos';
 
 
-CREATE TABLE `devoluciones_pendientes` (
+CREATE TABLE IF NOT EXISTS `devoluciones_pendientes` (
   `ID` int(20) NOT NULL AUTO_INCREMENT,
   `NumeroRadicado` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la radicado que genera la EPS',
   `Origen` varchar(10) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Origien',
@@ -501,7 +501,7 @@ CREATE TABLE `devoluciones_pendientes` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Envios de devoluciones';
 
 
-CREATE TABLE `glosaseps_asmet` (
+CREATE TABLE IF NOT EXISTS `glosaseps_asmet` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `Nit_IPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del prestador de servicios de salud',
   `RazonSocial` varchar(60) COLLATE utf8_spanish_ci NOT NULL COMMENT 'RazÃ³n social o apellidos y nombre del prestador',
@@ -524,7 +524,7 @@ CREATE TABLE `glosaseps_asmet` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de Glosas';
 
 
-CREATE TABLE `historial_carteracargada_eps` (
+CREATE TABLE IF NOT EXISTS `historial_carteracargada_eps` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `TipoOperacion` int(5) DEFAULT NULL COMMENT 'Tipo de Operacion',
   `NumeroOperacion` int(7) DEFAULT NULL COMMENT 'Numero de Operacion',
@@ -599,7 +599,7 @@ CREATE TABLE `historial_carteracargada_eps` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla tibco de asmet Sas';
 
 
-CREATE TABLE `hoja_de_trabajo` (
+CREATE TABLE IF NOT EXISTS `hoja_de_trabajo` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `NumeroFactura` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la factura del prestador',
   `Estado` int(11) NOT NULL,
@@ -676,7 +676,7 @@ CREATE TABLE `hoja_de_trabajo` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-CREATE TABLE `notas_db_cr_2` (
+CREATE TABLE IF NOT EXISTS `notas_db_cr_2` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `CodEps` int(4) NOT NULL COMMENT 'Codigo de la Eps',
   `C2` varchar(2) COLLATE utf8_spanish_ci NOT NULL COMMENT 'no se conoce el campo',
@@ -742,7 +742,7 @@ CREATE TABLE `notas_db_cr_2` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Notas debito y credito';
 
 
-CREATE TABLE `notas_dv_cr` (
+CREATE TABLE IF NOT EXISTS `notas_dv_cr` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `CodEps` int(4) NOT NULL COMMENT 'Codigo de la Eps',
   `TipoOperacion` int(5) DEFAULT NULL COMMENT 'Tipo de Operacion',
@@ -854,7 +854,7 @@ CREATE TABLE `notas_dv_cr` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de Notas Db-Cr';
 
 
-CREATE TABLE `notas_pendientes` (
+CREATE TABLE IF NOT EXISTS `notas_pendientes` (
   `ID` int(20) NOT NULL AUTO_INCREMENT,
   `NumeroRadicado` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la radicado que genera la EPS',
   `Origen` varchar(10) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Origien',
@@ -882,7 +882,7 @@ CREATE TABLE `notas_pendientes` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Envios de nota credito';
 
 
-CREATE TABLE `pagos_asmet` (
+CREATE TABLE IF NOT EXISTS `pagos_asmet` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `Nit_IPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del prestador de servicios de salud',
   `Nit_EPS` bigint(20) NOT NULL,
@@ -922,7 +922,7 @@ CREATE TABLE `pagos_asmet` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Pagos realizados por ASMET';
 
 
-CREATE TABLE `pagos_asmet_temporal` (
+CREATE TABLE IF NOT EXISTS `pagos_asmet_temporal` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `Nit_IPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del prestador de servicios de salud',
   `Nit_EPS` bigint(20) NOT NULL,
@@ -963,7 +963,7 @@ CREATE TABLE `pagos_asmet_temporal` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Pagos realizados por ASMET';
 
 
-CREATE TABLE `pendientes_de_envio` (
+CREATE TABLE IF NOT EXISTS `pendientes_de_envio` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `TablaOrigen` varchar(20) COLLATE utf8_spanish_ci NOT NULL,
   `NumeroRadicado` varchar(20) COLLATE utf8_spanish_ci NOT NULL,
@@ -974,7 +974,7 @@ CREATE TABLE `pendientes_de_envio` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-CREATE TABLE `radicadospendientes` (
+CREATE TABLE IF NOT EXISTS `radicadospendientes` (
   `ID` int(20) NOT NULL AUTO_INCREMENT,
   `NumeroRadicado` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la radicado que genera la EPS',
   `Origen` varchar(10) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Origien',
@@ -1004,7 +1004,7 @@ CREATE TABLE `radicadospendientes` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Envios de radicado';
 
 
-CREATE TABLE `registro_actualizacion_facturas` (
+CREATE TABLE IF NOT EXISTS `registro_actualizacion_facturas` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `FacturaAnterior` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
   `FacturaNueva` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
@@ -1015,7 +1015,7 @@ CREATE TABLE `registro_actualizacion_facturas` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-CREATE TABLE `registro_conciliaciones_ips_eps` (
+CREATE TABLE IF NOT EXISTS `registro_conciliaciones_ips_eps` (
   `ID` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
   `NumeroFactura` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
   `NumeroContrato` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
@@ -1028,7 +1028,7 @@ CREATE TABLE `registro_conciliaciones_ips_eps` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-CREATE TABLE `registro_liquidacion_contratos_items` (
+CREATE TABLE IF NOT EXISTS `registro_liquidacion_contratos_items` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `idContrato` bigint(20) NOT NULL,
   `DepartamentoRadicacion` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
@@ -1057,10 +1057,10 @@ CREATE TABLE `registro_liquidacion_contratos_items` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-CREATE TABLE `resumen_vista_cruce_cartera_eps` (`NumeroContrato` varchar(40), `CantidadFacturas` bigint(21), `NitIps` bigint(20));
+CREATE TABLE IF NOT EXISTS `resumen_vista_cruce_cartera_eps` (`NumeroContrato` varchar(40), `CantidadFacturas` bigint(21), `NitIps` bigint(20));
 
 
-CREATE TABLE `retenciones` (
+CREATE TABLE IF NOT EXISTS `retenciones` (
   `ID` int(20) NOT NULL AUTO_INCREMENT,
   `Cuentacontable` bigint(20) NOT NULL COMMENT 'NÃºmero de la cuenta contable',
   `ObservacionCuenta` varchar(70) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Observacion de la Cuenta',
@@ -1091,7 +1091,7 @@ CREATE TABLE `retenciones` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla retenciones generadas';
 
 
-CREATE TABLE `temporalcarguecarteraeps` (
+CREATE TABLE IF NOT EXISTS `temporalcarguecarteraeps` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `TipoOperacion` int(5) DEFAULT NULL COMMENT 'Tipo de Operacion',
   `NumeroOperacion` int(7) DEFAULT NULL COMMENT 'Numero de Operacion',
@@ -1163,7 +1163,7 @@ CREATE TABLE `temporalcarguecarteraeps` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Temporal tibco de asmet Sas';
 
 
-CREATE TABLE `temporalcarguecarteraips` (
+CREATE TABLE IF NOT EXISTS `temporalcarguecarteraips` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `NitEPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del entidad promomotora de salud',
   `NitIPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del prestador de servicios de salud',
@@ -1201,7 +1201,7 @@ CREATE TABLE `temporalcarguecarteraips` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo temporal de cargues cartera ips';
 
 
-CREATE TABLE `temporal_actualizacion_facturas` (
+CREATE TABLE IF NOT EXISTS `temporal_actualizacion_facturas` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `FacturaAnterior` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
   `FacturaNueva` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
@@ -1211,7 +1211,7 @@ CREATE TABLE `temporal_actualizacion_facturas` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-CREATE TABLE `temporal_anticipos2` (
+CREATE TABLE IF NOT EXISTS `temporal_anticipos2` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `NumeroInterno` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero del documento',
   `NumeroAnticipo` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero del anticipo',
@@ -1242,7 +1242,7 @@ CREATE TABLE `temporal_anticipos2` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de Anticipos2';
 
 
-CREATE TABLE `temporal_anticipos_asmet` (
+CREATE TABLE IF NOT EXISTS `temporal_anticipos_asmet` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `Nit_IPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del prestador de servicios de salud',
   `DescripcionNC` varchar(100) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Descripcion de la Nota',
@@ -1265,7 +1265,7 @@ CREATE TABLE `temporal_anticipos_asmet` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de Glosas';
 
 
-CREATE TABLE `temporal_carteraxedades` (
+CREATE TABLE IF NOT EXISTS `temporal_carteraxedades` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `TipoOperacion` int(6) NOT NULL,
   `NumeroDocumento` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la transaccion',
@@ -1292,7 +1292,7 @@ CREATE TABLE `temporal_carteraxedades` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo cartera x edadaes';
 
 
-CREATE TABLE `temporal_comprobantesegresoasmet` (
+CREATE TABLE IF NOT EXISTS `temporal_comprobantesegresoasmet` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `TipoOperacion` int(5) DEFAULT NULL COMMENT 'Tipo de Operacion',
   `NumeroComprobante` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero del comprobante',
@@ -1328,7 +1328,7 @@ CREATE TABLE `temporal_comprobantesegresoasmet` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo comprobantes de egreso';
 
 
-CREATE TABLE `temporal_glosaseps_asmet` (
+CREATE TABLE IF NOT EXISTS `temporal_glosaseps_asmet` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `Nit_IPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del prestador de servicios de salud',
   `RazonSocial` varchar(60) COLLATE utf8_spanish_ci NOT NULL COMMENT 'RazÃ³n social o apellidos y nombre del prestador',
@@ -1351,7 +1351,7 @@ CREATE TABLE `temporal_glosaseps_asmet` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de Glosas';
 
 
-CREATE TABLE `temporal_notas_db_cr_2` (
+CREATE TABLE IF NOT EXISTS `temporal_notas_db_cr_2` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `CodEps` int(4) NOT NULL COMMENT 'Codigo de la Eps',
   `C2` varchar(2) COLLATE utf8_spanish_ci NOT NULL COMMENT 'no se conoce el campo',
@@ -1414,7 +1414,7 @@ CREATE TABLE `temporal_notas_db_cr_2` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Notas debito y credito';
 
 
-CREATE TABLE `temporal_notas_dv_cr` (
+CREATE TABLE IF NOT EXISTS `temporal_notas_dv_cr` (
   `ID` varchar(1) COLLATE utf8_spanish_ci DEFAULT NULL,
   `CodEps` int(4) NOT NULL COMMENT 'Codigo de la Eps',
   `TipoOperacion` int(5) DEFAULT NULL COMMENT 'Tipo de Operacion',
@@ -1525,7 +1525,7 @@ CREATE TABLE `temporal_notas_dv_cr` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de Notas Db-Cr';
 
 
-CREATE TABLE `temporal_registro_liquidacion_contratos_items` (
+CREATE TABLE IF NOT EXISTS `temporal_registro_liquidacion_contratos_items` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `idContrato` bigint(20) NOT NULL,
   `DepartamentoRadicacion` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
@@ -1552,7 +1552,7 @@ CREATE TABLE `temporal_registro_liquidacion_contratos_items` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
-CREATE TABLE `temporal_retenciones` (
+CREATE TABLE IF NOT EXISTS `temporal_retenciones` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `Cuentacontable` bigint(20) NOT NULL COMMENT 'NÃºmero de la cuenta contable',
   `ObservacionCuenta` varchar(70) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Observacion de la Cuenta',
@@ -1583,7 +1583,7 @@ CREATE TABLE `temporal_retenciones` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla retenciones generadas';
 
 
-CREATE TABLE `temp_conciliaciones_cruces` (
+CREATE TABLE IF NOT EXISTS `temp_conciliaciones_cruces` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `NumeroContrato` varchar(40) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Numero de contrato al que esta sujeto la factura',
   `NumeroFactura` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃƒÂºmero de la factura del prestador',
@@ -1626,7 +1626,7 @@ CREATE TABLE `temp_conciliaciones_cruces` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Conciliaciones de cruces';
 
 
-CREATE TABLE `temp_copagos_pendientes` (
+CREATE TABLE IF NOT EXISTS `temp_copagos_pendientes` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `NumeroRadicado` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la radicado que genera la EPS',
   `Origen` varchar(10) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Origien',
@@ -1653,7 +1653,7 @@ CREATE TABLE `temp_copagos_pendientes` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Envios de copagos';
 
 
-CREATE TABLE `temp_devoluciones_pendientes` (
+CREATE TABLE IF NOT EXISTS `temp_devoluciones_pendientes` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `NumeroRadicado` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la radicado que genera la EPS',
   `Origen` varchar(10) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Origien',
@@ -1680,7 +1680,7 @@ CREATE TABLE `temp_devoluciones_pendientes` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Envios de devoluciones';
 
 
-CREATE TABLE `temp_notas_pendientes` (
+CREATE TABLE IF NOT EXISTS `temp_notas_pendientes` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `NumeroRadicado` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la radicado que genera la EPS',
   `Origen` varchar(10) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Origien',
@@ -1707,7 +1707,7 @@ CREATE TABLE `temp_notas_pendientes` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Envios de nota credito';
 
 
-CREATE TABLE `temp_radicadospendientes` (
+CREATE TABLE IF NOT EXISTS `temp_radicadospendientes` (
   `ID` varchar(1) COLLATE utf8_spanish_ci NOT NULL,
   `NumeroRadicado` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la radicado que genera la EPS',
   `Origen` varchar(10) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Origien',

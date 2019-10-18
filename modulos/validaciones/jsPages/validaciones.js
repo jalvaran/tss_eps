@@ -919,6 +919,7 @@ function ExportarHojaDeTrabajo(db,Tabla,st){
     var TxtCondicional=document.getElementById('TxtCondicional').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
+    var CmbTipoNegociacion=document.getElementById('CmbTipoNegociacion').value;
     
     
     var form_data = new FormData();
@@ -927,6 +928,7 @@ function ExportarHojaDeTrabajo(db,Tabla,st){
         form_data.append('Tabla', Tabla);
         form_data.append('db', db);
         form_data.append('TxtCondicional', TxtCondicional);
+        form_data.append('CmbTipoNegociacion', CmbTipoNegociacion);
               
     $.ajax({
         
@@ -939,7 +941,7 @@ function ExportarHojaDeTrabajo(db,Tabla,st){
         type: 'post',
         success: function(data){
             document.getElementById(idBoton).disabled=false; 
-               console.log(data)
+               //console.log(data)
                 
             document.getElementById("DivMensajes").innerHTML=data;
                 

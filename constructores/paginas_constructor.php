@@ -879,8 +879,9 @@ class PageConstruct extends html_estruct_class{
      */
     function FilaTablaDB($tabla,$DivTablas,$Datos,$js,$Vector){
         $obCon=new conexion(1);
+        $Role=$_SESSION['Role'];
         $DatosControlTablas=$obCon->DevuelveValores("configuracion_control_tablas", "TablaDB", $tabla);
-        if($DatosControlTablas["Editar"]<>0){
+        if($DatosControlTablas["Editar"]<>0 or $Role=='SUPERVISOR'){
             $OpcionEditar=1;
         }else{
             $OpcionEditar=0;

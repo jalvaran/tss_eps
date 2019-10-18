@@ -467,7 +467,6 @@ if(isset($_REQUEST["Opcion"])){
             
             $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
             $Condicion=($obCon->normalizar($_REQUEST["TxtCondicional"]));
-            $CmbTipoNegociacion=$obCon->normalizar($_REQUEST["CmbTipoNegociacion"]);
             //print($st);
             $FileName=$Tabla."_".$idUser.".csv";
             $Link.= $FileName;
@@ -492,39 +491,19 @@ if(isset($_REQUEST["Opcion"])){
             
             
             $sqlColumnas="SELECT  ";
-            
-            
-            
             $Columnas=$obCon->ShowColums($db.".".$Tabla);
-            $ColumnasSeleccion="";
             //print_r($Columnas);
             foreach ($Columnas["Field"] as $key => $value) {
-                if($CmbTipoNegociacion=="EVENTO"){
-                    if($value<>'Estado' and $value<>'NoRelacionada' and $value<>'NumeroAfiliadosLMA' and $value<>'NumeroDiasLMA' and $value<>'ValorPercapita' and $value<>'PorcentajePoblacional' and $value<>'ValorAPagarLMA' and $value<>'DescuentoReconocimientoBDUA' and $value<>'FacturasDevueltasAnticipos' and $value<>'NumeroFacturasDevueltasAnticipos' and $value<>'DevolucionesPresentadas' and $value<>'FacturasPresentadas' and $value<>'FacturasDevueltas' and $value<>'TotalDevolucionesNotas' and $value<>'TotalDevolucionesParciales'){
-                        $sqlColumnas.="'$value',";
-                        $ColumnasSeleccion.="`$value`,";
-                    }
-                    
-                }
-                
-                if($CmbTipoNegociacion=="CAPITA"){
-                    if($value<>'Estado' and $value<>'NoRelacionada' and $value<>'FacturasDevueltasAnticipos' and $value<>'NumeroFacturasDevueltasAnticipos' and $value<>'DevolucionesPresentadas' and $value<>'FacturasPresentadas' and $value<>'FacturasDevueltas' and $value<>'TotalDevolucionesNotas' and $value<>'TotalDevolucionesParciales'){
-                        $sqlColumnas.="'$value',";
-                        $ColumnasSeleccion.="`$value`,";
-                    }
-                    
-                }
-                
+                $sqlColumnas.="'$value',";
             }
             $sqlColumnas=substr($sqlColumnas, 0, -1);
-            $ColumnasSeleccion=substr($ColumnasSeleccion, 0, -1);
             $sqlColumnas.=" UNION ALL ";
             
-            $sql=$sqlColumnas." SELECT $ColumnasSeleccion FROM $db.$Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
+            $sql=$sqlColumnas." SELECT * FROM $db.$Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
             $Fecha=date("Ymd_His");
             $obCon->Query($sql);
             $Inical= str_replace("ips", "proveedor", $Tabla);
-            $NombreArchivo=$CmbTipoNegociacion."_".$Inical."_$NIT"."_$Fecha";
+            $NombreArchivo=$Inical."_$NIT"."_$Fecha";
             print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar</h1></a></div>");
             break;//Fin caso 7
         

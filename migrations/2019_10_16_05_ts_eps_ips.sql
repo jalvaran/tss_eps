@@ -1,0 +1,1 @@
+ALTER TABLE `hoja_de_trabajo` ADD COLUMN IF NOT EXISTS ImpuestosPorRecuperar varchar(10);
