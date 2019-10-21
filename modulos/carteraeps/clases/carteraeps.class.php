@@ -232,6 +232,7 @@ class CarteraEPS extends conexion{
                 if(isset($data[$value])){
                     $dato=str_replace(".", "", $data[$value]);
                     $dato= str_replace(",", "", $dato);
+                    $dato= str_replace('"', "", $dato);
                     if($key=='FechaFactura' or $key=="FechaTransaccionCF" or $key=="FechaTransaccionPF" or $key=="FechaPlanoPF" or $key=="FechaTransaccionGA2702" or $key=="FechaTransaccionGD2702"){
                         $dato=$this->formatearFechaCsv($data[$value]);
                     }  
@@ -365,6 +366,7 @@ class CarteraEPS extends conexion{
                     }
                     $Dato= str_replace(".", "", $data[$i]);
                     $Dato= str_replace(",", "", $Dato);
+                    $Dato= str_replace('"', "", $Dato);
                     if($i==2){
                         $Dato=$FechaFactura;
                     }

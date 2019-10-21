@@ -118,8 +118,8 @@ if( !empty($_REQUEST["Accion"]) ){
             $sql="UPDATE $db.temporalcarguecarteraeps cips INNER JOIN $db.carteraeps t ON cips.NumeroFactura=t.NumeroFactura SET cips.FlagUpdate=1;";
             $obCon->Query($sql);
             
-            $sql="INSERT INTO $db.`carteraeps` (`NitEPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`ValorMenosImpuestos`,`idUser`,`FechaRegistro`,`FechaActualizacion`,`MesServicio`,`FechaRadicado`,`NumeroRadicado`) 
-                    SELECT `Nit_EPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`ValorMenosImpuestos`,`idUser`,`FechaRegistro`,`FechaActualizacion` ,`MesServicio`,`FechaFactura`,`NumeroRadicado`
+            $sql="INSERT INTO $db.`carteraeps` (`NitEPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`ValorMenosImpuestos`,`idUser`,`FechaRegistro`,`FechaActualizacion`,`MesServicio`,`FechaRadicado`,`NumeroRadicado`,`TipoOperacion`) 
+                    SELECT `Nit_EPS`,`CodigoSucursal`,`Sucursal`,`NumeroFactura`,`Descripcion`,`RazonSocial`,`Nit_IPS`,`NumeroContrato`,`Prefijo`,`DepartamentoRadicacion`,`ValorOriginal`,`ValorMenosImpuestos`,`idUser`,`FechaRegistro`,`FechaActualizacion` ,`MesServicio`,`FechaFactura`,`NumeroRadicado`,`TipoOperacion`
                     FROM $db.`temporalcarguecarteraeps` as t1 WHERE t1.FlagUpdate=0 AND t1.TipoOperacion NOT LIKE '25%' AND t1.TipoOperacion NOT LIKE '23%' AND t1.TipoOperacion<>829 AND t1.TipoOperacion<>0 AND t1.idUser='$idUser' GROUP BY NumeroFactura";
             $obCon->Query($sql);
             
@@ -168,12 +168,14 @@ if( !empty($_REQUEST["Accion"]) ){
             $db=$DatosCargas["DataBase"];
             
             $sql="UPDATE $db.carteraeps t1 
-                SET t1.ValorOriginal=(SELECT ValorOriginal FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
-                    t1.FechaRadicado=(SELECT FechaFactura FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
-                    t1.MesServicio=(SELECT MesServicio FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
-                    t1.NumeroRadicado=(SELECT NumeroRadicado FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),
-                    t1.NumeroOperacion=(SELECT NumeroOperacion FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1),    
-                    t1.ValorMenosImpuestos=(SELECT ValorMenosImpuestos FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t2.TipoOperacion LIKE '20%' ORDER BY t2.FechaFactura DESC LIMIT 1);";
+                SET t1.ValorOriginal=(SELECT ValorOriginal FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.FechaRadicado=(SELECT FechaFactura FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.MesServicio=(SELECT MesServicio FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.NumeroRadicado=(SELECT NumeroRadicado FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),
+                    t1.NumeroOperacion=(SELECT NumeroOperacion FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1), 
+                    t1.TipoOperacion=(SELECT TipoOperacion FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),   
+                    t1.CarteraEPSTipoNegociacion = IF(MOD(t1.TipoOperacion,2) = 0, 'EVENTO', 'CAPITA'),    
+                    t1.ValorMenosImpuestos=(SELECT ValorMenosImpuestos FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1);";
               
            $obCon->Query($sql);
                         

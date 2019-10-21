@@ -95,3 +95,25 @@ ALTER TABLE `actas_conciliaciones_items` ADD `NumeroDiasLMA` DOUBLE NOT NULL AFT
 ALTER TABLE `actas_liquidaciones_items` ADD `NumeroDiasLMA` DOUBLE NOT NULL AFTER `NumeroFactura`, ADD `ValorAPagarLMA` DOUBLE NOT NULL AFTER `NumeroDiasLMA`, ADD `CodigoSucursal` DOUBLE NOT NULL AFTER `ValorAPagarLMA`;
 
 
+INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
+(32,	'Anticipos pendientes por legalizar',	12,	5,	2,	'',	1,	'',	'cargar_anticipos_pendientes.php',	'_SELF',	1,	'pago.jpg',	10,	'2019-07-30 14:56:51',	'0000-00-00 00:00:00');
+
+INSERT INTO `configuracion_control_tablas` (`ID`, `TablaDB`, `Agregar`, `Editar`, `Ver`, `LinkVer`, `Exportar`, `AccionesAdicionales`, `Eliminar`, `Updated`, `Sync`) VALUES
+(15,	'contratos',	1,	1,	0,	'',	1,	1,	0,	'2019-10-21 11:26:48',	'2019-01-13 09:04:48'),
+(16,	'contrato_percapita',	1,	1,	0,	'',	1,	1,	0,	'2019-10-21 11:26:48',	'2019-01-13 09:04:48');
+
+
+INSERT INTO `menu_carpetas` (`ID`, `Ruta`, `Updated`, `Sync`) VALUES
+(13,	'../modulos/contratos/',	'2019-05-20 09:17:15',	'0000-00-00 00:00:00');
+
+INSERT INTO `menu` (`ID`, `Nombre`, `idCarpeta`, `Pagina`, `Target`, `Estado`, `Image`, `CSS_Clase`, `Orden`, `Updated`, `Sync`) VALUES
+(7,	'Contratos',	1,	'MnuContratos.php',	'_BLANK',	1,	'contrato.jpg',	'fa fa-share',	5,	'2019-06-27 10:12:45',	'0000-00-00 00:00:00');
+
+INSERT INTO `menu_pestanas` (`ID`, `Nombre`, `idMenu`, `Orden`, `Estado`, `Updated`, `Sync`) VALUES
+(53,	'Contratos',	7,	1,	CONV('1', 2, 10) + 0,	'2019-05-23 07:51:15',	'2019-01-13 09:12:43');
+
+INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
+(33,	'Historial de Contratos',	53,	13,	7,	'contratos',	1,	'',	'contratos.php',	'_SELF',	1,	'historial.png',	1,	'2019-07-30 14:56:51',	'0000-00-00 00:00:00');
+
+INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
+(34,	'Historial de Contratos Percapita',	53,	13,	7,	'contrato_percapita',	1,	'',	'contratos_percapita.php',	'_SELF',	1,	'historial2.png',	2,	'2019-07-30 14:56:51',	'0000-00-00 00:00:00');

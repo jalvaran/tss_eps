@@ -138,7 +138,7 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->Cselect();
                             
                             $css->CrearDiv("DivUPCCapita", "", "", 0, 1);
-                                $css->input("text", "TxtUPC", "form-control", "TxtUPC", "UPC", "", "UPC", "off", "", "");
+                                $css->input("text", "TxtUPC", "form-control", "TxtUPC", "UPC", "", "UPC (Valor Percapita Por Usuario) ", "off", "", "");
                                 $css->input("text", "TxtNumeroAfiliados", "form-control", "TxtNumeroAfiliados", "Número de Afiliados", "", "Número de Afiliados", "off", "", "");
                             $css->CerrarDiv();
                         
@@ -150,7 +150,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<td>");
                         $css->input("text", "NumeroContrato", "form-control", "NumeroContrato", "", "", "Número de Contrato", "off", "", "");
                         print("<br>");
-                        $css->input("text", "ContratoEquivalente", "form-control", "ContratoEquivalente", "", $Contrato, "Número de Contrato", "off", "", "");
+                        $css->input("text", "ContratoEquivalente", "form-control", "ContratoEquivalente", "", $Contrato, "Contrato Equivalente", "off", "", "");
                     print("</td>");
                     print("<td>");                    
                         $css->input("date", "FechaInicial", "form-control", "FechaInicial", "", date("Y-m-d"), "Fecha Inicial", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));

@@ -195,7 +195,7 @@ EXISTS (SELECT 1 FROM vista_cruce_cartera_asmet WHERE vista_cruce_cartera_asmet.
 DROP VIEW IF EXISTS `vista_retenciones_facturas`;
 CREATE VIEW vista_retenciones_facturas AS 
 
-SELECT NumeroFactura, SUM(ValorDebito) as Debitos, SUM(ValorCredito) as Creditos FROM retenciones GROUP BY NumeroFactura;
+SELECT NumeroFactura, SUM(ValorDebito) as Debitos, SUM(ValorCredito) as Creditos FROM retenciones WHERE Cuentacontable LIKE '2365%' GROUP BY NumeroFactura;
 
 DROP VIEW IF EXISTS `vista_cruce_cartera_asmet`;
 CREATE VIEW vista_cruce_cartera_asmet AS 

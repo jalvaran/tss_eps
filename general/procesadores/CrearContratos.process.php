@@ -65,8 +65,8 @@ if( !empty($_REQUEST["Accion"]) ){
             }
             
             if($Datos["TipoContrato"]=="CAPITA" or $Datos["TipoContrato"]=="CAPITA MORVILIDAD" or $Datos["TipoContrato"]=="CAPITA PDYDT" or $Datos["TipoContrato"]=="CAPITA ACTIVIDADES MINIMAS"){
-                if(!is_numeric($Datos["Upc_contratada"]) or $Datos["Upc_contratada"]>100 or $Datos["Upc_contratada"]<0){
-                    exit("E1;El campo UPC debe contener un valor númerico entre 0 y 100;TxtUPC");
+                if(!is_numeric($Datos["Upc_contratada"])){
+                    exit("E1;El campo UPC debe contener un valor númerico;TxtUPC");
                 }
                 if(!is_numeric($Datos["NumeroAfiliados"]) or $Datos["NumeroAfiliados"]<=0){
                     exit("E1;El campo Numero de Afiliados debe contener un valor númerico mayor a 0;TxtNumeroAfiliados");

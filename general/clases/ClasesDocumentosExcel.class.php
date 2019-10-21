@@ -75,7 +75,7 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z++].$i,$DatosVista["MesServicio"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["OtrosDescuentos"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["ImpuestosSegunASMET"])
+            ->setCellValue($Campos[$z++].$i,$DatosVista["ImpuestosCalculados"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalAnticipos"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])

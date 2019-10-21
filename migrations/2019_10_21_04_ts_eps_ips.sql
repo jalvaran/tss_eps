@@ -1,0 +1,1 @@
+ALTER TABLE `carteraeps` CHANGE `TipoNegociacion` `CarteraEPSTipoNegociacion` VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL;

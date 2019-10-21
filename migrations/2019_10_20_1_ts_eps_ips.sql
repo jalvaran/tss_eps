@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS `anticipos_pendientes_por_legalizar` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `TipoOperacion` int(11) NOT NULL,
+  `IdentificadorInternoFactura` bigint(20) NOT NULL,
+  `NumeroAnticipo` bigint(20) NOT NULL,
+  `FechaAnticipo` date NOT NULL,
+  `Sucursal` int(11) NOT NULL,
+  `NIT_IPS` bigint(20) NOT NULL,
+  `Total` double NOT NULL,
+  `Saldo` double NOT NULL,
+  `MesServicio` int(6) NOT NULL,
+  `KeyArchivo` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
+  `FechaRegistro` datetime NOT NULL,
+  `idUser` int(11) NOT NULL,
+  `Soporte` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `TipoOperacion` (`TipoOperacion`),
+  KEY `NumeroAnticipo` (`NumeroAnticipo`),
+  KEY `IdentificadorInternoFactura` (`IdentificadorInternoFactura`),
+  KEY `Sucursal` (`Sucursal`),
+  KEY `NIT_IPS` (`NIT_IPS`),
+  KEY `MesServicio` (`MesServicio`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;

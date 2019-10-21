@@ -49,6 +49,12 @@ function CruceCartera(){
     var dbIPS=document.getElementById('CmbIPS').value; 
     SeleccioneTablaDB(dbIPS+`.vista_cruce_cartera_asmet`,`DivHistorialTab9`,`DivOpcionesTab9`)
 }
+
+function HistorialRetenciones(){
+    var dbIPS=document.getElementById('CmbIPS').value; 
+    SeleccioneTablaDB(dbIPS+`.retenciones`,`DivHistorialTab10`,`DivOpcionesTab10`)
+}
+
 document.getElementById('BtnMuestraMenuLateral').click();
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();

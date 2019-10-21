@@ -3737,13 +3737,39 @@ if( !empty($_REQUEST["Accion"]) ){
             $ConciliacionesAFavorEPS= $row['ConciliacionesAFavorEPS'];
             $ConciliacionesAFavorIPS= $row['ConciliacionesAFavorIPS'];
 
-            $TotalPendientesDevoluciones=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Devoluciones");
-            $TotalPendientesCopagos=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Copagos");
-            $TotalPendientesRadicados=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
-            $TotalPendientesNotas=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Notas");
+            //$TotalPendientesDevoluciones=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Devoluciones");
+            //$TotalPendientesCopagos=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Copagos");
+            //$TotalPendientesRadicados=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
+            //$TotalPendientesNotas=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Notas");
+            
+            $sql="SELECT SUM(Total) AS Total FROM $db.vista_pendientes t1 WHERE Radicados='Devoluciones' AND EXISTS (SELECT 1 FROM $db.hoja_de_trabajo t2 WHERE t1.NumeroRadicado=t2.NumeroRadicado ) ";
+            $DatosPendiente=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalPendientesDevoluciones=$DatosPendiente["Total"];
+            
+            $sql="SELECT SUM(Total) AS Total FROM $db.vista_pendientes t1 WHERE Radicados='Copagos' AND EXISTS (SELECT 1 FROM $db.hoja_de_trabajo t2 WHERE t1.NumeroRadicado=t2.NumeroRadicado ) ";
+            $DatosPendiente=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalPendientesCopagos=$DatosPendiente["Total"];
+            
+            $sql="SELECT SUM(Total) AS Total FROM $db.vista_pendientes t1 WHERE Radicados='Radicados' AND EXISTS (SELECT 1 FROM $db.hoja_de_trabajo t2 WHERE t1.NumeroRadicado=t2.NumeroRadicado ) ";
+            $DatosPendiente=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalPendientesRadicados=$DatosPendiente["Total"];
+            
+            $sql="SELECT SUM(Total) AS Total FROM $db.vista_pendientes t1 WHERE Radicados='Notas' AND EXISTS (SELECT 1 FROM $db.hoja_de_trabajo t2 WHERE t1.NumeroRadicado=t2.NumeroRadicado ) ";
+            $DatosPendiente=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalPendientesNotas=$DatosPendiente["Total"];
+            
+            $sql="SELECT MIN(MesServicio) as MesServicioInicial, MAX(MesServicio) as MesServicioFinal FROM $db.hoja_de_trabajo";
+            $DatosMesServicio=$obCon->FetchAssoc($obCon->Query($sql));
+            $MesServicioInicial=$DatosMesServicio["MesServicioInicial"];
+            $MesServicioFinal=$DatosMesServicio["MesServicioFinal"];
+            
+            $sql="SELECT SUM(Saldo) AS TotalAnticiposPendientes FROM $db.anticipos_pendientes_por_legalizar WHERE MesServicio>='$MesServicioInicial' and MesServicio<='$MesServicioFinal'";
+            $DatosAnticiposPendientes=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalAnticiposPendientes=$DatosAnticiposPendientes["TotalAnticiposPendientes"];
 
             $css->CrearTabla();
-
+            
+            $css->CrearTitulo("Totales IPS $CmbIPS, entre el mes de servicio $MesServicioInicial y $MesServicioFinal", "azul");
             $css->FilaTabla(16);
             print("<td colspan=1 style='text-align:center'>");
                 print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($TotalEPS)."</h4>");
@@ -3790,6 +3816,14 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CerrarDiv();
 
             print("</td>");
+            
+            print("<td colspan=1 style='text-align:center'>");
+                $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`24`)", "style=cursor:pointer;");
+
+                    print("<strong>Anticipos pendientes x legalizar:</strong> <h4 style=color:red>". number_format($TotalAnticiposPendientes)."</h4>");
+                $css->CerrarDiv();
+
+            print("</td>");
             //$sql="SELECT SUM(ValorImpuestosCalculados) AS TotalRetencionesDevueltas FROM $db.vista_facturas_sr_eps_2 WHERE Saldo<0";
             //$Consulta2=$obCon->Query($sql);
             //$DatosSaldosDevoluciones=$obCon->FetchAssoc($Consulta2);
@@ -3800,7 +3834,7 @@ if( !empty($_REQUEST["Accion"]) ){
             //print("</td>");
 
             print("<td colspan=1 style='text-align:center'>");
-                print("<strong>Posible Valor a Liquidar:</strong> <h4 style=color:red>". number_format($TotalEPS-$TotalPendientesNotas-$TotalPendientesCopagos-$TotalPendientesDevoluciones-$TotalPendientesRadicados-$TotalRetencionesDevolucionesNoRelacionadas)."</h4>");
+                print("<strong>Posible Valor a Liquidar:</strong> <h4 style=color:red>". number_format($TotalEPS-$TotalPendientesNotas-$TotalPendientesCopagos-$TotalPendientesDevoluciones-$TotalPendientesRadicados-$TotalRetencionesDevolucionesNoRelacionadas-$TotalAnticiposPendientes)."</h4>");
             print("</td>");
 
             print("<td colspan=1 style='text-align:center'>");

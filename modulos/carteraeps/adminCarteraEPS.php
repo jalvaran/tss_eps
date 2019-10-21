@@ -54,6 +54,7 @@ print("<br>");
             $css->TabLabel("TabCuentas6", "<strong >Conciliaciones de la Cartera EPS</strong>", "Tab_6",0,"onclick=HistorialActualizacionesCartera()"); 
             $css->TabLabel("TabCuentas7", "<strong >Historial de Archivos Cargados</strong>", "Tab_7",0,"onclick=HistorialArchivosCargados()"); 
             $css->TabLabel("TabCuentas8", "<strong >Cartera por Edades</strong>", "Tab_8",0,"onclick=HistorialCarteraXEdades()"); 
+            $css->TabLabel("TabCuentas10", "<strong >Historial Retenciones</strong>", "Tab_10",0,"onclick=HistorialRetenciones()"); 
             $css->TabLabel("TabCuentas9", "<strong >Cruce Realizado</strong>", "Tab_9",0,"onclick=CruceCartera()"); 
         $css->TabInitEnd();
         $css->TabContentInit();
@@ -154,6 +155,17 @@ print("<br>");
 
             $css->CerrarDiv();
             $css->CrearDiv("DivHistorialTab9", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            
+        $css->TabPaneEnd();
+        
+        $css->TabPaneInit("Tab_10");
+                         
+            $css->CrearDiv("DivOpcionesTab10", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            $css->CrearDiv("DivHistorialTab10", "", "center", 1, 1);
 
             $css->CerrarDiv();
             
