@@ -571,6 +571,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaActaInicial=$obCon->normalizar($_REQUEST["FechaActaInicial"]);
             $TxtRepresentanteLegalIPS=$obCon->normalizar($_REQUEST["TxtRepresentanteLegalIPS"]);
             $TxtEncargadoEPS=$obCon->normalizar($_REQUEST["TxtEncargadoEPS"]);
+            $CmbTipoNegocionActa=$obCon->normalizar($_REQUEST["CmbTipoNegocionActa"]);
             if($FechaActaInicial==''){
                 exit("E1;No se recibió una Fecha Inicial;FechaActaInicial");
                 
@@ -588,7 +589,12 @@ if( !empty($_REQUEST["Accion"]) ){
                 
             }
             
-            $idActa=$obCon->CrearActaConciliacion($FechaActaInicial,$FechaActaConciliacion, $CmbIPS, $TxtRepresentanteLegalIPS, $TxtEncargadoEPS,$idUser);
+            if($CmbTipoNegocionActa==''){
+                exit("E1;Se debe Seleccionar el tipo de acta que desea realizar;CmbTipoNegocionActa");
+                
+            }
+            
+            $idActa=$obCon->CrearActaConciliacion($CmbTipoNegocionActa,$FechaActaInicial,$FechaActaConciliacion, $CmbIPS, $TxtRepresentanteLegalIPS, $TxtEncargadoEPS,$idUser);
             
             print("OK;Acta $idActa Creada Correctamente;$idActa");
         break;//Fin caso 14  
@@ -1185,10 +1191,10 @@ if( !empty($_REQUEST["Accion"]) ){
 
         (SELECT IF(FacturaActiva='SI',0, (SELECT Impuestos)   )) AS ImpuestosPorRecuperar,
          
-        (SELECT IF( FacturaActiva='SI',(SELECT 'SI' FROM radicadospendientes t4 WHERE EstadoAuditoria LIKE '%AUDITORIA%' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorRadicados,
-        (SELECT IF( FacturaActiva='SI',(SELECT 'SI' FROM devoluciones_pendientes t4 WHERE NoEnviados > '0' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorDevoluciones,
-        (SELECT IF( FacturaActiva='SI',(SELECT 'SI' FROM notas_pendientes t4 WHERE NoEnviados > '0' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorNotas,
-        (SELECT IF( FacturaActiva='SI',(SELECT 'SI' FROM copagos_pendientes t4 WHERE NoEnviados > '0' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorCopagos,
+        (SELECT IFNULL((SELECT 'SI' FROM radicadospendientes t4 WHERE EstadoAuditoria LIKE '%AUDITORIA%' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorRadicados,
+        (SELECT IFNULL( (SELECT 'SI' FROM devoluciones_pendientes t4 WHERE NoEnviados > '0' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorDevoluciones,
+        (SELECT IFNULL( (SELECT 'SI' FROM notas_pendientes t4 WHERE NoEnviados > '0' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorNotas,
+        (SELECT IFNULL( (SELECT 'SI' FROM copagos_pendientes t4 WHERE NoEnviados > '0' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorCopagos,
         
         (SELECT IF(FacturaActiva='SI',IFNULL((SELECT (ValorTotalGlosa) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t2.NumeroFactura ORDER BY FechaRegistro DESC LIMIT 1),0),0)) AS TotalGlosaInicial,
         (SELECT IF(FacturaActiva='SI',IFNULL((SELECT (ValorGlosaFavor) FROM glosaseps_asmet WHERE glosaseps_asmet.NumeroFactura=t2.NumeroFactura ORDER BY FechaRegistro DESC LIMIT 1),0) + (SELECT ConciliacionEPSXGlosas) ,0)) AS TotalGlosaFavor,
@@ -1414,6 +1420,19 @@ if( !empty($_REQUEST["Accion"]) ){
             }
                         
         break; //Fin caso 36
+        
+        case 37: // Borrar los contratos asociados a un acta de conciliacion
+            $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $obCon->BorraReg("actas_conciliaciones_contratos", "idActaConciliacion", $idActaConciliacion);
+            print("OK;Se han Borrado los contratos asociados al acta de conciliacion No. $idActaConciliacion");
+            
+            
+        break;//Fin caso 37    
         
         
     }

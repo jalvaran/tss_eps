@@ -447,7 +447,7 @@ class ValidacionesEPS extends conexion{
         
     }
     
-    public function CrearActaConciliacion($FechaInicial,$FechaCorte,$CmbIPS,$RepresentanteLegalIPS,$EncargadoEPS,$idUser) {
+    public function CrearActaConciliacion($CmbTipoNegocionActa,$FechaInicial,$FechaCorte,$CmbIPS,$RepresentanteLegalIPS,$EncargadoEPS,$idUser) {
         $FechaRegistro=date("Y-m-d H:i:s");
         $FechaFirma=date("Y-m-d");
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $CmbIPS);
@@ -470,6 +470,7 @@ class ValidacionesEPS extends conexion{
         $Datos["CiudadFirma"]='Popayán';   
         $Datos["idUser"]=$idUser;
         $Datos["FechaRegistro"]=$FechaRegistro;
+        $Datos["TipoActa"]=$CmbTipoNegocionActa;
         
         $sql=$this->getSQLInsert("actas_conciliaciones", $Datos);
         $this->Query($sql);
@@ -671,6 +672,7 @@ class ValidacionesEPS extends conexion{
         $DatosActa=$this->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
         $MesServicioInicial=$DatosActa["MesServicioInicial"];
         $MesServicioFinal=$DatosActa["MesServicioFinal"];
+        $TipoNegociacion=$DatosActa["TipoActa"];
         $sql="SELECT SUM(Total) as TotalPendientes FROM $db.vista_pendientes";
         $TotalPendientes = $this->FetchAssoc($this->Query($sql));
         
@@ -689,7 +691,8 @@ class ValidacionesEPS extends conexion{
         
          * 
          */
-        $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips ";
+        
+        $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips WHERE TipoNegociacion='$TipoNegociacion'";
         $DatosIPS= $this->FetchAssoc($this->Query($sql));
         
         $ValorSegunEPS=$TotalesCruce["TotalEPS"]-$TotalPendientes["TotalPendientes"];

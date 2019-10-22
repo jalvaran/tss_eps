@@ -1825,6 +1825,7 @@ function CrearActaConciliacion(){
     var FechaActaInicial=document.getElementById('FechaActaInicial').value;
     var TxtRepresentanteLegalIPS=document.getElementById('TxtRepresentanteLegalIPS').value;
     var TxtEncargadoEPS=document.getElementById('TxtEncargadoEPS').value;
+    var CmbTipoNegocionActa=document.getElementById('CmbTipoNegocionActa').value;
     
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
@@ -1835,6 +1836,7 @@ function CrearActaConciliacion(){
         form_data.append('FechaActaInicial', FechaActaInicial);
         form_data.append('TxtRepresentanteLegalIPS', TxtRepresentanteLegalIPS);
         form_data.append('TxtEncargadoEPS', TxtEncargadoEPS);
+        form_data.append('CmbTipoNegocionActa', CmbTipoNegocionActa);
         
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
@@ -3715,6 +3717,64 @@ function VerContratos(){
       });
 }
 
+function BorrarContratosAsociadosActa(){
+    
+    var idActaConciliacion=document.getElementById('idActaConciliacion').value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 37);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('idActaConciliacion', idActaConciliacion);
+                    
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               
+                alertify.success(respuestas[1]);  
+                
+                InicializarValoresGeneralesActaConciliacion(); 
+                MostrarActa();
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);                
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function CambieTipoNegociacionActa(idActaConciliacion){
+    EditeActaConciliacion(idActaConciliacion,'CmbEditarTipoActa','TipoActa');
+    BorrarContratosAsociadosActa();
+    
+    
+}
 
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();

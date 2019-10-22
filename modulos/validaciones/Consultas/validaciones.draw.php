@@ -2883,6 +2883,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("Crear Nueva Acta de Conciliación para la IPS: <strong>". utf8_decode($DatosIPS["Nombre"])."</strong>, con NIT: ".$NitIPS, 3);
                 $css->CierraFilaTabla();
                 $css->FilaTabla(14);
+                    $css->ColTabla("<strong>Tipo de Acta:</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Inicial:</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Final:</strong>", 1);
                     $css->ColTabla("<strong>Representante Legal IPS:</strong>", 1);
@@ -2890,6 +2891,17 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CierraFilaTabla();
                 
                 $css->FilaTabla(14);
+                    
+                    print("<td>");
+                        $css->select("CmbTipoNegocionActa", "form-control", "CmbTipoNegocionActa", "", "", "", "");
+                            $css->option("", "", "", "EVENTO", "", "");
+                                print("EVENTO");
+                            $css->Coption();
+                            $css->option("", "", "", "CAPITA", "", "");
+                                print("CAPITA");
+                            $css->Coption();
+                        $css->Cselect();
+                    print("</td>");
                     print("<td>");
                         $css->input("date", "FechaActaInicial", "form-control", "FechaActaInicial", "", date("Y-m-d"), "Fecha Corte Cartera", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
         
@@ -2909,7 +2921,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CierraFilaTabla();
                 
                 $css->FilaTabla(16);
-                    print("<td colspan=4>");
+                    print("<td colspan=5>");
                         $css->CrearBotonEvento("BtnGuardarActa", "Crear Acta", 1, "onclick", "ConfirmarCrearActa()", "rojo", "");
                     print("</td>");
                 $css->CierraFilaTabla();
@@ -3042,16 +3054,48 @@ if( !empty($_REQUEST["Accion"]) ){
             $TotalPendientesRadicados=$TotalesActaConciliacion["TotalPendientesRadicados"];
             $TotalFacturasSinRelacionsrXIPS=$TotalesActaConciliacion["TotalFacturasSinRelacionsrXIPS"];
             $DatosActa=$obCon->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
+            $TipoNegociacionActa=$DatosActa["TipoActa"];
+            
             $MesServicioInicial=$DatosActa["MesServicioInicial"];
             $MesServicioFinal=$DatosActa["MesServicioFinal"];
             if($DibujeAreaContratos==1){
+                
+                $css->CrearDiv("", "col-md-4", "center", 1, 1);
+            
+            $css->CerrarDiv();
+            $css->CrearDiv("", "col-md-4", "center", 1, 1);
+                print("<strong>Tipo de Acta:</strong>");
+                $css->select("CmbEditarTipoActa", "form-control", "CmbEditarTipoActa", "", "", "onchange=CambieTipoNegociacionActa($idActaConciliacion)", "");
+                    $Seleccionar=0;
+                    if($TipoNegociacionActa=='EVENTO'){
+                        $Seleccionar=1;
+                    }
+                    $css->option("", "", "", "EVENTO", "", "", $Seleccionar);
+                        print("EVENTO");
+                    $css->Coption();
+                    $Seleccionar=0;
+                    if($TipoNegociacionActa=='CAPITA'){
+                        $Seleccionar=1;
+                    }
+                    $css->option("", "", "", "CAPITA", "", "", $Seleccionar);
+                        print("CAPITA");
+                    $css->Coption();
+
+                $css->Cselect();
+            $css->CerrarDiv();
+            
+            $css->CrearDiv("", "col-md-4", "center", 1, 1);
+            
+            $css->CerrarDiv();
+            print("<br><br><br><br><br><br><br>");
+                
                 $css->CrearTabla();
             
                 print("<tr>");
                     print("<td colspan=1 style=font-size:16px;>");
                         print("<span style='text-decoration: underline;cursor:pointer;'><strong >Contratos Disponibles en el cruce entre el Mes de Servicio $MesServicioInicial y $MesServicioFinal: </strong></span>");
                         $css->div("DivContratosDisponiblesActaConciliacion", "", "", "", "", "", "");
-                            $sql="SELECT DISTINCT NumeroContrato FROM $db.carteraeps WHERE MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal' ";
+                            $sql="SELECT DISTINCT NumeroContrato FROM $db.carteraeps WHERE MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal' AND CarteraEPSTipoNegociacion='$TipoNegociacionActa' ";
                             $Consulta=$obCon->Query($sql);
 
                             while($Contratos=$obCon->FetchAssoc($Consulta)){

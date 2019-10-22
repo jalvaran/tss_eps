@@ -100,7 +100,7 @@ $css->PageInit($myTitulo);
             $css->TabLabel("TabCuentas6", "<strong >Facturas a Favor de EPS</strong>", "Tab_6",0,"onclick=FacturasAFavor()");  
             $css->TabLabel("TabCuentas4", "<strong >Cruce de Cartera</strong>", "Tab_4",0,"onclick=MuestreCruce()"); 
             $css->TabLabel("TabCuentas7", "<strong >Historial de Conciliaciones</strong>", "Tab_7",0,"onclick=MuestreConciliaciones()"); 
-            $css->TabLabel("TabCuentas8", "<strong >Actas de Conciliaciones</strong>", "Tab_8",0,"onclick=ActasConciliaciones()"); 
+            $css->TabLabel("TabCuentas8", "<strong >Actas de Conciliaciones</strong>", "Tab_8",0,"onclick=ActasConciliaciones();"); 
             
             $css->TabLabel("TabCuentas5", "<strong >Informe Consolidado</strong>", "Tab_5",0,"onclick=MuestreConsolidado()"); 
         $css->TabInitEnd();
