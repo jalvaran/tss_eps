@@ -24,11 +24,11 @@ if( !empty($_REQUEST["Accion"]) ){
             }else{
                 $NumPage=1;
             }
-            $Condicional=" WHERE NIT_IPS='$CmbIPS' ";
+            $Condicional="  ";
             if(isset($_REQUEST['Busqueda'])){
                 $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
                 if($Busqueda<>''){
-                    $Condicional.=" AND ID = '$Busqueda' ";
+                    $Condicional.="WHERE ID = '$Busqueda' or RazonSocialIPS LIKE '%$Busqueda%' OR NIT_IPS LIKE '%$Busqueda%' ";
                 }
                 
             }
@@ -157,6 +157,8 @@ if( !empty($_REQUEST["Accion"]) ){
                                 print("<br>");
                                 $Ruta="../../general/procesadores/GeneradorCSV.process.php?Opcion=6&idActaConciliacion=$idActaConciliacion&NIT_IPS=$NIT_IPS";
                                 print(" <a href='$Ruta' target='_BLANK'><button class='form-control btn btn-primary'>Anexo del Acta</button></a>");
+                                print("<br>");
+                                $css->CrearBotonEvento("BtnAbrirActa_".$idActaConciliacion, "Abrir Acta", 1, "onclick", "ConfirmarAperturaActa($idActaConciliacion)", "rojo");
                             }
                         print("</td>");
                         

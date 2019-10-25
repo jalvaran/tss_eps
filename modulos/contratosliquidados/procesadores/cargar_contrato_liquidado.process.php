@@ -157,9 +157,11 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $obCon->Query($sql);
             $TotalPagado=$obCon->SumeColumna("$db.registro_liquidacion_contratos_items", "ValorPagado", "idContrato", $idContrato);
+            $TotalFacturado=$obCon->SumeColumna("$db.registro_liquidacion_contratos_items", "ValorFacturado", "idContrato", $idContrato);
             
             $obCon->update("control_cargue_contratos_liquidados", "Estado", 1, " WHERE idUser='$idUser' AND Estado='0'");
             $obCon->update("registro_liquidacion_contratos", "ValorPagado", $TotalPagado, " WHERE ID='$idContrato'");
+            $obCon->update("registro_liquidacion_contratos", "TotalFacturado", $TotalFacturado, " WHERE ID='$idContrato'");
             print("OK;Registros realizados correctamente");
         break; //fin caso 5
     

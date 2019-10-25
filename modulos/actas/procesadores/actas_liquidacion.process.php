@@ -266,6 +266,38 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
+            
+            
+            $destino='';
+            $keyArchivo="Acta_Liquidacion_$idActaLiquidacion"."_";
+            $Extension="";
+            if(!empty($_FILES['UpSoporteActaLiquidacionCierre']['name'])){
+                
+                $info = new SplFileInfo($_FILES['UpSoporteActaLiquidacionCierre']['name']);
+                $Extension=($info->getExtension());  
+                if($Extension=='pdf'){
+                    $carpeta="../../../soportes/$CmbIPS/";
+                    if (!file_exists($carpeta)) {
+                        mkdir($carpeta, 0777);
+                    }
+                    $carpeta="../../../soportes/$CmbIPS/actas_liquidaciones/";
+                    if (!file_exists($carpeta)) {
+                        mkdir($carpeta, 0777);
+                    }
+                    opendir($carpeta);                
+                    $destino=$carpeta.$keyArchivo.".".$Extension;
+                    $NombreArchivo=$keyArchivo.".".$Extension;
+                    move_uploaded_file($_FILES['UpSoporteActaLiquidacionCierre']['tmp_name'],$destino);
+                    $obCon->ActualizaRegistro("actas_liquidaciones", "Soporte", $destino, "ID", $idActaLiquidacion);
+                }else{
+                    exit("E1;Error el archivo debe ser tipo pdf;UpSoporteActaLiquidacionCierre");
+                }
+            }else{
+                exit("E1;No se envió ningún archivo;UpSoporteActaLiquidacionCierre");
+                
+            }
+            
+            
             $FechaRegistra=date("Y-m-d H:i:s");
             $TablaDestino="actas_liquidaciones_items";
             $TablaOrigen="actas_conciliaciones_items";

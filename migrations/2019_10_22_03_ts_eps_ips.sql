@@ -1,0 +1,1 @@
+ALTER TABLE registro_liquidacion_contratos_items DROP INDEX IF EXISTS idContrato_2;

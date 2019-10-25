@@ -7,6 +7,11 @@
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Common\Entity\Row;
+use Box\Spout\Common\Entity\Style\Color;
+use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
+
 if(file_exists("../../modelo/php_conexion.php")){
     include_once("../../modelo/php_conexion.php");
 }
@@ -342,6 +347,7 @@ class TS_Excel extends conexion{
             ; 
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
          
+         
         $i=$i+5;
         $z=0;
         $Consulta=$this->ConsultarTabla("actas_liquidaciones_firmas", "WHERE idActaLiquidacion='$idActaLiquidacion'");
@@ -385,14 +391,20 @@ class TS_Excel extends conexion{
         ->setDescription("Documento generado por Techno Soluciones SAS")
         ->setKeywords("techno soluciones sas")
         ->setCategory("Formato conciliacion masiva");    
- 
+   /*
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment;filename="'."Anexo_Liquidacion_XFacturas_$idActaLiquidacion".'.xls"');
     header('Cache-Control: max-age=0');
     header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
     header('Pragma: public'); // HTTP/1.0
+    * 
+    */
     $objWriter=IOFactory::createWriter($objPHPExcel,'Xlsx');
-    $objWriter->save('php://output');
+    //$objWriter->save('php://output');
+    $idUser=$_SESSION["idUser"];
+    $Ruta='../../exports/acta_liquidacion_'.$idActaLiquidacion.'_tempo'.$idUser.'.xlsx';
+    $objWriter->save($Ruta);
+    
     exit; 
    
     }
@@ -972,6 +984,9 @@ class TS_Excel extends conexion{
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
         $i++;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+        
+        
+        
         $i=$i+5;
         $z=0;
         $Consulta=$this->ConsultarTabla("actas_liquidaciones_firmas", "WHERE idActaLiquidacion='$idActaLiquidacion'");
@@ -1025,6 +1040,62 @@ class TS_Excel extends conexion{
     $objWriter->save('php://output');
     exit; 
    
+    }
+    
+    public function GenerarAnexoActaLiquidacionXFacturasSpout($db,$DatosIPS,$idActaLiquidacion,$DatosActa,$TipoConsulta) {
+        require_once '../../librerias/spout/src/Spout/Autoloader/autoload.php';
+        
+        //$filePath="../../exports/acta_liquidacion_".$idActaLiquidacion.".xlsx";
+        $fileName="acta_liquidacion_".$idActaLiquidacion.".xlsx";
+        $DatosActaTipo=$this->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
+        $Encabezado= utf8_encode($DatosActaTipo["Header"]);
+        $Footer= utf8_encode($DatosActaTipo["Footer"]);
+        $MesServicioInicial=$DatosActa["MesServicioInicial"];
+        $MesServicioFinal=$DatosActa["MesServicioFinal"];
+        $DatosContratoTipo=$this->DevuelveValores("contratos_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
+        
+        
+        $defaultStyle = (new StyleBuilder())
+            ->setFontSize(8)
+            ->build();
+        
+        $zebraBlackStyle = (new StyleBuilder())
+            ->setBackgroundColor(Color::BLACK)
+            ->setFontColor(Color::WHITE)
+            ->setFontSize(10)
+            ->build();
+
+        $zebraWhiteStyle = (new StyleBuilder())
+            ->setBackgroundColor(Color::WHITE)
+            ->setFontColor(Color::BLACK)
+            ->setFontItalic()
+            ->build();  
+
+        
+        $writer = WriterEntityFactory::createXLSXWriter();
+       
+        //$writer->openToFile($filePath); // write data to a file or to a PHP stream
+        $writer->openToBrowser($fileName); // stream data directly to the browser
+
+        $cells = [
+            WriterEntityFactory::createCell("REPORTE DE LIQUIDACIÓN DE CONTRATOS POR $DatosContratoTipo[Nombre] CON IPS",$zebraBlackStyle),
+            
+        ];
+
+        /** add a row at a time */
+        $singleRow = WriterEntityFactory::createRow($cells);
+        $writer->addRow($singleRow);
+        
+        /** Shortcut: add a row from an array of values */
+        $sql="SELECT * FROM $db.actas_liquidaciones_items WHERE idActaLiquidacion='14'";
+        $Consulta=$this->Query($sql);
+        while($DatosItem= $this->FetchAssoc($Consulta)){
+            
+            $rowFromValues = WriterEntityFactory::createRowFromArray($DatosItem);
+            $writer->addRow($rowFromValues);
+        }
+
+        $writer->close();
     }
     
    //Fin Clases

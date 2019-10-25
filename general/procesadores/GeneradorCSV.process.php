@@ -500,7 +500,7 @@ if(isset($_REQUEST["Opcion"])){
             //print_r($Columnas);
             foreach ($Columnas["Field"] as $key => $value) {
                 if($CmbTipoNegociacion=="EVENTO"){
-                    if($value<>'Estado' and $value<>'NoRelacionada' and $value<>'NumeroAfiliadosLMA' and $value<>'NumeroDiasLMA' and $value<>'ValorPercapita' and $value<>'PorcentajePoblacional' and $value<>'ValorAPagarLMA' and $value<>'DescuentoReconocimientoBDUA' and $value<>'FacturasDevueltasAnticipos' and $value<>'NumeroFacturasDevueltasAnticipos' and $value<>'DevolucionesPresentadas' and $value<>'FacturasPresentadas' and $value<>'FacturasDevueltas' and $value<>'TotalDevolucionesNotas' and $value<>'TotalDevolucionesParciales'){
+                    if($value<>'Estado' and $value<>'NoRelacionada' and $value<>'DivisorMesServicio' and $value<>'ConciliacionEPSXPagos1' and $value<>'ConciliacionEPSXPagos2' and $value<>'ConciliacionEPSXGlosas1' and $value<>'ConciliacionEPSXGlosas2' and $value<>'ConciliacionEPSXCopagos' and $value<>'ConciliacionEPSXImpuestos' and $value<>'ConciliacionEPSXPagos' and $value<>'ConciliacionEPSXGlosas'  and $value<>'NumeroAfiliadosLMA' and $value<>'NumeroDiasLMA' and $value<>'ValorPercapita' and $value<>'PorcentajePoblacional' and $value<>'ValorAPagarLMA' and $value<>'DescuentoReconocimientoBDUA' and $value<>'FacturasDevueltasAnticipos' and $value<>'NumeroFacturasDevueltasAnticipos' and $value<>'DevolucionesPresentadas' and $value<>'FacturasPresentadas' and $value<>'FacturasDevueltas' and $value<>'TotalDevolucionesNotas' and $value<>'TotalDevolucionesParciales'){
                         $sqlColumnas.="'$value',";
                         $ColumnasSeleccion.="`$value`,";
                     }
@@ -508,7 +508,7 @@ if(isset($_REQUEST["Opcion"])){
                 }
                 
                 if($CmbTipoNegociacion=="CAPITA"){
-                    if($value<>'Estado' and $value<>'NoRelacionada' and $value<>'FacturasDevueltasAnticipos' and $value<>'NumeroFacturasDevueltasAnticipos' and $value<>'DevolucionesPresentadas' and $value<>'FacturasPresentadas' and $value<>'FacturasDevueltas' and $value<>'TotalDevolucionesNotas' and $value<>'TotalDevolucionesParciales'){
+                    if($value<>'Estado' and $value<>'NoRelacionada' and $value<>'ConciliacionEPSXPagos1' and $value<>'ConciliacionEPSXPagos2' and $value<>'ConciliacionEPSXGlosas1' and $value<>'ConciliacionEPSXGlosas2' and $value<>'ConciliacionEPSXCopagos' and $value<>'ConciliacionEPSXImpuestos' and $value<>'ConciliacionEPSXPagos' and $value<>'ConciliacionEPSXGlosas' and $value<>'FacturasDevueltasAnticipos' and $value<>'NumeroFacturasDevueltasAnticipos' and $value<>'DevolucionesPresentadas' and $value<>'FacturasPresentadas' and $value<>'FacturasDevueltas' and $value<>'TotalDevolucionesNotas' and $value<>'TotalDevolucionesParciales'){
                         $sqlColumnas.="'$value',";
                         $ColumnasSeleccion.="`$value`,";
                     }

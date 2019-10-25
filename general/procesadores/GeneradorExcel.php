@@ -32,6 +32,7 @@ if(isset($_REQUEST["idDocumento"])){
             if($DatosActa["TipoActaLiquidacion"]==1 or $DatosActa["TipoActaLiquidacion"]==7 or $DatosActa["TipoActaLiquidacion"]==9){
                 if($FacturaRadicado==0){
                     $obCon->GenerarAnexoActaLiquidacionXFacturas1($db,$DatosIPS,$idActaLiquidacion,$DatosActa,$TipoConsulta);
+                    //$obCon->GenerarAnexoActaLiquidacionXFacturasSpout($db,$DatosIPS,$idActaLiquidacion,$DatosActa,$TipoConsulta);
 
                 }
                 if($FacturaRadicado==1){

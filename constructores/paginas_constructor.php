@@ -1573,7 +1573,7 @@ class PageConstruct extends html_estruct_class{
 
                                     $TipoCaja="number";
                                     $Script="";
-                                    $this->input($TipoCaja, $value, "form-control", "TxtNuevoRegistro", $Titulo, "", $Titulo, "", "", $Script);
+                                    $this->input($TipoCaja, $value, "form-control", "TxtNuevoRegistro", $Titulo, "", $Titulo, "", "", $Script,"step=any");
 
 
                                 }elseif($Tipo=="date" or $Tipo=="datetime" or $Tipo=="timestamp") {
@@ -1697,7 +1697,8 @@ class PageConstruct extends html_estruct_class{
 
                                     $TipoCaja="number";
                                     $Script="";
-                                    $this->input($TipoCaja, $value, "form-control", "TxtNuevoRegistro", $Titulo, $DatosRegistro[$value], $Titulo, "", "", $Script);
+                                    //$this->input($type, $id, $class, $name, $title, $value, $placeholder, $autocomplete, $vectorhtml, $Script, $styles, $Pattern, $np_app);
+                                    $this->input($TipoCaja, $value, "form-control", "TxtNuevoRegistro", $Titulo, $DatosRegistro[$value], $Titulo, "", "", "","step=any");
 
 
                                 }elseif($Tipo=="date" or $Tipo=="datetime" or $Tipo=="timestamp") {

@@ -679,6 +679,8 @@ function CerrarActaLiquidacion(){
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
         form_data.append('idActaLiquidacion', idActaLiquidacion);
+        form_data.append('UpSoporteActaLiquidacionCierre', $('#UpSoporteActaLiquidacionCierre').prop('files')[0]);
+        
     $.ajax({
         //async:false,
         url: './procesadores/actas_liquidacion.process.php',
