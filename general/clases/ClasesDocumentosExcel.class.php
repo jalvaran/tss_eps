@@ -391,19 +391,18 @@ class TS_Excel extends conexion{
         ->setDescription("Documento generado por Techno Soluciones SAS")
         ->setKeywords("techno soluciones sas")
         ->setCategory("Formato conciliacion masiva");    
-   /*
+   
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment;filename="'."Anexo_Liquidacion_XFacturas_$idActaLiquidacion".'.xls"');
     header('Cache-Control: max-age=0');
     header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
     header('Pragma: public'); // HTTP/1.0
-    * 
-    */
+   
     $objWriter=IOFactory::createWriter($objPHPExcel,'Xlsx');
-    //$objWriter->save('php://output');
-    $idUser=$_SESSION["idUser"];
-    $Ruta='../../exports/acta_liquidacion_'.$idActaLiquidacion.'_tempo'.$idUser.'.xlsx';
-    $objWriter->save($Ruta);
+    $objWriter->save('php://output');
+    //$idUser=$_SESSION["idUser"];
+    //$Ruta='../../exports/acta_liquidacion_'.$idActaLiquidacion.'_tempo'.$idUser.'.xlsx';
+    //$objWriter->save($Ruta);
     
     exit; 
    

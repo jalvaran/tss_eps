@@ -18,7 +18,7 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelaciona
         ((SELECT ConciliacionEPSXGlosas1) + (SELECT ConciliacionEPSXGlosas2) ) AS ConciliacionEPSXGlosas, 
         
         
-        (SELECT Contrato FROM ts_eps.contratos c WHERE c.ContratoEquivalente=t2.NumeroContrato LIMIT 1) AS Contrato,
+        (SELECT Contrato FROM ts_eps.contratos c WHERE c.ContratoEquivalente=t2.NumeroContrato LIMIT 1) AS ContratoPadre,
 
         (SELECT IF(TipoNegociacion='CAPITA',
                                  (SELECT COUNT(NumeroFactura) FROM carteraeps ce WHERE ce.NumeroContrato= t2.NumeroContrato AND ce.MesServicio= t2.MesServicio AND ce.CarteraEPSTipoNegociacion='CAPITA' AND ce.CodigoSucursal=t2.CodigoSucursal) ,
@@ -30,10 +30,10 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelaciona
                                  (SELECT SUM(DiasLiquidadosSubsidioPleno) FROM ts_eps.lma_asmet la WHERE la.CodigoDane= (t2.CodigoSucursal) AND la.MesServicio=t2.MesServicio)/(SELECT DivisorMesServicio) ,
                                   0)) AS NumeroDiasLMA,
         (SELECT IF(TipoNegociacion='CAPITA',
-                                 (SELECT (ValorPercapitaXDia) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT Contrato) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
+                                 (SELECT (ValorPercapitaXDia) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT ContratoPadre) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
                                   0)) AS ValorPercapita, 
         (SELECT IF(TipoNegociacion='CAPITA',
-                                 (SELECT (PorcentajePoblacional) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT Contrato) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
+                                 (SELECT (PorcentajePoblacional) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT ContratoPadre) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
                                   0)) AS PorcentajePoblacional, 
                                
         (SELECT ROUND((SELECT NumeroDiasLMA) * (SELECT ValorPercapita) * ((SELECT PorcentajePoblacional)/100),2 )) AS ValorAPagarLMA,
@@ -128,7 +128,7 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,(SELECT NoRela
         ((SELECT ConciliacionEPSXGlosas1) + (SELECT ConciliacionEPSXGlosas2) ) AS ConciliacionEPSXGlosas, 
         
         
-        (SELECT Contrato FROM ts_eps.contratos c WHERE c.ContratoEquivalente=t2.NumeroContrato LIMIT 1) AS Contrato,
+        (SELECT Contrato FROM ts_eps.contratos c WHERE c.ContratoEquivalente=t2.NumeroContrato LIMIT 1) AS ContratoPadre,
 
         (SELECT IF(TipoNegociacion='CAPITA',
                                  (SELECT COUNT(NumeroFactura) FROM carteraeps ce WHERE ce.NumeroContrato= t2.NumeroContrato AND ce.MesServicio= t2.MesServicio AND ce.CarteraEPSTipoNegociacion='CAPITA' AND ce.CodigoSucursal=t2.CodigoSucursal) ,
@@ -140,10 +140,10 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,(SELECT NoRela
                                  (SELECT SUM(DiasLiquidadosSubsidioPleno) FROM ts_eps.lma_asmet la WHERE la.CodigoDane= (t2.CodigoSucursal) AND la.MesServicio=t2.MesServicio)/(SELECT DivisorMesServicio) ,
                                   0)) AS NumeroDiasLMA,
         (SELECT IF(TipoNegociacion='CAPITA',
-                                 (SELECT (ValorPercapitaXDia) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT Contrato) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
+                                 (SELECT (ValorPercapitaXDia) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT ContratoPadre) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
                                   0)) AS ValorPercapita, 
         (SELECT IF(TipoNegociacion='CAPITA',
-                                 (SELECT (PorcentajePoblacional) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT Contrato) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
+                                 (SELECT (PorcentajePoblacional) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT ContratoPadre) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
                                   0)) AS PorcentajePoblacional, 
                                
         (SELECT ROUND((SELECT NumeroDiasLMA) * (SELECT ValorPercapita) * ((SELECT PorcentajePoblacional)/100),2 )) AS ValorAPagarLMA,
@@ -225,7 +225,7 @@ DROP VIEW IF EXISTS `vista_cruce_cartera_eps_no_relacionadas_ips`;
 CREATE VIEW vista_cruce_cartera_eps_no_relacionadas_ips AS 
 SELECT *
 FROM vista_cruce_cartera_eps t1
-WHERE NOT EXISTS (SELECT 1 FROM carteracargadaips t2 WHERE t1.NumeroFactura=t2.NumeroFactura) AND ((FacturaActiva='NO') OR (DevolucionesPresentadas=0) ) AND ValorSegunEPS<0;
+WHERE NOT EXISTS (SELECT 1 FROM carteracargadaips t2 WHERE t1.NumeroFactura=t2.NumeroFactura) AND ValorSegunEPS<0;
 
 DROP VIEW IF EXISTS `vista_cruce_cartera_eps_relacionadas_ips`;
 CREATE VIEW vista_cruce_cartera_eps_relacionadas_ips AS 

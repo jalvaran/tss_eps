@@ -39,7 +39,13 @@ include("../modelo/php_conexion.php");
 				$_SESSION['tipouser'] = "Administrador";
 				$_SESSION['idUser'] = "A";
 			}
-				
+                        
+			$tabLog="log_session";
+                        $Datos["Fecha"]=date("Y-m-d H:i:s");
+                        $Datos["idUser"]=$_SESSION['idUser'];                        
+                        $Datos["IP_Conexion"]=$_SERVER['REMOTE_ADDR'];
+                        $sql=$obCon->getSQLInsert($tabLog, $Datos);
+                        $obCon->Query($sql);
                         print("OK");
 		}else{
 			print("El Usuario y Contraseña no coinciden");

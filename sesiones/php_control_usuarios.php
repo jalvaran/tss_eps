@@ -20,4 +20,13 @@ if ($Permiso==0){
   
 }
 
+$tabLog="log_pages_visits";
+$Datos["Fecha"]=date("Y-m-d H:i:s");
+$Datos["idUser"]=$_SESSION['idUser'];                        
+$Datos["IP_Conexion"]=$_SERVER['REMOTE_ADDR'];
+$Datos["Page"]=$myPage;
+$sql=$obCon->getSQLInsert($tabLog, $Datos);
+$obCon->Query($sql);
+                        
+
 ?>
