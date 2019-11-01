@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS `actas_conciliaciones_items` (
   `MesServicio` int(6) DEFAULT NULL,
   `DepartamentoRadicacion` varchar(90) COLLATE utf8_spanish_ci DEFAULT NULL,
   `NumeroRadicado` varchar(90) COLLATE utf8_spanish_ci DEFAULT NULL,
-  `NumeroOperacion` bigint(20) NOT NULL,
   `FechaRadicado` date DEFAULT NULL,
   `NumeroContrato` varchar(40) COLLATE utf8_spanish_ci DEFAULT NULL,
   `NumeroFactura` varchar(20) COLLATE utf8_spanish_ci DEFAULT NULL,
@@ -14,7 +13,6 @@ CREATE TABLE IF NOT EXISTS `actas_conciliaciones_items` (
   `CodigoSucursal` double NOT NULL,
   `ValorDocumento` double(15,2) DEFAULT NULL,
   `Impuestos` double(19,2) DEFAULT NULL,
-  `ImpuestosPorRecuperar` double NOT NULL,
   `TotalPagos` double(19,2) DEFAULT NULL,
   `TotalAnticipos` double(19,2) DEFAULT NULL,
   `TotalCopagos` double(19,2) DEFAULT NULL,
@@ -50,7 +48,6 @@ CREATE TABLE IF NOT EXISTS `actas_liquidaciones_items` (
   `MesServicio` int(6) DEFAULT NULL,
   `DepartamentoRadicacion` varchar(90) COLLATE utf8_spanish_ci DEFAULT NULL,
   `NumeroRadicado` varchar(90) COLLATE utf8_spanish_ci DEFAULT NULL,
-  `NumeroOperacion` bigint(20) NOT NULL,
   `FechaRadicado` date DEFAULT NULL,
   `NumeroContrato` varchar(40) COLLATE utf8_spanish_ci DEFAULT NULL,
   `NumeroFactura` varchar(20) COLLATE utf8_spanish_ci DEFAULT NULL,
@@ -59,7 +56,6 @@ CREATE TABLE IF NOT EXISTS `actas_liquidaciones_items` (
   `CodigoSucursal` double NOT NULL,
   `ValorDocumento` double(15,2) DEFAULT NULL,
   `Impuestos` double(19,2) DEFAULT NULL,
-  `ImpuestosPorRecuperar` double NOT NULL,
   `TotalPagos` double(19,2) DEFAULT NULL,
   `TotalAnticipos` double(19,2) DEFAULT NULL,
   `TotalCopagos` double(19,2) DEFAULT NULL,
@@ -221,31 +217,6 @@ CREATE TABLE IF NOT EXISTS `anticipos_asmet` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de Glosas';
 
 
-CREATE TABLE IF NOT EXISTS `anticipos_pendientes_por_legalizar` (
-  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `TipoOperacion` int(11) NOT NULL,
-  `IdentificadorInternoFactura` bigint(20) NOT NULL,
-  `NumeroAnticipo` bigint(20) NOT NULL,
-  `FechaAnticipo` date NOT NULL,
-  `Sucursal` int(11) NOT NULL,
-  `NIT_IPS` bigint(20) NOT NULL,
-  `Total` double NOT NULL,
-  `Saldo` double NOT NULL,
-  `MesServicio` int(6) NOT NULL,
-  `KeyArchivo` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
-  `FechaRegistro` datetime NOT NULL,
-  `idUser` int(11) NOT NULL,
-  `Soporte` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `TipoOperacion` (`TipoOperacion`),
-  KEY `NumeroAnticipo` (`NumeroAnticipo`),
-  KEY `IdentificadorInternoFactura` (`IdentificadorInternoFactura`),
-  KEY `Sucursal` (`Sucursal`),
-  KEY `NIT_IPS` (`NIT_IPS`),
-  KEY `MesServicio` (`MesServicio`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
-
-
 CREATE TABLE IF NOT EXISTS `carteracargadaips` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `NitEPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del entidad promomotora de salud ',
@@ -292,8 +263,6 @@ CREATE TABLE IF NOT EXISTS `carteraeps` (
   `CodigoSucursal` int(6) DEFAULT NULL COMMENT 'Codigo Dane sucursal',
   `Sucursal` varchar(25) COLLATE utf8_spanish_ci NOT NULL COMMENT 'sucursal',
   `NumeroFactura` varchar(20) COLLATE utf8_spanish_ci NOT NULL COMMENT 'NÃºmero de la factura del prestador',
-  `TipoOperacion` int(11) NOT NULL,
-  `CarteraEPSTipoNegociacion` varchar(10) COLLATE utf8_spanish_ci NOT NULL,
   `Descripcion` varchar(300) COLLATE utf8_spanish_ci NOT NULL COMMENT 'A quien va facturo docuneto id -nombre- id factura asmet',
   `RazonSocial` varchar(60) COLLATE utf8_spanish_ci NOT NULL COMMENT 'RazÃ³n social o apellidos y nombre del prestador',
   `Nit_IPS` bigint(20) NOT NULL COMMENT 'NÃºmero de identificaciÃ³n del prestador de servicios de salud',
@@ -306,7 +275,6 @@ CREATE TABLE IF NOT EXISTS `carteraeps` (
   `MesServicio` int(6) NOT NULL,
   `FechaRadicado` date NOT NULL,
   `NumeroRadicado` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
-  `NumeroOperacion` bigint(20) NOT NULL,
   `FechaRegistro` datetime NOT NULL COMMENT 'Fecha que se hace el registro',
   `FechaActualizacion` datetime NOT NULL COMMENT 'Fecha que se actualiza el registro',
   `ConciliadoXIPS` int(1) NOT NULL,
@@ -422,7 +390,7 @@ CREATE TABLE IF NOT EXISTS `conciliaciones_cruces` (
   `ValorSaldoEps` double(15,2) NOT NULL COMMENT 'Valor de saldo segun eps',
   `ValorSaldoIps` double(15,2) NOT NULL COMMENT 'Valor de saldo segun ips',
   `ValorDiferencia` double(15,2) NOT NULL COMMENT 'Valor de la diferencia',
-  `ConceptoConciliacion` int(11) NOT NULL,
+  `ConceptoConciliacion` varchar(50) COLLATE utf8_spanish_ci NOT NULL COMMENT 'concepto por el cual se concilia',
   `ConciliacionAFavorDe` varchar(5) COLLATE utf8_spanish_ci NOT NULL,
   `Observacion` text COLLATE utf8_spanish_ci NOT NULL COMMENT 'observacion por la cual se concilia',
   `Soportes` varchar(80) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Soportes que soportan la conciliacion',
@@ -437,8 +405,7 @@ CREATE TABLE IF NOT EXISTS `conciliaciones_cruces` (
   KEY `NumeroFactura` (`NumeroFactura`),
   KEY `NumeroContrato` (`NumeroContrato`),
   KEY `NumeroRadicado` (`NumeroRadicado`),
-  KEY `Estado` (`Estado`),
-  KEY `ConceptoConciliacion` (`ConceptoConciliacion`)
+  KEY `Estado` (`Estado`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla Conciliaciones de cruces';
 
 
@@ -639,7 +606,6 @@ CREATE TABLE IF NOT EXISTS `hoja_de_trabajo` (
   `DepartamentoRadicacion` varchar(25) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Departamento donde se radica la cuenta',
   `NoRelacionada` int(1) NOT NULL,
   `CodigoSucursal` int(6) DEFAULT NULL COMMENT 'Codigo Dane sucursal',
-  `NumeroOperacion` bigint(20) NOT NULL,
   `Contrato` varchar(70) COLLATE utf8_spanish_ci DEFAULT NULL,
   `TipoNegociacion` varchar(6) COLLATE utf8_spanish_ci DEFAULT NULL,
   `NumeroAfiliadosLMA` decimal(32,0) DEFAULT NULL,
@@ -650,12 +616,13 @@ CREATE TABLE IF NOT EXISTS `hoja_de_trabajo` (
   `FechaFactura` date DEFAULT NULL,
   `MesServicio` int(6) NOT NULL,
   `NumeroRadicado` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
+  `Pendientes` varchar(2) CHARACTER SET latin1 NOT NULL,
   `FechaConciliacion` datetime DEFAULT NULL,
   `FechaRadicado` date NOT NULL,
   `NumeroContrato` varchar(40) COLLATE utf8_spanish_ci NOT NULL COMMENT 'Numero de contrato al que esta sujeto la factura',
   `ValorDocumento` double(15,2) NOT NULL COMMENT 'Valor de la factura que emitio la IPS',
-  `ImpuestosCalculados` double(19,2) NOT NULL,
   `Impuestos` double(19,2) NOT NULL,
+  `ImpuestosSegunASMET` double(19,2) NOT NULL,
   `ValorMenosImpuestos` double(15,2) NOT NULL,
   `TotalPagosNotas` double(19,2) NOT NULL,
   `Capitalizacion` double(19,2) NOT NULL,
@@ -670,18 +637,16 @@ CREATE TABLE IF NOT EXISTS `hoja_de_trabajo` (
   `TotalCopagos` double(19,2) NOT NULL,
   `OtrosDescuentos` double(19,2) NOT NULL,
   `AjustesCartera` double(19,2) NOT NULL,
-  `DevolucionesPresentadas` bigint(21) NOT NULL,
-  `FacturasPresentadas` bigint(21) NOT NULL,
-  `FacturaActiva` varchar(2) CHARACTER SET latin1 NOT NULL,
-  `ImpuestosPorRecuperar` double(19,2) NOT NULL,
-  `PendientesPorRadicados` varchar(2) CHARACTER SET latin1 DEFAULT NULL,
-  `PendientesPorDevoluciones` varchar(2) CHARACTER SET latin1 DEFAULT NULL,
-  `PendientesPorNotas` varchar(2) CHARACTER SET latin1 DEFAULT NULL,
-  `PendientesPorCopagos` varchar(2) CHARACTER SET latin1 DEFAULT NULL,
   `TotalGlosaInicial` double(15,2) NOT NULL,
   `TotalGlosaFavor` double(15,2) NOT NULL,
   `TotalGlosaContra` double(15,2) NOT NULL,
   `GlosaXConciliar` double(19,2) NOT NULL,
+  `DevolucionesPresentadas` bigint(21) NOT NULL,
+  `FacturasPresentadas` bigint(21) NOT NULL,
+  `FacturaActiva` varchar(2) CHARACTER SET latin1 NOT NULL,
+  `FacturasDevueltas` double(19,2) NOT NULL,
+  `TotalDevolucionesNotas` double(15,2) NOT NULL,
+  `TotalDevolucionesParciales` double(19,2) NOT NULL,
   `TotalDevoluciones` double(15,2) NOT NULL,
   `CarteraXEdades` double(19,2) NOT NULL,
   `ValorSegunEPS` double(19,2) DEFAULT NULL,
@@ -702,14 +667,6 @@ CREATE TABLE IF NOT EXISTS `hoja_de_trabajo` (
   `DiferenciaXGlosasPendientesXDescargarIPS` double NOT NULL,
   `DiferenciaXDescuentoReconocimientoLMA` double NOT NULL,
   `DiferenciaVariada` double NOT NULL,
-  `ConciliacionEPSXPagos1` varchar(10) COLLATE utf8_spanish_ci DEFAULT NULL,
-  `ConciliacionEPSXPagos2` varchar(10) COLLATE utf8_spanish_ci DEFAULT NULL,
-  `ConciliacionEPSXGlosas1` varchar(10) COLLATE utf8_spanish_ci DEFAULT NULL,
-  `ConciliacionEPSXCopagos` varchar(10) COLLATE utf8_spanish_ci DEFAULT NULL,
-  `ConciliacionEPSXImpuestos` varchar(10) COLLATE utf8_spanish_ci DEFAULT NULL,
-  `ConciliacionEPSXGlosas2` varchar(10) COLLATE utf8_spanish_ci DEFAULT NULL,
-  `ConciliacionEPSXPagos` varchar(10) COLLATE utf8_spanish_ci DEFAULT NULL,
-  `ConciliacionEPSXGlosas` varchar(10) COLLATE utf8_spanish_ci DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `NumeroFactura` (`NumeroFactura`),
   KEY `MesServicio` (`MesServicio`),
@@ -1091,12 +1048,16 @@ CREATE TABLE IF NOT EXISTS `registro_liquidacion_contratos_items` (
   `idUser` int(11) NOT NULL,
   `FechaRegistro` datetime NOT NULL,
   PRIMARY KEY (`ID`),
+  UNIQUE KEY `idContrato_2` (`idContrato`,`NumeroFactura`),
   KEY `idContrato` (`idContrato`),
   KEY `Radicado` (`Radicado`),
   KEY `MesServicio` (`MesServicio`),
   KEY `NumeroFactura` (`NumeroFactura`),
   KEY `idUser` (`idUser`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+
+CREATE TABLE IF NOT EXISTS `resumen_vista_cruce_cartera_eps` (`NumeroContrato` varchar(40), `CantidadFacturas` bigint(21), `NitIps` bigint(20));
 
 
 CREATE TABLE IF NOT EXISTS `retenciones` (
@@ -1302,30 +1263,6 @@ CREATE TABLE IF NOT EXISTS `temporal_anticipos_asmet` (
   `Sync` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   KEY `NumeroFactura` (`NumeroFactura`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Archivo de Glosas';
-
-
-CREATE TABLE IF NOT EXISTS `temporal_anticipos_pendientes_por_legalizar` (
-  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `TipoOperacion` int(11) NOT NULL,
-  `IdentificadorInternoFactura` bigint(20) NOT NULL,
-  `NumeroAnticipo` bigint(20) NOT NULL,
-  `FechaAnticipo` date NOT NULL,
-  `Sucursal` int(11) NOT NULL,
-  `NIT_IPS` bigint(20) NOT NULL,
-  `Total` double NOT NULL,
-  `Saldo` double NOT NULL,
-  `MesServicio` int(6) NOT NULL,
-  `KeyArchivo` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
-  `FechaRegistro` datetime NOT NULL,
-  `idUser` int(11) NOT NULL,
-  `Soporte` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `TipoOperacion` (`TipoOperacion`),
-  KEY `NumeroAnticipo` (`NumeroAnticipo`),
-  KEY `IdentificadorInternoFactura` (`IdentificadorInternoFactura`),
-  KEY `Sucursal` (`Sucursal`),
-  KEY `NIT_IPS` (`NIT_IPS`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 
 CREATE TABLE IF NOT EXISTS `temporal_carteraxedades` (

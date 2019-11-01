@@ -95,7 +95,10 @@ if( !empty($_REQUEST["Accion"]) ){
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
             $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            
             $db=$DatosCargas["DataBase"];
+            $sql="UPDATE $db.temporalcarguecarteraeps SET ValidaFactura=NumeroFactura WHERE NumeroFactura REGEXP ('^[0-9]+$');";
+            $obCon->Query($sql);
             $sql="UPDATE $db.historial_carteracargada_eps cips INNER JOIN $db.temporalcarguecarteraeps t ON cips.NumeroFactura=t.NumeroFactura SET t.FlagUpdate=1  "
                     . "WHERE cips.NumeroOperacion=t.NumeroOperacion and cips.FechaFactura=t.FechaFactura and"
                     . " cips.TipoOperacion=t.TipoOperacion;";

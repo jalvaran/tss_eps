@@ -226,11 +226,11 @@ class ValidacionesEPS extends conexion{
         $Datos["MesServicio"]=$DatosCruce["MesServicio"];
         $Datos["FechaFactura"]=$DatosCruce["FechaFactura"];
         $Datos["NumeroRadicado"]=$DatosCruce["NumeroRadicado"];
-        $Datos["Pendientes"]=$DatosCruce["Pendientes"];
+        //$Datos["Pendientes"]=$DatosCruce["Pendientes"];
         $Datos["FechaRadicado"]=$DatosCruce["FechaRadicado"];
         $Datos["ValorOriginal"]=$DatosCruce["ValorDocumento"];
-        $Datos["ValorImpuestoCalculado"]=$DatosCruce["Impuestos"];
-        $Datos["ValorImpuestoRetenciones"]=$DatosCruce["ImpuestosSegunASMET"];
+        $Datos["ValorImpuestoCalculado"]=$DatosCruce["ImpuestosCalculados"];
+        $Datos["ValorImpuestoRetenciones"]=$DatosCruce["Impuestos"];
         $Datos["ValorMenosImpuesto"]=$DatosCruce["ValorMenosImpuestos"];
         $Datos["ValorPagos"]=$DatosCruce["TotalPagos"];
         $Datos["ValorAnticipos"]=$DatosCruce["TotalAnticipos"];

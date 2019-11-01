@@ -1,4 +1,4 @@
-/**
+RenombrarContrato/**
  * Controlador para las actas de liquidacion
  * JULIAN ALVARAN 2019-09-11
  * TECHNO SOLUCIONES SAS 
@@ -897,7 +897,7 @@ function ExportarExcel(db,Tabla,st){
 function ModalRenombrarContrato(NumeroContrato){
         
     AbreModal('ModalAcciones');
-    
+    var idActaLiquidacion=document.getElementById('idActaLiquidacion').value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
     
@@ -905,6 +905,7 @@ function ModalRenombrarContrato(NumeroContrato){
         form_data.append('Accion', 7);
         form_data.append('CmbIPS', CmbIPS);   
         form_data.append('CmbEPS', CmbEPS);
+        form_data.append('idActaLiquidacion', idActaLiquidacion);
         form_data.append('NumeroContrato', NumeroContrato);
         
         $.ajax({

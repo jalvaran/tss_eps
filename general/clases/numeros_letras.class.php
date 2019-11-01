@@ -80,6 +80,7 @@ class numeros_letras{
          * 
          */
         switch (true) {
+            case ( $n == 0 ) : return 'CERO'; break;
             case ( $n >= 1 && $n <= 29) : return $this->basico($n); break;
             case ( $n >= 30 && $n < 100) : return $this->decenas($n); break;
             case ( $n >= 100 && $n < 1000) : return $this->centenas($n); break;

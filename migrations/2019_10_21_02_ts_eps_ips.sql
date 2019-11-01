@@ -1,1 +1,0 @@
-ALTER TABLE `carteraeps` ADD COLUMN IF NOT EXISTS TipoOperacion INT NOT NULL AFTER `NumeroFactura`,ADD COLUMN IF NOT EXISTS TipoNegociacion VARCHAR(10) NOT NULL AFTER `TipoOperacion`;

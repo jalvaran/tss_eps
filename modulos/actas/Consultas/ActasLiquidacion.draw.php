@@ -279,9 +279,9 @@ if( !empty($_REQUEST["Accion"]) ){
                     $idItem=$DatosContratoExistente["ID"];
                     $css->FilaTabla(16);
                         print("<td>");
-                            print("<span id='idContratoCapita'>");
+                            print("<span id='idContratoCapita'><pre>");
                                 print($DatosContratos["NumeroContrato"]);
-                            print("</span>");
+                            print("</pre></span>");
                         print("</td>");
                         print("<td>");
                             if($DatosContratoExistente["NumeroContrato"]==''){
@@ -421,6 +421,46 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CrearTitulo("Debe agregar al menos un contrato a esta acta",'rojo');
                         exit();
                     }
+                    $sql="SELECT SUM(t1.ValorDocumento) as TotalFacturado, 
+                        SUM(t1.Impuestos) as Impuestos, SUM(t1.TotalDevoluciones) AS Devoluciones,
+                        SUM(t1.TotalGlosaInicial) as Glosa, SUM(t1.TotalGlosaFavor) AS GlosaFavor,
+                        SUM(t1.TotalCopagos) as Copagos, SUM(t1.OtrosDescuentos) AS OtrosDescuentos,
+                        SUM(t1.TotalPagos) as TotalPagos,SUM(t1.TotalAnticipos) as TotalAnticipos,
+                        SUM(t1.AjustesCartera) as AjustesCartera,SUM(t1.ValorSegunEPS) AS Saldo,
+                        SUM(t1.DescuentoBDUA) as DescuentoBDUA
+                        FROM $db.actas_conciliaciones_items t1 
+                        WHERE EXISTS 
+                        (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato AND idActaLiquidacion='$idActaLiquidacion') AND t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal;  ";
+                    $TotalesActa=$obCon->FetchAssoc($obCon->Query($sql));
+                    $TotalesActaHistorial["TotalFacturado"]=0;
+                    if($TipoActa<>4 and $TipoActa<>5 and $TipoActa<>6 and $TipoActa<>7){
+                        $sql="SELECT SUM(t1.ValorOriginal) as TotalFacturado
+                            
+                            FROM $db.historial_carteracargada_eps t1 INNER JOIN  $db.actas_conciliaciones_items t2 ON t1.NumeroFactura=t2.NumeroFactura 
+                            WHERE (t1.NumeroRadicado<>t2.NumeroRadicado OR t1.NumeroOperacion<> t2.NumeroOperacion) AND  EXISTS 
+                            (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato AND idActaLiquidacion='$idActaLiquidacion') AND t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal;  ";
+                        $TotalesActaHistorial=$obCon->FetchAssoc($obCon->Query($sql));
+                    }
+                    $TotalFacturado=$TotalesActa["TotalFacturado"]+$TotalesActaHistorial["TotalFacturado"];
+                    $TotalDevolucion=$TotalesActa["Devoluciones"]+$TotalesActaHistorial["TotalFacturado"];
+                    $sql="UPDATE actas_liquidaciones 
+                            SET ValorFacturado=".$TotalFacturado.", 
+                                
+                                RetencionImpuestos=".$TotalesActa["Impuestos"].", 
+                                Devolucion=".$TotalDevolucion.", 
+                                Glosa=".$TotalesActa["Glosa"].",
+                                GlosaFavor=".$TotalesActa["GlosaFavor"].",
+                                NotasCopagos=".$TotalesActa["Copagos"].",
+                                RecuperacionImpuestos=0, 
+                                OtrosDescuentos=".$TotalesActa["OtrosDescuentos"]." + ".$TotalesActa["AjustesCartera"]." , 
+                                ValorPagado=".$TotalesActa["TotalPagos"]." + ".$TotalesActa["TotalAnticipos"]." ,
+                                Saldo=".$TotalesActa["Saldo"].",
+                                DescuentoBDUA=".$TotalesActa["DescuentoBDUA"]."    
+                              
+                            WHERE ID='$idActaLiquidacion'
+                             ";
+                    $obCon->Query($sql);
+                    
                     $sql="SELECT ID,FechaInicial,FechaFinal,Valor,NombreContrato 
                              FROM actas_liquidaciones_contratos
                              WHERE idActaLiquidacion='$idActaLiquidacion'";
@@ -452,34 +492,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                 $css->CerrarTabla();
                 $css->CrearTabla();
-                    $sql="SELECT SUM(t1.ValorDocumento) as TotalFacturado, 
-                        SUM(t1.Impuestos) as Impuestos, SUM(t1.TotalDevoluciones) AS Devoluciones,
-                        SUM(t1.TotalGlosaInicial) as Glosa, SUM(t1.TotalGlosaFavor) AS GlosaFavor,
-                        SUM(t1.TotalCopagos) as Copagos, SUM(t1.OtrosDescuentos) AS OtrosDescuentos,
-                        SUM(t1.TotalPagos) as TotalPagos,SUM(t1.TotalAnticipos) as TotalAnticipos,
-                        SUM(t1.AjustesCartera) as AjustesCartera,SUM(t1.ValorSegunEPS) AS Saldo,
-                        SUM(t1.DescuentoBDUA) as DescuentoBDUA
-                        FROM $db.actas_conciliaciones_items t1 
-                        WHERE EXISTS 
-                        (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato AND idActaLiquidacion='$idActaLiquidacion') AND t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal;  ";
-                    $TotalesActa=$obCon->FetchAssoc($obCon->Query($sql));
-                    $sql="UPDATE actas_liquidaciones 
-                            SET ValorFacturado=".$TotalesActa["TotalFacturado"].", 
-                                
-                                RetencionImpuestos=".$TotalesActa["Impuestos"].", 
-                                Devolucion=".$TotalesActa["Devoluciones"].", 
-                                Glosa=".$TotalesActa["Glosa"].",
-                                GlosaFavor=".$TotalesActa["GlosaFavor"].",
-                                NotasCopagos=".$TotalesActa["Copagos"].",
-                                RecuperacionImpuestos=0, 
-                                OtrosDescuentos=".$TotalesActa["OtrosDescuentos"]." + ".$TotalesActa["AjustesCartera"]." , 
-                                ValorPagado=".$TotalesActa["TotalPagos"]." + ".$TotalesActa["TotalAnticipos"]." ,
-                                Saldo=".$TotalesActa["Saldo"].",
-                                DescuentoBDUA=".$TotalesActa["DescuentoBDUA"]."    
-                              
-                            WHERE ID='$idActaLiquidacion'
-                             ";
-                    $obCon->Query($sql);
+                    
                     $DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);
                     $css->FilaTabla(16);
                         $css->ColTabla("<strong>TOTALES ACTA DE LIQUIDACIÓN:</strong>", 5,'C');
@@ -893,6 +906,7 @@ if( !empty($_REQUEST["Accion"]) ){
         break;//Fin caso 6
         case 7://Dibuja el formaulario para renombrar un contrato
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            
             $NumeroContrato=$obCon->normalizar($_REQUEST["NumeroContrato"]);
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
@@ -902,6 +916,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CrearTitulo("Renombrar Contrato: ".$NumeroContrato, "naranja");
             
             $css->CrearTabla();
+                
                 print("<td>");
                     $css->input("text", "TxtNumeroContratoRenombrar", "form-control", "TxtNumeroContratoRenombrar", "", "", "Contrato Nuevo", "off", "", "", "");
                 print("</td>");

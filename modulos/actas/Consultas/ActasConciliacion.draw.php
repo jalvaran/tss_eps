@@ -6,7 +6,7 @@ if (!isset($_SESSION['username'])){
   
 }
 $idUser=$_SESSION['idUser'];
-
+$TipoUser=$_SESSION['tipouser'];
 include_once("../../../modelo/php_conexion.php");
 include_once("../../../constructores/paginas_constructor.php");
 
@@ -24,11 +24,23 @@ if( !empty($_REQUEST["Accion"]) ){
             }else{
                 $NumPage=1;
             }
-            $Condicional="  ";
+            if($TipoUser=="administrador"){
+                $Condicional="  ";
+            }else{
+                $Condicional=" WHERE NIT_IPS = '$CmbIPS' ";
+            }
+            
             if(isset($_REQUEST['Busqueda'])){
                 $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
                 if($Busqueda<>''){
-                    $Condicional.="WHERE ID = '$Busqueda' or RazonSocialIPS LIKE '%$Busqueda%' OR NIT_IPS LIKE '%$Busqueda%' ";
+                    
+                    if($TipoUser=="administrador"){
+                        $Condicional.="WHERE ID = '$Busqueda' or RazonSocialIPS LIKE '%$Busqueda%' OR NIT_IPS LIKE '%$Busqueda%' ";
+                    }else{
+                        $Condicional=" AND ID = '$Busqueda' ";
+                    }
+                    
+                    
                 }
                 
             }
