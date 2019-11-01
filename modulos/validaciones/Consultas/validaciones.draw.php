@@ -642,7 +642,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         
                         $css->ColTabla($DatosFactura["NumeroContrato"], 1);
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerConsolidadoFactura(`$NumeroFactura`,`11`)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", 'onclick="VerConsolidadoFactura(`'.$NumeroFactura.'`,`11`)"', "style=cursor:pointer;");
                                 print(($DatosFactura["NumeroFactura"]));
                             $css->CerrarDiv();
                             
@@ -654,7 +654,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla($DatosFactura["MesServicio"], 1);
                         $css->ColTabla($DatosFactura["FechaFactura"], 1);
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroRadicado`,`13`)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", 'onclick="VerHistorialFactura(`'.$NumeroRadicado.'`,`13`)"', "style=cursor:pointer;");
 
                                print(($DatosFactura["NumeroRadicado"]));
                            $css->CerrarDiv();
@@ -672,7 +672,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla(number_format($DatosFactura["ImpuestosCalculados"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["ValorMenosImpuestos"]), 1,'R');
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,`4`)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", 'onclick="VerHistorialFactura(`'.$NumeroFactura.'`,`4`)"', "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalPagos"]));
                             $css->CerrarDiv();
@@ -682,7 +682,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,`5`)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", 'onclick="VerHistorialFactura(`'.$NumeroFactura.'`,`5`)"', "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalAnticipos"]));
                             $css->CerrarDiv();
@@ -690,7 +690,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,`9`)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", 'onclick="VerHistorialFactura(`'.$NumeroFactura.'`,`9`)"', "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalCopagos"]));
                             $css->CerrarDiv();
@@ -698,7 +698,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`".$NumeroFactura."`,`10`)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", 'onclick="VerHistorialFactura(`'.$NumeroFactura.'`,`10`)"', "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalDevoluciones"]));
                             $css->CerrarDiv();
@@ -706,7 +706,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,6)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", 'onclick="VerHistorialFactura(`'.$NumeroFactura.'`,6)"', "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalGlosaInicial"]));
                             $css->CerrarDiv();
@@ -714,7 +714,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`$NumeroFactura`,6)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", 'onclick="VerHistorialFactura(`'.$NumeroFactura.'`,6)"', "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalGlosaFavor"]));
                             $css->CerrarDiv();
@@ -722,7 +722,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura('$NumeroFactura',6)", "style=cursor:pointer;");
+                            $css->div("", "", "", "", "", 'onclick="VerHistorialFactura(`'.$NumeroFactura.'`,6)"', "style=cursor:pointer;");
                             
                                 print(number_format($DatosFactura["TotalGlosaContra"]));
                             $css->CerrarDiv();
