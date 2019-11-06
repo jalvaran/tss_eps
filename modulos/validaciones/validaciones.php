@@ -98,6 +98,7 @@ $css->PageInit($myTitulo);
             $css->TabLabel("TabCuentas2", "<strong >Facturas sin Relación EPS</strong>", "Tab_2",0,"onclick=FacturasSinRelacionarPorIPS()");
             $css->TabLabel("TabCuentas3", "<strong >Facturas Pagadas Sin Relación</strong>", "Tab_3",0,"onclick=MuestrePagadasSR()"); 
             $css->TabLabel("TabCuentas6", "<strong >Facturas a Favor de EPS</strong>", "Tab_6",0,"onclick=FacturasAFavor()");  
+            $css->TabLabel("TabCuentas10", "<strong >Facturas para revisión</strong>", "Tab_10",0,"onclick=MostrarTablaConFacturasCerosIzquierda()");  
             $css->TabLabel("TabCuentas4", "<strong >Cruce de Cartera</strong>", "Tab_4",0,"onclick=MuestreCruce()"); 
             $css->TabLabel("TabCuentas7", "<strong >Historial de Conciliaciones</strong>", "Tab_7",0,"onclick=MuestreConciliaciones()"); 
             $css->TabLabel("TabCuentas8", "<strong >Actas de Conciliaciones</strong>", "Tab_8",0,"onclick=ActasConciliaciones();"); 
@@ -231,12 +232,30 @@ $css->PageInit($myTitulo);
          * 
          */
         
+        $css->TabPaneInit("Tab_10", 0);
+            $css->CrearDiv("DivOpcionesTab10", "col-md-4", "center", 1, 1);
+                
+            $css->CerrarDiv();
+            $css->CrearDiv("DivOpcionesTab10", "col-md-4", "center", 1, 1);
+                $css->CrearBotonEvento("BtnCrearTabla", "Crear Tabla de Facturas con posibles problemas", 1, "onclick", "ConstruirTablaCerosIzquierda()", "azul");
+            $css->CerrarDiv();
+            $css->CrearDiv("DivOpcionesTab10", "col-md-4", "center", 1, 1);
+                
+            $css->CerrarDiv();
+            print("<br><br><br><br><br>");
+            $css->CrearDiv("DivTab10", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            
+        $css->TabPaneEnd();
         
         
     $css->CerrarDiv();
     print("<br><br><br><br><br><br><br><br><br><br>");
 $css->PageFin();
 print('<script src="jsPages/validaciones.js"></script>');  //script propio de la pagina
+print('<script src="jsPages/revision_facturas.js"></script>');  //script propio de la pagina
+
 print('<script src="../../general/js/CreacionContratos.js"></script>');  //script para la creacion de contratos
 $css->AddJSExcel();
 

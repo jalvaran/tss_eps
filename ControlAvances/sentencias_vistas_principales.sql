@@ -6,6 +6,10 @@ DROP VIEW IF EXISTS `vista_cruce_cartera_asmet`;
 CREATE VIEW vista_cruce_cartera_asmet AS
 SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelacionada,
         t2.CodigoSucursal,t2.NumeroOperacion,t2.CarteraEPSTipoNegociacion as TipoNegociacion,
+        
+        (SELECT IFNULL((t2.NumeroFactura REGEXP ('^[0-9]+$')),'0')  ) AS FacturaNumerica,
+        (SELECT IF(FacturaNumerica=1, CONVERT(t2.NumeroFactura, SIGNED INTEGER) , '0' )  ) AS FacturaEnNumero,
+        (SELECT IF(FacturaNumerica=1, (SELECT COUNT(DISTINCT NumeroFactura) FROM historial_carteracargada_eps WHERE historial_carteracargada_eps.ValidaFactura=( SELECT FacturaEnNumero) ),0 )  ) AS FacturasConCerosIzquierda,
 
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=12),0)) as ConciliacionEPSXPagos1,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=15),0)) as ConciliacionEPSXPagos2,
