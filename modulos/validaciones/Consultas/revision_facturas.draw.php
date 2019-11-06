@@ -27,7 +27,7 @@ if( !empty($_REQUEST["Accion"]) ){
             if(isset($_REQUEST['Busqueda'])){
                 $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
                 if($Busqueda<>''){
-                    $Condicional=" AND NumeroFactura like '%$Busqueda%' ";
+                    $Condicional.=" AND NumeroFactura like '%$Busqueda%' ";
                 }
                 
             }
@@ -60,6 +60,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $VectorST = explode("LIMIT", $statement);
             $statement = $VectorST[0]; 
             $query = "SELECT COUNT(*) as `num` FROM {$statement}";
+            //print("$query");
             $row = $obCon->FetchArray($obCon->Query($query));
             $ResultadosTotales = $row['num'];
             
@@ -67,6 +68,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $Limit=" LIMIT $startpoint,$limit";
             
             $query="SELECT * ";
+            
             $Consulta=$obCon->Query("$query FROM $statement $Limit");
             
             $css->CrearTabla();
@@ -131,9 +133,15 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>NumeroOperacion</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Factura</strong>", 1);
                     $css->ColTabla("<strong>Número de Factura</strong>", 1);
+                    $css->ColTabla("<strong>Factura Sin Ceros a la Izquierda</strong>", 1);
                     $css->ColTabla("<strong>Número del Radicado</strong>", 1);
                     $css->ColTabla("<strong>MesServicio</strong>", 1);
                     $css->ColTabla("<strong>Valor</strong>", 1);
+                    $css->ColTabla("<strong>Pagos en Notas</strong>", 1);
+                    $css->ColTabla("<strong>Anticipos</strong>", 1);
+                    $css->ColTabla("<strong>Otros Descuentos</strong>", 1);
+                    $css->ColTabla("<strong>Ajustes de Cartera</strong>", 1);
+                   
                     $css->ColTabla("<strong>Total Repetidas</strong>", 1);
                     $css->ColTabla("<strong>Descripcion</strong>", 1);
                 $css->CierraFilaTabla();
@@ -147,9 +155,14 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla($DatosFactura["NumeroOperacion"], 1);
                         $css->ColTabla($DatosFactura["FechaFactura"], 1);                        
                         $css->ColTabla($DatosFactura["NumeroFactura"], 1);
+                        $css->ColTabla($DatosFactura["ValidaFactura"], 1);
                         $css->ColTabla($DatosFactura["NumeroRadicado"], 1);
                         $css->ColTabla($DatosFactura["MesServicio"], 1);
                         $css->ColTabla(number_format($DatosFactura["ValorOriginal"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalPagosNotas"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["TotalAnticipos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["OtrosDescuentos"]), 1,'R');
+                        $css->ColTabla(number_format($DatosFactura["AjustesCartera"]), 1,'R');
                         $css->ColTabla($DatosFactura["TotalRepetidas"], 1);
                         $css->ColTabla($DatosFactura["Descripcion"], 1);
                         /*

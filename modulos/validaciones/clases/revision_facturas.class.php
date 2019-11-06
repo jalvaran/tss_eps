@@ -16,7 +16,12 @@ class RevisionFacturas extends conexion{
         $sql="DROP TABLE IF EXISTS $db.`facturas_para_revision_por_ceros_izquierda`;";
         $this->Query($sql);
         $sql="CREATE TABLE $db.facturas_para_revision_por_ceros_izquierda AS
-            SELECT t1.ID,t1.TipoOperacion,t1.NumeroOperacion,t1.FechaFactura,t1.NumeroFactura,t1.MesServicio,t1.ValorOriginal,t1.Descripcion,t1.NumeroRadicado,
+            SELECT t1.ID,t1.TipoOperacion,t1.NumeroOperacion,t1.FechaFactura,t1.NumeroFactura,t1.MesServicio,t1.ValorOriginal,
+            t1.Descripcion,t1.NumeroRadicado,t1.ValidaFactura,
+            (SELECT IFNULL((SELECT SUM(ValorPago) FROM $db.notas_db_cr_2 t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t5 WHERE Estado=1 AND t3.TipoOperacion2=t5.TipoOperacion AND Aplicacion='TotalPagos')  AND (t3.TipoOperacion!='2103') ),0)) AS TotalPagosNotas,
+            (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM $db.anticipos2 t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t5 WHERE Estado=1 AND t3.NumeroInterno=t5.TipoOperacion AND Aplicacion='anticipos') ),0)) AS TotalAnticipos,  
+            (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM $db.anticipos2 t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t5 WHERE Estado=1 AND t3.NumeroInterno=t5.TipoOperacion AND Aplicacion='otrosdescuentos') ),0)) AS OtrosDescuentos,
+            (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM $db.anticipos2 t3 WHERE t3.NumeroFactura=t1.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t5 WHERE Estado=1 AND t3.NumeroInterno=t5.TipoOperacion AND Aplicacion='ajustescartera') ),0)) AS AjustesCartera,    
             (SELECT COUNT(DISTINCT NumeroFactura ) FROM $db.historial_carteracargada_eps t2 WHERE t2.ValidaFactura=t1.ValidaFactura ) AS TotalRepetidas 
             FROM $db.historial_carteracargada_eps t1 WHERE t1.ValidaFactura > 0 ORDER BY ValidaFactura;";
         $this->Query($sql);
