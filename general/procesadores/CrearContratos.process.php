@@ -51,11 +51,11 @@ if( !empty($_REQUEST["Accion"]) ){
                 }
             }
             if($Datos["ClasificacionContrato"]=='OTRO SI'){
-                $Datos["CmbContratoPadre"]=$obCon->normalizar($_REQUEST['CmbContratoPadre']);
-                if($Datos["CmbContratoPadre"]==''){
+                $Datos["Contrato"]=$obCon->normalizar($_REQUEST['CmbContratoPadre']);
+                if($Datos["Contrato"]==''){
                     exit("E1;Debe Seleccionar un contrato padre;select2-CmbContratoPadre-container");
                 }
-                $Datos["NumeroContrato"]=($Datos["CmbContratoPadre"]." ".$Datos["OtroSi"]);  
+                $Datos["NumeroContrato"]=($Datos["Contrato"]." ".$Datos["OtroSi"]);  
             }else{
                 $Datos["OtroSi"]="";
             }
