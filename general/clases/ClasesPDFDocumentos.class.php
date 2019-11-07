@@ -757,6 +757,9 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $html.=''.$DatosFirmas["Nombre"];
             $html.='<br>'.$DatosFirmas["Cargo"];
             $html.='<br>'.$DatosFirmas["Empresa"];
+            if($DatosFirmas["Aprueba"]==1){
+                $html.='<br>Aprobó';
+            }
             $html.='</td>';
             if($i==3){
                 $html.='</tr><br><br><br>';
@@ -772,6 +775,13 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         
         $html.='</table>';
         }
+        $DatosUsuario=$this->obCon->DevuelveValores("usuarios","idUsuarios",$DatosActa["idUser"]);
+        $html.='<BR><BR><BR><BR><BR>';
+        $html.='Elaboró: '.utf8_encode($DatosUsuario["Nombre"])." ".utf8_encode($DatosUsuario["Apellido"]);
+        $html.='<BR>';
+        $html.='Revisó: '.utf8_encode($DatosActa["Revisa"]);
+        $html.='<BR>';
+        $html.='Auditó: ';
         //print($html);
         return($html);
         
