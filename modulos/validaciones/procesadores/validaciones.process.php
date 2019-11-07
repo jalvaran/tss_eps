@@ -152,7 +152,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $ConciliadorIPS=$obCon->normalizar($_REQUEST["ConciliadorIPS"]);
             $MetodoConciliacion=$obCon->normalizar($_REQUEST["CmbMetodoConciliacion"]);
             $destino='';
-            $keyArchivo=$NumeroFactura.date("YmdHis");
+            $keyArchivo=str_replace("*","",$NumeroFactura).date("YmdHis");
             $Extension="";
             if(!empty($_FILES['UpSoporte']['name'])){
                 

@@ -524,6 +524,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $DatosFechaFirma= explode("-", $DatosActa["FechaFirma"]);  
         $dia=$obNumLetra->convertir($DatosFechaFirma[2]);
         //$dia=$obNumLetra->convertir(31);
+        //print($DatosFechaFirma[1]);
         $mes=$obNumLetra->meses($DatosFechaFirma[1]);
         $anio=$obNumLetra->convertir($DatosFechaFirma[0]);
         $html=("Para constancia, se firma en <strong>".($DatosActa["CiudadFirma"])."</strong>");
@@ -794,22 +795,30 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
     public function ObservacionesActaLiquidacion3($idActaLiquidacion,$TipoActa,$DatosActa) {
         $obCon=new conexion(1);
         $obNumLetra=new numeros_letras();
-        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op3' LIMIT 1";
+        if($DatosActa["Saldo"]>=0){
+            $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op3' LIMIT 1";
+        }else{
+            $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op10' LIMIT 1";
+        }
+        
         $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
         $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";
-        $SaldoEnLetras=$obNumLetra->convertir($DatosActa["Saldo"]);
+        $SaldoEnLetras=$obNumLetra->convertir(abs($DatosActa["Saldo"]));
         $SaldoEnLetras.=" PESOS ($ ".number_format($DatosActa["Saldo"]).")";
         
         $html= str_replace("@ValorLetras",strtoupper("<strong>".$SaldoEnLetras."</strong>"), $html);
         $sql="SELECT t2.* FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente WHERE t1.idActaLiquidacion='$idActaLiquidacion' ORDER BY t1.ID";
         $Consulta=$obCon->Query($sql);
         $ContratosActa="";
+        
         while($DatosContratos=$obCon->FetchAssoc($Consulta)){
-            $FechaInicial=explode("-",$DatosContratos["FechaInicioContrato"]);             
+            $FechaInicial=explode("-",$DatosContratos["FechaInicioContrato"]);   
+            //print_r($FechaInicial);
             $dia=$obNumLetra->convertir($FechaInicial[2]); 
             if($dia=="un"){
                 $dia="primero";
             }
+            
             $mes=$obNumLetra->meses($FechaInicial[1]);
             $anio=$obNumLetra->convertir($FechaInicial[0]);
             $FechaFinal=explode("-",$DatosContratos["FechaFinalContrato"]);
@@ -821,6 +830,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $anioFin=$obNumLetra->convertir($FechaFinal[0]);
             $ContratosActa.="<strong>".$DatosContratos["Contrato"]."</strong> con vigencia del $dia de $mes del $anio al $diaFin de $mesFin del $anioFin, ";
         }
+        
         $ContratosActa=substr($ContratosActa,0,-2);
         
         $html= str_replace("@Numerocontratos", $ContratosActa, $html);

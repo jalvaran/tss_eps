@@ -12,7 +12,16 @@ if(file_exists("../../../modelo/php_conexion.php")){
         
 class RevisionFacturas extends conexion{
     
-    public function ContruirTablaDeFacturasConCerosIzquierda($db,$idUser) {
+    public function ConstruirTablaDeFacturasConCerosIzquierda($db,$idUser) {
+        $sql="DROP TABLE IF EXISTS $db.`vista_espejo_tibco`;";
+        $this->Query($sql);
+        $sql="CREATE TABLE $db.vista_espejo_tibco AS
+            SELECT * 
+            FROM $db.historial_carteracargada_eps t1 WHERE t1.ValidaFactura > 0 ORDER BY ValidaFactura;";
+        $this->Query($sql);
+    }
+    
+    public function ConstruirTablaDeFacturasConCerosIzquierdaold($db,$idUser) {
         $sql="DROP TABLE IF EXISTS $db.`facturas_para_revision_por_ceros_izquierda`;";
         $this->Query($sql);
         $sql="CREATE TABLE $db.facturas_para_revision_por_ceros_izquierda AS
