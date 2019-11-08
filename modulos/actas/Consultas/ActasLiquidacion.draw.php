@@ -443,6 +443,37 @@ if( !empty($_REQUEST["Accion"]) ){
                     }
                     $TotalFacturado=$TotalesActa["TotalFacturado"]+$TotalesActaHistorial["TotalFacturado"];
                     $TotalDevolucion=$TotalesActa["Devoluciones"]+$TotalesActaHistorial["TotalFacturado"];
+                    if($TotalesActa["Impuestos"]==""){
+                        $TotalesActa["Impuestos"]=0;
+                    }
+                    if($TotalesActa["Glosa"]==""){
+                        $TotalesActa["Glosa"]=0;
+                    }
+                    if($TotalesActa["GlosaFavor"]==""){
+                        $TotalesActa["GlosaFavor"]=0;
+                    }
+                    if($TotalesActa["Copagos"]==""){
+                        $TotalesActa["Copagos"]=0;
+                    }
+                    if($TotalesActa["OtrosDescuentos"]==""){
+                        $TotalesActa["OtrosDescuentos"]=0;
+                    }
+                    if($TotalesActa["AjustesCartera"]==""){
+                        $TotalesActa["AjustesCartera"]=0;
+                    }
+                    if($TotalesActa["TotalPagos"]==""){
+                        $TotalesActa["TotalPagos"]=0;
+                    }
+                    if($TotalesActa["TotalAnticipos"]==""){
+                        $TotalesActa["TotalAnticipos"]=0;
+                    }
+                    if($TotalesActa["Saldo"]==""){
+                        $TotalesActa["Saldo"]=0;
+                    }
+                    if($TotalesActa["DescuentoBDUA"]==""){
+                        $TotalesActa["DescuentoBDUA"]=0;
+                    }
+                    
                     $sql="UPDATE actas_liquidaciones 
                             SET ValorFacturado=".$TotalFacturado.", 
                                 
@@ -639,6 +670,10 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("<strong>Ciudad de Firma: </strong>");
                         $css->input("text", "TxtCiudadDeFirma", "", "TxtCiudadDeFirma", "", $DatosActa["CiudadFirma"], "Ciudad", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtCiudadDeFirma`,`CiudadFirma`);DibujeConstanciaFirmaActa();");
                     print("</td>");
+                    print("<td colspan=2 style=font-size:16px;>");
+                        print("<strong>Revisará: </strong>");
+                        $css->input("text", "TxtRevisaActaliquidacion", "", "TxtRevisaActaliquidacion", "", $DatosActa["Revisa"], "Revisará", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtRevisaActaliquidacion`,`Revisa`);");
+                    print("</td>");
                 print("</tr>");
                 print("<tr>");
                     print("<td colspan=3 style=font-size:16px;>");
@@ -719,7 +754,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CrearTitulo("Por favor Seleccione un Acta", "rojo");
                 exit();
             }
-            
+            //$DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);
             $Consulta=$obCon->ConsultarTabla("actas_liquidaciones_firmas", "WHERE idActaLiquidacion='$idActaLiquidacion'");
             $i=0;
             while($DatosFirmas=$obCon->FetchAssoc($Consulta)){
@@ -729,6 +764,16 @@ if( !empty($_REQUEST["Accion"]) ){
                     $idFirma=$DatosFirmas["ID"];
                     $css->li("", "fa  fa-remove", "", "onclick=EliminarFirma(`$idFirma`) style=font-size:16px;cursor:pointer;text-align:center;color:red");
                     $css->Cli();
+                    if($DatosFirmas["Aprueba"]==1){
+                        $Texto="Aprueba";
+                        $Color="verde";
+                    }
+                    if($DatosFirmas["Aprueba"]==0){
+                        $Texto="Marcar como usuario que aprueba";
+                        $Color="azul";
+                    }
+                    
+                    $css->CrearBotonEvento("BtnAprueba_".$idFirma, $Texto, 1, "onclick", "MarcarComoAprobador(`$idFirma`)", $Color);
                     $NombreCaja="TxtFirmaNombreActa_".$idFirma; 
                     $css->input("text", $NombreCaja, "form-control", $NombreCaja, "", $DatosFirmas["Nombre"], "Nombre", "off", "", "onchange=EditeFirmaActaConciliacion(`$idFirma`,`$NombreCaja`,`Nombre`);");
                     $NombreCaja="TxtFirmaCargoActa_".$idFirma; 

@@ -613,6 +613,48 @@ function EliminarFirma(idItem){
       })
 }
 
+function MarcarComoAprobador(idItem){
+    var idActaLiquidacion=document.getElementById('idActaLiquidacion').value; 
+    var form_data = new FormData();
+        form_data.append('Accion', 12);
+        form_data.append('idItem', idItem);
+        form_data.append('idActaLiquidacion', idActaLiquidacion);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]);                
+                DibujeFirmasActaConciliacion();
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
 
 function EditeFirmaActaConciliacion(idFirma,idCajaFirma,CampoEditar){
     var idActaLiquidacion=document.getElementById('idActaLiquidacion').value;

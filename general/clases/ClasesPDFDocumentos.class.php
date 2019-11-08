@@ -779,7 +779,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $html.='<BR><BR><BR><BR><BR>';
         $html.='Elaboró: '.utf8_encode($DatosUsuario["Nombre"])." ".utf8_encode($DatosUsuario["Apellido"]);
         $html.='<BR>';
-        $html.='Revisó: '.utf8_encode($DatosActa["Revisa"]);
+        $html.='Revisó: '.($DatosActa["Revisa"]);
         $html.='<BR>';
         $html.='Auditó: ';
         //print($html);

@@ -442,6 +442,14 @@ if( !empty($_REQUEST["Accion"]) ){
             
         break; // Fin caso 11    
         
+        case 12:// Marcar un usuario como aprobador del acta de liquidacion
+            $idItem=$obCon->normalizar($_REQUEST["idItem"]);
+            $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
+            $obCon->ActualizaRegistro("actas_liquidaciones_firmas","Aprueba",0,"idActaLiquidacion",$idActaLiquidacion);
+            $obCon->ActualizaRegistro("actas_liquidaciones_firmas","Aprueba",1,"ID", $idItem);
+            print("OK;Firma marcada como Aprueba");
+        break;//Fin caso 12
+        
         
     }
     
