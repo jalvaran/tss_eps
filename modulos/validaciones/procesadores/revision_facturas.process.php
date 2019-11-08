@@ -23,13 +23,11 @@ if( !empty($_REQUEST["Accion"]) ){
             $db=$DatosIPS["DataBase"];
             $sql="update $db.historial_carteracargada_eps set CantidadFacturasRepetidasConCerosIzquierda=0";
             $obCon->Query($sql);
-            
+            $obCon->ConstruirVistaParaComprobacion1($db, $idUser);
+            $obCon->ActualizarCantidadFacturasConCeros($db, $idUser);
+            $obCon->ConstruirVistaParaComprobacion2($db, $idUser);
             $obCon->ConstruirTablaDeFacturasConCerosIzquierda($db, $idUser);
-            $sql="update $db.historial_carteracargada_eps t1 
-                SET t1.CantidadFacturasRepetidasConCerosIzquierda = 
-                (SELECT COUNT(distinct t2.Numerofactura)  FROM $db.vista_espejo_tibco t2 where t1.ValidaFactura=t2.ValidaFactura)
-                WHERE t1.ValidaFactura >0;";
-            $obCon->Query($sql);
+            
             print("OK;Se ha construido La tabla de facturas con ceros a la izquierda");
             
         break; //fin caso 1

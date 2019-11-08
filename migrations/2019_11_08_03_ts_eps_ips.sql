@@ -1,0 +1,1 @@
+ALTER TABLE `historial_carteracargada_eps` ADD COLUMN IF NOT EXISTS CantidadFacturasRepetidasConCerosIzquierda int(8) AFTER `ValidaFactura`;
