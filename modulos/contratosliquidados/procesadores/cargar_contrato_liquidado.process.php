@@ -127,9 +127,18 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $sql="SELECT * FROM control_cargue_contratos_liquidados WHERE idUser='$idUser' AND Estado=0 LIMIT 1";
             $Consulta=$obCon->Query($sql);
+            
+            $DatosContrato=$obCon->DevuelveValores("registro_liquidacion_contratos", "ID", $idContrato);
+            
             $DatosArchivo=$obCon->FetchAssoc($Consulta);
-            if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){       
-                $obCon->GuardeArchivoEnTemporal($idContrato,$CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
+            if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){   
+                if(strtoupper($DatosContrato["Modalidad"])=='EVENTO'){
+                    $obCon->GuardeArchivoEnTemporal($idContrato,$CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
+                
+                }else{
+                    $obCon->GuardeArchivoCapitaEnTemporal($idContrato,$CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
+                
+                }
                 
             }
                         

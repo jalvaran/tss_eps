@@ -194,9 +194,9 @@ class TS_Excel extends conexion{
         $objPHPExcel->getActiveSheet()->getStyle('A'.$i)->applyFromArray($styleTitle);
         $objPHPExcel->getActiveSheet()->getStyle('B'.$i)->applyFromArray($styleTitle);
         
-        $sql="SELECT t1.ID,t2.Contrato,t2.TipoContrato,t2.FechaInicioContrato,t2.FechaFinalContrato,t2.ValorContrato
-                             FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente 
-                             WHERE t1.idActaLiquidacion='$idActaLiquidacion' AND NitIPSContratada='$CmbIPS'";
+        $sql="SELECT t1.ID,t1.NombreContrato AS Contrato,t1.FechaInicial as FechaInicioContrato,t1.FechaFinal  as FechaFinalContrato,t1.Valor as ValorContrato
+                FROM actas_liquidaciones_contratos t1 
+                WHERE t1.idActaLiquidacion='$idActaLiquidacion'";
         //print($sql);
         $Consulta= $this->Query($sql);
         $i++;
@@ -216,11 +216,14 @@ class TS_Excel extends conexion{
         $z=1;
         $flagTipoContrato=0;
         while($DatosContratos= $this->FetchAssoc($Consulta)){
+            /*
             if($flagTipoContrato==0){
                 $flagTipoContrato=1;
                 $TipoContrato=$DatosContratos["TipoContrato"];
             }
             
+             * 
+             */
             $objPHPExcel->setActiveSheetIndex(0)
                 ->setCellValue($Campos[$z].$i++,$DatosContratos["Contrato"])
                 ->setCellValue($Campos[$z].$i++,$DatosContratos["FechaInicioContrato"])
@@ -233,7 +236,7 @@ class TS_Excel extends conexion{
             $i=$i-3;
         }
         $i=$i+4;
-        
+        $TipoContrato="";
         $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue($Campos[0].$i,"Modalidad:")
             ->setCellValue($Campos[1].$i,$TipoContrato)

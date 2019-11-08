@@ -90,7 +90,8 @@ class CargarContratos extends conexion{
         
         $ValorContrato=$objPHPExcel->getActiveSheet()->getCell('B8')->getCalculatedValue();
         $Modalidad=$objPHPExcel->getActiveSheet()->getCell('B9')->getCalculatedValue();
-        
+        $ValorPercapita=$objPHPExcel->getActiveSheet()->getCell('B10')->getCalculatedValue();
+        $PorcentajePoblacional=$objPHPExcel->getActiveSheet()->getCell('B11')->getCalculatedValue();
         $Datos["NitIPS"]=$NIT;
         $Datos["RazonSocialIPS"]=$RazonSocial;
         $Datos["Contrato"]=$NumeroContrato;
@@ -103,6 +104,8 @@ class CargarContratos extends conexion{
         $Datos["NombreArchivo"]=$NombreArchivo;
         $Datos["Soporte"]=$Soporte;
         $Datos["BaseDatos"]=$db;
+        $Datos["ValorPercapita"]=$ValorPercapita;
+        $Datos["PorcentajePoblacional"]=$PorcentajePoblacional;
         $sql=$this->getSQLInsert("registro_liquidacion_contratos", $Datos);
         $this->Query($sql);
         $idContrato=$this->ObtenerMAX("registro_liquidacion_contratos", "ID", 1, "");
@@ -139,6 +142,9 @@ class CargarContratos extends conexion{
 
             $ValorContrato=$objPHPExcel->getActiveSheet()->getCell($Cols[$z].'8')->getCalculatedValue();
             
+            $ValorPercapita=$objPHPExcel->getActiveSheet()->getCell($Cols[$z].'10')->getCalculatedValue();
+            $PorcentajePoblacional=$objPHPExcel->getActiveSheet()->getCell($Cols[$z].'11')->getCalculatedValue();
+        
             $Datos["NitIPS"]=$NIT;
             $Datos["RazonSocialIPS"]=$RazonSocial;
             $Datos["Contrato"]=$OtroSI;
@@ -151,6 +157,8 @@ class CargarContratos extends conexion{
             $Datos["NombreArchivo"]=$NombreArchivo;
             $Datos["Soporte"]=$Soporte;
             $Datos["BaseDatos"]=$db;
+            $Datos["ValorPercapita"]=$ValorPercapita;
+            $Datos["PorcentajePoblacional"]=$PorcentajePoblacional;
             $sql=$this->getSQLInsert("registro_liquidacion_contratos", $Datos);
             $this->Query($sql);
             $z=$z+1;
@@ -297,6 +305,169 @@ class CargarContratos extends conexion{
                     $this->Query($sql);
                     $sql= "INSERT INTO $db.`temporal_registro_liquidacion_contratos_items` ( ";
                     $sql.="`ID`,`idContrato`,`DepartamentoRadicacion`,`Radicado`,`MesServicio`,`NumeroFactura`,`ValorFacturado`,`ImpuestosRetencion`,`Devolucion`,`GlosaInicial`,`GlosaFavorEPS`,`NotasCopagos`,`RecuperacionImpuestos`,`OtrosDescuentos`,";
+                    $sql.="`ValorPagado`,`Saldo`,`idUser`,`FechaRegistro`";
+                    
+                    $sql.=") VALUES ";
+                    $r=0;
+                }  
+                
+            } 
+        
+        //}
+        
+        
+        $sql=substr($sql, 0, -1);
+        //print($sql);
+        $this->Query($sql);
+        
+        $objPHPExcel->disconnectWorksheets();// Good to disconnect
+        $objPHPExcel->garbageCollect(); 
+        clearstatcache();
+        unset($objPHPExcel);
+        
+        unset($sql);
+        unset($Cols);
+        unset($value);
+        unset($key);
+        unset($ColumnasTabla);
+        
+        
+    }
+    
+    public function GuardeArchivoCapitaEnTemporal($idContrato,$CmbIPS,$CmbEPS,$NombreArchivo,$Ruta,$Soporte,$idUser) {
+        clearstatcache();
+        require_once('../../../librerias/Excel/PHPExcel2.php');
+        
+        $DatosIPS=$this->DevuelveValores("ips", "NIT", $CmbIPS);
+        $db=$DatosIPS["DataBase"];
+        
+        $FechaActual=date("Y-m-d H:i:s");
+        $RutaArchivo=$Ruta;
+             
+        $objReader = IOFactory::createReader('Xlsx');
+        $Cols=[ 'ZZ','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+                'AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ',
+                'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ',
+                'CA','CB','CC','CD','CE','CF','CG','CH','CI','CJ','CK','CL','CM','CN','CO','CP','CQ','CR','CS','CT','CU','CV','CW','CX','CY','CZ',
+                'DA','DB','DC','DD','DE','DF','DG','DH','DI','DJ','DK','DL','DM','DN','DO','DP','DQ','DR','DS','DT','DU','DV','DW','DX','DY','DZ'];
+        
+        
+        $objPHPExcel = $objReader->load($RutaArchivo);   
+        $hojas=$objPHPExcel->getSheetCount();
+                  
+        date_default_timezone_set('UTC'); //establecemos la hora local
+        
+        
+        $objPHPExcel->setActiveSheetIndex(0);
+        $columnas = $objPHPExcel->setActiveSheetIndex(0)->getHighestColumn();
+        $filas = $objPHPExcel->setActiveSheetIndex(0)->getHighestRow();
+            
+                       
+            $sql= "INSERT INTO $db.`temporal_registro_liquidacion_contratos_items` ( ";
+            
+            $sql.="`ID`,`idContrato`,`DepartamentoRadicacion`,`Municipio`,`Radicado`,`MesServicio`,`DiasLMA`,`ValorAPagarLMA`,`DescuentoReconocimientoBDUA`,`NumeroFactura`,`ValorFacturado`,`DescuentoInicial`,`DescuentosConciliadosAFavorASMET`,`RecuperacionImpuestos`,";
+            $sql.="`ValorPagado`,`Saldo`,`idUser`,`FechaRegistro`";
+            
+            $sql.=") VALUES ";
+            $r=0;
+            $Salto=0;
+            for ($i=1;$i<=$filas;$i++){
+                $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
+                
+                if($FilaA==''){
+                    continue; 
+                }
+                
+                if($FilaA=='DEPARTAMENTO' and $Salto==0){
+                    $Salto=1;
+                    continue; 
+                }
+                if($Salto==0){
+                    continue; 
+                }
+                if($FilaA=='TOTAL'){
+                    break;
+                }
+                $c=0;  
+                $r++;//Contador de filas a insertar
+                           
+                $Departamento=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
+                $Departamento= str_replace("'", "", $Departamento);
+                
+                $Municipio=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
+                $Municipio= str_replace("'", "", $Municipio);
+                
+                
+                $MesServicio=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getCalculatedValue();
+                $MesServicio= str_replace("'", "", $MesServicio);
+                
+                $DiasLMA=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getCalculatedValue();
+                $DiasLMA= str_replace("'", "", $DiasLMA);
+                
+                $ValorSegunLMA=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getCalculatedValue();
+                $ValorSegunLMA= str_replace("'", "", $ValorSegunLMA);
+                
+                $Radicado=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getCalculatedValue();
+                $Radicado= str_replace("'", "", $Radicado);
+                                
+                $Factura=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getCalculatedValue();
+                $Factura= str_replace("'", "", $Factura);
+                if($Factura==''){
+                    exit("E1;El archivo no tiene la factura relacionanda en la celda G$i");
+                }
+                $ValorFactura=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getCalculatedValue();
+                $ValorFactura= str_replace("'", "", $ValorFactura);
+                
+                $ValorRetenciones=$objPHPExcel->getActiveSheet()->getCell('I'.$i)->getCalculatedValue();
+                $ValorRetenciones= str_replace("'", "", $ValorRetenciones);
+                
+                $DescuentoBDUA=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getCalculatedValue();
+                $DescuentoBDUA= str_replace("'", "", $DescuentoBDUA);
+                
+                
+                $DescuentosConciliadosAFavor=$objPHPExcel->getActiveSheet()->getCell('L'.$i)->getCalculatedValue();
+                $DescuentosConciliadosAFavor= str_replace("'", "", $DescuentosConciliadosAFavor);
+                
+                                
+                $DescuentoInicial=$objPHPExcel->getActiveSheet()->getCell('K'.$i)->getCalculatedValue();
+                $DescuentoInicial= str_replace("'", "", $DescuentoInicial);
+                
+                $ValorPagado=$objPHPExcel->getActiveSheet()->getCell('M'.$i)->getCalculatedValue();
+                $ValorPagado= str_replace("'", "", $ValorPagado);
+                
+                $Saldo=$objPHPExcel->getActiveSheet()->getCell('N'.$i)->getCalculatedValue();
+                $Saldo= str_replace("'", "", $Saldo);
+                                
+                $sql.="(";
+                $sql.="'',";
+                $sql.="'$idContrato',";
+                $sql.="'$Departamento',";
+                $sql.="'$Municipio',";
+                $sql.="'$Radicado',";
+                $sql.="'$MesServicio',";
+                
+                $sql.="'$DiasLMA',";
+                $sql.="'$ValorSegunLMA',";
+                $sql.="'$DescuentoBDUA',";
+                
+                $sql.="'$Factura',";
+                $sql.="'$ValorFactura',";
+                $sql.="'$DescuentoInicial',";
+                $sql.="'$DescuentosConciliadosAFavor',";
+                $sql.="'$ValorRetenciones',";     
+                
+                $sql.="'$ValorPagado',";
+                $sql.="'$Saldo',";
+                
+                $sql.="'$idUser','$FechaActual'),";
+                       
+                if($r==2345){
+                
+                    $sql=substr($sql, 0, -1);
+                    //print($sql);
+                    $this->Query($sql);
+                    $sql= "INSERT INTO $db.`temporal_registro_liquidacion_contratos_items` ( ";
+                    $sql.="`ID`,`idContrato`,`DepartamentoRadicacion`,`Municipio`,`Radicado`,`MesServicio`,`DiasLMA`,`ValorAPagarLMA`,`DescuentoReconocimientoBDUA`,`NumeroFactura`,`ValorFacturado`,`DescuentoInicial`,`DescuentosConciliadosAFavorASMET`,`RecuperacionImpuestos`,";
                     $sql.="`ValorPagado`,`Saldo`,`idUser`,`FechaRegistro`";
                     
                     $sql.=") VALUES ";
