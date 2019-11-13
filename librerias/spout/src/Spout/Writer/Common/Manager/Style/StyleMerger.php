@@ -88,9 +88,6 @@ class StyleMerger
         if (!$style->getBorder() && $baseStyle->shouldApplyBorder()) {
             $styleToUpdate->setBorder($baseStyle->getBorder());
         }
-        if (!$style->getFormat() && $baseStyle->shouldApplyFormat()) {
-            $styleToUpdate->setFormat($baseStyle->getFormat());
-        }
         if (!$style->shouldApplyBackgroundColor() && $baseStyle->shouldApplyBackgroundColor()) {
             $styleToUpdate->setBackgroundColor($baseStyle->getBackgroundColor());
         }

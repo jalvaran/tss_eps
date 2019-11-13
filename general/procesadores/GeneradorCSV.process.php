@@ -467,6 +467,7 @@ if(isset($_REQUEST["Opcion"])){
             
             $Tabla=$obCon->normalizar($_REQUEST["Tabla"]);
             $Condicion=($obCon->normalizar($_REQUEST["TxtCondicional"]));
+            $Condicion= str_replace("WHERE", " ", $Condicion);
             $CmbTipoNegociacion=$obCon->normalizar($_REQUEST["CmbTipoNegociacion"]);
             //print($st);
             $FileName=$Tabla."_".$idUser.".csv";
@@ -484,17 +485,79 @@ if(isset($_REQUEST["Opcion"])){
             $db=$obCon->normalizar($_REQUEST["db"]);
             $NIT= str_replace("ts_eps_ips_", "", $db);
             //$Condicion="";
-            
+            $OrdenColumna="";
             $Separador=";";
             $NumPage="";
             $limit="";
             $startpoint="";
-            
+            $AscDesc="";
             
             $sqlColumnas="SELECT  ";
             
+            $ColumnasSeleccionadas=$obCon->getColumnasVisibles($db.".".$Tabla, "");  
+            
+            $DatosConsulta=$obCon->getConsultaTabla($db.".".$Tabla,$ColumnasSeleccionadas, $Condicion, $OrdenColumna, $AscDesc, $NumPage, $limit,$startpoint);
+           
+            $TotalRegistros=$DatosConsulta["TotalRegistros"];
+            $QueryCompleto=$DatosConsulta["QueryCompleto"];
+            $QueryParcial=$DatosConsulta["QueryParcial"];
             
             
+            $idTabla=$ColumnasSeleccionadas["Field"][0];        
+            if($Condicion<>""){
+                $Condicion=" WHERE ".$Condicion;
+            }
+            if($OrdenColumna==''){
+                $OrdenColumna=$idTabla;
+            }
+            
+            $Orden=" ORDER BY $OrdenColumna $AscDesc ";
+            
+            
+            
+            $sqlColumnas="SELECT ";
+            $CamposShow="";
+            foreach($ColumnasSeleccionadas["Field"] as $key => $value){
+                $Titulo= utf8_encode($ColumnasSeleccionadas["Visualiza"][$key]); 
+                
+                if($CmbTipoNegociacion=="EVENTO"){
+                    if($value<>"NumeroAfiliadosLMA" and $value<>"NumeroDiasLMA" and $value<>"ValorPercapita" and $value<>"PorcentajePoblacional" and $value<>"ValorAPagarLMA" and $value<>"DescuentoReconocimientoBDUA"){
+                        //print(" Entra ");
+                        
+                        $sqlColumnas.="'$Titulo' ,";
+                        $CamposShow.=" CONVERT(`$value` USING utf8mb4),"; 
+                    }
+                }else{
+                    $sqlColumnas.="'$Titulo' ,";
+                    $CamposShow.=" CONVERT(`$value` USING utf8mb4),"; 
+                }
+                
+            }
+            if($CmbTipoNegociacion=="EVENTO"){
+                $QueryParcial= str_replace("NumeroDiasLMA,", "", $QueryParcial);
+                $QueryParcial= str_replace("NumeroAfiliadosLMA,", "", $QueryParcial);
+                $QueryParcial= str_replace("ValorPercapita,", "", $QueryParcial);
+                $QueryParcial= str_replace("PorcentajePoblacional,", "", $QueryParcial);
+                $QueryParcial= str_replace("ValorAPagarLMA,", "", $QueryParcial);
+                $QueryParcial= str_replace("DescuentoReconocimientoBDUA,", "", $QueryParcial);
+                
+                
+            }
+            $sqlColumnas=substr($sqlColumnas, 0, -1);
+            $CamposShow=substr($CamposShow, 0, -1);
+            $sqlColumnas.=" UNION ALL ";
+            $Indice=$ColumnasSeleccionadas["Field"][0];
+            
+            //$sql=$sqlColumnas."SELECT $CamposShow FROM $Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
+            $sql=$sqlColumnas."$QueryParcial $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
+            
+            $obCon->Query($sql);
+            $Fecha=date("Ymd_His");
+            
+            $Inical= str_replace("ips", "proveedor", $Tabla);
+            $NombreArchivo=$CmbTipoNegociacion."_".$Inical."_$NIT"."_$Fecha";
+            
+            /*
             $Columnas=$obCon->ShowColums($db.".".$Tabla);
             $ColumnasSeleccion="";
             //print_r($Columnas);
@@ -525,6 +588,10 @@ if(isset($_REQUEST["Opcion"])){
             $obCon->Query($sql);
             $Inical= str_replace("ips", "proveedor", $Tabla);
             $NombreArchivo=$CmbTipoNegociacion."_".$Inical."_$NIT"."_$Fecha";
+            
+            
+            */
+            
             print("<div id='DivImagenDescargarTablaDB'><a href='$Link' download='$NombreArchivo.csv' target='_top' ><h1>Descargar</h1></a></div>");
             break;//Fin caso 7
         

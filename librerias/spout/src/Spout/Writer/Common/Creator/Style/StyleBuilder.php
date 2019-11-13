@@ -149,20 +149,6 @@ class StyleBuilder
     }
 
     /**
-     *  Sets a format
-     *
-     * @param string $format Format
-     * @return StyleBuilder
-     * @api
-     */
-    public function setFormat($format)
-    {
-        $this->style->setFormat($format);
-
-        return $this;
-    }
-
-    /**
      * Returns the configured style. The style is cached and can be reused.
      *
      * @return Style

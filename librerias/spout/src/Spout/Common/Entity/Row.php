@@ -70,7 +70,7 @@ class Row
      */
     public function getCellAtIndex($cellIndex)
     {
-        return $this->cells[$cellIndex] ?? null;
+        return isset($this->cells[$cellIndex]) ? $this->cells[$cellIndex] : null;
     }
 
     /**
@@ -89,13 +89,7 @@ class Row
      */
     public function getNumCells()
     {
-        // When using "setCellAtIndex", it's possible to
-        // have "$this->cells" contain holes.
-        if (empty($this->cells)) {
-            return 0;
-        }
-
-        return max(array_keys($this->cells)) + 1;
+        return count($this->cells);
     }
 
     /**

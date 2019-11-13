@@ -71,12 +71,6 @@ class Style
     /** @var bool */
     private $hasSetBackgroundColor = false;
 
-    /** @var string Format */
-    private $format;
-
-    /** @var bool */
-    private $hasSetFormat = false;
-
     /**
      * @return int|null
      */
@@ -388,34 +382,5 @@ class Style
     public function shouldApplyBackgroundColor()
     {
         return $this->hasSetBackgroundColor;
-    }
-
-    /**
-     * Sets format
-     * @param string $format
-     * @return Style
-     */
-    public function setFormat($format)
-    {
-        $this->hasSetFormat = true;
-        $this->format = $format;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFormat()
-    {
-        return $this->format;
-    }
-
-    /**
-     * @return bool Whether format should be applied
-     */
-    public function shouldApplyFormat()
-    {
-        return $this->hasSetFormat;
     }
 }

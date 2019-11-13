@@ -1,0 +1,1 @@
+ALTER TABLE `temporalcarguecarteraeps` ADD COLUMN IF NOT EXISTS CantidadFacturasRepetidasConCerosIzquierda int(8) AFTER `ValidaFactura`;
