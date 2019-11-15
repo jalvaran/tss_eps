@@ -83,7 +83,7 @@ if( !empty($_REQUEST["Accion"]) ){
                                 $css->option("", "", "", "", "", "");
                                     print("Seleccione el contrato padre");
                                 $css->Coption();
-                                $sql="SELECT NumeroContrato FROM contratos WHERE NitIPSContratada='$CmbIPS' AND ClasificacionContrato='CONTRATO' AND (EstadoContrato='ACTIVO' OR EstadoContrato='CONCILIADO') ";
+                                $sql="SELECT NumeroContrato FROM contratos WHERE NitIPSContratada='$CmbIPS' AND (ClasificacionContrato='CONTRATO' OR ClasificacionContrato='ACUERDO') AND (EstadoContrato='ACTIVO' OR EstadoContrato='CONCILIADO') ";
                                 $Consulta=$obCon->Query($sql);
                                 while($DatosContratos=$obCon->FetchAssoc($Consulta)){
                                     $css->option("", "", "", $DatosContratos["NumeroContrato"], "", "");

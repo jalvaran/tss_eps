@@ -431,18 +431,30 @@ if( !empty($_REQUEST["Accion"]) ){
                         FROM $db.actas_conciliaciones_items t1 
                         WHERE EXISTS 
                         (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato AND idActaLiquidacion='$idActaLiquidacion') AND t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal;  ";
+                    
                     $TotalesActa=$obCon->FetchAssoc($obCon->Query($sql));
+                    
                     $TotalesActaHistorial["TotalFacturado"]=0;
                     if($TipoActa<>4 and $TipoActa<>5 and $TipoActa<>6 and $TipoActa<>7){
-                        $sql="SELECT SUM(t1.ValorOriginal) as TotalFacturado
+                        $sql="SELECT  SUM(t1.ValorOriginal) as TotalFacturado
                             
-                            FROM $db.historial_carteracargada_eps t1 INNER JOIN  $db.actas_conciliaciones_items t2 ON t1.NumeroFactura=t2.NumeroFactura 
-                            WHERE (t1.NumeroRadicado<>t2.NumeroRadicado OR t1.NumeroOperacion<> t2.NumeroOperacion) AND  EXISTS 
-                            (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato AND idActaLiquidacion='$idActaLiquidacion') AND t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal;  ";
+                            FROM $db.historial_carteracargada_eps t1 WHERE EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t2 WHERE t1.NumeroFactura=t2.NumeroFactura)
+                        AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                       AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                       AND NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t2 WHERE t2.NumeroRadicado = t1.NumeroRadicado) ";
                         $TotalesActaHistorial=$obCon->FetchAssoc($obCon->Query($sql));
+                        
+                        $sql="SELECT  SUM(t1.ValorOriginal) as TotalFacturado
+                            
+                            FROM $db.historial_carteracargada_eps t1 WHERE NOT 
+                    EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroContrato=t2.NumeroContrato AND t1.NumeroRadicado=t2.NumeroRadicado)
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                       ";
+                        $TotalesActaHistorial2=$obCon->FetchAssoc($obCon->Query($sql));
                     }
-                    $TotalFacturado=$TotalesActa["TotalFacturado"]+$TotalesActaHistorial["TotalFacturado"];
-                    $TotalDevolucion=$TotalesActa["Devoluciones"]+$TotalesActaHistorial["TotalFacturado"];
+                    $TotalFacturado=$TotalesActa["TotalFacturado"]+$TotalesActaHistorial["TotalFacturado"]+$TotalesActaHistorial2["TotalFacturado"];
+                    $TotalDevolucion=($TotalesActa["Devoluciones"])+($TotalesActaHistorial["TotalFacturado"]+$TotalesActaHistorial2["TotalFacturado"]);
                     if($TotalesActa["Impuestos"]==""){
                         $TotalesActa["Impuestos"]=0;
                     }

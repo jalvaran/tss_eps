@@ -19,7 +19,12 @@ class Administrador extends conexion{
         $ColumnasSeleccionadas["Field"]=[];
         foreach ($Columnas["Field"] as $key => $value) {
             $Busqueda= explode(".", $Tabla);
-            $key=$Busqueda[1];
+            if(isset($Busqueda[1])){
+                $key=$Busqueda[1];
+            }else{
+                $key=$Tabla;
+            }
+            
             $Consulta=$this->ConsultarTabla("tablas_campos_control", "WHERE NombreTabla like '%$key' AND Campo='$value' AND (Visible=0 OR Habilitado=0)");
             $DatosExcluidas=$this->FetchAssoc($Consulta);
             if($DatosExcluidas["ID"]=='' AND $value<>'Updated' AND $value<>'Sync'){

@@ -37,7 +37,7 @@ class PageConstruct extends html_estruct_class{
                 print('<link rel="stylesheet" href="../../componentes/font-awesome/css/font-awesome.min.css">');
                 print('<link rel="stylesheet" href="../../componentes/Ionicons/css/ionicons.min.css">');
                 print('<link rel="stylesheet" href="../../componentes/datatables.net-bs/css/dataTables.bootstrap.min.css">');
-                print('<link rel="stylesheet" href="../../dist/css/AdminLTE.css">');
+                print('<link rel="stylesheet" href="../../dist/css/adminlte.css">');
                 print('<link rel="stylesheet" href="../../dist/css/skins/_all-skins.min.css">');
                 print('<link rel="stylesheet" href="../../componentes/fonts/css.css">');
                 print('<link rel="stylesheet" href="../../componentes/techno/css/checkts.css">');
