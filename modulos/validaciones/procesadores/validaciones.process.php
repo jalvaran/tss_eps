@@ -216,7 +216,7 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
-            $DatosCruce=$obCon->DevuelveValores("$db.vista_cruce_cartera_asmet", "NumeroFactura", $NumeroFactura);
+            $DatosCruce=$obCon->DevuelveValores("$db.hoja_de_trabajo", "NumeroFactura", $NumeroFactura);
             $ValorAConciliar=0;
             $sql="SELECT SUM(ValorConciliacion) as Total FROM $db.conciliaciones_cruces WHERE NumeroFactura='$NumeroFactura' AND Estado<>'ANULADO'";
             $TotalesConciliacion=$obCon->Query($sql);

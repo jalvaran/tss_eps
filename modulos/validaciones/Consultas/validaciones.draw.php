@@ -1691,7 +1691,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
-            $DatosFactura=$obCon->DevuelveValores("$db.vista_cruce_cartera_asmet", "NumeroFactura", $NumeroFactura);
+            $DatosFactura=$obCon->DevuelveValores("$db.hoja_de_trabajo", "NumeroFactura", $NumeroFactura);
             /*
             if($DatosFactura["Diferencia"]==0){
                 exit("<h2>Esta Factura no tiene una diferencia para conciliar</h2>");

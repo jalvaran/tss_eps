@@ -83,16 +83,18 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $sql="UPDATE $db.temporal_retenciones t1 INNER JOIN $db.retenciones t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  "
-                    . "WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion AND t1.FechaTransaccion=t2.FechaTransaccion AND "
-                    . " t1.ValorDebito=t2.ValorDebito AND t1.ValorCredito=t2.ValorCredito;";
-            $obCon->Query($sql);
+           
             $sql="INSERT INTO $db.`retenciones` 
                 (`ID`,`Cuentacontable`,`ObservacionCuenta`,`Nit_IPS`,`RazonSocial`,`FechaTransaccion`,`TipoOperacion`,`NumeroTransaccion`,`NumeroFactura`,
                 `Descripcion`,`ValorDebito`,`ValorCredito`,`Saldo`,`Soporte`,`idUser`,`keyFile`,`FechaRegistro`)
                    SELECT `ID`,`Cuentacontable`,`ObservacionCuenta`,`Nit_IPS`,`RazonSocial`,`FechaTransaccion`,`TipoOperacion`,`NumeroTransaccion`,`NumeroFactura`,
                 `Descripcion`,`ValorDebito`,`ValorCredito`,`Saldo`,`Soporte`,`idUser`,`keyFile`,`FechaRegistro` 
-                  FROM $db.`temporal_retenciones` as t1 WHERE t1.FlagUpdate=0;
+                  FROM $db.`temporal_retenciones` as t1 
+                    WHERE NOT EXISTS (SELECT 1 FROM $db.`retenciones` t2 
+                        WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion AND t1.FechaTransaccion=t2.FechaTransaccion
+                            AND t1.ValorDebito=t2.ValorDebito AND t1.ValorCredito=t2.ValorCredito 
+
+                        );
                     
                     ";
             //print($sql);
