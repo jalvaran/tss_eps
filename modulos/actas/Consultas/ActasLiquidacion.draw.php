@@ -447,7 +447,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $sql="SELECT  SUM(t1.ValorOriginal) as TotalFacturado
                             
                             FROM $db.historial_carteracargada_eps t1 WHERE NOT 
-                    EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroContrato=t2.NumeroContrato AND t1.NumeroRadicado=t2.NumeroRadicado)
+                    EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
                      AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
                     AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
                        ";

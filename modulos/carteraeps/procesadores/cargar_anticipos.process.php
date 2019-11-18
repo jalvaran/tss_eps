@@ -43,7 +43,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $obCon->VaciarTabla("$db.temporal_Anticipos2");
+            $obCon->VaciarTabla("$db.temporal_anticipos2");
             $destino='';
             
             $Extension="";
@@ -83,13 +83,13 @@ if( !empty($_REQUEST["Accion"]) ){
             $keyArchivo=$obCon->getKeyArchivo($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $sql="UPDATE $db.temporal_Anticipos2 t1 INNER JOIN $db.Anticipos2 t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  "
+            $sql="UPDATE $db.temporal_anticipos2 t1 INNER JOIN $db.anticipos2 t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  "
                     . "WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroInterno=t2.NumeroInterno AND t1.Fecha=t2.Fecha AND "
                     . " t1.NumeroAnticipo=t2.NumeroAnticipo AND t1.NumeroOperacion=t2.NumeroOperacion AND t1.MesServicio=t2.MesServicio AND t1.ValorAnticipado=t2.ValorAnticipado ;";
             $obCon->Query($sql);
-            $sql="INSERT INTO $db.`Anticipos2`  
+            $sql="INSERT INTO $db.`anticipos2`  
                    SELECT *
-                  FROM $db.`temporal_Anticipos2` as t1 WHERE t1.FlagUpdate=0;
+                  FROM $db.`temporal_anticipos2` as t1 WHERE t1.FlagUpdate=0;
                     
                     ";
             //print($sql);
