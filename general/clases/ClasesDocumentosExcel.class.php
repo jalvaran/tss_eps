@@ -291,14 +291,14 @@ class TS_Excel extends conexion{
                     t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
                     '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
                     t1.ValorOriginal as TotalDevoluciones,'0' as Saldo                  
-                    FROM $db.$TablaUnion t1 WHERE  
-                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroContrato=t2.NumeroContrato AND t1.NumeroRadicado<>t2.NumeroRadicado)
+                    FROM $db.$TablaUnion t1 WHERE  NOT 
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
                      AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
                     AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
                       
 
                        ";
-                    
+                 // print($Union2) ; 
             $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos + TotalAnticipos) AS TotalPagos,
                     (TotalCopagos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
@@ -335,7 +335,7 @@ class TS_Excel extends conexion{
                     '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
                     t1.ValorOriginal as TotalDevoluciones,'0' as Saldo                  
                     FROM $db.$TablaUnion t1 WHERE NOT 
-                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroContrato=t2.NumeroContrato AND t1.NumeroRadicado=t2.NumeroRadicado)
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
                      AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
                     AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
                       
@@ -711,7 +711,7 @@ class TS_Excel extends conexion{
                     
                           ";
             
-            $sql=$Union.$sql.$GroupOrder;
+            $sql=$Union.$Union2.$sql.$GroupOrder;
             
         }    
         //print($sql);

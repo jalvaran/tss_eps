@@ -56,6 +56,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     exit("E1;Debe Seleccionar un contrato padre;select2-CmbContratoPadre-container");
                 }
                 $Datos["NumeroContrato"]=($Datos["Contrato"]." ".$Datos["OtroSi"]);  
+                $Datos["Contrato"]=$Datos["NumeroContrato"];
             }else{
                 $Datos["OtroSi"]="";
             }
