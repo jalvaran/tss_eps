@@ -673,7 +673,13 @@ class ValidacionesEPS extends conexion{
         $MesServicioInicial=$DatosActa["MesServicioInicial"];
         $MesServicioFinal=$DatosActa["MesServicioFinal"];
         $TipoNegociacion=$DatosActa["TipoActa"];
+        /*
         $sql="SELECT SUM(Total) as TotalPendientes FROM $db.vista_pendientes";
+        $TotalPendientes = $this->FetchAssoc($this->Query($sql));
+        
+         * 
+         */
+        $sql="SELECT SUM(ValorDocumento) AS TotalPendientes FROM $db.hoja_de_trabajo WHERE (PendientesPorRadicados='SI' OR PendientesPorDevoluciones='SI' OR PendientesPorCopagos='SI' OR PendientesPorNotas='SI' ) AND TipoNegociacion='$TipoNegociacion'";
         $TotalPendientes = $this->FetchAssoc($this->Query($sql));
         
         //$TotalPendientesRadicados=$this->SumeColumna("$db.vista_pendientes", "Total", 1, "");

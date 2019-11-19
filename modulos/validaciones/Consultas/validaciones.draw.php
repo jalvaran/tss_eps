@@ -3790,10 +3790,23 @@ if( !empty($_REQUEST["Accion"]) ){
             //$TotalPendientesRadicados=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Radicados");
             //$TotalPendientesNotas=$obCon->SumeColumna("$db.vista_pendientes", "Total", "Radicados", "Notas");
             
-            $sql="SELECT SUM(Total) AS Total FROM $db.vista_pendientes t1 WHERE Radicados='Devoluciones' AND EXISTS (SELECT 1 FROM $db.hoja_de_trabajo t2 WHERE t1.NumeroRadicado=t2.NumeroRadicado ) ";
+            $sql="SELECT SUM(ValorDocumento) AS Total FROM $db.hoja_de_trabajo WHERE PendientesPorRadicados='SI' AND TipoNegociacion='$TipoNegociacion'";
+            $DatosPendiente=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalPendientesRadicados=$DatosPendiente["Total"];
+            
+            $sql="SELECT SUM(ValorDocumento) AS Total FROM $db.hoja_de_trabajo WHERE PendientesPorDevoluciones='SI' AND TipoNegociacion='$TipoNegociacion'";
             $DatosPendiente=$obCon->FetchAssoc($obCon->Query($sql));
             $TotalPendientesDevoluciones=$DatosPendiente["Total"];
             
+            $sql="SELECT SUM(ValorDocumento) AS Total FROM $db.hoja_de_trabajo WHERE PendientesPorCopagos='SI' AND TipoNegociacion='$TipoNegociacion'";
+            $DatosPendiente=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalPendientesCopagos=$DatosPendiente["Total"];
+            
+            $sql="SELECT SUM(ValorDocumento) AS Total FROM $db.hoja_de_trabajo WHERE PendientesPorNotas='SI' AND TipoNegociacion='$TipoNegociacion'";
+            $DatosPendiente=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalPendientesNotas=$DatosPendiente["Total"];
+            
+            /*
             $sql="SELECT SUM(Total) AS Total FROM $db.vista_pendientes t1 WHERE Radicados='Copagos' AND EXISTS (SELECT 1 FROM $db.hoja_de_trabajo t2 WHERE t1.NumeroRadicado=t2.NumeroRadicado ) ";
             $DatosPendiente=$obCon->FetchAssoc($obCon->Query($sql));
             $TotalPendientesCopagos=$DatosPendiente["Total"];
@@ -3806,6 +3819,8 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosPendiente=$obCon->FetchAssoc($obCon->Query($sql));
             $TotalPendientesNotas=$DatosPendiente["Total"];
             
+             * 
+             */
             $sql="SELECT MIN(MesServicio) as MesServicioInicial, MAX(MesServicio) as MesServicioFinal FROM $db.hoja_de_trabajo";
             $DatosMesServicio=$obCon->FetchAssoc($obCon->Query($sql));
             $MesServicioInicial=$DatosMesServicio["MesServicioInicial"];
