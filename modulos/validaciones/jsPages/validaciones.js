@@ -3776,6 +3776,13 @@ function CambieTipoNegociacionActa(idActaConciliacion){
     
 }
 
+function SeleccioneAccionFormularios(){
+    var idFormulario=document.getElementById('idFormulario').value;
+    if(idFormulario==110){
+        CrearContratoPercapita();
+        MuestreCruce();
+    }
+}
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();
 $('#CmbEPS').select2();

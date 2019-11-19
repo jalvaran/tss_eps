@@ -356,7 +356,9 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->FilaTabla(16);
                         print("<td>");
                             print("<span id='idContratoCapita'>");
-                                print($DatosContratos["NumeroContrato"]);
+                                print("<pre>".$DatosContratos["NumeroContrato"]."</pre>");
+                                $CodContrato=$DatosContratoExistente["ID"];
+                            $css->CrearBotonEvento("CrearContratoPercapita", "Agregar Percapita", 1, "onClick", "DibujeFrmPercapita(`$CodContrato`);", "azul");
                             print("</span>");
                         print("</td>");
                         print("<td>");
@@ -377,7 +379,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         print("<td>");
+                            
                             $Contrato=$DatosContratoExistente["Contrato"];
+                            
                             $sql="SELECT *,(SELECT Ciudad FROM municipios_dane WHERE contrato_percapita.CodigoDane=municipios_dane.CodigoDane LIMIT 1) AS NombreMunicipio FROM contrato_percapita WHERE NIT_IPS='$CmbIPS' AND Contrato='$Contrato'";
                             $ConsultaPercapita=$obCon->Query($sql);
                             while($DatosPercapita=$obCon->FetchAssoc($ConsultaPercapita)){

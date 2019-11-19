@@ -11,5 +11,12 @@ function MostrarHistorial(){
     SeleccioneTablaDB(`contratos`,`DivContratos`,`DivOpcionesContratos`);
 }
 
+function SeleccioneAccionFormularios(){
+    var idFormulario=document.getElementById('idFormulario').value;
+    if(idFormulario==110){
+        CrearContratoPercapita();
+    }
+}
+
 MostrarHistorial();
 document.getElementById('BtnMuestraMenuLateral').click();

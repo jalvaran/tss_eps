@@ -269,6 +269,53 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
             
         break;  //Fin caso 4  
+        
+        case 5:// Dibuja la interfaz para crear un contrato percapita
+            $idContrato=$obCon->normalizar($_REQUEST["idContrato"]);                
+            $DatosContratos=$obCon->DevuelveValores("contratos", "ID", $idContrato);
+            
+            $css->input("hidden", "idContratoPadre", "", "idContratoPadre", "", $idContrato, "", "", "", "");
+            $css->input("hidden", "idFormulario", "", "idFormulario", "", 110, "", "", "", "");
+            $Mensaje="Crear un Valor Percapita para el Contrato ".$DatosContratos["Contrato"];
+            $css->CrearTitulo("<strong>".$Mensaje."</strong>");
+            
+            $css->CrearTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>FECHA DE INICIO</strong>", 1,"C");
+                    $css->ColTabla("<strong>FECHA FINAL</strong>", 1,"C");
+                    $css->ColTabla("<strong>MUNICIPIO</strong>", 1,"C");
+                    $css->ColTabla("<strong>PORCENTAJE POBLACIONAL</strong>", 1,"C");
+                    $css->ColTabla("<strong>VALOR PERCAPITA POR DÍA</strong>", 1,"C");                    
+                $css->CierraFilaTabla();
+                
+                    print("<td>");
+                        $css->input("date", "FechaInicialPercapita", "form-control", "FechaInicialPercapita", "", date("Y-m-d"), "Fecha Inicial", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->input("date", "FechaFinalPercapita", "form-control", "FechaFinalPercapita", "", date("Y-m-d"), "Fecha Final", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->select("CmbMunicipioPercapita", "form-control", "CmbMunicipioPercapita", "", "", "", "");
+                            $css->option("", "form-control", "", "", "", "");
+                                print("Seleccione un municipio");
+                            $css->Coption();
+                        $css->Cselect();
+                        
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->input("text", "TxtPorcentajePercapita", "form-control", "TxtPorcentajePercapita", "", "", "Porcentaje Poblacional", "off", "", "");
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->input("text", "TxtValorPercapita", "form-control", "TxtValorPercapita", "", "", "Valor Percapita", "off", "", "");
+                    print("</td>");
+                
+            $css->CerrarTabla();
+            
+        break;    
     }
     
           

@@ -95,7 +95,63 @@ if( !empty($_REQUEST["Accion"]) ){
             $obCon->Query($sql);
             
             print("Contrato editado");
-        break;//fin caso 2    
+        break;//fin caso 2  
+    
+        case 3://Crear un contrato percapita
+            
+            $idContratoPadre=$obCon->normalizar($_REQUEST["idContratoPadre"]);
+            $FechaInicialPercapita=$obCon->normalizar($_REQUEST["FechaInicialPercapita"]);
+            $FechaFinalPercapita=$obCon->normalizar($_REQUEST["FechaFinalPercapita"]);
+            $CmbMunicipioPercapita=$obCon->normalizar($_REQUEST["CmbMunicipioPercapita"]);
+            $TxtPorcentajePercapita=$obCon->normalizar($_REQUEST["TxtPorcentajePercapita"]);
+            $TxtValorPercapita=$obCon->normalizar($_REQUEST["TxtValorPercapita"]);
+            
+            if($FechaInicialPercapita==''){
+                exit("E1;La Fecha Inicial no puede estar vacía;FechaInicialPercapita");
+            }
+            if($FechaFinalPercapita==''){
+                exit("E1;La Fecha Final no puede estar vacía;FechaFinalPercapita");
+            }
+            if($CmbMunicipioPercapita==''){
+                exit("E1;Debe Seleccionar un municipio;select2-CmbMunicipioPercapita-container");
+            }
+            if(!is_numeric($TxtPorcentajePercapita) or $TxtPorcentajePercapita<1 or $TxtPorcentajePercapita>100 ){
+                exit("E1;El porcentaje poblacional debe ser un numero entre 1 y 100;TxtPorcentajePercapita");
+            }
+            if(!is_numeric($TxtValorPercapita) or $TxtValorPercapita<1 ){
+                exit("E1;El valor percapita debe un valor númerico mayor a 0;TxtValorPercapita");
+            }
+            
+            $DatosContrato=$obCon->DevuelveValores("contratos", "ID", $idContratoPadre);
+            
+           
+            $DatosMunicipios=$obCon->DevuelveValores("municipios_dane", "ID", $CmbMunicipioPercapita);
+            
+            $DatosMesServicio = explode("-", $FechaInicialPercapita);
+            $MesServicioInicial=$DatosMesServicio[0].$DatosMesServicio[1];
+            $DatosMesServicio = explode("-", $FechaFinalPercapita);
+            $MesServicioFinal=$DatosMesServicio[0].$DatosMesServicio[1];
+            
+            $Datos["NIT_IPS"]=$DatosContrato["NitIPSContratada"];
+            $Datos["Contrato"]=$DatosContrato["Contrato"];
+            $Datos["Departamento"]=$DatosMunicipios["CodigoDepartamento"];
+            $Datos["Municipio"]=$DatosMunicipios["CodigoMunicipio"];
+            $Datos["CodigoDane"]=$DatosMunicipios["CodigoDane"];
+            $Datos["PorcentajePoblacional"]=$TxtPorcentajePercapita;
+            $Datos["ValorPercapitaXDia"]=$TxtValorPercapita;
+            $Datos["FechaInicioPercapita"]=$FechaInicialPercapita;
+            $Datos["FechaFinPercapita"]=$FechaFinalPercapita;
+            $Datos["CodigoFechaInicioPercapita"]=$MesServicioInicial;
+            $Datos["CodigoFechaFinPercapita"]=$MesServicioFinal;
+            $Datos["idUser"]=$idUser;
+            $Datos["FechaRegistro"]=$DatosContrato["NitIPSContratada"];
+            $Datos["FechaActualizacion"]=$DatosContrato["NitIPSContratada"];
+            
+            $sql=$obCon->getSQLInsert("contrato_percapita", $Datos);
+            $obCon->Query($sql);
+                  
+            print("OK;Percapita Creada");
+        break;//fin caso 3
         
                 
     }

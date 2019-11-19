@@ -243,3 +243,111 @@ function AsociarContratoEquivalente(ContratoEquivalente,idCmbContratoExistente){
           }
       });
 }
+
+
+function DibujeFrmPercapita(idContrato){
+        
+    AbreModal('ModalAcciones');
+        
+    var form_data = new FormData();
+        form_data.append('Accion', 5);
+        form_data.append('idContrato', idContrato);   
+        
+        
+        $.ajax({
+        url: '../../general/Consultas/CreacionContratos.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivFrmModalAcciones').innerHTML=data;
+           $('#CmbMunicipioPercapita').select2({
+		
+                placeholder: 'Seleccione un municipio',
+                ajax: {
+                  url: './../../general/buscadores/municipios.search.php',
+                  dataType: 'json',
+                  delay: 250,
+                                    
+                  processResults: function (data) {
+                      
+                    return {                     
+                      results: data
+                    };
+                  },
+                 cache: true
+                }
+              });     
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+function CrearContratoPercapita(){
+    var idBoton="BntModalAcciones";
+    document.getElementById(idBoton).disabled=true;
+    var idContratoPadre=document.getElementById('idContratoPadre').value;
+    var FechaInicialPercapita=document.getElementById('FechaInicialPercapita').value;
+    var FechaFinalPercapita=document.getElementById('FechaFinalPercapita').value;
+    var CmbMunicipioPercapita=document.getElementById('CmbMunicipioPercapita').value;
+    var TxtPorcentajePercapita=document.getElementById('TxtPorcentajePercapita').value;
+    var TxtValorPercapita=document.getElementById('TxtValorPercapita').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 3);        
+        form_data.append('idContratoPadre', idContratoPadre);
+        form_data.append('FechaInicialPercapita', FechaInicialPercapita);
+        form_data.append('FechaFinalPercapita', FechaFinalPercapita);
+        form_data.append('CmbMunicipioPercapita', CmbMunicipioPercapita);
+        form_data.append('TxtPorcentajePercapita', TxtPorcentajePercapita);
+        form_data.append('TxtValorPercapita', TxtValorPercapita);
+        
+        $.ajax({
+        url: '../../general/procesadores/CrearContratos.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               
+                alertify.success(respuestas[1]);  
+                document.getElementById("DivFrmModalAcciones").innerHTML=respuestas[1];
+                document.getElementById(idBoton).disabled=false;
+                        
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+           
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+           document.getElementById(idBoton).disabled=false;
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}

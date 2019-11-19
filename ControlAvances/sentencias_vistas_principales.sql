@@ -5,7 +5,7 @@ SELECT NumeroFactura,SUM(ABS(ValorTotal)) AS ValorTotal FROM notas_db_cr_2 WHERE
 DROP VIEW IF EXISTS `vista_cruce_cartera_asmet`;
 CREATE VIEW vista_cruce_cartera_asmet AS
 SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelacionada,
-        t2.CodigoSucursal,t2.NumeroOperacion,t2.CarteraEPSTipoNegociacion as TipoNegociacion,
+        t2.CodigoSucursal,t2.NumeroOperacion,t2.CarteraEPSTipoNegociacion as TipoNegociacion,t2.CarteraEPSTipoNegociacion as TipoNegociacionContrato,
         
         (SELECT IFNULL((t2.NumeroFactura REGEXP ('^[0-9]+$')),'0')  ) AS FacturaNumerica,
         (SELECT IF(FacturaNumerica=1, CONVERT(t2.NumeroFactura, SIGNED INTEGER) , '0' )  ) AS FacturaEnNumero,
@@ -25,19 +25,19 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelaciona
         
         (SELECT Contrato FROM ts_eps.contratos c WHERE c.ContratoEquivalente=t2.NumeroContrato LIMIT 1) AS ContratoPadre,
 
-        (SELECT IF(TipoNegociacion='CAPITA',
+        (SELECT IF(TipoNegociacionContrato='CAPITA',
                                  (SELECT COUNT(NumeroFactura) FROM carteraeps ce WHERE ce.NumeroContrato= t2.NumeroContrato AND ce.MesServicio= t2.MesServicio AND ce.CarteraEPSTipoNegociacion='CAPITA' AND ce.CodigoSucursal=t2.CodigoSucursal) ,
                                   1)) AS DivisorMesServicio,    
-        (SELECT IF(TipoNegociacion='CAPITA',
+        (SELECT IF(TipoNegociacionContrato='CAPITA',
                                  (SELECT SUM(NumeroAfiliadosPleno) FROM ts_eps.lma_asmet la WHERE la.CodigoDane= (t2.CodigoSucursal) AND la.MesServicio=t2.MesServicio),
                                   0)) AS NumeroAfiliadosLMA,
-        (SELECT IF(TipoNegociacion='CAPITA',
+        (SELECT IF(TipoNegociacionContrato='CAPITA',
                                  (SELECT SUM(DiasLiquidadosSubsidioPleno) FROM ts_eps.lma_asmet la WHERE la.CodigoDane= (t2.CodigoSucursal) AND la.MesServicio=t2.MesServicio)/(SELECT DivisorMesServicio) ,
                                   0)) AS NumeroDiasLMA,
-        (SELECT IF(TipoNegociacion='CAPITA',
+        (SELECT IF(TipoNegociacionContrato='CAPITA',
                                  (SELECT (ValorPercapitaXDia) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT ContratoPadre) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
                                   0)) AS ValorPercapita, 
-        (SELECT IF(TipoNegociacion='CAPITA',
+        (SELECT IF(TipoNegociacionContrato='CAPITA',
                                  (SELECT (PorcentajePoblacional) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT ContratoPadre) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
                                   0)) AS PorcentajePoblacional, 
                                
@@ -126,7 +126,7 @@ FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.Numero
 DROP VIEW IF EXISTS `vista_cruce_cartera_eps`;
 CREATE VIEW vista_cruce_cartera_eps AS
 SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,(SELECT NoRelacionada FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1) as NoRelacionada,
-          t2.CodigoSucursal,t2.NumeroOperacion,t2.CarteraEPSTipoNegociacion as TipoNegociacion,
+          t2.CodigoSucursal,t2.NumeroOperacion,t2.CarteraEPSTipoNegociacion as TipoNegociacion,t2.CarteraEPSTipoNegociacion as TipoNegociacionContrato,
         
         (SELECT IFNULL((t2.NumeroFactura REGEXP ('^[0-9]+$')),'0')  ) AS FacturaNumerica,
         (SELECT IF(FacturaNumerica=1, CONVERT(t2.NumeroFactura, SIGNED INTEGER) , '0' )  ) AS FacturaEnNumero,
@@ -146,19 +146,19 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,(SELECT NoRela
         
         (SELECT Contrato FROM ts_eps.contratos c WHERE c.ContratoEquivalente=t2.NumeroContrato LIMIT 1) AS ContratoPadre,
 
-        (SELECT IF(TipoNegociacion='CAPITA',
+        (SELECT IF(TipoNegociacionContrato='CAPITA',
                                  (SELECT COUNT(NumeroFactura) FROM carteraeps ce WHERE ce.NumeroContrato= t2.NumeroContrato AND ce.MesServicio= t2.MesServicio AND ce.CarteraEPSTipoNegociacion='CAPITA' AND ce.CodigoSucursal=t2.CodigoSucursal) ,
                                   1)) AS DivisorMesServicio,    
-        (SELECT IF(TipoNegociacion='CAPITA',
+        (SELECT IF(TipoNegociacionContrato='CAPITA',
                                  (SELECT SUM(NumeroAfiliadosPleno) FROM ts_eps.lma_asmet la WHERE la.CodigoDane= (t2.CodigoSucursal) AND la.MesServicio=t2.MesServicio),
                                   0)) AS NumeroAfiliadosLMA,
-        (SELECT IF(TipoNegociacion='CAPITA',
+        (SELECT IF(TipoNegociacionContrato='CAPITA',
                                  (SELECT SUM(DiasLiquidadosSubsidioPleno) FROM ts_eps.lma_asmet la WHERE la.CodigoDane= (t2.CodigoSucursal) AND la.MesServicio=t2.MesServicio)/(SELECT DivisorMesServicio) ,
                                   0)) AS NumeroDiasLMA,
-        (SELECT IF(TipoNegociacion='CAPITA',
+        (SELECT IF(TipoNegociacionContrato='CAPITA',
                                  (SELECT (ValorPercapitaXDia) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT ContratoPadre) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
                                   0)) AS ValorPercapita, 
-        (SELECT IF(TipoNegociacion='CAPITA',
+        (SELECT IF(TipoNegociacionContrato='CAPITA',
                                  (SELECT (PorcentajePoblacional) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT ContratoPadre) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
                                   0)) AS PorcentajePoblacional, 
                                
