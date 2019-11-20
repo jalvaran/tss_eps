@@ -811,6 +811,9 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op10' LIMIT 1";
         }
         
+        if($DatosActa["Saldo"]==0){
+            $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op11' LIMIT 1";
+        }
         $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
         $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";
         $SaldoEnLetras=$obNumLetra->convertir(abs($DatosActa["Saldo"]));

@@ -435,6 +435,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $TotalesActa=$obCon->FetchAssoc($obCon->Query($sql));
                     
                     $TotalesActaHistorial["TotalFacturado"]=0;
+                    $TotalesActaHistorial2["TotalFacturado"]=0;
                     if($TipoActa<>4 and $TipoActa<>5 and $TipoActa<>6 and $TipoActa<>7){
                         $sql="SELECT  SUM(t1.ValorOriginal) as TotalFacturado
                             

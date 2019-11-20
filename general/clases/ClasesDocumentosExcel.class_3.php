@@ -298,7 +298,7 @@ class TS_Excel extends conexion{
                       
 
                        ";
-                 // print($Union2) ; 
+                  //print($Union2) ; 
             $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos + TotalAnticipos) AS TotalPagos,
                     (TotalCopagos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
@@ -307,6 +307,7 @@ class TS_Excel extends conexion{
                       ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion')
                     
                       ";
+            
             $sql.=$Union.$Union2.$GroupOrder;
             //print($sql);
         }    
@@ -844,8 +845,7 @@ class TS_Excel extends conexion{
         $DatosActaTipo=$this->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
         $Encabezado= utf8_encode($DatosActaTipo["Header"]);
         $Footer= utf8_encode($DatosActaTipo["Footer"]);
-        $objPHPExcel->getActiveSheet()->getStyle('H:N')->getNumberFormat()->setFormatCode('#,##0');
-        $objPHPExcel->getActiveSheet()->getStyle('E')->getNumberFormat()->setFormatCode('#,##0');
+        $objPHPExcel->getActiveSheet()->getStyle('E:N')->getNumberFormat()->setFormatCode('#,##0');
         $objPHPExcel->getActiveSheet()->getStyle("A:N")->getFont()->setSize(10);
         $objPHPExcel->getActiveSheet()->getHeaderFooter()
             ->setOddHeader("$Encabezado");
@@ -1001,19 +1001,16 @@ class TS_Excel extends conexion{
         
         if($TipoConsulta==1){
             $Tabla="actas_conciliaciones_items";
-            $sql="SELECT MesServicio,NumeroContrato, DepartamentoRadicacion,GROUP_CONCAT(NumeroRadicado) AS NumeroRadicado,CodigoSucursal AS CodigoDaneAnexo,
+            $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     (SELECT Ciudad FROM municipios_dane WHERE CodigoDane=$Tabla.CodigoSucursal LIMIT 1) as Municipio,
-                    NumeroContrato,GROUP_CONCAT(NumeroFactura) as NumeroFactura,SUM(ValorDocumento) as ValorDocumento,SUM(Impuestos) AS Impuestos,SUM(TotalPagos+TotalCopagos+TotalAnticipos) as TotalPagos,
-                    SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
-                    SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) as Saldo,SUM(NumeroDiasLMA) AS NumeroDiasLMA,SUM(ValorAPagarLMA) AS  ValorAPagarLMA                  
+                    NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos+TotalCopagos+TotalAnticipos) as TotalPagos,
+                    DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
+                    TotalDevoluciones,ValorSegunEPS as Saldo,NumeroDiasLMA,ValorAPagarLMA                   
                     FROM $db.$Tabla WHERE                    
-                      ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion') 
-                    GROUP BY  MesServicio,NumeroContrato,CodigoDaneAnexo ORDER BY MesServicio,CodigoDaneAnexo,NumeroFactura";
-            
+                      ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato) ";
         }    
         if($TipoConsulta==2){
             $Tabla="actas_liquidaciones_items";
-            /*
             $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     (SELECT Ciudad FROM municipios_dane WHERE CodigoDane=$Tabla.CodigoSucursal LIMIT 1) as Municipio,
                     NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos+TotalCopagos+TotalAnticipos) as TotalPagos,
@@ -1021,16 +1018,6 @@ class TS_Excel extends conexion{
                     TotalDevoluciones,ValorSegunEPS as Saldo,NumeroDiasLMA,ValorAPagarLMA                 
                     FROM $db.$Tabla WHERE idActaLiquidacion='$idActaLiquidacion'                  
                       ";
-             * 
-             */
-            $sql="SELECT MesServicio,NumeroContrato,DepartamentoRadicacion,GROUP_CONCAT(NumeroRadicado) AS NumeroRadicado,CodigoSucursal AS CodigoDaneAnexo,
-                    (SELECT Ciudad FROM municipios_dane WHERE CodigoDane=$Tabla.CodigoSucursal LIMIT 1) as Municipio,
-                    NumeroContrato,GROUP_CONCAT(NumeroFactura) as NumeroFactura,SUM(ValorDocumento) as ValorDocumento,SUM(Impuestos) AS Impuestos,SUM(TotalPagos+TotalCopagos+TotalAnticipos) as TotalPagos,
-                    SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
-                    SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) as Saldo,SUM(NumeroDiasLMA) AS NumeroDiasLMA,SUM(ValorAPagarLMA) AS  ValorAPagarLMA                  
-                    FROM $db.$Tabla WHERE idActaLiquidacion='$idActaLiquidacion'                
-                      
-                    GROUP BY  MesServicio,NumeroContrato,CodigoDaneAnexo ORDER BY MesServicio,CodigoDaneAnexo,NumeroFactura";
         } 
         //print($sql);
         $Consulta=$this->Query($sql);
@@ -1077,7 +1064,6 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"])            
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["Saldo"])
-               
                         
             ;
         }

@@ -114,7 +114,7 @@ class CarteraEPS extends conexion{
         $MaxRegistros=10000+$LineaActual;
             
         $handle = fopen($RutaArchivo, "r");
-        
+        //print($handle);
         $r=0;
         $z=0;
         
@@ -193,32 +193,20 @@ class CarteraEPS extends conexion{
         while ( ($data = fgetcsv($handle, 1000, $Separador)) !== FALSE) {
             $r++;
             $z++;
-            if(!isset($data[2])){
+            if($r<=2){
                 continue;
             }
-            if(!isset($data[5])){
-                continue;
-            }
-            if(!isset($data[6])){
-                continue;
-            }
-            if(!isset($data[7])){
-                continue;
-            }
-            if(!isset($data[8])){
-                continue;
-            }
-             
-            if($data[5]==""){
-                continue;
-            }
-            if(!is_numeric($data[8])){
+            if(!isset($data[8]) or !is_numeric($data[8])){
                 continue;
             }
             if($data[8]<>$idIPS){
-                exit("E1;El archivo contiene registros de otra ips con NIT: $data[8]");
+                print("E1;El archivo contiene registros de otra ips con NIT: $data[8], en la linea $z <br>");
+                print("<pre>");
+                print_r($data);
+                print("</pre>");
+                exit();
             }
-            
+                                  
             
             $sqlValores.="(";
             $i = 1;
@@ -227,6 +215,7 @@ class CarteraEPS extends conexion{
                 if(isset($data[$value])){
                     $dato=str_replace(".", "", $data[$value]);
                     $dato= str_replace(",", "", $dato);
+                    $dato= str_replace('"', "", $dato);
                     if($key=='FechaFactura' or $key=="FechaTransaccionCF" or $key=="FechaTransaccionPF" or $key=="FechaPlanoPF" or $key=="FechaTransaccionGA2702" or $key=="FechaTransaccionGD2702"){
                         $dato=$this->formatearFechaCsv($data[$value]);
                     }  
@@ -324,13 +313,16 @@ class CarteraEPS extends conexion{
                 . "`FechaActualizacion`) VALUES ";
         $z=0;
         $r=0;
-        
+        //$hex =chr(0x20);
         while (($data = fgetcsv($handle, 1000, $Separador)) !== FALSE) {
            
             $z++;
             $r++;
-            if(!isset($data[8])){ //Se encuentra el nit de la ips
+            if($r<=2){
                 continue;
+            }
+            if($data[8]<>$idIPS){
+                exit("E1;El archivo contiene registros de otra ips con NIT: $data[8], en la linea $z");
             }
             if(!is_numeric($data[8])){
                 continue;
@@ -360,6 +352,7 @@ class CarteraEPS extends conexion{
                     }
                     $Dato= str_replace(".", "", $data[$i]);
                     $Dato= str_replace(",", "", $Dato);
+                    $Dato= str_replace('"', "", $Dato);
                     if($i==2){
                         $Dato=$FechaFactura;
                     }

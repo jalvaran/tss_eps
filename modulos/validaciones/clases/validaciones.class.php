@@ -673,31 +673,18 @@ class ValidacionesEPS extends conexion{
         $MesServicioInicial=$DatosActa["MesServicioInicial"];
         $MesServicioFinal=$DatosActa["MesServicioFinal"];
         $TipoNegociacion=$DatosActa["TipoActa"];
-        /*
-        $sql="SELECT SUM(Total) as TotalPendientes FROM $db.vista_pendientes";
-        $TotalPendientes = $this->FetchAssoc($this->Query($sql));
         
-         * 
-         */
         $sql="SELECT SUM(ValorDocumento) AS TotalPendientes FROM $db.hoja_de_trabajo WHERE (PendientesPorRadicados='SI' OR PendientesPorDevoluciones='SI' OR PendientesPorCopagos='SI' OR PendientesPorNotas='SI' ) AND TipoNegociacion='$TipoNegociacion'";
         $TotalPendientes = $this->FetchAssoc($this->Query($sql));
         
-        //$TotalPendientesRadicados=$this->SumeColumna("$db.vista_pendientes", "Total", 1, "");
-        //print("Total Pendientes: ".$TotalPendientes["TotalPendientes"]);
+        
         $TotalFacturasSinRelacionsrXIPS= $this->SumeColumna("$db.vista_facturas_sr_ips", "ValorTotalpagar", 1, "");   
             
         $sql="SELECT SUM(ValorSegunEPS) AS TotalEPS,SUM(ValorSegunIPS) AS TotalIPS FROM $db.`hoja_de_trabajo` t1 WHERE "
                 . "EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE  t2.NumeroContrato = t1.NumeroContrato and t2.idActaConciliacion='$idActaConciliacion' ) AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal'";
                 
         $TotalesCruce=$this->FetchAssoc($this->Query($sql));
-        /*
-        $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips t3 "
-                . "INNER JOIN $db.hoja_de_trabajo t1 ON t1.NumeroFactura=t3.NumeroFactura WHERE EXISTS (SELECT 1 FROM actas_conciliaciones_contratos t2 WHERE  t2.NumeroContrato = t1.NumeroContrato and t2.idActaConciliacion='$idActaConciliacion' ) AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal'";
-        $DatosIPS= $this->FetchAssoc($this->Query($sql));
-        
-         * 
-         */
-        
+                
         $sql="SELECT SUM(ValorTotalpagar) as Total FROM $db.carteracargadaips WHERE TipoNegociacion='$TipoNegociacion'";
         $DatosIPS= $this->FetchAssoc($this->Query($sql));
         
