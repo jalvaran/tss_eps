@@ -718,7 +718,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         
         if($DatosActa["Saldo"]>=0){
             $html.='<tr>
-                <td colspan="4" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE $</strong></td>
+                <td colspan="5" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE $</strong></td>
                 <td style="text-align:rigth;">'. number_format($SaldoAPagarContratista).'</td>
 
             </tr>';
@@ -852,12 +852,12 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
     
     public function ConsideracionesActa($idActaLiquidacion,$TipoActa) {
         $obCon=new conexion(1);
-        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND SUBSTRING(Numeral,1,2)<>'op' ORDER BY ID";
+        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND SUBSTRING(Numeral,1,2)<>'op' ORDER BY Orden";
         
         $Consulta=$obCon->Query($sql);
         $html="";
         while($DatosConsideraciones=$obCon->FetchAssoc($Consulta)){
-            $html.='<p align="justify"><strong>'.($DatosConsideraciones["Numeral"])."</strong> ".utf8_encode($DatosConsideraciones["Texto"])."</p><br>";
+            $html.='<p align="justify"><strong>'.(utf8_encode($DatosConsideraciones["Numeral"]))."</strong> ".utf8_encode($DatosConsideraciones["Texto"])."</p><br>";
             
         }
         
@@ -995,7 +995,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             while($DatosContratos=$obCon->FetchAssoc($Consulta)){
                 $html.='<tr>';
                     $html.='<td colspan="2" style="text-align:rigth">';
-                        $html.='PRESTACIÓN DE SERVICIOS NO.';
+                        $html.='CONTRATO DE PRESTACIÓN DE SERVICIOS NO.';
                     $html.='</td>';
                     $html.='<td>';
                         $html.="<h4>".$DatosContratos["Contrato"]."</h4>";

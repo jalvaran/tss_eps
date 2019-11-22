@@ -4,13 +4,11 @@ SELECT NumeroFactura,SUM(ABS(ValorTotal)) AS ValorTotal FROM notas_db_cr_2 WHERE
 
 DROP VIEW IF EXISTS `vista_cruce_cartera_asmet`;
 CREATE VIEW vista_cruce_cartera_asmet AS
-SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelacionada,
+SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,
         t2.CodigoSucursal,t2.NumeroOperacion,t2.CarteraEPSTipoNegociacion as TipoNegociacion,t2.CarteraEPSTipoNegociacion as TipoNegociacionContrato,
-        
-        (SELECT IFNULL((t2.NumeroFactura REGEXP ('^[0-9]+$')),'0')  ) AS FacturaNumerica,
-        (SELECT IF(FacturaNumerica=1, CONVERT(t2.NumeroFactura, SIGNED INTEGER) , '0' )  ) AS FacturaEnNumero,
-        (SELECT IF(FacturaNumerica=1, (SELECT COUNT(DISTINCT NumeroFactura) FROM historial_carteracargada_eps WHERE historial_carteracargada_eps.ValidaFactura=( SELECT FacturaEnNumero) ),0 )  ) AS FacturasConCerosIzquierda,
-
+					
+        (SELECT NoRelacionada FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1) as NoRelacionada,
+		
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=12),0)) as ConciliacionEPSXPagos1,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=15),0)) as ConciliacionEPSXPagos2,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=16),0)) as ConciliacionEPSXGlosas1,
@@ -119,19 +117,16 @@ SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,t1.NoRelaciona
         '0' AS DiferenciaXGlosasPendientesXDescargarIPS,
         '0' AS DiferenciaXDescuentoReconocimientoLMA,
         '0' AS DiferenciaVariada
-
         
-FROM carteracargadaips t1 INNER JOIN carteraeps t2 ON t1.NumeroFactura=t2.NumeroFactura WHERE t2.Estado<2;
+        FROM carteraeps t2 WHERE t2.Estado<2 AND EXISTS (SELECT 1 FROM carteracargadaips t1 WHERE t1.NumeroFactura=t2.NumeroFactura);
 
 DROP VIEW IF EXISTS `vista_cruce_cartera_eps`;
 CREATE VIEW vista_cruce_cartera_eps AS
-SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,(SELECT NoRelacionada FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1) as NoRelacionada,
+SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,
           t2.CodigoSucursal,t2.NumeroOperacion,t2.CarteraEPSTipoNegociacion as TipoNegociacion,t2.CarteraEPSTipoNegociacion as TipoNegociacionContrato,
-        
-        (SELECT IFNULL((t2.NumeroFactura REGEXP ('^[0-9]+$')),'0')  ) AS FacturaNumerica,
-        (SELECT IF(FacturaNumerica=1, CONVERT(t2.NumeroFactura, SIGNED INTEGER) , '0' )  ) AS FacturaEnNumero,
-        (SELECT IF(FacturaNumerica=1, (SELECT COUNT(DISTINCT NumeroFactura) FROM historial_carteracargada_eps WHERE historial_carteracargada_eps.ValidaFactura=( SELECT FacturaEnNumero) ),0 )  ) AS FacturasConCerosIzquierda,
-
+					
+        (SELECT NoRelacionada FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1) as NoRelacionada,
+		
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=12),0)) as ConciliacionEPSXPagos1,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=15),0)) as ConciliacionEPSXPagos2,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=16),0)) as ConciliacionEPSXGlosas1,

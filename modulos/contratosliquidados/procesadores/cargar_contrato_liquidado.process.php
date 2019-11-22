@@ -131,13 +131,14 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosContrato=$obCon->DevuelveValores("registro_liquidacion_contratos", "ID", $idContrato);
             
             $DatosArchivo=$obCon->FetchAssoc($Consulta);
-            if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){   
-                if(strtoupper($DatosContrato["Modalidad"])=='EVENTO'){
-                    $obCon->GuardeArchivoEnTemporal($idContrato,$CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
+            if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){ 
                 
-                }else{
+                if(strtoupper($DatosContrato["Modalidad"])=='CAPITA' OR strtoupper($DatosContrato["Modalidad"])=='PGP'){
+                    
                     $obCon->GuardeArchivoCapitaEnTemporal($idContrato,$CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
                 
+                }else{
+                    $obCon->GuardeArchivoEnTemporal($idContrato,$CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
                 }
                 
             }
