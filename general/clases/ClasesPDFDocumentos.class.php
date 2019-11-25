@@ -715,16 +715,21 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                         
                         ';
         }
-        
+        if($TipoActa==4){
+            $ColspanTotales=5;
+        }else{
+            $ColspanTotales=4;
+        }
         if($DatosActa["Saldo"]>=0){
+            
             $html.='<tr>
-                <td colspan="5" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE $</strong></td>
+                <td colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE $</strong></td>
                 <td style="text-align:rigth;">'. number_format($SaldoAPagarContratista).'</td>
 
             </tr>';
         }else{
             $html.='<tr>
-                <td  colspan="4" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE $</strong></td>
+                <td  colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE $</strong></td>
                 <td style="text-align:rigth;">'. number_format($SaldoAPagarContratante).'</td>
 
             </tr>';

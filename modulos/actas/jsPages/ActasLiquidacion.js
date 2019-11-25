@@ -1033,6 +1033,126 @@ function RenombrarContrato(NumeroContrato){
       })
 }
 
+function ConfirmaActualizarSaldosLiquidaciones(){
+    
+    alertify.confirm('Está seguro que desea Actualizar los Saldos de las actas de liquidación?',
+        function (e) {
+            if (e) {
+             
+                InicieActualizacionDeSaldosActasLiquidacion();
+            }else{
+                alertify.error("Se canceló el proceso");
+
+                return;
+            }
+        });
+}
+
+function InicieActualizacionDeSaldosActasLiquidacion(){
+    
+    var idBoton="BtnActualizarSaldos";    
+    document.getElementById(idBoton).disabled=true;
+    document.getElementById("DivProcessActualizacionActas").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+        
+    var form_data = new FormData();
+        form_data.append('Accion', 13);
+               
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]); 
+                var FechaHoraInicio=respuestas[3];
+                ActualizarSaldosActasLiquidaciones(respuestas[2],FechaHoraInicio);
+                
+                document.getElementById(idBoton).disabled=false;
+            }else if(respuestas[0]==="E1"){
+                document.getElementById("DivProcessActualizacionActas").innerHTML='';
+                document.getElementById(idBoton).disabled=false;
+                alertify.alert(respuestas[1]);
+                
+                return;                
+            }else{
+                document.getElementById("DivProcessActualizacionActas").innerHTML='';
+                document.getElementById(idBoton).disabled=false;
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById("DivProcessActualizacionActas").innerHTML='';
+            document.getElementById(idBoton).disabled=false;
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function ActualizarSaldosActasLiquidaciones(TotalRegistros,FechaHoraInicio){
+    
+    var idBoton="BtnActualizarSaldos";    
+    
+    document.getElementById("DivProcessActualizacionActas").innerHTML='<div id="GifProcess">Exportando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+        
+    var form_data = new FormData();
+        form_data.append('Accion', 14);
+        form_data.append('TotalRegistros', TotalRegistros);   
+        form_data.append('FechaHoraInicio', FechaHoraInicio);   
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                document.getElementById("DivMensajesActualizacionActas").innerHTML=respuestas[1];
+                
+                if(respuestas[2]>0){
+                    ActualizarSaldosActasLiquidaciones(FechaHoraInicio);
+                    alertify.success(respuestas[1]); 
+                }else{
+                    document.getElementById("DivProcessActualizacionActas").innerHTML=''; 
+                }
+                document.getElementById(idBoton).disabled=false;
+            }else if(respuestas[0]==="E1"){
+                document.getElementById("DivProcessActualizacionActas").innerHTML='';
+                document.getElementById(idBoton).disabled=false;
+                alertify.alert(respuestas[1]);
+                
+                return;                
+            }else{
+                document.getElementById("DivProcessActualizacionActas").innerHTML='';
+                document.getElementById(idBoton).disabled=false;
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            document.getElementById("DivProcessActualizacionActas").innerHTML='';
+            document.getElementById(idBoton).disabled=false;
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
 document.getElementById('BtnMuestraMenuLateral').click();
 document.getElementById('TabCuentas2').click();
 $('#CmbIPS').select2();

@@ -450,7 +450,29 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;Firma marcada como Aprueba");
         break;//Fin caso 12
         
+        case 13:// Enviar la fecha y hora de Actualización
+            $FechaActualizacion=date("Y-m-d H:i:s");
+            
+            $sql="UPDATE actas_liquidaciones SET FechaActualizacionSaldo='$FechaInicio', idUserActualizacionSaldo='$idUser' WHERE Saldo>0";
+            $obCon->Query($sql);
+            $sql="SELECT MAX(ID) AS TotalRegistros FROM actas_liquidaciones WHERE Saldo>0";
+            $DatosTotales=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalRegistros=$DatosTotales["TotalRegistros"];
+            print("OK;Inicio de actualización de Actas;$TotalRegistros;$FechaActualizacion");
+            
+        break;//Fin caso 13
         
+        case 14:// Se Actualizan los saldos
+            $FechaActualizacion = $obCon->normalizar($_REQUEST["FechaActualizacion"]);
+            $TotalRegistros=$obCon->normalizar($_REQUEST["TotalRegistros"]);
+            $sql="SELECT ID FROM ";
+            $sql="UPDATE actas_liquidaciones SET FechaActualizacionSaldo='$FechaInicio', idUserActualizacionSaldo='$idUser' WHERE Saldo>0";
+            $obCon->Query($sql);
+            print("OK;Inicio de actualización de Actas;$FechaInicio");
+            
+        break;//Fin caso 14
+        
+    
     }
     
     

@@ -166,8 +166,13 @@ if( !empty($_REQUEST["Accion"]) ){
                 $sql="SELECT * FROM actas_liquidaciones WHERE Estado='0' AND NIT_IPS='$CmbIPS'";
                 $Consulta=$obCon->Query($sql);
                 while($DatosActas=$obCon->FetchAssoc($Consulta)){
+                    $idActa=$DatosActas["ID"];
+                    $TextCombo=$DatosActas["ID"]." ".$DatosActas["FechaFinal"]." ".$DatosActas["RazonSocialIPS"]." ".$DatosActas["NIT_IPS"];
+                    $sql="SELECT GROUP_CONCAT(idContrato) as ContratosAgregados FROM actas_liquidaciones_contratos WHERE idActaLiquidacion='$idActa'";
+                    $ConsultaContratos=$obCon->FetchAssoc($obCon->Query($sql));
+                    $TextCombo.=" ".$ConsultaContratos["ContratosAgregados"];
                     $css->option("", "", "", $DatosActas["ID"], "", "");
-                        print($DatosActas["ID"]." ".$DatosActas["FechaFinal"]." ".$DatosActas["RazonSocialIPS"]." ".$DatosActas["NIT_IPS"]);
+                        print($TextCombo);
                     $css->Coption();
                 }
             $css->Cselect();
@@ -439,10 +444,10 @@ if( !empty($_REQUEST["Accion"]) ){
                     if($TipoActa<>4 and $TipoActa<>5 and $TipoActa<>6 and $TipoActa<>7){
                         $sql="SELECT  SUM(t1.ValorOriginal) as TotalFacturado
                             
-                            FROM $db.historial_carteracargada_eps t1 WHERE EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t2 WHERE t1.NumeroFactura=t2.NumeroFactura)
+                            FROM $db.historial_carteracargada_eps t1 WHERE NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
                         AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
                        AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
-                       AND NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t2 WHERE t2.NumeroRadicado = t1.NumeroRadicado) ";
+                       ";
                         $TotalesActaHistorial=$obCon->FetchAssoc($obCon->Query($sql));
                         
                         $sql="SELECT  SUM(t1.ValorOriginal) as TotalFacturado
@@ -452,10 +457,10 @@ if( !empty($_REQUEST["Accion"]) ){
                      AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
                     AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
                        ";
-                        $TotalesActaHistorial2=$obCon->FetchAssoc($obCon->Query($sql));
+                       // $TotalesActaHistorial2=$obCon->FetchAssoc($obCon->Query($sql));
                     }
-                    $TotalFacturado=$TotalesActa["TotalFacturado"]+$TotalesActaHistorial["TotalFacturado"]+$TotalesActaHistorial2["TotalFacturado"];
-                    $TotalDevolucion=($TotalesActa["Devoluciones"])+($TotalesActaHistorial["TotalFacturado"]+$TotalesActaHistorial2["TotalFacturado"]);
+                    $TotalFacturado=$TotalesActa["TotalFacturado"]+$TotalesActaHistorial["TotalFacturado"];
+                    $TotalDevolucion=($TotalesActa["Devoluciones"])+($TotalesActaHistorial["TotalFacturado"]);
                     if($TotalesActa["Impuestos"]==""){
                         $TotalesActa["Impuestos"]=0;
                     }
@@ -904,13 +909,26 @@ if( !empty($_REQUEST["Accion"]) ){
                                 $NumPage1=$NumPage+1;
                             print('<span class="input-group-addon" onclick=CambiePagina('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-right" ></i></span>');
                             }
-                            print("<div>");
+                            print("</div>");
                             print("</td>");
                             
                             
-                           $css->CierraFilaTabla(); 
+                          
                         }
-                      
+                        print("<td>");
+                            $css->CrearBotonEvento("BtnActualizarSaldos", "Actualizar Saldos", 1, "onClick", "ConfirmaActualizarSaldosLiquidaciones()", "naranja");
+                        print("</td>");
+                        print("<td colspan=5>");
+                            $css->CrearDiv("DivProcessActualizacionActas", "", "left", 1, 1);
+                            
+                            $css->CerrarDiv();
+                            
+                            $css->CrearDiv("DivMensajesActualizacionActas", "", "left", 1, 1);
+                            
+                            $css->CerrarDiv();
+                        print("</td>");
+                            
+                        $css->CierraFilaTabla(); 
                 
                 $css->FilaTabla(16);
                     $css->ColTabla("<strong>Acciones</strong>", 1);
@@ -920,7 +938,20 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Tipo de Acta</strong>", 1);
                     $css->ColTabla("<strong>Razon Social de la IPS</strong>", 1);
                     $css->ColTabla("<strong>NIT IPS</strong>", 1);
-                    
+                    $css->ColTabla("<strong>Fecha Firma</strong>", 1);
+                    $css->ColTabla("<strong>Valor Facturado</strong>", 1);
+                    $css->ColTabla("<strong>Retencion Impuestos</strong>", 1);
+                    $css->ColTabla("<strong>Devolucion</strong>", 1);
+                    $css->ColTabla("<strong>Glosa</strong>", 1);
+                    $css->ColTabla("<strong>Glosa Favor</strong>", 1);
+                    $css->ColTabla("<strong>Notas Copagos</strong>", 1);
+                    $css->ColTabla("<strong>Recuperación Impuestos</strong>", 1);
+                    $css->ColTabla("<strong>Otros Descuentos</strong>", 1);
+                    $css->ColTabla("<strong>Descuento BDUA</strong>", 1);
+                    $css->ColTabla("<strong>Valor Pagado</strong>", 1);
+                    $css->ColTabla("<strong>Saldo</strong>", 1);
+                    $css->ColTabla("<strong>Pagos Después de Firma</strong>", 1);
+                    $css->ColTabla("<strong>Nuevo Saldo</strong>", 1);
                     $css->ColTabla("<strong>Usuario Creador</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Registro</strong>", 1);
                     
@@ -954,6 +985,20 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla($DatosConciliacion["RazonSocialIPS"], 1);
                         $css->ColTabla($DatosConciliacion["NIT_IPS"], 1);
                         
+                        $css->ColTabla($DatosConciliacion["FechaFirma"], 1);
+                        $css->ColTabla($DatosConciliacion["ValorFacturado"], 1);
+                        $css->ColTabla($DatosConciliacion["RetencionImpuestos"], 1);
+                        $css->ColTabla($DatosConciliacion["Devolucion"], 1);
+                        $css->ColTabla($DatosConciliacion["Glosa"], 1);
+                        $css->ColTabla($DatosConciliacion["GlosaFavor"], 1);
+                        $css->ColTabla($DatosConciliacion["NotasCopagos"], 1);
+                        $css->ColTabla($DatosConciliacion["RecuperacionImpuestos"], 1);
+                        $css->ColTabla($DatosConciliacion["OtrosDescuentos"], 1);
+                        $css->ColTabla($DatosConciliacion["DescuentoBDUA"], 1);
+                        $css->ColTabla($DatosConciliacion["ValorPagado"], 1);
+                        $css->ColTabla($DatosConciliacion["Saldo"], 1);
+                        $css->ColTabla($DatosConciliacion["TotalPagosDespuesDeFirma"], 1);
+                        $css->ColTabla($DatosConciliacion["NuevoSaldo"], 1);
                         $css->ColTabla($DatosConciliacion["idUser"], 1);
                         $css->ColTabla($DatosConciliacion["FechaRegistro"], 1);
                         
