@@ -491,7 +491,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     if($TotalesActa["DescuentoBDUA"]==""){
                         $TotalesActa["DescuentoBDUA"]=0;
                     }
-                    
+                    $SaldoTotal=$TotalesActa["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"];
                     $sql="UPDATE actas_liquidaciones 
                             SET ValorFacturado=".$TotalFacturado.", 
                                 
@@ -503,7 +503,7 @@ if( !empty($_REQUEST["Accion"]) ){
                                 RecuperacionImpuestos=0, 
                                 OtrosDescuentos=".$TotalesActa["OtrosDescuentos"]." + ".$TotalesActa["AjustesCartera"]." , 
                                 ValorPagado=".$TotalesActa["TotalPagos"]." + ".$TotalesActa["TotalAnticipos"]." ,
-                                Saldo=".$TotalesActa["Saldo"].",
+                                Saldo=".$SaldoTotal.",
                                 DescuentoBDUA=".$TotalesActa["DescuentoBDUA"]."    
                               
                             WHERE ID='$idActaLiquidacion'
@@ -585,7 +585,8 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->ColTabla("<strong>VALOR FACTURADO</strong>", 1);
                             $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);
                             $css->ColTabla("<strong>Descuento o Reconocimiento por BDUA</strong>", 1);
-                            $css->ColTabla("<strong>DESCUENTOS CONCILIADO A FAVOR ASMET</strong>", 1);
+                            $css->ColTabla("<strong>DESCUENTOS A FAVOR DE ASMET</strong>", 1);
+                            $css->ColTabla("<strong>OTROS DESCUENTOS CONCILIADOS A FAVOR DE ASMET</strong>", 1);
                             
                         $css->CierraFilaTabla();
 
@@ -594,14 +595,16 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->ColTabla(number_format($DatosActa["RetencionImpuestos"]), 1);
                             $css->ColTabla(number_format($DatosActa["DescuentoBDUA"]), 1);
                             $css->ColTabla(number_format($DatosActa["GlosaFavor"]), 1);
-                            
+                            print("<td>");
+                                $css->input("text", "TxtOtrosDescuentosAFavorAsmet", "form-control", "TxtOtrosDescuentosAFavorAsmet", "Otros Descuentos A Favor", $DatosActa["OtrosDescuentosConciliadosAfavor"], "Otros Descuentos A Favor", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtOtrosDescuentosAFavorAsmet`,`OtrosDescuentosConciliadosAfavor`)");
+                            print("</td>");
                         $css->CierraFilaTabla();
 
                         $css->FilaTabla(16);
                             //$css->ColTabla("<strong>NOTA CREDITO / COPAGOS</strong>", 1);
                             $css->ColTabla("<strong>RECUPERACION EN IMPUESTOS</strong>", 1);
                             $css->ColTabla("<strong>OTROS DESCUENTOS</strong>", 1);
-                            $css->ColTabla("<strong>VALOR PAGADO</strong>", 1);
+                            $css->ColTabla("<strong>VALOR PAGADO</strong>", 2);
                             $css->ColTabla("<strong>SALDO</strong>", 1);
                         $css->CierraFilaTabla();
 
@@ -609,7 +612,7 @@ if( !empty($_REQUEST["Accion"]) ){
                             //$css->ColTabla(number_format($DatosActa["NotasCopagos"]), 1);
                             $css->ColTabla(number_format($DatosActa["RecuperacionImpuestos"]), 1);
                             $css->ColTabla(number_format($DatosActa["OtrosDescuentos"]), 1);
-                            $css->ColTabla(number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]), 1);
+                            $css->ColTabla(number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]), 2);
                             $css->ColTabla(number_format($DatosActa["Saldo"]), 1);
                         $css->CierraFilaTabla();
                     }
@@ -846,10 +849,12 @@ if( !empty($_REQUEST["Accion"]) ){
             $startpoint = ($NumPage * $limit) - $limit;
             $VectorST = explode("LIMIT", $statement);
             $statement = $VectorST[0]; 
-            $query = "SELECT COUNT(*) as `num`,SUM(Saldo) AS TotalEPS FROM {$statement}";
+            $query = "SELECT COUNT(*) as `num`,SUM(Saldo) AS TotalEPS,SUM(TotalPagosDespuesDeFirma) as TotalPagosPosteriores,SUM(NuevoSaldo) AS TotalNuevoSaldo FROM {$statement}";
             $row = $obCon->FetchArray($obCon->Query($query));
             $ResultadosTotales = $row['num'];
             $TotalEPS=$row['TotalEPS'];
+            $TotalPagosPosteriores=$row['TotalPagosPosteriores'];
+            $TotalNuevoSaldo=$row['TotalNuevoSaldo'];
             
             $st_reporte=$statement;
             $Limit=" LIMIT $startpoint,$limit";
@@ -866,6 +871,16 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("</td>");
                     print("<td colspan=3 style='text-align:center'>");
                         print("<strong>Saldo:</strong> <h4 style=color:red>". number_format($TotalEPS)."</h4>");
+                        
+                    print("</td>");
+                    print("<td colspan=3 style='text-align:center'>");
+                        
+                        print("<strong>Pagos Después de Firmar:</strong> <h4 style=color:red>". number_format($TotalPagosPosteriores)."</h4>");
+                        
+                    print("</td>");
+                    print("<td colspan=3 style='text-align:center'>");
+                       
+                        print("<strong>Saldo Final:</strong> <h4 style=color:red>". number_format($TotalNuevoSaldo)."</h4>");
                     print("</td>");
                     
                     print("<td>");

@@ -1171,13 +1171,13 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[12].$i,"VALOR RETENCION DE IMPUESTOS")
             ->setCellValue($Campos[13].$i++,$Totales["Impuestos"])
             ->setCellValue($Campos[12].$i,"DESCUENTOS A FAVOR ASMET")
-            ->setCellValue($Campos[13].$i++,$Totales["TotalGlosaInicial"])
-            ->setCellValue($Campos[12].$i,"OTRO DESCUENTOS CONCILIADOS")
             ->setCellValue($Campos[13].$i++,$Totales["TotalGlosaFavor"])
+            ->setCellValue($Campos[12].$i,"OTROS DESCUENTOS CONCILIADOS")
+            ->setCellValue($Campos[13].$i++,$DatosActa["OtrosDescuentosConciliadosAfavor"])
             ->setCellValue($Campos[12].$i,"VALOR PAGADO")
             ->setCellValue($Campos[13].$i++,$Totales["TotalPagos"])
             ->setCellValue($Campos[12].$i,"SALDO")
-            ->setCellValue($Campos[13].$i++,$Totales["Saldo"])
+            ->setCellValue($Campos[13].$i++,$Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"])
                         
             ; 
         $i=$i-6;

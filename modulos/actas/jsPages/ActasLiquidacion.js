@@ -1071,8 +1071,8 @@ function InicieActualizacionDeSaldosActasLiquidacion(){
            if(respuestas[0]==="OK"){   
                 
                 alertify.success(respuestas[1]); 
-                var FechaHoraInicio=respuestas[3];
-                ActualizarSaldosActasLiquidaciones(respuestas[2],FechaHoraInicio);
+                var KeyUpdate=respuestas[3];
+                ActualizarSaldosActasLiquidaciones(respuestas[2],KeyUpdate);
                 
                 document.getElementById(idBoton).disabled=false;
             }else if(respuestas[0]==="E1"){
@@ -1098,16 +1098,16 @@ function InicieActualizacionDeSaldosActasLiquidacion(){
       })
 }
 
-function ActualizarSaldosActasLiquidaciones(TotalRegistros,FechaHoraInicio){
+function ActualizarSaldosActasLiquidaciones(TotalRegistros,KeyUpdate){
     
     var idBoton="BtnActualizarSaldos";    
     
-    document.getElementById("DivProcessActualizacionActas").innerHTML='<div id="GifProcess">Exportando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    document.getElementById("DivProcessActualizacionActas").innerHTML='<div id="GifProcess">Actualizando...<br><img   src="../../images/loading.gif" alt="Cargando" height="100" width="100"></div>';
         
     var form_data = new FormData();
         form_data.append('Accion', 14);
         form_data.append('TotalRegistros', TotalRegistros);   
-        form_data.append('FechaHoraInicio', FechaHoraInicio);   
+        form_data.append('KeyUpdate', KeyUpdate);   
     $.ajax({
         //async:false,
         url: './procesadores/actas_liquidacion.process.php',
@@ -1119,14 +1119,17 @@ function ActualizarSaldosActasLiquidaciones(TotalRegistros,FechaHoraInicio){
         type: 'post',
         success: function(data){
             var respuestas = data.split(';'); 
+            console.log(data)
            if(respuestas[0]==="OK"){   
                 document.getElementById("DivMensajesActualizacionActas").innerHTML=respuestas[1];
                 
                 if(respuestas[2]>0){
-                    ActualizarSaldosActasLiquidaciones(FechaHoraInicio);
-                    alertify.success(respuestas[1]); 
+                    ActualizarSaldosActasLiquidaciones(respuestas[3],respuestas[4]);
+                    //alertify.success(respuestas[1]); 
                 }else{
                     document.getElementById("DivProcessActualizacionActas").innerHTML=''; 
+                    alertify.success(respuestas[1]); 
+                    CargarHistorialActas();
                 }
                 document.getElementById(idBoton).disabled=false;
             }else if(respuestas[0]==="E1"){

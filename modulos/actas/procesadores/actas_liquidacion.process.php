@@ -451,24 +451,50 @@ if( !empty($_REQUEST["Accion"]) ){
         break;//Fin caso 12
         
         case 13:// Enviar la fecha y hora de Actualización
-            $FechaActualizacion=date("Y-m-d H:i:s");
+           
             
-            $sql="UPDATE actas_liquidaciones SET FechaActualizacionSaldo='$FechaInicio', idUserActualizacionSaldo='$idUser' WHERE Saldo>0";
+            $keyUpdate= uniqid();
+            $sql="UPDATE actas_liquidaciones SET NuevoSaldo=Saldo-TotalPagosDespuesDeFirma ";
             $obCon->Query($sql);
-            $sql="SELECT MAX(ID) AS TotalRegistros FROM actas_liquidaciones WHERE Saldo>0";
+            
+            
+            $sql="UPDATE actas_liquidaciones SET idUserActualizacionSaldo='$idUser',KeyUpdate='$keyUpdate' WHERE Saldo>0";
+            $obCon->Query($sql);
+            $sql="SELECT COUNT(ID) AS TotalRegistros FROM actas_liquidaciones WHERE KeyUpdate='$keyUpdate' AND idUserActualizacionSaldo='$idUser'";
             $DatosTotales=$obCon->FetchAssoc($obCon->Query($sql));
             $TotalRegistros=$DatosTotales["TotalRegistros"];
-            print("OK;Inicio de actualización de Actas;$TotalRegistros;$FechaActualizacion");
+            print("OK;Inicio de actualización de $TotalRegistros Actas;$TotalRegistros;$keyUpdate");
             
         break;//Fin caso 13
         
         case 14:// Se Actualizan los saldos
-            $FechaActualizacion = $obCon->normalizar($_REQUEST["FechaActualizacion"]);
+            $KeyUpdate = $obCon->normalizar($_REQUEST["KeyUpdate"]);            
             $TotalRegistros=$obCon->normalizar($_REQUEST["TotalRegistros"]);
-            $sql="SELECT ID FROM ";
-            $sql="UPDATE actas_liquidaciones SET FechaActualizacionSaldo='$FechaInicio', idUserActualizacionSaldo='$idUser' WHERE Saldo>0";
+            $FechaActualizacion=date("Y-m-d H:i:s");
+            $newKeyUpdate= uniqid();
+            $sql="SELECT ID,NIT_IPS FROM actas_liquidaciones WHERE KeyUpdate='$KeyUpdate' LIMIT 1";
+            $DatosActas=$obCon->FetchAssoc($obCon->Query($sql));
+            if($DatosActas["NIT_IPS"]==''){
+                print("OK;Proceso Terminado;0");
+            }
+            $idActa=$DatosActas["ID"];
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $DatosActas["NIT_IPS"]);
+            $dbPagos=$DatosIPS["DataBase"];
+            $sql="UPDATE actas_liquidaciones t1 SET t1.TotalPagosDespuesDeFirma=(SELECT IFNULL((SELECT SUM(ValorPago) FROM $dbPagos.notas_db_cr_2 t2 
+                WHERE t2.FechaTransaccion>t1.FechaFirma 
+                AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE Estado=1 AND t2.TipoOperacion2=t3.TipoOperacion AND Aplicacion='TotalPagos') 
+                AND EXISTS (SELECT 1 FROM $dbPagos.actas_liquidaciones_items t4 WHERE t2.NumeroFactura=t4.NumeroFactura AND t4.idActaLiquidacion=t1.ID ) ),0)) 
+                ,t1.keyUpdate='$newKeyUpdate',t1.FechaActualizacionSaldo='$FechaActualizacion',t1.NuevoSaldo=t1.Saldo-t1.TotalPagosDespuesDeFirma 
+
+                WHERE  t1.ID='$idActa'";
+            
             $obCon->Query($sql);
-            print("OK;Inicio de actualización de Actas;$FechaInicio");
+            
+            $sql="SELECT COUNT(ID) AS TotalRegistros FROM actas_liquidaciones WHERE KeyUpdate='$KeyUpdate' AND idUserActualizacionSaldo='$idUser'";
+            $DatosTotales=$obCon->FetchAssoc($obCon->Query($sql));
+            $RegistrosFaltantes=$DatosTotales["TotalRegistros"];
+            $ActualizacionesRealizadas=$TotalRegistros-$RegistrosFaltantes;
+            print("OK;$ActualizacionesRealizadas Actualizaciones Relizadas de $TotalRegistros;$RegistrosFaltantes;$TotalRegistros;$KeyUpdate");
             
         break;//Fin caso 14
         

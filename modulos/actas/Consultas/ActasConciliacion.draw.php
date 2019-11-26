@@ -137,6 +137,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->FilaTabla(16);
                     $css->ColTabla("<strong>Acciones</strong>", 1);
                     $css->ColTabla("<strong>ID</strong>", 1);
+                    $css->ColTabla("<strong>Tipo de Acta</strong>", 1);
                     $css->ColTabla("<strong>Fecha Inicial</strong>", 1);
                     $css->ColTabla("<strong>Fecha Final</strong>", 1);
                     $css->ColTabla("<strong>Razon Social de la IPS</strong>", 1);
@@ -175,6 +176,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                         
                         $css->ColTabla($DatosConciliacion["ID"], 1);
+                        $css->ColTabla($DatosConciliacion["TipoActa"], 1);
                         $css->ColTabla($DatosConciliacion["FechaInicial"], 1);
                         $css->ColTabla($DatosConciliacion["FechaCorte"], 1);
                         $css->ColTabla($DatosConciliacion["RazonSocialIPS"], 1);
