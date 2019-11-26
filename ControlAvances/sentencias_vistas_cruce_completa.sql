@@ -1,8 +1,9 @@
 DROP VIEW IF EXISTS `vista_cruce_cartera_asmet_completa`;
 CREATE VIEW vista_cruce_cartera_asmet_completa AS
 SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,
-        t2.CodigoSucursal,t2.NumeroOperacion,t2.CarteraEPSTipoNegociacion as TipoNegociacion,t2.CarteraEPSTipoNegociacion as TipoNegociacionContrato,
-					
+        t2.CodigoSucursal,t2.NumeroOperacion,
+	(SELECT TipoNegociacionOperacion FROM ts_eps.tipos_operacion t5 WHERE t5.TipoOperacion=t2.TipoOperacion LIMIT 1 ) AS TipoNegociacion,
+        (SELECT TipoNegociacionOperacion FROM ts_eps.tipos_operacion t5 WHERE t5.TipoOperacion=t2.TipoOperacion LIMIT 1 ) AS TipoNegociacionContrato,
         (SELECT NoRelacionada FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1) as NoRelacionada,
 		
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=12),0)) as ConciliacionEPSXPagos1,
