@@ -21,4 +21,4 @@ SELECT t2.*, (SELECT t1.FechaCorte FROM ts_eps.registro_liquidacion_contratos t1
         (SELECT IFNULL((SELECT GROUP_CONCAT(NumeroTransaccion SEPARATOR ' | ') FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND notas_db_cr_2.FechaTransaccion>(SELECT FechaFirmaActa) AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND notas_db_cr_2.TipoOperacion2=t1.TipoOperacion AND Aplicacion='TotalPagos') ),0)) AS Transacciones,
         (t2.Saldo -(SELECT TotalPagosPosteriores) ) AS SaldoFinal
         
-        FROM `registro_liquidacion_contratos_items` t2 ;
+        FROM `registro_liquidacion_contratos_items` t2;
