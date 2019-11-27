@@ -303,7 +303,7 @@ class TS_Excel extends conexion{
                     SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,
                     t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
                     '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
-                    t1.ValorOriginal as TotalDevoluciones,'0' as Saldo                  
+                    t1.ValorOriginal as TotalDevoluciones,'0' as Saldo,'0' as GlosaXConciliar                        
                     FROM $db.$TablaUnion t1 WHERE NOT
                     EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
                      AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
@@ -315,7 +315,7 @@ class TS_Excel extends conexion{
             $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos + TotalAnticipos) AS TotalPagos,
                     (TotalCopagos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
-                    TotalDevoluciones,ValorSegunEPS as Saldo                  
+                    TotalDevoluciones,ValorSegunEPS as Saldo ,GlosaXConciliar                       
                     FROM $db.$Tabla WHERE                    
                       ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion')
                     
@@ -360,7 +360,7 @@ class TS_Excel extends conexion{
                     SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,
                     t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
                     '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
-                    t1.ValorOriginal as TotalDevoluciones,'0' as Saldo                  
+                    t1.ValorOriginal as TotalDevoluciones,'0' as Saldo,,'0' as GlosaXConciliar                 
                     FROM $db.$TablaUnion t1 WHERE NOT
                     EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
                      AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
@@ -372,7 +372,7 @@ class TS_Excel extends conexion{
             $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     NumeroFactura,ValorDocumento,Impuestos,(TotalPagos + TotalAnticipos) as TotalPagos,
                     (TotalCopagos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
-                    TotalDevoluciones,ValorSegunEPS as Saldo                  
+                    TotalDevoluciones,ValorSegunEPS as Saldo,GlosaXConciliar                  
                     FROM $db.$Tabla WHERE idActaLiquidacion='$idActaLiquidacion'                  
                       ";
             
@@ -413,7 +413,7 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalDevoluciones"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"])
+            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalNotasCopagos"])
             ->setCellValue($Campos[$z++].$i,0)
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"])
@@ -655,7 +655,7 @@ class TS_Excel extends conexion{
                         '0' AS Impuestos,'0' AS TotalPagos,'0' AS TotalNotasCopagos,
                         '0' AS DescuentoPGP,'0' AS DescuentoBDUA,'0' AS TotalOtrosDescuentos,
                         '0' AS TotalGlosaInicial,'0' AS TotalGlosaFavor,
-                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo
+                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo,'0' as GlosaXConciliar 
 
                         FROM $db.$TablaUnion t1 WHERE 
                     EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura )
@@ -686,7 +686,7 @@ class TS_Excel extends conexion{
                         '0' AS Impuestos,'0' AS TotalPagos,'0' AS TotalNotasCopagos,
                         '0' AS DescuentoPGP,'0' AS DescuentoBDUA,'0' AS TotalOtrosDescuentos,
                         '0' AS TotalGlosaInicial,'0' AS TotalGlosaFavor,
-                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo
+                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo,'0' as GlosaXConciliar 
 
                         FROM $db.$TablaUnion t1 WHERE NOT
                     EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado )
@@ -699,7 +699,7 @@ class TS_Excel extends conexion{
                         SUM(Impuestos) AS Impuestos,SUM(TotalPagos + TotalAnticipos) AS TotalPagos,SUM(TotalCopagos) AS TotalNotasCopagos,
                         SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) AS TotalOtrosDescuentos,
                         SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
-                        SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS Saldo
+                        SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS Saldo,SUM(GlosaXConciliar) AS GlosaXConciliar 
 
                         FROM $db.$Tabla $Condicion";
             $sql=$Union3.$sql.$GroupOrder;
@@ -719,7 +719,7 @@ class TS_Excel extends conexion{
                                 SUM(Impuestos) AS Impuestos,SUM(TotalPagos + TotalAnticipos) AS TotalPagos,SUM(TotalCopagos) AS TotalNotasCopagos,
                                 SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) AS TotalOtrosDescuentos,
                                 SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
-                                SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS Saldo
+                                SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS Saldo,sum(GlosaXConciliar) as GlosaXConciliar
                                 
                                 FROM $db.$Tabla $Condicion ";
             
@@ -759,7 +759,7 @@ class TS_Excel extends conexion{
                         '0' AS Impuestos,'0' AS TotalPagos,'0' AS TotalNotasCopagos,
                         '0' AS DescuentoPGP,'0' AS DescuentoBDUA,'0' AS TotalOtrosDescuentos,
                         '0' AS TotalGlosaInicial,'0' AS TotalGlosaFavor,
-                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo
+                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo,'0' AS GlosaXConciliar
 
                         FROM $db.$TablaUnion t1 WHERE NOT
                     EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado )
@@ -806,7 +806,7 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalDevoluciones"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"])
+            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalNotasCopagos"])
             ->setCellValue($Campos[$z++].$i,0)
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"])

@@ -83,7 +83,7 @@ $css->PageInit($myTitulo);
             $css->TabLabel("TabCuentas2", "<strong >Historial de Actas de Liquidación</strong>", "Tab_2",1,"onclick=CargarHistorialActas()");
             
             $css->TabLabel("TabCuentas1", "<strong >Crear</strong>", "Tab_1", 0,"onclick=DibujaSelectorActas()");
-            
+            $css->TabLabel("TabCuentas3", "<strong >Detallado de Actas de Liquidación</strong>", "Tab_3", 0,"onclick=DibujaVistaItemsActaLiquidacion()");
         $css->TabInitEnd();
         $css->TabContentInit();
         
@@ -109,6 +109,14 @@ $css->PageInit($myTitulo);
         $css->TabPaneInit("Tab_2",1);
             
             $css->CrearDiv("DivTab2", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            
+        $css->TabPaneEnd();
+        
+        $css->TabPaneInit("Tab_3",1);
+            
+            $css->CrearDiv("DivTab3", "", "center", 1, 1);
 
             $css->CerrarDiv();
             

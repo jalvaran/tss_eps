@@ -313,7 +313,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     TotalGlosaContra,GlosaXConciliar,TotalDevoluciones,ValorSegunEPS,ValorSegunIPS,Diferencia,
                     NoRelacionada,'$idUser','$FechaRegistra',NumeroDiasLMA,ValorAPagarLMA,CodigoSucursal
                     FROM $db.$TablaOrigen WHERE                    
-                      ($TablaOrigen.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$TablaOrigen.NumeroContrato) 
+                      ($TablaOrigen.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$TablaOrigen.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion') 
                     ";
             $obCon->Query($sql);
             

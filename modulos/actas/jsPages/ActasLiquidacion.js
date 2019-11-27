@@ -1155,6 +1155,38 @@ function ActualizarSaldosActasLiquidaciones(TotalRegistros,KeyUpdate){
       })
 }
 
+function DibujaVistaItemsActaLiquidacion(Page=1){
+      
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    var Busqueda=document.getElementById('TxtBusquedas').value;
+    var form_data = new FormData();
+        form_data.append('Accion', 8);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('Busqueda', Busqueda);
+        form_data.append('Page', Page);
+        
+        $.ajax({
+        url: './Consultas/ActasLiquidacion.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivTab3').innerHTML=data;
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
 
 document.getElementById('BtnMuestraMenuLateral').click();
 document.getElementById('TabCuentas2').click();

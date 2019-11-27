@@ -1044,6 +1044,143 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
             
         break;//Fin caso 7
+    
+        case 8: //Dibuja los items de las actas de liquidacion
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            //Paginacion
+            if(isset($_REQUEST['Page'])){
+                $NumPage=$obCon->normalizar($_REQUEST['Page']);
+            }else{
+                $NumPage=1;
+            }
+            $Condicional="";
+            if(isset($_REQUEST['Busqueda'])){
+                $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
+                if($Busqueda<>''){
+                    $Condicional.=" WHERE NIT_IPS='$CmbIPS' AND (NumeroContrato like '%$Busqueda%' OR NumeroFactura like '%$Busqueda%' OR idActaLiquidacion = '$Busqueda') ";
+                }
+                
+            }
+            
+            $dbPrincipal=DB;
+            $statement=" $db.`vista_pagos_actas_liquidaciones` $Condicional ";
+            if(isset($_REQUEST['st'])){
+
+                $statement= urldecode($_REQUEST['st']);
+                //print($statement);
+            }
+            
+            $limit = 20;
+            $startpoint = ($NumPage * $limit) - $limit;
+            $VectorST = explode("LIMIT", $statement);
+            $statement = $VectorST[0]; 
+            $query = "SELECT COUNT(*) as `num`,SUM(ValorSegunEPS) AS TotalEPS,SUM(TotalPagosPosteriores) as TotalPagosPosteriores,SUM(SaldoFinal) AS TotalNuevoSaldo FROM {$statement}";
+            $row = $obCon->FetchArray($obCon->Query($query));
+            $ResultadosTotales = $row['num'];
+            $TotalEPS=$row['TotalEPS'];
+            $TotalPagosPosteriores=$row['TotalPagosPosteriores'];
+            $TotalNuevoSaldo=$row['TotalNuevoSaldo'];
+            
+            $st_reporte=$statement;
+            $Limit=" LIMIT $startpoint,$limit";
+            
+            $query="SELECT * ";
+            $Consulta=$obCon->Query("$query FROM $statement $Limit");
+            
+            $css->CrearTabla();
+            
+            
+                $css->FilaTabla(16);
+                    print("<td style='text-align:center'>");
+                        print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
+                    print("</td>");
+                    print("<td colspan=1 style='text-align:center'>");
+                        print("<strong>Saldo:</strong> <h4 style=color:red>". number_format($TotalEPS)."</h4>");
+                        
+                    print("</td>");
+                    print("<td colspan=1 style='text-align:center'>");
+                        
+                        print("<strong>Pagos Después de Firmar:</strong> <h4 style=color:red>". number_format($TotalPagosPosteriores)."</h4>");
+                        
+                    print("</td>");
+                    print("<td colspan=1 style='text-align:center'>");
+                       
+                        print("<strong>Saldo Final:</strong> <h4 style=color:red>". number_format($TotalNuevoSaldo)."</h4>");
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarExcel('$db','vista_pagos_actas_liquidaciones','$st_reporte')", "verde", "");
+                    print("</td>");
+                    
+                //$css->CierraFilaTabla();
+                
+                $st= urlencode($st_reporte);
+                    if($ResultadosTotales>$limit){
+
+                        //$css->FilaTabla(14);
+                            
+                            $TotalPaginas= ceil($ResultadosTotales/$limit);
+                            print("<td  style=text-align:center>");
+                            //print("<strong>Página: </strong>");
+                            
+                            print('<div class="input-group" style=width:150px>');
+                            if($NumPage>1){
+                                $NumPage1=$NumPage-1;
+                            print('<span class="input-group-addon" onclick=CambiePaginaItemsActas('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-left"></i></span>');
+                            }
+                            $FuncionJS="onchange=CambiePaginaItemsActas();";
+                            $css->select("CmbPageItemsActas", "form-control", "CmbPageItemsActas", "", "", $FuncionJS, "");
+                            
+                                for($p=1;$p<=$TotalPaginas;$p++){
+                                    if($p==$NumPage){
+                                        $sel=1;
+                                    }else{
+                                        $sel=0;
+                                    }
+                                    
+                                    $css->option("", "", "", $p, "", "",$sel);
+                                        print($p);
+                                    $css->Coption();
+                                    
+                                }
+
+                            $css->Cselect();
+                            if($ResultadosTotales>($startpoint+$limit)){
+                                $NumPage1=$NumPage+1;
+                            print('<span class="input-group-addon" onclick=CambiePaginaItemsActas('.$NumPage1.') style=cursor:pointer><i class="fa fa-chevron-right" ></i></span>');
+                            }
+                            print("</div>");
+                            print("</td>");
+                            
+                            
+                          
+                        }
+                                                    
+                        $css->CierraFilaTabla(); 
+                $Columnas=$obCon->ShowColums($db.".vista_pagos_actas_liquidaciones");
+                $css->FilaTabla(16);
+                foreach ($Columnas["Field"] as $key => $value) {
+                    $css->ColTabla("<strong>$value</strong>", 1);
+                }
+                                                        
+                $css->CierraFilaTabla();
+                
+                
+                while($DatosConciliacion=$obCon->FetchAssoc($Consulta)){
+                    $css->FilaTabla(14);
+                        foreach ($Columnas["Field"] as $key => $value) {
+                            $css->ColTabla($DatosConciliacion[$value], 1);
+                        }
+                                                
+                    $css->CierraFilaTabla();
+                }
+            $css->CerrarTabla();
+            
+        break;//Fin caso 8
+        
     }
     
           
