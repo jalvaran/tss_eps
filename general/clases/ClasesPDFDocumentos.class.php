@@ -570,7 +570,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         
         
         $Titulo='<p align="center"><h3>ACTA DE LIQUIDACIÓN No. '.utf8_encode($DatosActa["IdentificadorActaEPS"].'</h3></p>');
-        $Titulo.="<br>";
+        $Titulo.="";
         $Titulo.='<p align="center"><h3>'.utf8_encode($DatosTipoActa["Titulo"]).'</h3></p>';
         $this->PDF->writeHTML($Titulo, true, false, false, false, '');
         
@@ -578,22 +578,22 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $this->PDF->writeHTML($html, true, false, false, false, '');
         
         $html= $this->ContratosActaLiquidacion($idActaLiquidacion,$NIT_IPS);
-        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         $html= $this->RepresentantesLegalesActaLiquidacion($DatosActa);
-        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         $html= $this->ObservacionesActaLiquidacion1($idActaLiquidacion,$TipoActa);        
-        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         $html= $this->ConsideracionesActa($idActaLiquidacion,$TipoActa);        
-        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         $html= $this->ObservacionesActaLiquidacion2($idActaLiquidacion,$TipoActa);        
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         $html= $this->TotalesActaLiquidacion($DatosActa,$TipoActa);
-        $this->PDF->writeHTML("<br><br>".$html, true, false, false, false, '');
+        $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         $html= $this->ObservacionesActaLiquidacion3($idActaLiquidacion,$TipoActa,$DatosActa);        
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
@@ -602,13 +602,13 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
         
         $html= $this->ObservacionesGenerales($idActaLiquidacion,$DatosActa);        
-        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         $html= $this->ObservacionesActaLiquidacion5($idActaLiquidacion,$TipoActa);        
-        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
+        $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         $html= $this->FirmasActaLiquidacion($DatosActa);        
-        $this->PDF->writeHTML("<br><br><br>".$html, true, false, false, false, '');
+        $this->PDF->writeHTML("".$html, true, false, false, false, '');
         /*
         
         $html=$this->FirmasActaConciliacion($DatosActa);
@@ -747,8 +747,8 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         //$dia=$obNumLetra->convertir(31);
         $mes=$obNumLetra->meses($DatosFechaFirma[1]);
         $anio=$obNumLetra->convertir($DatosFechaFirma[0]);
-        $html=('<p align="justify">Para constancia se firma en <strong>'.($DatosActa["CiudadFirma"])."</strong>");
-        $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]),  en dos Originales uno para la IPS y otro para la EPS:<br><br><br><br><br></p>");
+        $html=('<p align="justify"><BR>Para constancia se firma en <strong>'.($DatosActa["CiudadFirma"])."</strong>");
+        $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]),  en dos Originales uno para la IPS y otro para la EPS:<br><br></p>");
         
         $sql="SELECT * FROM actas_liquidaciones_firmas WHERE idActaLiquidacion='$idActaLiquidacion'";
         $Consulta=$this->obCon->Query($sql);
@@ -767,7 +767,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             }
             $html.='</td>';
             if($i==3){
-                $html.='</tr><br><br><br>';
+                $html.='</tr><BR><BR><BR><BR>';
                 $html.='<tr>';
             }
         }
@@ -781,10 +781,10 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $html.='</table>';
         }
         $DatosUsuario=$this->obCon->DevuelveValores("usuarios","idUsuarios",$DatosActa["idUser"]);
-        $html.='<BR><BR><BR><BR><BR>';
+        $html.='<BR><BR>';
         $html.='Elaboró: '.utf8_encode($DatosUsuario["Nombre"])." ".utf8_encode($DatosUsuario["Apellido"]);
         $html.='<BR>';
-        $html.='Revisó: '.($DatosActa["Revisa"]);
+        $html.='Revisó: '.utf8_encode($DatosActa["Revisa"]);
         $html.='<BR>';
         $html.='Auditó: ';
         //print($html);

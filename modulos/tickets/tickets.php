@@ -10,7 +10,7 @@
  * 
  */
 $myPage="tickets.php";
-$myTitulo="Plataforma TS5";
+$myTitulo="Tickets TSS";
 include_once("../../sesiones/php_control_usuarios.php");
 include_once("../../constructores/paginas_constructor.php");
 
@@ -26,24 +26,21 @@ $TipoUser=$DatosUsuario["TipoUser"];
 
 $css->PageInit($myTitulo);
     //$css->div("", "col-md-12", "", "", "", "", "");
-        print('<section class="content-header">
-            <h1>
-              Módulos de Tickets
-              <small id="info1">13 nuevos mensajes sin leer</small>
-            </h1>
-            
-          </section><br><section class="content">');
-        
-        print('<div class="row">
-            <div class="col-md-3">
-          <a href="#" class="btn btn-primary btn-block margin-bottom"><strong>Abrir Nuevo Ticket</strong></a>
-
-          <div class="box box-solid">
-            <div class="box-header with-border">
-              <h3 class="box-title">Carpetas</h3>
-
-              <div class="box-tools">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+    $css->section("", "content-header", "", "");
+        print("<h1>Módulo de Tickets");
+            print('<small id="info1">13 nuevos mensajes sin leer</small>');
+        print("</h1>");
+    $css->Csection();
+    //print("<br>");
+    $css->section("", "content", "", "");
+    $css->CrearDiv("", "row", "left", 1, 1);
+    $css->CrearDiv("", "col-md-2", "left", 1, 1);
+    $css->CrearBotonEvento("BtnNuevoTicket", "Abrir Nuevo Ticket", 1, "onclick", "FormularioNuevoTicket()", "azul");
+    $css->CrearDiv("", "box box-solid", "left", 1, 1);
+    $css->CrearDiv("", "box-header with-border", "left", 1, 1);
+    print('<h3 class="box-title">Carpetas</h3>');
+    $css->CrearDiv("", "box-tools", "left", 1, 1);    
+    print('  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
                 </button>
               </div>
             </div>
@@ -79,7 +76,7 @@ $css->PageInit($myTitulo);
           </div>
           <!-- /.box -->
         </div>');
-        $css->CrearDiv("", "col-md-9", "left", 1, 1);
+        $css->CrearDiv("", "col-md-10", "left", 1, 1);
         $css->CrearDiv("", "box-tools pull-right", "left", 1, 1);                
                 print('<div class="input-group">');               
                     $css->input("text", "TxtBusquedas", "form-control", "TxtBusquedas", "", "", "Buscar", "", "", "onchange=BuscarFactura()");
@@ -88,7 +85,7 @@ $css->PageInit($myTitulo);
                           </div>');
             $css->CerrarDiv(); 
         $css->CerrarDiv();     
-        $css->CrearDiv("", "col-md-9", "left", 1, 1);
+        $css->CrearDiv("", "col-md-10", "left", 1, 1);
              
             $css->CrearDiv("", "box box-primary", "left", 1, 1);
                 $css->CrearDiv("DivDrawTickets", "box-header with-border", "left", 1, 1);  
@@ -102,6 +99,7 @@ $css->PageInit($myTitulo);
                 <!-- /.row -->
               </section>');
 $css->PageFin();
+$css->AddJSTextAreaEnriquecida();
 print('<script src="jsPages/tickets.js"></script>');  //script propio de la pagina
 
 $css->Cbody();

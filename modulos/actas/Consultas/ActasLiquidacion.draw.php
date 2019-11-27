@@ -168,6 +168,11 @@ if( !empty($_REQUEST["Accion"]) ){
                 while($DatosActas=$obCon->FetchAssoc($Consulta)){
                     $idActa=$DatosActas["ID"];
                     $TextCombo=$DatosActas["ID"]." ".$DatosActas["FechaFinal"]." ".$DatosActas["RazonSocialIPS"]." ".$DatosActas["NIT_IPS"];
+                    $TipoActa=$DatosActas["TipoActaLiquidacion"];
+                    $sql="SELECT Nombre FROM actas_liquidaciones_tipo WHERE ID='$TipoActa'";
+                    $DatosTipoActa=$obCon->FetchAssoc($obCon->Query($sql));
+                    $TextCombo.=" ".$DatosTipoActa["Nombre"];
+                    
                     $sql="SELECT GROUP_CONCAT(idContrato) as ContratosAgregados FROM actas_liquidaciones_contratos WHERE idActaLiquidacion='$idActa'";
                     $ConsultaContratos=$obCon->FetchAssoc($obCon->Query($sql));
                     $TextCombo.=" ".$ConsultaContratos["ContratosAgregados"];

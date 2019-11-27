@@ -94,6 +94,108 @@ function CambiePagina(Page=""){
     VerListadoTickets(Page);
 }
 
-document.getElementById('BtnMuestraMenuLateral').click();
+function FormularioNuevoTicket(){
+    document.getElementById("DivDrawTickets").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 2);
+        
+        $.ajax({
+        url: './Consultas/tickets.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivDrawTickets').innerHTML=data;
+           $("#CmbUsuarioDestino").select2();
+           $("#TxtMensaje").wysihtml5(); 
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
 
+function CrearTicket(){
+    document.getElementById('BtnGuardarTicket').disabled=true;
+    document.getElementById('BtnGuardarTicket').value="Guardando...";
+    
+    var CmbUsuarioDestino=document.getElementById('CmbUsuarioDestino').value;
+    var CmbTipoTicket=document.getElementById('CmbTipoTicket').value;
+    var CmbProyecto=document.getElementById('CmbProyecto').value;
+    var CmbModuloProyecto=document.getElementById('CmbModuloProyecto').value;
+    var TxtAsunto=document.getElementById('TxtAsunto').value;
+    
+    var TxtMensaje=document.getElementById('TxtMensaje').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 1);
+        form_data.append('CmbUsuarioDestino', CmbUsuarioDestino);
+        form_data.append('CmbTipoTicket', CmbTipoTicket);
+        form_data.append('CmbProyecto', CmbProyecto);
+        form_data.append('CmbModuloProyecto', CmbModuloProyecto);
+        form_data.append('TxtAsunto', TxtAsunto);        
+        
+        form_data.append('TxtMensaje', TxtMensaje);
+        form_data.append('upAdjuntosTickets', $('#upAdjuntosTickets').prop('files')[0]);
+                
+    $.ajax({
+        //async:false,
+        url: './procesadores/tickets.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                VerListadoTickets();
+                
+                alertify.success(respuestas[1]);
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById('BtnGuardarTicket').disabled=false;
+                document.getElementById('BtnGuardarTicket').value="Guardar";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('BtnGuardarTicket').disabled=false;
+                document.getElementById('BtnGuardarTicket').value="Guardar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById('BtnGuardarTicket').disabled=false;
+            document.getElementById('BtnGuardarTicket').value="Guardar";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function MarqueErrorElemento(idElemento){
+    console.log(idElemento);
+    if(idElemento==undefined){
+       return; 
+    }
+    document.getElementById(idElemento).style.backgroundColor="pink";
+    document.getElementById(idElemento).focus();
+}
+
+document.getElementById('BtnMuestraMenuLateral').click();
+ 
 VerListadoTickets();

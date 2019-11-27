@@ -1993,6 +1993,11 @@ class PageConstruct extends html_estruct_class{
 			<image src='.$RutaImage.' name='.$Nombre.' id='.$Nombre.' src='.$RutaImage.' '.$javascript.' style="display:scroll; position:'.$posicion.'; '.$margenes.'; height:'.$Alto.'px; width: '.$Ancho.'px;"></a>');
 	} 
         
+        public function AddJSTextAreaEnriquecida(){
+            print(' <link rel="stylesheet" href="../../plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+                    <script src="../../plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>');
+        }
+        
         //////////////////////////////////FIN
 }
 	
