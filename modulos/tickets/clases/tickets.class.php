@@ -11,10 +11,11 @@ if(file_exists("../../../modelo/php_conexion.php")){
         
 class Ticket extends conexion{
     
-    public function CrearTicket($idProyecto,$TipoTicket,$idModuloProyecto,$Asunto,$idUser,$idUsuarioDestino) {
+    public function CrearTicket($idProyecto,$TipoTicket,$Prioridad,$idModuloProyecto,$Asunto,$idUser,$idUsuarioDestino) {
         $Datos["idProyecto"]=$idProyecto;
         $Datos["TipoTicket"]=$TipoTicket;
         $Datos["idModuloProyecto"]=$idModuloProyecto;
+        $Datos["Prioridad"]=$Prioridad;
         $Datos["FechaApertura"]=date("Y-m-d H:i:s");
         $Datos["FechaActualizacion"]=date("Y-m-d H:i:s");
         $Datos["Asunto"]=$Asunto;

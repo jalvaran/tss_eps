@@ -24,12 +24,15 @@ if( !empty($_REQUEST["Accion"]) ){
             
             if($CmbEstadoTicketsListado==0){
                 $Condicional=" WHERE Estado>9 ";
+                $OrderBy=" ORDER BY Prioridad DESC,FechaActualizacion DESC";
             }
             if($CmbEstadoTicketsListado==1){
                 $Condicional=" WHERE Estado<=9 ";
+                $OrderBy=" ORDER BY Prioridad DESC,FechaActualizacion ASC";
             }
             if($CmbEstadoTicketsListado==3){
                 $Condicional=" WHERE Estado>0 ";
+                $OrderBy=" ORDER BY Prioridad DESC,FechaActualizacion DESC";
             }
             if($CmbFiltroUsuario==2){
                 $Condicional.=" AND (idUsuarioSolicitante='$idUser' or idUsuarioAsignado='$idUser') ";
@@ -72,7 +75,7 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $st_reporte=$statement;
             $Limit=" LIMIT $startpoint,$limit";
-            $OrderBy=" ORDER BY FechaActualizacion ASC";
+            
             $query="SELECT * ";
             $Consulta=$obCon->Query("$query FROM $statement $OrderBy $Limit ");
             $TotalPaginas= ceil($ResultadosTotales/$limit);
@@ -127,6 +130,9 @@ if( !empty($_REQUEST["Accion"]) ){
                                 
                                 print("<td class='mailbox-date' style='text-align:right'>");
                                     print('<b>'.$DatosTickets["NombreEstado"].'</b>');
+                                print("</td>");
+                                print("<td class='mailbox-date' style='text-align:right'>");
+                                    print('<b>'.$DatosTickets["NombrePrioridad"].'</b>');
                                 print("</td>");
                                 print("<td class='mailbox-date' style='text-align:right'>");
                                     print('<b>'.$DatosTickets["FechaActualizacion"].'</b>');
@@ -203,9 +209,23 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->Cselect();
             $css->CerrarDiv();            
             print("<br><br><br><br>");
-            $css->input("text", "TxtAsunto", "form-control", "TxtAsunto", "", "", "Título", "off", "", "");
-            print("<br>");
+            $css->CrearDiv("", "col-md-3", "left", 1, 1);
+                $css->select("CmbPrioridad", "form-control", "CmbPrioridad", "Prioridad:", "", "", "");
+                    $Consulta=$obCon->ConsultarTabla("tickets_prioridad", "");
+                    while($DatosProyectos=$obCon->FetchAssoc($Consulta)){
+                        $css->option("", "", "", $DatosProyectos["ID"], "", "");
+                            print($DatosProyectos["Prioridad"]);
+                        $css->Coption();
+                    }
+                $css->Cselect();
+            $css->CerrarDiv();  
+            $css->CrearDiv("", "col-md-9", "left", 1, 1);
+                print("<strong>Título:</strong>");
+                $css->input("text", "TxtAsunto", "form-control", "TxtAsunto", "", "", "Título", "off", "", "");
+            $css->CerrarDiv();  
+            print("<br><br><br><br>");
             $css->CrearDiv("", "form-group", "left", 1, 1);
+                
                 $css->textarea("TxtMensaje", "form-control", "TxtMensaje", "", "Mensaje", "", "", "style='height:400px;'");
                        
             $css->Ctextarea();

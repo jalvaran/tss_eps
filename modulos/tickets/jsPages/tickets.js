@@ -133,6 +133,7 @@ function CrearTicket(){
     var CmbTipoTicket=document.getElementById('CmbTipoTicket').value;
     var CmbProyecto=document.getElementById('CmbProyecto').value;
     var CmbModuloProyecto=document.getElementById('CmbModuloProyecto').value;
+    var CmbPrioridad=document.getElementById('CmbPrioridad').value;
     var TxtAsunto=document.getElementById('TxtAsunto').value;
     
     var TxtMensaje=document.getElementById('TxtMensaje').value;
@@ -144,6 +145,7 @@ function CrearTicket(){
         form_data.append('CmbProyecto', CmbProyecto);
         form_data.append('CmbModuloProyecto', CmbModuloProyecto);
         form_data.append('TxtAsunto', TxtAsunto);        
+        form_data.append('CmbPrioridad', CmbPrioridad);        
         
         form_data.append('TxtMensaje', TxtMensaje);
         form_data.append('upAdjuntosTickets1', $('#upAdjuntosTickets1').prop('files')[0]);

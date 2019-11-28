@@ -19,12 +19,17 @@ if( !empty($_REQUEST["Accion"]) ){
             $CmbTipoTicket=$obCon->normalizar($_REQUEST["CmbTipoTicket"]);
             $CmbProyecto=$obCon->normalizar($_REQUEST["CmbProyecto"]);
             $CmbModuloProyecto=$obCon->normalizar($_REQUEST["CmbModuloProyecto"]);
+            $CmbPrioridad=$obCon->normalizar($_REQUEST["CmbPrioridad"]);
             $TxtAsunto=$obCon->normalizar($_REQUEST["TxtAsunto"]);
             
             $TxtMensaje=$obCon->normalizar($_REQUEST["TxtMensaje"]);
            
             if($CmbUsuarioDestino==''){
                 exit("E1;Debe seleccionar un destinatario;select2-CmbUsuarioDestino-container");
+            }
+            
+            if($CmbPrioridad==''){
+                exit("E1;Debe seleccionar una prioridad;CmbPrioridad");
             }
             
             if($CmbTipoTicket==''){
@@ -42,7 +47,7 @@ if( !empty($_REQUEST["Accion"]) ){
             if($TxtMensaje==''){
                 exit("E1;Escribe el Mensaje para este Ticket;TxtMensaje");
             }
-            $idTicket=$obCon->CrearTicket($CmbProyecto,$CmbTipoTicket,$CmbModuloProyecto,$TxtAsunto,$idUser,$CmbUsuarioDestino);
+            $idTicket=$obCon->CrearTicket($CmbProyecto,$CmbTipoTicket,$CmbPrioridad,$CmbModuloProyecto,$TxtAsunto,$idUser,$CmbUsuarioDestino);
             $idMensaje=$obCon->AgregarMensajeTicket($idTicket, $TxtMensaje, $idUser);
             $destino='';
             
