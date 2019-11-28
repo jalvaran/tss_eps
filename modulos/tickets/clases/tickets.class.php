@@ -16,9 +16,11 @@ class Ticket extends conexion{
         $Datos["TipoTicket"]=$TipoTicket;
         $Datos["idModuloProyecto"]=$idModuloProyecto;
         $Datos["FechaApertura"]=date("Y-m-d H:i:s");
+        $Datos["FechaActualizacion"]=date("Y-m-d H:i:s");
         $Datos["Asunto"]=$Asunto;
         $Datos["Estado"]=1;
         $Datos["idUsuarioSolicitante"]=$idUser;
+        $Datos["idUsuarioActualiza"]=$idUser;
         $Datos["idUsuarioAsignado"]=$idUsuarioDestino;
         
         $sql= $this->getSQLInsert("tickets", $Datos);
@@ -28,26 +30,29 @@ class Ticket extends conexion{
     }
     
     public function AgregarMensajeTicket($idTicket,$Mensaje,$idUser) {
+        $FechaHora=date("Y-m-d H:i:s");
         $Datos["idTicket"]=$idTicket;
         $Datos["Mensaje"]=$Mensaje;
         $Datos["Estado"]=1;
-        $Datos["Created"]=date("Y-m-d H:i:s");
+        $Datos["Created"]=$FechaHora;
         $Datos["idUser"]=$idUser;
                 
         $sql= $this->getSQLInsert("tickets_mensajes", $Datos);
         $this->Query($sql);
         $ID= $this->ObtenerMAX("tickets_mensajes", "ID", 1, "");
+        $sql="UPDATE tickets SET FechaActualizacion='$FechaHora',idUsuarioActualiza='$idUser' WHERE ID='$idTicket' ";
+        $this->Query($sql);
         return($ID);
     }
     
-    public function AgregarAdjuntoMensaje($Ruta,$NombreArchivo,$Extension,$idUser,$idMensaje) {
+    public function AgregarAdjuntoMensaje($Ruta,$Tamano,$NombreArchivo,$Extension,$idUser,$idMensaje) {
         $Datos["Ruta"]=$Ruta;
         $Datos["NombreArchivo"]=$NombreArchivo;
         $Datos["Extension"]=$Extension;
         $Datos["Created"]=date("Y-m-d H:i:s");
         $Datos["idUser"]=$idUser;
         $Datos["idMensaje"]=$idMensaje;
-                
+        $Datos["Tamano"]=$Tamano;
         $sql= $this->getSQLInsert("tickets_adjuntos", $Datos);
         $this->Query($sql);
         $ID= $this->ObtenerMAX("tickets_adjuntos", "ID", 1, "");

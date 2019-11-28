@@ -59,12 +59,15 @@ function VerListadoTickets(Page=1){
     document.getElementById("DivDrawTickets").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
     
     var Busqueda=document.getElementById('TxtBusquedas').value;
-        
+    var CmbEstadoTicketsListado=document.getElementById('CmbEstadoTicketsListado').value;  
+    var CmbFiltroUsuario=document.getElementById('CmbFiltroUsuario').value; 
     var form_data = new FormData();
         form_data.append('Accion', 1);
         
         form_data.append('Page', Page);
         form_data.append('Busqueda', Busqueda);
+        form_data.append('CmbEstadoTicketsListado', CmbEstadoTicketsListado);
+        form_data.append('CmbFiltroUsuario', CmbFiltroUsuario);
         $.ajax({
         url: './Consultas/tickets.draw.php',
         //dataType: 'json',
@@ -143,7 +146,9 @@ function CrearTicket(){
         form_data.append('TxtAsunto', TxtAsunto);        
         
         form_data.append('TxtMensaje', TxtMensaje);
-        form_data.append('upAdjuntosTickets', $('#upAdjuntosTickets').prop('files')[0]);
+        form_data.append('upAdjuntosTickets1', $('#upAdjuntosTickets1').prop('files')[0]);
+        form_data.append('upAdjuntosTickets2', $('#upAdjuntosTickets2').prop('files')[0]);
+        form_data.append('upAdjuntosTickets3', $('#upAdjuntosTickets3').prop('files')[0]);
                 
     $.ajax({
         //async:false,
@@ -159,6 +164,177 @@ function CrearTicket(){
            if(respuestas[0]==="OK"){   
                 
                 VerListadoTickets();
+                
+                alertify.success(respuestas[1]);
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById('BtnGuardarTicket').disabled=false;
+                document.getElementById('BtnGuardarTicket').value="Guardar";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById('BtnGuardarTicket').disabled=false;
+                document.getElementById('BtnGuardarTicket').value="Guardar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById('BtnGuardarTicket').disabled=false;
+            document.getElementById('BtnGuardarTicket').value="Guardar";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+
+function VerTicket(idTicket){
+    document.getElementById("DivDrawTickets").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 3);
+        form_data.append('idTicket', idTicket);
+        $.ajax({
+        url: './Consultas/tickets.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivDrawTickets').innerHTML=data;
+           
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+
+function AgregarAdjunto(idMensaje,idTicket){
+    var idBoton='BtnAgregarAdjunto_'+idMensaje;
+    var UpFile='upAdjuntosMensajes_'+idMensaje;
+    document.getElementById(idBoton).disabled=true;
+    document.getElementById(idBoton).value="Guardando...";
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 2);
+        form_data.append('idMensaje', idMensaje);
+        form_data.append('idTicket', idTicket);
+        form_data.append('upAdjuntosTickets', $('#'+UpFile).prop('files')[0]);
+        
+                
+    $.ajax({
+        //async:false,
+        url: './procesadores/tickets.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                VerTicket(idTicket);
+                
+                alertify.success(respuestas[1]);
+                
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                document.getElementById(idBoton).value="Adjuntar";
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                document.getElementById(idBoton).value="Adjuntar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById(idBoton).disabled=false;
+            document.getElementById(idBoton).value="Adjuntar";
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function FormularioResponderTicket(idTicket){
+    document.getElementById("DivDrawTickets").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 4);
+        form_data.append('idTicket', idTicket);
+        $.ajax({
+        url: './Consultas/tickets.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivDrawTickets').innerHTML=data;
+           
+           $("#TxtMensaje").wysihtml5(); 
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+function GuardarRespuesta(idTicket){
+    document.getElementById('BtnGuardarTicket').disabled=true;
+    document.getElementById('BtnGuardarTicket').value="Guardando...";
+    
+    
+    var CmbCerrarTicket=document.getElementById('CmbCerrarTicket').value;
+    var TxtMensaje=document.getElementById('TxtMensaje').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 3);
+        form_data.append('idTicket', idTicket);
+        form_data.append('CmbCerrarTicket', CmbCerrarTicket);
+        form_data.append('TxtMensaje', TxtMensaje);
+        form_data.append('upAdjuntosTickets1', $('#upAdjuntosTickets1').prop('files')[0]);
+        form_data.append('upAdjuntosTickets2', $('#upAdjuntosTickets2').prop('files')[0]);
+        form_data.append('upAdjuntosTickets3', $('#upAdjuntosTickets3').prop('files')[0]);
+                
+    $.ajax({
+        //async:false,
+        url: './procesadores/tickets.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                VerTicket(idTicket);
                 
                 alertify.success(respuestas[1]);
                 

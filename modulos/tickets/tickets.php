@@ -28,7 +28,7 @@ $css->PageInit($myTitulo);
     //$css->div("", "col-md-12", "", "", "", "", "");
     $css->section("", "content-header", "", "");
         print("<h1>Módulo de Tickets");
-            print('<small id="info1">13 nuevos mensajes sin leer</small>');
+            //print('<small id="info1">13 nuevos mensajes sin leer</small>');
         print("</h1>");
     $css->Csection();
     //print("<br>");
@@ -47,7 +47,7 @@ $css->PageInit($myTitulo);
             <div class="box-body no-padding" style="">
               <ul class="nav nav-pills nav-stacked">
                 <li><a href="#" onclick="VerListadoTickets()"><i class="fa fa-inbox"></i> Tus Tickets
-                  <span class="label label-primary pull-right">12</span></a></li>
+                  </a></li>
                 
                
               </ul>
@@ -67,8 +67,43 @@ $css->PageInit($myTitulo);
             <!-- /.box-header -->
             <div class="box-body no-padding" style="">
               <ul class="nav nav-pills nav-stacked">
-                <li><a href="#"><i class="fa fa-circle-o text-red"></i> Abiertos</a></li>
-                <li><a href="#"><i class="fa fa-circle-o text-green"></i> Cerrados</a></li>
+                <li>
+            ');
+            
+            $css->select("CmbEstadoTicketsListado", "form-control", "CmbEstadoTicketsListado", "", "", "onchange=VerListadoTickets()", "");
+                $css->option("", "", "", 1, "", "");
+                    print("Abiertos");
+                $css->Coption();
+                
+                $css->option("", "", "", 0, "", "");
+                    print("Cerrados");
+                $css->Coption();
+                
+                $css->option("", "", "", 3, "", "");
+                    print("Todos");
+                $css->Coption();
+            $css->Cselect();
+            print("<br>");
+            $css->select("CmbFiltroUsuario", "form-control", "CmbFiltroUsuario", "", "", "onchange=VerListadoTickets()", "");
+                
+                if($_SESSION["Role"]=='SUPERVISOR'){
+                    $css->option("", "", "", 1, "", "");
+                        print("De Todos los Usuarios");
+                    $css->Coption();
+                    $css->option("", "", "", 2, "", "");
+                        print("Solo Míos");
+                    $css->Coption();
+                }else{
+                    $css->option("", "", "", 2, "", "");
+                        print("Solo Míos");
+                    $css->Coption();
+                }
+                
+            $css->Cselect();
+    
+        print('
+        </li>
+                
                 
               </ul>
             </div>
@@ -79,7 +114,7 @@ $css->PageInit($myTitulo);
         $css->CrearDiv("", "col-md-10", "left", 1, 1);
         $css->CrearDiv("", "box-tools pull-right", "left", 1, 1);                
                 print('<div class="input-group">');               
-                    $css->input("text", "TxtBusquedas", "form-control", "TxtBusquedas", "", "", "Buscar", "", "", "onchange=BuscarFactura()");
+                    $css->input("text", "TxtBusquedas", "form-control", "TxtBusquedas", "", "", "Buscar", "", "", "onchange=VerListadoTickets()");
 
                 print('<span class="input-group-addon"><i class="fa fa-fw fa-search"></i></span>
                           </div>');

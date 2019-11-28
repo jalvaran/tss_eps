@@ -825,7 +825,13 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $SaldoEnLetras.=" PESOS ($ ".number_format($DatosActa["Saldo"]).")";
         
         $html= str_replace("@ValorLetras",strtoupper("<strong>".$SaldoEnLetras."</strong>"), $html);
+        
         $sql="SELECT t2.* FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente WHERE t1.idActaLiquidacion='$idActaLiquidacion' ORDER BY t1.ID";
+        
+        $sql="SELECT t1.ID,t1.NombreContrato AS Contrato,t1.FechaInicial as FechaInicioContrato,t1.FechaFinal  as FechaFinalContrato,t1.Valor as ValorContrato
+                FROM actas_liquidaciones_contratos t1 
+                WHERE t1.idActaLiquidacion='$idActaLiquidacion' ORDER BY ID";
+        
         $Consulta=$obCon->Query($sql);
         $ContratosActa="";
         
