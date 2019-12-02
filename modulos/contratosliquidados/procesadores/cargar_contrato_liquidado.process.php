@@ -95,16 +95,19 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $FechaFirmaActa=$obCon->normalizar($_REQUEST["FechaFirmaActa"]);
             
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
-            
+            if($FechaFirmaActa==''){
+                exit("E1;No se recibió la fecha de la firma del contrato");
+            }
             $sql="SELECT * FROM control_cargue_contratos_liquidados WHERE idUser='$idUser' AND Estado=0 LIMIT 1";
             $Consulta=$obCon->Query($sql);
             $DatosArchivo=$obCon->FetchAssoc($Consulta);
             if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){       
-                $idContrato=$obCon->RegistreEncabezadoContrato($CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
+                $idContrato=$obCon->RegistreEncabezadoContrato($FechaFirmaActa,$CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
                 //print("Contrato: ".$idContrato);
             }
                         

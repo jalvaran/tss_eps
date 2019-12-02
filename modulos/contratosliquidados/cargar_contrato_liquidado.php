@@ -33,7 +33,7 @@ $css->PageInit($myTitulo);
         $css->Ch3();
     $css->CerrarDiv(); 
     
-    $css->CrearDiv("", "col-md-6", "center", 1, 1);
+    $css->CrearDiv("", "col-md-4", "center", 1, 1);
         if($TipoUser=="administrador"){
             $sql="SELECT NIT as idIPS, Nombre FROM ips";
         }else{
@@ -49,7 +49,7 @@ $css->PageInit($myTitulo);
             }
         $css->Cselect();
     $css->CerrarDiv();    
-    $css->CrearDiv("", "col-md-6", "center", 1, 1);
+    $css->CrearDiv("", "col-md-4", "center", 1, 1);
         $sql="SELECT * FROM eps ORDER BY ID";
         $Consulta=$obCon->Query($sql);
         
@@ -62,6 +62,11 @@ $css->PageInit($myTitulo);
         $css->Cselect();
     $css->CerrarDiv();
     
+    $css->CrearDiv("", "col-md-4", "center", 1, 1);
+        print("<strong>Fecha de la Firma del Acta:</strong><br>");
+        $css->input("date", "FechaFirmaActa", "form-control", "FechaFirmaActa", "", date("Y-m-d"), "Fecha de la Firma", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
+        
+    $css->CerrarDiv();
         
     $css->CrearDiv("", "col-md-4", "center", 1, 1);
         print("<strong>Seleccione el Contrato:</strong><br>");

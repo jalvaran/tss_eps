@@ -107,12 +107,14 @@ function GuardeEncabezado(){
     
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
+    var FechaFirmaActa=document.getElementById('FechaFirmaActa').value;
     
     var form_data = new FormData();
         form_data.append('Accion', 3);
         
         form_data.append('CmbEPS', CmbEPS);
         form_data.append('CmbIPS', CmbIPS);
+        form_data.append('FechaFirmaActa', FechaFirmaActa);
               
     $.ajax({
         //async:false,

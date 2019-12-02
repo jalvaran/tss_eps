@@ -29,7 +29,7 @@ class CargarContratos extends conexion{
         
     }
     
-    public function RegistreEncabezadoContrato($CmbIPS,$CmbEPS,$NombreArchivo,$Ruta,$Soporte,$idUser) {
+    public function RegistreEncabezadoContrato($FechaFirmaActa,$CmbIPS,$CmbEPS,$NombreArchivo,$Ruta,$Soporte,$idUser) {
         clearstatcache();
         
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $CmbIPS);
@@ -106,6 +106,7 @@ class CargarContratos extends conexion{
         $Datos["BaseDatos"]=$db;
         $Datos["ValorPercapita"]=$ValorPercapita;
         $Datos["PorcentajePoblacional"]=$PorcentajePoblacional;
+        $Datos["FechaCorte"]=$FechaFirmaActa;
         $sql=$this->getSQLInsert("registro_liquidacion_contratos", $Datos);
         $this->Query($sql);
         $idContrato=$this->ObtenerMAX("registro_liquidacion_contratos", "ID", 1, "");
