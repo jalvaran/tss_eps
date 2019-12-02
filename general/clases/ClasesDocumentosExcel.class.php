@@ -1260,7 +1260,7 @@ class TS_Excel extends conexion{
             
             ;
             $i=$i-4;
-            $z=$z+2;
+            $z=$z+4;
         }
         $styleTitle = [
             'font' => [
