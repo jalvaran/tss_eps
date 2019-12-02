@@ -634,7 +634,24 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $SaldoAPagarContratante=$DatosActa["Saldo"];
         }
         $html="";
-        if($TipoActa==1 or $TipoActa==7 or $TipoActa==9){
+        if($TipoActa==3 or $TipoActa==6){
+            $DatosActa["Saldo"]=0;
+            $DatosActa["ValorFacturado"]=0;
+            $DatosActa["RetencionImpuestos"]=0;
+            $DatosActa["Devolucion"]=0;
+            $DatosActa["Glosa"]=0;
+            $DatosActa["GlosaFavor"]=0;
+            $DatosActa["NotasCopagos"]=0;
+            $DatosActa["RecuperacionImpuestos"]=0;
+            $DatosActa["OtrosDescuentos"]=0;
+            
+            $DatosActa["ValorPagado"]=0;
+            $DatosActa["Saldo"]=0;
+            $DatosActa["DescuentoBDUA"]=0;
+            $DatosActa["GlosaFavor"]=0;
+            
+        }
+        if($TipoActa==1 or $TipoActa==3 or $TipoActa==7 or $TipoActa==9){
             $html='<table cellspacing="3" cellpadding="2" border="1">
                         <tr>
                             <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
@@ -686,13 +703,13 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                     
         }
         
-        if($TipoActa==4){
+        if($TipoActa==4 or $TipoActa==6){
             $html='<table cellspacing="3" cellpadding="2" border="1">
                         <tr>
                             <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
                             <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
                             <td style="text-align:center;"><strong>Descuento o Reconocimiento por BDUA</strong></td>
-                            <td style="text-align:center;"><strong>DESCUENTOS CONCILIADO A FAVOR ASMET</strong></td>
+                            <td style="text-align:center;"><strong>DESCUENTOS CONCILIADOS A FAVOR ASMET</strong></td>
                             <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
                             <td style="text-align:center;"><strong>SALDO</strong></td>
 
@@ -702,7 +719,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                             <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
                             <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
                             <td style="text-align:rigth;">'. number_format($DatosActa["DescuentoBDUA"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]).'</td>
+                            <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]+$DatosActa["OtrosDescuentosConciliadosAfavor"]).'</td>
                             <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]).'</td>
                             <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>    
 
@@ -715,7 +732,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                         
                         ';
         }
-        if($TipoActa==4){
+        if($TipoActa==4 or $TipoActa==6){
             $ColspanTotales=5;
         }else{
             $ColspanTotales=4;
@@ -816,7 +833,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op10' LIMIT 1";
         }
         
-        if($DatosActa["Saldo"]==0){
+        if($DatosActa["Saldo"]==0 or $TipoActa==3 or $TipoActa==6){
             $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op11' LIMIT 1";
         }
         $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
@@ -836,6 +853,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $ContratosActa="";
         
         while($DatosContratos=$obCon->FetchAssoc($Consulta)){
+            
             $FechaInicial=explode("-",$DatosContratos["FechaInicioContrato"]);   
             //print_r($FechaInicial);
             $dia=$obNumLetra->convertir($FechaInicial[2]); 
@@ -854,7 +872,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $anioFin=$obNumLetra->convertir($FechaFinal[0]);
             $ContratosActa.="<strong>".$DatosContratos["Contrato"]."</strong> con vigencia del $dia de $mes del $anio al $diaFin de $mesFin del $anioFin, ";
         }
-        
+        //print("Contratos $ContratosActa");
         $ContratosActa=substr($ContratosActa,0,-2);
         
         $html= str_replace("@Numerocontratos", $ContratosActa, $html);

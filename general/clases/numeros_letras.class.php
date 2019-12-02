@@ -58,9 +58,11 @@ class numeros_letras{
     }
 	
     function millones($n) {
+        $n=round($n);
         if($n == 1000000) {return 'un millón';}
         else {
             $l = strlen($n);
+            //print("$l");
             $c = (int)substr($n,0,$l-6);
             $x = (int)substr($n,-6);
         if($c == 1) {
@@ -85,7 +87,7 @@ class numeros_letras{
             case ( $n >= 30 && $n < 100) : return $this->decenas($n); break;
             case ( $n >= 100 && $n < 1000) : return $this->centenas($n); break;
             case ($n >= 1000 && $n <= 999999): return $this->miles($n); break;
-            case ($n >= 1000000): return $this->millones($n);
+            case ($n >= 1000000): return $this->millones($n); break;
         }
     }
 	

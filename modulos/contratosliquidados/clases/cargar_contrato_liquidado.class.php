@@ -74,7 +74,7 @@ class CargarContratos extends conexion{
             $FechaInicial = $FechaInicial["date"];
 
         }else{
-            exit("E1;La Vigencia inicial no tiene un formato tipo fecha en la celda 'B6' ");
+            //exit("E1;La Vigencia inicial no tiene un formato tipo fecha en la celda 'B6' ");
         }
         
         $cell = $objPHPExcel->getActiveSheet()->getCell('B7');
@@ -112,9 +112,11 @@ class CargarContratos extends conexion{
         
         $z=3;
         $Sale=0;
+        
         while($Sale==0){
             $NumeroOtroSI=$objPHPExcel->getActiveSheet()->getCell($Cols[$z].'5')->getCalculatedValue();
             $OtroSI=$NumeroContrato."-".$NumeroOtroSI;
+            
             if($NumeroOtroSI==''){
                 $Sale=1;
                 break;
@@ -126,7 +128,7 @@ class CargarContratos extends conexion{
                 $FechaInicial = $FechaInicial["date"];
 
             }else{
-                exit("E1;La Vigencia inicial no tiene un formato tipo fecha en la celda 'B6' ");
+                //exit("E1;La Vigencia inicial no tiene un formato tipo fecha en la celda 'B6' ");
             }
 
             $cell = $objPHPExcel->getActiveSheet()->getCell($Cols[$z].'7');

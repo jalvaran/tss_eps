@@ -19,6 +19,8 @@ if( !empty($_REQUEST["Accion"]) ){
             $TipoUser=$_SESSION["tipouser"];
             
             $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
+            //$Busqueda= str_replace(" ", "%", $Busqueda);
+            //print($Busqueda);
             $CmbEstadoTicketsListado=$obCon->normalizar($_REQUEST["CmbEstadoTicketsListado"]);
             $CmbFiltroUsuario=$obCon->normalizar($_REQUEST["CmbFiltroUsuario"]);
             
@@ -48,6 +50,8 @@ if( !empty($_REQUEST["Accion"]) ){
                 $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
                 if($Busqueda<>''){
                     $Condicional.=" AND ( ID='$Busqueda' or Asunto like '%$Busqueda%' )";
+                    //$Condicional.=" AND ( ID='$Busqueda' or MATCH(Asunto) AGAINST ('%$Busqueda%') )";
+                    
                 }
                 
             }
