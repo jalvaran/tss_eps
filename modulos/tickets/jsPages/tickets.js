@@ -123,6 +123,7 @@ function FormularioNuevoTicket(){
            document.getElementById('DivDrawTickets').innerHTML=data;
            $("#CmbUsuarioDestino").select2();
            $("#TxtMensaje").wysihtml5(); 
+           
         },
         error: function (xhr, ajaxOptions, thrownError) {
             LimpiarDivs();
@@ -381,6 +382,40 @@ function MarqueErrorElemento(idElemento){
     document.getElementById(idElemento).focus();
 }
 
+function CargarModulosProyectosEnSelect(SelectorACambiar){
+    if(SelectorACambiar==1){
+        var idSelector="CmbModuloProyecto";
+        var SelectorPadre="CmbProyecto";
+    }
+    if(SelectorACambiar==2){
+        var idSelector="CmbModulosTicketsListado";
+        var SelectorPadre="CmbProyectosTicketsListado";
+    }
+    
+    document.getElementById(idSelector).value='';
+    if(document.getElementById("select2-"+idSelector+"-container")){
+        document.getElementById("select2-"+idSelector+"-container").innerHTML='Seleccione un módulo';
+    }
+    
+    var CmbProyectosTicketsListado=document.getElementById(SelectorPadre).value;
+        $('#'+idSelector).select2({
+            theme: "classic",
+            placeholder: 'Seleccione un Módulo',
+            ajax: {
+              url: './buscadores/modulos_proyectos.search.php?idProyecto='+CmbProyectosTicketsListado,
+              dataType: 'json',
+              delay: 250,
+              processResults: function (data) {
+                  
+                return {                     
+                  results: data
+                };
+              },
+             cache: true
+            }
+          });
+}
+
 document.getElementById('BtnMuestraMenuLateral').click();
- 
+
 VerListadoTickets();

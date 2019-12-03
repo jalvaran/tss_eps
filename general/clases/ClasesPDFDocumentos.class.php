@@ -1110,8 +1110,8 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $Asunto.="<br>Proyecto: ".$DatosTickets["NombreProyecto"];
             $Asunto.="<br>TipoTicket: ".$DatosTickets["NombreTipoTicket"];
             $Asunto.="<br>Fecha: ".$DatosTickets["FechaApertura"];
-            $Asunto.="<br>de: ".$DatosTickets["NombreSolicitante"]." ".$DatosTickets["ApellidoSolicitante"];
-            $Asunto.="<br>para: ".utf8_encode($DatosTickets["NombreAsignado"]." ".$DatosTickets["ApellidoAsignado"]);
+            $Asunto.="<br>De: ".$DatosTickets["NombreSolicitante"]." ".$DatosTickets["ApellidoSolicitante"];
+            $Asunto.="<br>Para: ".utf8_encode($DatosTickets["NombreAsignado"]." ".$DatosTickets["ApellidoAsignado"]);
             $Asunto.="<BR>";
             $this->PDF->writeHTML($Asunto, true, false, false, false, '');
             $sql="SELECT t1.*,
@@ -1134,9 +1134,23 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
     
     public function ResumenInformeTickets($FechaInicial,$FechaFinal,$CmbEstado,$CmbProyectosTicketsListado,$CmbModulosTicketsListado,$CmbTiposTicketsListado) {
         $obCon=new conexion(1);
+        $Condicion="";
+        if($CmbEstado>0){
+            $Condicion.=" AND Estado='$CmbEstado' ";
+        }
+        if($CmbProyectosTicketsListado>0){
+            $Condicion.=" AND idProyecto='$CmbProyectosTicketsListado' ";
+        }
+        if($CmbModulosTicketsListado>0){
+            $Condicion.=" AND idModuloProyecto='$CmbModulosTicketsListado' ";
+        }
+        if($CmbTiposTicketsListado>0){
+            $Condicion.=" AND TipoTicket='$CmbTiposTicketsListado' ";
+        }
         $sql="SELECT COUNT(ID) as Total, NombreProyecto,NombreModulo,NombreTipoTicket,NombreEstado FROM vista_tickets 
-              WHERE FechaApertura>='$FechaInicial' AND FechaApertura<='$FechaFinal' 
+              WHERE FechaApertura>='$FechaInicial' AND FechaApertura<='$FechaFinal' $Condicion  
               GROUP BY idProyecto,Estado,TipoTicket,idModuloProyecto  ";
+        
         $Consulta=$obCon->Query($sql);
         $html='<table cellspacing="3" cellpadding="2" border="0">';
             $html.='<tr>';

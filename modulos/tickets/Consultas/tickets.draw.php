@@ -221,7 +221,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarDiv();
             
             $css->CrearDiv("", "col-md-3", "left", 1, 1);
-                $css->select("CmbTipoTicket", "form-control", "CmbProyecto", "Tipo de Ticket:", "", "", "");
+                $css->select("CmbTipoTicket", "form-control", "CmbTipoTicket", "Tipo de Ticket", "", "", "");
                     $css->option("", "", "", "", "", "");
                             print("Seleccione el Tipo de Ticket");
                         $css->Coption();
@@ -235,7 +235,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarDiv();
             
             $css->CrearDiv("", "col-md-3", "left", 1, 1);
-                $css->select("CmbProyecto", "form-control", "CmbProyecto", "Proyecto:", "", "", "");
+                $css->select("CmbProyecto", "form-control", "CmbProyecto", "Proyecto:", "", "onchange=CargarModulosProyectosEnSelect(1);", "");
                     $Consulta=$obCon->ConsultarTabla("tickets_proyectos", " WHERE Estado=1");
                     while($DatosProyectos=$obCon->FetchAssoc($Consulta)){
                         $css->option("", "", "", $DatosProyectos["ID"], "", "");
@@ -247,7 +247,7 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $css->CrearDiv("", "col-md-3", "left", 1, 1);
                 $css->select("CmbModuloProyecto", "form-control", "CmbModuloProyecto", "Fase:", "", "", "");
-                    $Consulta=$obCon->ConsultarTabla("tickets_modulos_proyectos", " WHERE Estado=1");
+                    $Consulta=$obCon->ConsultarTabla("tickets_modulos_proyectos", " WHERE Estado=1 AND idProyecto='1'");
                     while($DatosProyectos=$obCon->FetchAssoc($Consulta)){
                         $css->option("", "", "", $DatosProyectos["ID"], "", "");
                             print($DatosProyectos["NombreModulo"]);

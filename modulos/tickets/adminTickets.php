@@ -66,7 +66,7 @@ $css->PageInit($myTitulo);
     $css->CerrarDiv();
     
     $css->CrearDiv("", "col-md-2", "center", 1, 1);
-        $css->select("CmbProyectosTicketsListado", "form-control", "CmbProyectosTicketsListado", "Proyectos:", "", "", "");
+        $css->select("CmbProyectosTicketsListado", "form-control", "CmbProyectosTicketsListado", "Proyectos:", "", "onchange=CargarModulosProyectosEnSelect()", "");
             $css->option("", "", "", '', "", "");
                 print("Todos los proyectos");
             $css->Coption();

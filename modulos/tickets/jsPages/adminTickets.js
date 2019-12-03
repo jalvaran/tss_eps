@@ -348,5 +348,29 @@ function MarqueErrorElemento(idElemento){
     document.getElementById(idElemento).focus();
 }
 
+function CargarModulosProyectosEnSelect(){
+    document.getElementById("CmbModulosTicketsListado").value='';
+    if(document.getElementById("select2-CmbModulosTicketsListado-container")){
+        document.getElementById("select2-CmbModulosTicketsListado-container").innerHTML='Seleccione un módulo';
+    }
+    var CmbProyectosTicketsListado=document.getElementById("CmbProyectosTicketsListado").value;
+        $('#CmbModulosTicketsListado').select2({
+            theme: "classic",
+            placeholder: 'Seleccione un Módulo',
+            ajax: {
+              url: './buscadores/modulos_proyectos.search.php?idProyecto='+CmbProyectosTicketsListado,
+              dataType: 'json',
+              delay: 250,
+              processResults: function (data) {
+                  
+                return {                     
+                  results: data
+                };
+              },
+             cache: true
+            }
+          });
+}
+
 document.getElementById('BtnMuestraMenuLateral').click();
  

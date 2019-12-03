@@ -83,9 +83,9 @@ $css->PageInit($myTitulo);
                     print("Todos");
                 $css->Coption();
             $css->Cselect();
-            print("<br>");
+            //print("<br>");
             
-            $css->select("CmbProyectosTicketsListado", "form-control", "CmbProyectosTicketsListado", "", "", "onchange=VerListadoTickets()", "");
+            $css->select("CmbProyectosTicketsListado", "form-control", "CmbProyectosTicketsListado", "", "", "onchange=VerListadoTickets();CargarModulosProyectosEnSelect(2);", "");
                 $css->option("", "", "", '', "", "");
                     print("Todos los proyectos");
                 $css->Coption();
@@ -98,9 +98,9 @@ $css->PageInit($myTitulo);
                 }
                 
             $css->Cselect();
-            print("<br>");
+            //print("<br>");
             
-            $css->select("CmbModulosTicketsListado", "form-control", "CmbModulosTicketsListado", "", "", "onchange=VerListadoTickets()", "");
+            $css->select("CmbModulosTicketsListado", "form-control", "CmbModulosTicketsListado", "", "", "onchange=VerListadoTickets();", "");
                 $css->option("", "", "", '', "", "");
                     print("Todos los Módulos");
                 $css->Coption();
@@ -113,7 +113,7 @@ $css->PageInit($myTitulo);
                 }
                 
             $css->Cselect();
-            print("<br>");
+            //print("<br>");
             
             $css->select("CmbTiposTicketsListado", "form-control", "CmbTiposTicketsListado", "", "", "onchange=VerListadoTickets()", "");
                 $css->option("", "", "", '', "", "");
@@ -128,7 +128,7 @@ $css->PageInit($myTitulo);
                 }
                 
             $css->Cselect();
-            print("<br>");
+            //print("<br>");
             
             $css->select("CmbFiltroUsuario", "form-control", "CmbFiltroUsuario", "", "", "onchange=VerListadoTickets()", "");
                 

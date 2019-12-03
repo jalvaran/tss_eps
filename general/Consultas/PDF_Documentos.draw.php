@@ -103,7 +103,7 @@ if(isset($_REQUEST["idDocumento"])){
         break;//Fin caso 37
         case 38: //PDF del informe de tickets
             $FechaInicial=$obCon->normalizar($_REQUEST["FechaInicial"])." 00:00:00";
-            $FechaFinal=$obCon->normalizar($_REQUEST["FechaFinal"])." 11:59:59";
+            $FechaFinal=$obCon->normalizar($_REQUEST["FechaFinal"])." 23:59:59";
             $CmbEstado=$obCon->normalizar($_REQUEST["CmbEstado"]);
             $CmbProyectosTicketsListado=$obCon->normalizar($_REQUEST["CmbProyectosTicketsListado"]);  
             $CmbModulosTicketsListado=$obCon->normalizar($_REQUEST["CmbModulosTicketsListado"]);
