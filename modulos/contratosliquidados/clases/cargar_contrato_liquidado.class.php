@@ -90,6 +90,7 @@ class CargarContratos extends conexion{
         
         $ValorContrato=$objPHPExcel->getActiveSheet()->getCell('B8')->getCalculatedValue();
         $Modalidad=$objPHPExcel->getActiveSheet()->getCell('B9')->getCalculatedValue();
+        $Modalidad=trim($Modalidad);
         $ValorPercapita=$objPHPExcel->getActiveSheet()->getCell('B10')->getCalculatedValue();
         $PorcentajePoblacional=$objPHPExcel->getActiveSheet()->getCell('B11')->getCalculatedValue();
         $Datos["NitIPS"]=$NIT;

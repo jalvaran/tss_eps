@@ -136,11 +136,12 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosArchivo=$obCon->FetchAssoc($Consulta);
             if($DatosEPS["ID"]==1 or $DatosEPS["ID"]==2){ 
                 
-                if(strtoupper($DatosContrato["Modalidad"])=='CAPITA' OR strtoupper($DatosContrato["Modalidad"])=='PGP'){
+                if(strtoupper(trim($DatosContrato["Modalidad"]))=='CAPITA'){
                     
                     $obCon->GuardeArchivoCapitaEnTemporal($idContrato,$CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
                 
                 }else{
+                    
                     $obCon->GuardeArchivoEnTemporal($idContrato,$CmbIPS,$CmbEPS,$DatosArchivo["NombreArchivo"],$DatosArchivo["Ruta"],$DatosArchivo["Soporte"],$idUser);
                 }
                 
