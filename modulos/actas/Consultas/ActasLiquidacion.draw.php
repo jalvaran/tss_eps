@@ -346,10 +346,16 @@ if( !empty($_REQUEST["Accion"]) ){
                             print("</td>");
                         }else{
                             print("<td>");
-                                print("Contrato agregado al acta de liquidación No. ".$DatosValidacionContratoActa["idActaLiquidacion"]);
+                                print("Contrato agregado al acta de liquidación No. ".$DatosValidacionContratoActa["idActaLiquidacion"]."<br>");
+                                
+                                //$css->CrearBotonEvento("btnAsociarContrato", "Asociar Contrato", 1, "onclick", "AsociarContratoEquivalente(`".$DatosContratos["NumeroContrato"]."`,`CmbContratoExistente_$i`)", "verde", "style='width:150px;'");
+                               
+                                    $css->CrearBotonEvento("btnCrearContrato", "Crear Contrato", 1, "onclick", "AbreFormularioCrearContrato(`".$DatosContratos["NumeroContrato"]."`)", "azul", "style='width:150px;'");
+                                     print("<br>");
+                                    $css->CrearBotonEvento("btnRenombrarContrato", "Renombrar Contrato", 1, "onclick", "ModalRenombrarContrato(`".$DatosContratos["NumeroContrato"]."`)", "rojo", "style='width:150px;'");
                             print("</td>");
                             print("<td>");
-                            
+                                
                             print("</td>");
                         }
                         

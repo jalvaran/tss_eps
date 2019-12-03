@@ -16,190 +16,36 @@ if( !empty($_REQUEST["Accion"]) ){
     switch ($_REQUEST["Accion"]) {
         case 1: //Dibuja el listado general de tickets
             
-            $TipoUser=$_SESSION["tipouser"];
-            
-            $Busqueda=$obCon->normalizar($_REQUEST["Busqueda"]);
-            //$Busqueda= str_replace(" ", "%", $Busqueda);
-            //print($Busqueda);
-            $CmbEstadoTicketsListado=$obCon->normalizar($_REQUEST["CmbEstadoTicketsListado"]);
-            $CmbFiltroUsuario=$obCon->normalizar($_REQUEST["CmbFiltroUsuario"]);
-            
-            if($CmbEstadoTicketsListado==0){
-                $Condicional=" WHERE Estado>9 ";
-                $OrderBy=" ORDER BY Prioridad DESC,FechaActualizacion DESC";
+            $FechaInicial=$obCon->normalizar($_REQUEST["FechaInicial"]);
+            $FechaFinal=$obCon->normalizar($_REQUEST["FechaFinal"]);
+            $CmbEstado=$obCon->normalizar($_REQUEST["CmbEstado"]);
+            $CmbProyectosTicketsListado=$obCon->normalizar($_REQUEST["CmbProyectosTicketsListado"]);  
+            $CmbModulosTicketsListado=$obCon->normalizar($_REQUEST["CmbModulosTicketsListado"]);
+            $CmbTiposTicketsListado=$obCon->normalizar($_REQUEST["CmbTiposTicketsListado"]);
+            if($FechaInicial==''){
+                exit("E1;Debes seleccionar una Fecha Inicial;FechaInicial");
             }
-            if($CmbEstadoTicketsListado==1){
-                $Condicional=" WHERE Estado<=9 ";
-                $OrderBy=" ORDER BY Prioridad DESC,FechaActualizacion ASC";
+            if($FechaFinal==''){
+                exit("E1;Debes seleccionar una Fecha Final;FechaFinal");
             }
-            if($CmbEstadoTicketsListado==3){
-                $Condicional=" WHERE Estado>0 ";
-                $OrderBy=" ORDER BY Prioridad DESC,FechaActualizacion DESC";
+            if($CmbEstado==''){
+                $CmbEstado=0;
             }
-            if($CmbFiltroUsuario==2){
-                $Condicional.=" AND (idUsuarioSolicitante='$idUser' or idUsuarioAsignado='$idUser') ";
+            if($CmbProyectosTicketsListado==''){
+                $CmbProyectosTicketsListado=0;
             }
-            //Paginacion
-            if(isset($_REQUEST['Page'])){
-                $NumPage=$obCon->normalizar($_REQUEST['Page']);
-            }else{
-                $NumPage=1;
+            if($CmbModulosTicketsListado==''){
+                $CmbModulosTicketsListado=0;
             }
-            
-            if(isset($_REQUEST['Busqueda'])){
-                $Busqueda=$obCon->normalizar($_REQUEST['Busqueda']);
-                if($Busqueda<>''){
-                    $Condicional.=" AND ( ID='$Busqueda' or Asunto like '%$Busqueda%' )";
-                    //$Condicional.=" AND ( ID='$Busqueda' or MATCH(Asunto) AGAINST ('%$Busqueda%') )";
-                    
-                }
-                
+            if($CmbTiposTicketsListado==''){
+                $CmbTiposTicketsListado=0;
             }
-            
-            if(isset($_REQUEST['CmbProyectosTicketsListado'])){
-                $Proyecto=$obCon->normalizar($_REQUEST['CmbProyectosTicketsListado']);
-                if($Proyecto<>''){
-                    $Condicional.=" AND idProyecto='$Proyecto' ";
-                    
-                    
-                }
-                
-            }
-            
-            if(isset($_REQUEST['CmbModulosTicketsListado'])){
-                
-                $idModuloProyecto=$obCon->normalizar($_REQUEST['CmbModulosTicketsListado']);
-                if($idModuloProyecto<>''){
-                    $Condicional.=" AND idModuloProyecto='$idModuloProyecto' ";
-                    
-                    
-                }
-                
-            }
-            
-            if(isset($_REQUEST['CmbTiposTicketsListado'])){
-                $TipoTicket=$obCon->normalizar($_REQUEST['CmbTiposTicketsListado']);
-                if($TipoTicket<>''){
-                    $Condicional.=" AND TipoTicket='$TipoTicket' ";
-                    
-                    
-                }
-                
-            }
-            
-            if($TipoUser=="ips"){
-                $Condicional.=" AND idUsuarioSolicitante='$idUser' ";
-            }
-            
-            
-            $statement=" `vista_tickets` $Condicional ";
-            if(isset($_REQUEST['st'])){
-
-                $statement= urldecode($_REQUEST['st']);
-                //print($statement);
-            }
-            
-            $limit = 15;
-            $startpoint = ($NumPage * $limit) - $limit;
-            
-            $VectorST = explode("LIMIT", $statement);
-            $statement = $VectorST[0]; 
-            $query = "SELECT COUNT(*) as `num` FROM {$statement}";
-            $row = $obCon->FetchArray($obCon->Query($query));
-            $ResultadosTotales = $row['num'];
-            
-            $st_reporte=$statement;
-            $Limit=" LIMIT $startpoint,$limit";
-            
-            $query="SELECT * ";
-            $Consulta=$obCon->Query("$query FROM $statement $OrderBy $Limit ");
-            $TotalPaginas= ceil($ResultadosTotales/$limit);
-            
-            $css->CrearDiv("", "box-header with-border", "", 1, 1);
-                print("<h3 class='box-title'>Listado de Tickets</h3>");
-                print('<span class="label label-primary pull-right"><h4><strong>'.$ResultadosTotales.'</strong></h4></span>');
-            $css->CerrarDiv();
-            
-            $css->CrearDiv("", "box-body no-padding", "", 1, 1);
-                $css->CrearDiv("", "mailbox-controls", "", 1, 1);
-                    print('<button type="button" class="btn btn-default btn-sm" onclick="VerListadoTickets()"><i class="fa fa-refresh"></i></button>');
-                    $css->CrearDiv("", "pull-right", "", 1, 1);
-                       
-                        print('<div class="input-group">');   
-                            if($TotalPaginas==0){
-                                $TotalPaginas=1;
-                            }
-                            if($NumPage>1){
-                                 $goPage=$NumPage-1;
-                                 
-                                 print('<button type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-left" onclick="VerListadoTickets('.$goPage.')"></i></button>');
-                                 
-                             }
-                            print("Página $NumPage de $TotalPaginas ");
-                            
-                            
-                             
-                             if($NumPage<>$TotalPaginas){
-                                $goPage=$NumPage+1;
-                                print('<button type="button" class="btn btn-default btn-sm" onclick="VerListadoTickets('.$goPage.')"><i class="fa fa-chevron-right"></i></button>');
-                            
-                            }
-                        $css->CerrarDiv();
+            $page="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=38&FechaInicial=$FechaInicial&FechaFinal=$FechaFinal"; 
+            $page.="&CmbEstado=$CmbEstado&CmbProyectosTicketsListado=$CmbProyectosTicketsListado&CmbModulosTicketsListado=$CmbModulosTicketsListado&CmbTiposTicketsListado=$CmbTiposTicketsListado";
+            $Target="FramePDF";
+            //$Target="_blank";
+            print("<a id='LinkPDF' target='$Target' href='$page'></a>");
                         
-                    $css->CerrarDiv();  
-                $css->CerrarDiv();
-                
-                $css->CrearDiv("", "table-responsive mailbox-messages", "", 1, 1);
-                    print('<table class="table table-hover table-striped">');
-                        print('<tbody>');
-                        while($DatosTickets=$obCon->FetchAssoc($Consulta)){
-                            $idTicket=$DatosTickets["ID"];
-                            print("<tr>");
-                                print("<td class='mailbox-name'>");
-                                    print('<a href="#" onclick=VerTicket('.$idTicket.')>'.$DatosTickets["ID"].'</a>');
-                                print("</td>");
-                                print("<td class='mailbox-subject'>");
-                                    print('<a href="#" onclick=VerTicket('.$idTicket.')><strong>'.$DatosTickets["NombreSolicitante"]." ".$DatosTickets["ApellidoSolicitante"]." -> ".$DatosTickets["NombreAsignado"]." ".$DatosTickets["ApellidoAsignado"]." </strong>: ".$DatosTickets["Asunto"].'</a>');
-                                    
-                                print("</td>");
-                                
-                                print("<td class='mailbox-date' style='text-align:right'>");
-                                    print('<b>'.$DatosTickets["NombreEstado"].'</b>');
-                                print("</td>");
-                                print("<td class='mailbox-date' style='text-align:right'>");
-                                    print('<b>'.$DatosTickets["NombrePrioridad"].'</b>');
-                                print("</td>");
-                                print("<td class='mailbox-date' style='text-align:right'>");
-                                    print('<b>'.$DatosTickets["NombreProyecto"].'</b>');
-                                print("</td>");
-                                print("<td class='mailbox-date' style='text-align:right'>");
-                                    print('<b>'.$DatosTickets["NombreModulo"].'</b>');
-                                print("</td>");
-                                print("<td class='mailbox-date' style='text-align:right'>");
-                                    print('<b>'.utf8_encode($DatosTickets["NombreTipoTicket"]).'</b>');
-                                print("</td>");
-                                print("<td class='mailbox-date' style='text-align:right'>");
-                                    print('<b>'.$DatosTickets["FechaApertura"].'</b>');
-                                print("</td>");
-                                print("<td class='mailbox-date' style='text-align:right'>");
-                                    print('<b>'.$DatosTickets["FechaActualizacion"].'</b>');
-                                print("</td>");
-                            print("</tr>");
-                        }
-                        print('</tbody>');
-                    $css->CerrarTabla();
-                $css->CerrarDiv();
-                
-                $css->CrearDiv("", "box-footer no-padding", "", 1, 1);
-                
-                $css->CerrarDiv();
-                
-                
-            $css->CerrarDiv();
-            
-            
-           
-            
         break; //Fin caso 1
         
         case 2: //Formulario Nuevo Ticket

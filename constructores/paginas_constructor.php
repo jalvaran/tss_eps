@@ -496,7 +496,7 @@ class PageConstruct extends html_estruct_class{
               <div class="pull-right hidden-xs">
                 <b>Version</b> 1.0
               </div>
-              <strong>Copyright &copy; 2006-'.$anio.' <a href="http://technosoluciones.com.co">Techno Soluciones SAS</a>.</strong> All rights
+              <strong>Copyright &copy; 2006-'.$anio.' <a href="https://agssalud.com/">AGS SALUD SAS And Julian Andres Alvaran Valencia</a>.</strong> All rights
               reserved.
             </footer>');
     }

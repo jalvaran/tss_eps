@@ -58,6 +58,11 @@ class Documento{
             $this->PDF->SetHeaderMargin(PDF_MARGIN_HEADER);
             $this->PDF->SetFooterMargin(10);
         }
+        if($Margenes==2){
+            $this->PDF->SetMargins(10, 10, PDF_MARGIN_RIGHT);
+            $this->PDF->SetHeaderMargin(PDF_MARGIN_HEADER);
+            $this->PDF->SetFooterMargin(10);
+        }
         
         // set auto page breaks
         $this->PDF->SetAutoPageBreak(TRUE, 10);
@@ -180,7 +185,7 @@ $txt="<h3>".$DatosEmpresaPro["RazonSocial"]."<br>NIT ".$DatosEmpresaPro["NIT"]."
 $this->PDF->MultiCell(62, 5, $txt, 0, 'L', 1, 0, '', '', true,0, true, true, 10, 'M');
 $txt=$DatosEmpresaPro["Direccion"]."<br>".$DatosEmpresaPro["Telefono"]."<br>".$DatosEmpresaPro["Ciudad"]."<br>".$DatosEmpresaPro["WEB"];
 $this->PDF->MultiCell(62, 5, $txt, 0, 'C', 1, 0, '', '', true,0, true, true, 10, 'M');
-$Documento="<strong>$NumeracionDocumento</strong><br><h5>Impreso por TS5, Techno Soluciones SAS <BR>NIT 900.833.180 3177740609</h5><br>";
+$Documento="<strong>$NumeracionDocumento</strong><br><br>";
 $this->PDF->MultiCell(62, 5, $Documento, 0, 'R', 1, 0, '', '', true,0, true ,true, 10, 'M');
 $this->PDF->writeHTML("<br>", true, false, false, false, '');
 //Close and output PDF document
@@ -1065,6 +1070,144 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                     
                 
             }
+        $html.='</table>';
+        return($html);
+    }
+    
+    public function InformeTickets($FechaInicial,$FechaFinal,$CmbEstado,$CmbProyectosTicketsListado,$CmbModulosTicketsListado,$CmbTiposTicketsListado) {
+        $obCon=new conexion(1);
+        $idFormato=1;
+        $fecha=date("Y-m-d");
+        $DatosFormatos= $this->obCon->DevuelveValores("formatos_calidad", "ID", $idFormato);
+        
+        $Documento="$DatosFormatos[Nombre]";
+        
+        $this->PDF_Ini($DatosFormatos["Nombre"], 9, "",2);
+        $this->PDF_Encabezado($fecha,1, $idFormato, "",$Documento);
+        
+        $html=$this->ResumenInformeTickets($FechaInicial,$FechaFinal,$CmbEstado,$CmbProyectosTicketsListado,$CmbModulosTicketsListado,$CmbTiposTicketsListado);
+        $this->PDF->writeHTML("<BR><BR><BR><BR><BR>".$html, true, false, false, false, '');
+        $Condicional="";
+        if($CmbProyectosTicketsListado>0){
+            $Condicional.=" AND t1.idProyecto='$CmbProyectosTicketsListado'";
+        }
+        if($CmbModulosTicketsListado>0){
+            $Condicional.=" AND t1.idModuloProyecto='$CmbModulosTicketsListado'";
+        }
+        if($CmbTiposTicketsListado>0){
+            $Condicional.=" AND t1.TipoTicket='$CmbTiposTicketsListado'";
+        }
+        if($CmbEstado>0){
+            $Condicional.=" AND t1.Estado='$CmbEstado'";
+        }
+        $sql="SELECT t1.*
+            FROM vista_tickets t1 WHERE t1.FechaApertura>='$FechaInicial' AND t1.FechaApertura<='$FechaFinal' $Condicional ORDER BY idProyecto,TipoTicket,idModuloProyecto,Prioridad";
+        $Consulta=$obCon->Query($sql);
+        while($DatosTickets=$obCon->FetchAssoc($Consulta)){
+            $idTicket=$DatosTickets["ID"];
+            $Asunto="<BR><h4>Ticket No. $idTicket ".$DatosTickets["Asunto"]."</h4>";
+            $Asunto.="<br>Estado: ".$DatosTickets["NombreEstado"];
+            $Asunto.="<br>Proyecto: ".$DatosTickets["NombreProyecto"];
+            $Asunto.="<br>TipoTicket: ".$DatosTickets["NombreTipoTicket"];
+            $Asunto.="<br>Fecha: ".$DatosTickets["FechaApertura"];
+            $Asunto.="<br>de: ".$DatosTickets["NombreSolicitante"]." ".$DatosTickets["ApellidoSolicitante"];
+            $Asunto.="<br>para: ".utf8_encode($DatosTickets["NombreAsignado"]." ".$DatosTickets["ApellidoAsignado"]);
+            $Asunto.="<BR>";
+            $this->PDF->writeHTML($Asunto, true, false, false, false, '');
+            $sql="SELECT t1.*,
+                 (SELECT Nombre FROM usuarios t2 WHERE t2.idUsuarios=t1.idUser) as NombreUsuario, 
+                 (SELECT Apellido FROM usuarios t2 WHERE t2.idUsuarios=t1.idUser) as ApellidoUsuario  
+                 FROM tickets_mensajes t1 WHERE t1.idTicket='$idTicket' ";
+            $ConsultaRespuestas= $obCon->Query($sql);
+            while($DatosMensajes=$obCon->FetchAssoc($ConsultaRespuestas)){
+                
+                $this->PDF->writeHTML( $DatosMensajes["Created"]."<BR>", true, false, false, false, '');
+                $this->PDF->writeHTML( $DatosMensajes["NombreUsuario"]." ".$DatosMensajes["ApellidoUsuario"].":<BR>", true, false, false, false, '');
+                $this->PDF->writeHTML( $DatosMensajes["Mensaje"]."<BR><HR>", true, false, false, false, '');
+                
+            }
+            
+        }
+        
+        $this->PDF_Output($DatosFormatos["Nombre"]);
+    }
+    
+    public function ResumenInformeTickets($FechaInicial,$FechaFinal,$CmbEstado,$CmbProyectosTicketsListado,$CmbModulosTicketsListado,$CmbTiposTicketsListado) {
+        $obCon=new conexion(1);
+        $sql="SELECT COUNT(ID) as Total, NombreProyecto,NombreModulo,NombreTipoTicket,NombreEstado FROM vista_tickets 
+              WHERE FechaApertura>='$FechaInicial' AND FechaApertura<='$FechaFinal' 
+              GROUP BY idProyecto,Estado,TipoTicket,idModuloProyecto  ";
+        $Consulta=$obCon->Query($sql);
+        $html='<table cellspacing="3" cellpadding="2" border="0">';
+            $html.='<tr>';
+                $html.='<td colspan="5" style="text-align:center">';
+                    $html.= "<strong>RESUMEN DE GESTIÓN DE TICKETS DEL $FechaInicial AL $FechaFinal</strong>";
+                $html.='</td>';
+                
+                
+            $html.='</tr>';
+            
+            
+            $html.='<tr>';
+                
+                $html.='<td>';
+                    $html.= "<strong>Nombre del Proyecto</strong>";
+                $html.='</td>';
+                $html.='<td>';
+                    $html.= "<strong>Nombre del Modulo</strong>";
+                $html.='</td>';
+                $html.='<td>';
+                    $html.= "<strong>Tipo de Ticket</strong>";
+                $html.='</td>';
+                $html.='<td>';
+                    $html.= "<strong>Estado</strong>";
+                $html.='</td>';
+                $html.='<td>';
+                    $html.= "<strong>Total</strong>";
+                $html.='</td>';
+                
+            $html.='</tr>';
+            $h=0;
+            $TotalTickets=0;
+        while($DatosResumen=$obCon->FetchAssoc($Consulta)){
+            $TotalTickets=$TotalTickets+$DatosResumen["Total"];
+            if($h==0){
+                $Back="#f2f2f2";
+                $h=1;
+            }else{
+                $Back="white";
+                $h=0;
+            } 
+            $html.='<tr>';
+                
+                $html.='<td style="border-bottom: 1px solid #ddd;background-color: '.$Back.';">';
+                    $html.= utf8_encode($DatosResumen["NombreProyecto"]);
+                $html.='</td>';
+                $html.='<td style="border-bottom: 1px solid #ddd;background-color: '.$Back.';">';
+                    $html.= utf8_encode($DatosResumen["NombreModulo"]);
+                $html.='</td>';
+                $html.='<td style="border-bottom: 1px solid #ddd;background-color: '.$Back.';">';
+                    $html.= utf8_encode($DatosResumen["NombreTipoTicket"]);
+                $html.='</td>';
+                $html.='<td style="border-bottom: 1px solid #ddd;background-color: '.$Back.';">';
+                    $html.= utf8_encode($DatosResumen["NombreEstado"]);
+                $html.='</td>';
+                $html.='<td style="border-bottom: 1px solid #ddd;background-color: '.$Back.';">';
+                    $html.= ($DatosResumen["Total"]);
+                $html.='</td>';
+                
+            $html.='</tr>';
+        }
+        $html.='<tr>';
+                
+                $html.='<td colspan="4" style="text-align:rigth">';
+                    $html.= "<strong>TOTAL DE TICKETS</strong>";
+                $html.='</td>';
+                $html.='<td >';
+                    $html.= number_format($TotalTickets);
+                $html.='</td>';
+                                
+            $html.='</tr>';
         $html.='</table>';
         return($html);
     }

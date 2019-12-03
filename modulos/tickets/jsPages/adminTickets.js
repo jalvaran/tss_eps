@@ -55,12 +55,12 @@ $('#CmbBusquedas').bind('change', function() {
 */
 
 
-function VerListadoTickets(Page=1){
-    document.getElementById("DivDrawTickets").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+function GenerarInformeTicketsPDF(){
+    document.getElementById("DivProcess").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
     
-    var Busqueda=document.getElementById('TxtBusquedas').value;
-    var CmbEstadoTicketsListado=document.getElementById('CmbEstadoTicketsListado').value;  
-    var CmbFiltroUsuario=document.getElementById('CmbFiltroUsuario').value; 
+    var FechaInicial=document.getElementById('FechaInicial').value;
+    var FechaFinal=document.getElementById('FechaFinal').value;  
+    var CmbEstado=document.getElementById('CmbEstado').value; 
     var CmbProyectosTicketsListado=document.getElementById('CmbProyectosTicketsListado').value; 
     var CmbModulosTicketsListado=document.getElementById('CmbModulosTicketsListado').value; 
     var CmbTiposTicketsListado=document.getElementById('CmbTiposTicketsListado').value;
@@ -68,15 +68,15 @@ function VerListadoTickets(Page=1){
     var form_data = new FormData();
         form_data.append('Accion', 1);
         
-        form_data.append('Page', Page);
-        form_data.append('Busqueda', Busqueda);
-        form_data.append('CmbEstadoTicketsListado', CmbEstadoTicketsListado);
-        form_data.append('CmbFiltroUsuario', CmbFiltroUsuario);
+        form_data.append('FechaInicial', FechaInicial);
+        form_data.append('FechaFinal', FechaFinal);
+        form_data.append('CmbEstado', CmbEstado);
+        
         form_data.append('CmbProyectosTicketsListado', CmbProyectosTicketsListado);
         form_data.append('CmbModulosTicketsListado', CmbModulosTicketsListado);
         form_data.append('CmbTiposTicketsListado', CmbTiposTicketsListado);
         $.ajax({
-        url: './Consultas/tickets.draw.php',
+        url: './Consultas/adminTickets.draw.php',
         //dataType: 'json',
         cache: false,
         contentType: false,
@@ -85,7 +85,9 @@ function VerListadoTickets(Page=1){
         type: 'post',
         success: function(data){
             
-           document.getElementById('DivDrawTickets').innerHTML=data;
+           document.getElementById('DivProcess').innerHTML=data;
+           document.getElementById("LinkPDF").click();
+           document.getElementById("DivPDFReportes").style.display="block";
             
         },
         error: function (xhr, ajaxOptions, thrownError) {
@@ -96,41 +98,6 @@ function VerListadoTickets(Page=1){
       });
 }
 
-function CambiePagina(Page=""){
-    
-    if(Page==""){
-        Page = document.getElementById('CmbPage').value;
-    }
-    VerListadoTickets(Page);
-}
-
-function FormularioNuevoTicket(){
-    document.getElementById("DivDrawTickets").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
-    
-    var form_data = new FormData();
-        form_data.append('Accion', 2);
-        
-        $.ajax({
-        url: './Consultas/tickets.draw.php',
-        //dataType: 'json',
-        cache: false,
-        contentType: false,
-        processData: false,
-        data: form_data,
-        type: 'post',
-        success: function(data){
-            
-           document.getElementById('DivDrawTickets').innerHTML=data;
-           $("#CmbUsuarioDestino").select2();
-           $("#TxtMensaje").wysihtml5(); 
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            LimpiarDivs();
-            alert(xhr.status);
-            alert(thrownError);
-          }
-      });
-}
 
 function CrearTicket(){
     document.getElementById('BtnGuardarTicket').disabled=true;
@@ -383,4 +350,3 @@ function MarqueErrorElemento(idElemento){
 
 document.getElementById('BtnMuestraMenuLateral').click();
  
-VerListadoTickets();

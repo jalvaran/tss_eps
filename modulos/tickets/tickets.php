@@ -57,7 +57,7 @@ $css->PageInit($myTitulo);
           <!-- /. box -->
           <div class="box box-solid">
             <div class="box-header with-border">
-              <h3 class="box-title">Estado</h3>
+              <h3 class="box-title">Filtros</h3>
 
               <div class="box-tools">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -84,6 +84,52 @@ $css->PageInit($myTitulo);
                 $css->Coption();
             $css->Cselect();
             print("<br>");
+            
+            $css->select("CmbProyectosTicketsListado", "form-control", "CmbProyectosTicketsListado", "", "", "onchange=VerListadoTickets()", "");
+                $css->option("", "", "", '', "", "");
+                    print("Todos los proyectos");
+                $css->Coption();
+                
+                $Consulta=$obCon->ConsultarTabla("tickets_proyectos", "");
+                while($DatosSelect=$obCon->FetchAssoc($Consulta)){
+                    $css->option("", "", "", $DatosSelect["ID"], "", "");
+                        print(utf8_encode($DatosSelect["Proyecto"]));
+                    $css->Coption();
+                }
+                
+            $css->Cselect();
+            print("<br>");
+            
+            $css->select("CmbModulosTicketsListado", "form-control", "CmbModulosTicketsListado", "", "", "onchange=VerListadoTickets()", "");
+                $css->option("", "", "", '', "", "");
+                    print("Todos los Módulos");
+                $css->Coption();
+                
+                $Consulta=$obCon->ConsultarTabla("tickets_modulos_proyectos", "");
+                while($DatosSelect=$obCon->FetchAssoc($Consulta)){
+                    $css->option("", "", "", $DatosSelect["ID"], "", "");
+                        print(utf8_encode($DatosSelect["NombreModulo"]));
+                    $css->Coption();
+                }
+                
+            $css->Cselect();
+            print("<br>");
+            
+            $css->select("CmbTiposTicketsListado", "form-control", "CmbTiposTicketsListado", "", "", "onchange=VerListadoTickets()", "");
+                $css->option("", "", "", '', "", "");
+                    print("Todos los Tipos");
+                $css->Coption();
+                
+                $Consulta=$obCon->ConsultarTabla("tickets_tipo", "");
+                while($DatosSelect=$obCon->FetchAssoc($Consulta)){
+                    $css->option("", "", "", $DatosSelect["ID"], "", "");
+                        print(utf8_encode($DatosSelect["TipoTicket"]));
+                    $css->Coption();
+                }
+                
+            $css->Cselect();
+            print("<br>");
+            
             $css->select("CmbFiltroUsuario", "form-control", "CmbFiltroUsuario", "", "", "onchange=VerListadoTickets()", "");
                 
                 if($_SESSION["Role"]=='SUPERVISOR'){

@@ -97,9 +97,19 @@ if(isset($_REQUEST["idDocumento"])){
             $idActaConciliacion=$obCon->normalizar($_REQUEST["idActaConciliacion"]);
             $obDoc->ActaConciliacionPDF($idActaConciliacion,"");            
         break;//Fin caso 36
-        case 37: //PDF de un acta de conciliacion
+        case 37: //PDF de un acta de liquidacion
             $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
             $obDoc->ActaLiquidacionPDF($idActaLiquidacion,"");            
+        break;//Fin caso 37
+        case 38: //PDF del informe de tickets
+            $FechaInicial=$obCon->normalizar($_REQUEST["FechaInicial"])." 00:00:00";
+            $FechaFinal=$obCon->normalizar($_REQUEST["FechaFinal"])." 11:59:59";
+            $CmbEstado=$obCon->normalizar($_REQUEST["CmbEstado"]);
+            $CmbProyectosTicketsListado=$obCon->normalizar($_REQUEST["CmbProyectosTicketsListado"]);  
+            $CmbModulosTicketsListado=$obCon->normalizar($_REQUEST["CmbModulosTicketsListado"]);
+            $CmbTiposTicketsListado=$obCon->normalizar($_REQUEST["CmbTiposTicketsListado"]);
+            
+            $obDoc->InformeTickets($FechaInicial,$FechaFinal,$CmbEstado,$CmbProyectosTicketsListado,$CmbModulosTicketsListado,$CmbTiposTicketsListado);            
         break;//Fin caso 37
     }
 }else{
