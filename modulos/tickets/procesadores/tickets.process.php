@@ -161,7 +161,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $TxtMensaje=$obCon->normalizar($_REQUEST["TxtMensaje"]);
            
             if($CmbCerrarTicket==''){
-                exit("E1;Debe seleccionar si desea cerrar el ticket;CmbCerrarTicket");
+                exit("E1;Debe seleccionar un estado para el ticket;CmbCerrarTicket");
             }
             
             if($TxtMensaje==''){
@@ -236,13 +236,16 @@ if( !empty($_REQUEST["Accion"]) ){
                 $obCon->AgregarAdjuntoMensaje($destino,$Tamano, $_FILES['upAdjuntosTickets3']['name'], $Extension, $idUser, $idMensaje);
                 
             }
-            
+            $obCon->ActualizaRegistro("tickets", "Estado", $CmbCerrarTicket, "ID", $idTicket);
+            /*
             if($CmbCerrarTicket==1){
                 $obCon->ActualizaRegistro("tickets", "Estado", 10, "ID", $idTicket);
                
             }else{
                 $obCon->ActualizaRegistro("tickets", "Estado", 3, "ID", $idTicket);
             }
+             * 
+             */
             
             print("OK;Respuesta Agregada");          
             

@@ -159,7 +159,7 @@ if( !empty($_REQUEST["Accion"]) ){
                                     print('<a href="#" onclick=VerTicket('.$idTicket.')>'.$DatosTickets["ID"].'</a>');
                                 print("</td>");
                                 print("<td class='mailbox-subject'>");
-                                    print('<a href="#" onclick=VerTicket('.$idTicket.')><strong>'.$DatosTickets["NombreSolicitante"]." ".$DatosTickets["ApellidoSolicitante"]." -> ".$DatosTickets["NombreAsignado"]." ".$DatosTickets["ApellidoAsignado"]." </strong>: ".$DatosTickets["Asunto"].'</a>');
+                                    print('<a href="#" onclick=VerTicket('.$idTicket.')><strong>'.utf8_encode($DatosTickets["NombreSolicitante"])." ".utf8_encode($DatosTickets["ApellidoSolicitante"])." -> ".utf8_encode($DatosTickets["NombreAsignado"])." ".utf8_encode($DatosTickets["ApellidoAsignado"])." </strong>: ".utf8_encode($DatosTickets["Asunto"]).'</a>');
                                     
                                 print("</td>");
                                 
@@ -170,10 +170,10 @@ if( !empty($_REQUEST["Accion"]) ){
                                     print('<b>'.$DatosTickets["NombrePrioridad"].'</b>');
                                 print("</td>");
                                 print("<td class='mailbox-date' style='text-align:right'>");
-                                    print('<b>'.$DatosTickets["NombreProyecto"].'</b>');
+                                    print('<b>'.utf8_encode($DatosTickets["NombreProyecto"]).'</b>');
                                 print("</td>");
                                 print("<td class='mailbox-date' style='text-align:right'>");
-                                    print('<b>'.$DatosTickets["NombreModulo"].'</b>');
+                                    print('<b>'.utf8_encode($DatosTickets["NombreModulo"]).'</b>');
                                 print("</td>");
                                 print("<td class='mailbox-date' style='text-align:right'>");
                                     print('<b>'.utf8_encode($DatosTickets["NombreTipoTicket"]).'</b>');
@@ -239,7 +239,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $Consulta=$obCon->ConsultarTabla("tickets_proyectos", " WHERE Estado=1");
                     while($DatosProyectos=$obCon->FetchAssoc($Consulta)){
                         $css->option("", "", "", $DatosProyectos["ID"], "", "");
-                            print($DatosProyectos["Proyecto"]);
+                            print(utf8_encode($DatosProyectos["Proyecto"]));
                         $css->Coption();
                     }
                 $css->Cselect();
@@ -303,9 +303,12 @@ if( !empty($_REQUEST["Accion"]) ){
             $idTicket=$obCon->normalizar($_REQUEST["idTicket"]);
             $DatosTickets=$obCon->DevuelveValores("tickets", "ID", $idTicket);
             
-            $sql="SELECT Nombre,Apellido FROM usuarios WHERE idUsuarios='".$DatosTickets["idUsuarioSolicitante"]."'";
+            $sql="SELECT t1.Nombre,t1.Apellido,
+                    (SELECT NombreCargo FROM empresa_cargos t2 WHERE t2.ID=t1.Cargo LIMIT 1) AS NombreCargo,
+                    (SELECT NombreProceso FROM empresa_nombres_procesos t3 WHERE t3.ID=t1.Proceso LIMIT 1) AS NombreProceso
+                    FROM usuarios t1 WHERE t1.idUsuarios='".$DatosTickets["idUsuarioSolicitante"]."'";
             $DatosUsuarioCreador=$obCon->FetchAssoc($obCon->Query($sql));
-            $NombreSolicitante=$DatosUsuarioCreador["Nombre"]." ".$DatosUsuarioCreador["Apellido"]; 
+            $NombreSolicitante=$DatosUsuarioCreador["Nombre"]." ".$DatosUsuarioCreador["Apellido"]."<br>".$DatosUsuarioCreador["NombreCargo"]."<br>".$DatosUsuarioCreador["NombreProceso"]; 
             $ExtensionesImagenes=array("png", "bmp", "jpg", "jpeg");
             $css->CrearDiv("", "box-header with-border", "", 1, 1);
                 print('<a href="#" onclick=VerTicket('.$idTicket.')><h3>Ticket No.'.$idTicket.'</h3></a>');
@@ -314,7 +317,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CrearDiv("", "mailbox-read-info", "left", 1, 1);
             print('
                 <h3>'.$DatosTickets["Asunto"].'</h3>
-                <h5>De: '.$NombreSolicitante.'
+                <h5>De: '.utf8_encode($NombreSolicitante).'
                   <span class="mailbox-read-time pull-right">'.$DatosTickets["FechaApertura"].'</span></h5>
               </div>');
             $Consulta=$obCon->ConsultarTabla("tickets_mensajes", "WHERE idTicket='$idTicket'");
@@ -408,13 +411,23 @@ if( !empty($_REQUEST["Accion"]) ){
                     print("<h6 >".$DatosTickets["Asunto"]."</h6>");
                 $css->CerrarDiv();
                 $css->CrearDiv("", "col-md-2", "left", 1, 1);
-                    $css->select("CmbCerrarTicket", "form-control", "CmbCerrarTicket", "Cerrar este Ticket?", "", "", "");
-                        $css->option("", "", "", 0, "", "");
-                            print("NO");
-                        $css->Coption();
-                        $css->option("", "", "", 1, "", "");
-                            print("SI");
-                        $css->Coption();
+                    $css->select("CmbCerrarTicket", "form-control", "CmbCerrarTicket", "Estado:", "", "", "");
+                        $sql="SELECT * FROM tickets_estados ORDER BY ID";
+                        $Consulta=$obCon->Query($sql);
+                        while($DatosEstados=$obCon->FetchAssoc($Consulta)){
+                            if($DatosTickets["Estado"]==$DatosEstados["ID"]){
+                                $Seleccionar=1;
+                            }else{
+                                $Seleccionar=0;
+                            }
+                            //$css->option($id, $class, $title, $value, $vectorhtml, $Script, $Seleccionar, $ng_app);
+                        
+                            $css->option("", "", "", $DatosEstados["ID"], "", "",$Seleccionar);
+                                print($DatosEstados["Estado"]);
+                            $css->Coption();
+                        }
+                        
+                        
                     $css->Cselect();
                 $css->CerrarDiv();
             $css->CerrarDiv();
