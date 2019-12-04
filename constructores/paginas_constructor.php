@@ -1553,15 +1553,16 @@ class PageConstruct extends html_estruct_class{
                             if($DatosCamposAsociados["ID"]>0){
                                 $TablaAsociada=$DatosCamposAsociados["TablaAsociada"];
                                 $CampoAsociado=$DatosCamposAsociados["CampoAsociado"];
+                                $idCampoAsociado=$DatosCamposAsociados["IDCampoAsociado"];
                                 $this->select($value, "form-control", "CmbInserts", "", "", "", "");
                                     $this->option("", "", "Seleccione una opción", "", "", "");
                                             print("Seleccione una opción");
                                         $this->Coption();
-                                    $sql="SELECT $CampoAsociado as CampoAsociado FROM $TablaAsociada ORDER BY $CampoAsociado";
+                                    $sql="SELECT $CampoAsociado as CampoAsociado,$idCampoAsociado as ID FROM $TablaAsociada ORDER BY $CampoAsociado";
                                     $Consulta=$obCon->Query($sql);
                                     while($DatosAsociacion=$obCon->FetchAssoc($Consulta)){
                                       
-                                        $this->option("", "", utf8_encode($DatosAsociacion["CampoAsociado"]), $DatosAsociacion["CampoAsociado"], "", "");
+                                        $this->option("", "", utf8_encode($DatosAsociacion["ID"]), $DatosAsociacion["ID"], "", "");
                                             print(utf8_encode($DatosAsociacion["CampoAsociado"]));
                                         $this->Coption();
                                         
@@ -1674,18 +1675,19 @@ class PageConstruct extends html_estruct_class{
                             if($DatosCamposAsociados["ID"]>0){
                                 $TablaAsociada=$DatosCamposAsociados["TablaAsociada"];
                                 $CampoAsociado=$DatosCamposAsociados["CampoAsociado"];
+                                $idCampoAsociado=$DatosCamposAsociados["IDCampoAsociado"];
                                 $this->select($value, "form-control", "CmbInserts", "", "", "", "");
                                     $this->option("", "", "Seleccione una opción", "", "", "");
                                             print("Seleccione una opción");
                                         $this->Coption();
-                                    $sql="SELECT $CampoAsociado as CampoAsociado FROM $TablaAsociada ORDER BY $CampoAsociado";
+                                    $sql="SELECT $CampoAsociado as CampoAsociado,$idCampoAsociado as ID FROM $TablaAsociada ORDER BY $CampoAsociado";
                                     $Consulta=$obCon->Query($sql);
                                     while($DatosAsociacion=$obCon->FetchAssoc($Consulta)){
                                         $Sel=0;
                                         if($DatosRegistro[$value]==$DatosAsociacion["CampoAsociado"]){
                                             $Sel=1;
                                         }
-                                        $this->option("", "", utf8_encode($DatosAsociacion["CampoAsociado"]), $DatosAsociacion["CampoAsociado"], "", "",$Sel);
+                                        $this->option("", "", utf8_encode($DatosAsociacion["ID"]), $DatosAsociacion["ID"], "", "",$Sel);
                                             print(utf8_encode($DatosAsociacion["CampoAsociado"]));
                                         $this->Coption();
                                         

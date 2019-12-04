@@ -289,11 +289,11 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CierraFilaTabla();
                 
                     print("<td>");
-                        $css->input("date", "FechaInicialPercapita", "form-control", "FechaInicialPercapita", "", date("Y-m-d"), "Fecha Inicial", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
+                        $css->input("date", "FechaInicialPercapita", "form-control", "FechaInicialPercapita", "", $DatosContratos["FechaInicioContrato"], "Fecha Inicial", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
                     print("</td>");
                     
                     print("<td>");
-                        $css->input("date", "FechaFinalPercapita", "form-control", "FechaFinalPercapita", "", date("Y-m-d"), "Fecha Final", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
+                        $css->input("date", "FechaFinalPercapita", "form-control", "FechaFinalPercapita", "", $DatosContratos["FechaFinalContrato"], "Fecha Final", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
                     print("</td>");
                     
                     print("<td>");

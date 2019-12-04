@@ -158,27 +158,30 @@ class Documento{
 ////////////////////////////////////////////////////////
 //////
 //////
-$tbl = <<<EOD
+
+$tbl = ' 
 <table cellspacing="0" cellpadding="1" border="1">
     <tr border="1">
-        <td rowspan="3" border="1" style="text-align: center;"><img src="$RutaLogo" style="width:110px;height:60px;"></td>
+        <td rowspan="3" border="1" style="text-align: center;"><img src="'.$RutaLogo.'" style="width:140px;height:60px;"></td>
         
-        <td rowspan="3" width="290px" style="text-align: center; vertical-align: center;"><h2><br>$DatosFormatoCalidad[Nombre]</h2></td>
-        <td width="70px" style="text-align: center;">Versión<br></td>
-        <td width="130px"> $DatosFormatoCalidad[Version]</td>
-    </tr>
-    <tr>
-    	
-    	<td style="text-align: center;" >Código<br></td>
-        <td> $DatosFormatoCalidad[Codigo]</td>
+        <td rowspan="1" colspan="2" width="330px" style="text-align: center; vertical-align: center;"><h2><br>'.utf8_encode($DatosFormatoCalidad["Proceso"]).'</h2></td>
+        <td rowspan="2" style="font-size:12px;text-align: center; vertical-align: center;">Fecha de Creación<BR> '.$DatosFormatoCalidad["Fecha"].'</td> 
         
     </tr>
     <tr>
-       <td style="text-align: center;" >Fecha<br></td>
-       <td style="font-size:6px;"> $DatosFormatoCalidad[Fecha]</td> 
+        
+    	<td rowspan="1" colspan="2" width="330px" style="text-align: center; vertical-align: center;"><h2><br>'.utf8_encode($DatosFormatoCalidad["Nombre"]).'</h2></td>
+        
+        
+    </tr>
+    <tr>
+        
+       <td style="text-align: center;font-size:12px;" >Código: '.$DatosFormatoCalidad["Codigo"].'</td>
+       <td style="text-align: center;font-size:12px;" >Versión: '.$DatosFormatoCalidad["Version"].'</td>
+       
     </tr>
 </table>
-EOD;
+';
 $this->PDF->writeHTML($tbl, true, false, false, false, '');
 $this->PDF->SetFillColor(255, 255, 255);
 $txt="<h3>".$DatosEmpresaPro["RazonSocial"]."<br>NIT ".$DatosEmpresaPro["NIT"]."</h3>";
