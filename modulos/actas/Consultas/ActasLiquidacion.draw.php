@@ -226,6 +226,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     . "INNER JOIN actas_liquidaciones_tipo t2 ON t2.ID=t1.TipoActaLiquidacion WHERE t1.ID='$idActaLiquidacion';";
             
             $DatosActa=$obCon->FetchAssoc($obCon->Query($sql));
+            $NitIPS=$DatosActa["NIT_IPS"];
             $TipoActa=$DatosActa["TipoActaLiquidacion"];
             $MesServicioInicial=$DatosActa["MesServicioInicial"];
             $MesServicioFinal=$DatosActa["MesServicioFinal"];
@@ -272,15 +273,26 @@ if( !empty($_REQUEST["Accion"]) ){
                 
                 * 
                 */
-                if($TipoActa==3 or $TipoActa==6) {   
-                    $sql="SELECT DISTINCT t1.NumeroContrato FROM $db.carteraeps t1 "
+                if($TipoActa==3 or $TipoActa==6) {  
+                    $css->FilaTabla(16);
+                        print("<td>");
+                            
+                            $css->select("CmbContratoNoEjecutado", "form-control", "", "", "", "", "style=width:500px");
                                 
-                                . "WHERE t1.Estado<=2 AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal' ORDER BY t1.NumeroContrato;";
+                                $css->option("", "", "", "", "", "");
+                                    print("Seleccione un contrato");
+                                $css->Coption();    
+                               
+                            $css->Cselect();
+                            
+                            $css->CrearBotonEvento("btnAgregarContratoNoEjecutado", "Agregar", 1, "onclick", "AgregarContratoNoEjecutado(`$idActaLiquidacion`)", "naranja","style=width:500px");
+                        print("</td>");
+                    $css->CierraFilaTabla();
                 }else{
                    $sql="SELECT DISTINCT t1.NumeroContrato FROM $db.actas_conciliaciones_items t1 "
                                 . "INNER JOIN actas_conciliaciones t2 ON t1.idActaConciliacion=t2.ID "
                                 . "WHERE t2.Estado=1 AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal' AND t2.NIT_IPS='$CmbIPS' ORDER BY t1.NumeroContrato;";
-                }
+                
                 
                 
                 $Consulta=$obCon->Query($sql);
@@ -360,8 +372,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         }
                         
                     $css->CierraFilaTabla();
-                }
+                    }
                 
+                }
                 $css->CerrarTabla();
                 
             $css->div("DivDatosGeneralesActaLiquidacion", "col-md-12", "", "", "", "", "");

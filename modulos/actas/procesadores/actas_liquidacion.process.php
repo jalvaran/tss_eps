@@ -498,6 +498,42 @@ if( !empty($_REQUEST["Accion"]) ){
             
         break;//Fin caso 14
         
+        case 15://Agregar contrato no ejecutado a un acta liquidacion
+            $idActaLiquidacion = $obCon->normalizar($_REQUEST["idActaLiquidacion"]);
+            $idContrato = $obCon->normalizar($_REQUEST["idContratoNoEjecutado"]);
+            
+            $CmbIPS = $obCon->normalizar($_REQUEST["CmbIPS"]);
+            
+            if($idActaLiquidacion==''){
+                exit("E1;No se recibió un acta de liquidación");
+            }
+            
+            if($idContrato==''){
+                exit("E1;No se recibió un número de contrato");
+            }
+            
+            $DatosContrato=$obCon->DevuelveValores("contratos", "ID", $idContrato);
+            $FechaInicial=$DatosContrato["FechaInicioContrato"];
+            $FechaFinal=$DatosContrato["FechaFinalContrato"];
+            $Contrato=$DatosContrato["Contrato"];
+            $ValorContrato=$DatosContrato["ValorContrato"];
+            //$Validacion=$obCon->DevuelveValores("actas_liquidaciones_contratos", "idContrato", $idContrato);
+            $sql="SELECT ID FROM actas_liquidaciones_contratos WHERE idContrato='$Contrato' AND idActaLiquidacion='$idActaLiquidacion'";
+            $Validacion=$obCon->FetchAssoc($obCon->Query($sql));
+            if($Validacion["ID"]<>''){
+                exit("E1;El contrato ya está agregado al acta");
+            }
+            $Datos["idActaLiquidacion"]=$idActaLiquidacion;
+            $Datos["idContrato"]=$Contrato;
+            $Datos["FechaInicial"]=$FechaInicial;
+            $Datos["FechaFinal"]=$FechaFinal;
+            $Datos["Valor"]=$ValorContrato;
+            $Datos["NombreContrato"]=$Contrato;
+            $sql=$obCon->getSQLInsert("actas_liquidaciones_contratos", $Datos);
+            $obCon->Query($sql);
+            print("OK;Se agregó el contrato satisfactoriamente");
+        break;//Fin caso 15
+        
     
     }
     

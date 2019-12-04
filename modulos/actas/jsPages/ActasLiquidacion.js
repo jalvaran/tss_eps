@@ -260,6 +260,24 @@ function MostrarActa(){
                 }
               }); 
               
+              $('#CmbContratoNoEjecutado').select2({
+		
+                placeholder: 'Selecciona un Contrato',
+                ajax: {
+                  url: 'buscadores/contratos_no_ejecutados.search.php?nit='+CmbIPS,
+                  dataType: 'json',
+                  delay: 250,
+                                    
+                  processResults: function (data) {
+                      
+                    return {                     
+                      results: data
+                    };
+                  },
+                 cache: true
+                }
+              }); 
+              
               $('#CmbFirmaUsual').select2();
               DibujeFirmasActaConciliacion();
         },
@@ -1186,6 +1204,57 @@ function DibujaVistaItemsActaLiquidacion(Page=1){
             alert(thrownError);
           }
       });
+}
+
+
+function AgregarContratoNoEjecutado(idActaLiquidacion){
+       
+    var idContratoNoEjecutado=document.getElementById('CmbContratoNoEjecutado').value;
+        
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 15);
+        form_data.append('idActaLiquidacion', idActaLiquidacion);
+        form_data.append('idContratoNoEjecutado', idContratoNoEjecutado); 
+                
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+    $.ajax({
+        //async:false,
+        url: './procesadores/actas_liquidacion.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+                
+                alertify.success(respuestas[1]);                
+                MostrarActa();
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                                
+                return;                
+            }else{
+                
+                alertify.alert(data);
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
 }
 
 document.getElementById('BtnMuestraMenuLateral').click();

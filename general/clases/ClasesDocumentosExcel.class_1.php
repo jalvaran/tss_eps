@@ -131,7 +131,7 @@ class TS_Excel extends conexion{
         require_once('../../librerias/Excel/PHPExcel2.php');
         //$db=$DatosIPS["DataBase"];
         $objPHPExcel = new Spreadsheet();
-        
+        $TipoActa=$DatosActa["TipoActaLiquidacion"];
         $DatosActaTipo=$this->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
         $Encabezado= utf8_encode($DatosActaTipo["Header"]);
         $Footer= utf8_encode($DatosActaTipo["Footer"]);
@@ -169,10 +169,10 @@ class TS_Excel extends conexion{
                  "N","O","P","Q","R","S","T","U","V","W","X","Y","Z","AA","AB"];
         $MesServicioInicial=$DatosActa["MesServicioInicial"];
         $MesServicioFinal=$DatosActa["MesServicioFinal"];
-        $DatosContratoTipo=$this->DevuelveValores("contratos_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
+        $DatosContratoTipo= ($this->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]));
                 
         $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue("A1","REPORTE DE LIQUIDACIÓN DE CONTRATOS POR $DatosContratoTipo[Nombre] CON IPS")
+            ->setCellValue("A1","REPORTE DE LIQUIDACIÓN DE CONTRATOS POR $DatosContratoTipo[Titulo] CON IPS")
              
                 ;
         $objPHPExcel->setActiveSheetIndex(0)->mergeCells('A1:N1');
@@ -194,9 +194,9 @@ class TS_Excel extends conexion{
         $objPHPExcel->getActiveSheet()->getStyle('A'.$i)->applyFromArray($styleTitle);
         $objPHPExcel->getActiveSheet()->getStyle('B'.$i)->applyFromArray($styleTitle);
         
-        $sql="SELECT t1.ID,t2.Contrato,t2.TipoContrato,t2.FechaInicioContrato,t2.FechaFinalContrato,t2.ValorContrato
-                             FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente 
-                             WHERE t1.idActaLiquidacion='$idActaLiquidacion' AND NitIPSContratada='$CmbIPS'";
+        $sql="SELECT t1.ID,t1.NombreContrato AS Contrato,t1.FechaInicial as FechaInicioContrato,t1.FechaFinal  as FechaFinalContrato,t1.Valor as ValorContrato
+                FROM actas_liquidaciones_contratos t1 
+                WHERE t1.idActaLiquidacion='$idActaLiquidacion'";
         //print($sql);
         $Consulta= $this->Query($sql);
         $i++;
@@ -216,11 +216,14 @@ class TS_Excel extends conexion{
         $z=1;
         $flagTipoContrato=0;
         while($DatosContratos= $this->FetchAssoc($Consulta)){
+            /*
             if($flagTipoContrato==0){
                 $flagTipoContrato=1;
                 $TipoContrato=$DatosContratos["TipoContrato"];
             }
             
+             * 
+             */
             $objPHPExcel->setActiveSheetIndex(0)
                 ->setCellValue($Campos[$z].$i++,$DatosContratos["Contrato"])
                 ->setCellValue($Campos[$z].$i++,$DatosContratos["FechaInicioContrato"])
@@ -233,7 +236,7 @@ class TS_Excel extends conexion{
             $i=$i-3;
         }
         $i=$i+4;
-        
+        $TipoContrato="";
         $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue($Campos[0].$i,"Modalidad:")
             ->setCellValue($Campos[1].$i,$TipoContrato)
@@ -261,28 +264,144 @@ class TS_Excel extends conexion{
             
             ;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-        
-        
-        if($TipoConsulta==1){
+        $z=0;
+        $i++;
+        if($TipoActa==3){
+            $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            
+            ;
+        }
+        if($TipoConsulta==1 and $TipoActa<>3){
             $Tabla="actas_conciliaciones_items";
+            $TablaUnion="historial_carteracargada_eps";
+            $GroupOrder="ORDER BY MesServicio,NumeroFactura ";
+                        
+            $Union=" UNION ALL     
+                    
+                    SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,
+                    t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
+                    '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
+                    t1.ValorOriginal as TotalDevoluciones,'0' as Saldo                  
+                    FROM $db.$TablaUnion t1 WHERE 
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura)
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                    AND NOT EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t2.NumeroRadicado = t1.NumeroRadicado)  
+                        
+
+                       ";
+            
+            $Union2=" UNION ALL     
+                    
+                    SELECT t1.MesServicio,t1.DepartamentoRadicacion, t1.NumeroRadicado,
+                    t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
+                    '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
+                    t1.ValorOriginal as TotalDevoluciones,'0' as Saldo                  
+                    FROM $db.$TablaUnion t1 WHERE  NOT 
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                      
+
+                       ";
+            $Union3=" UNION ALL     
+                    
+                    SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,
+                    t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
+                    '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
+                    t1.ValorOriginal as TotalDevoluciones,'0' as Saldo,'0' as GlosaXConciliar                        
+                    FROM $db.$TablaUnion t1 WHERE NOT
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                                        
+
+                       ";
+                 // print($Union2) ; 
             $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos + TotalAnticipos) AS TotalPagos,
                     (TotalCopagos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
-                    TotalDevoluciones,ValorSegunEPS as Saldo                  
+                    TotalDevoluciones,ValorSegunEPS as Saldo ,GlosaXConciliar                       
                     FROM $db.$Tabla WHERE                    
-                      ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion') ";
+                      ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion')
+                    
+                      ";
+            $sql.=$Union3.$GroupOrder;
+            //print($sql);
         }    
-        if($TipoConsulta==2){
+        if($TipoConsulta==2 and $TipoActa<>3){
             $Tabla="actas_liquidaciones_items";
+            $TablaUnion="historial_carteracargada_eps";
+            $GroupOrder="ORDER BY MesServicio,NumeroFactura ";
+            $Union=" UNION ALL     
+                    
+                    SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,
+                    t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
+                    '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
+                    t1.ValorOriginal as TotalDevoluciones,'0' as Saldo                  
+                    FROM $db.$TablaUnion t1 WHERE 
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura)
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                    AND NOT EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t2.NumeroRadicado = t1.NumeroRadicado)  
+                        
+
+                       ";
+            $Union2=" UNION ALL     
+                    
+                    SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,
+                    t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
+                    '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
+                    t1.ValorOriginal as TotalDevoluciones,'0' as Saldo                  
+                    FROM $db.$TablaUnion t1 WHERE NOT 
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                      
+
+                       ";
+            
+            $Union3=" UNION ALL     
+                    
+                    SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,
+                    t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
+                    '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
+                    t1.ValorOriginal as TotalDevoluciones,'0' as Saldo,,'0' as GlosaXConciliar                 
+                    FROM $db.$TablaUnion t1 WHERE NOT
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                                        
+
+                       ";
+            
             $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     NumeroFactura,ValorDocumento,Impuestos,(TotalPagos + TotalAnticipos) as TotalPagos,
                     (TotalCopagos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
-                    TotalDevoluciones,ValorSegunEPS as Saldo                  
+                    TotalDevoluciones,ValorSegunEPS as Saldo,GlosaXConciliar                  
                     FROM $db.$Tabla WHERE idActaLiquidacion='$idActaLiquidacion'                  
                       ";
+            
+            $sql.=$Union3.$GroupOrder;
         } 
         //print($sql);
-        $Consulta=$this->Query($sql);
+        if($TipoActa<>3){
+            $Consulta=$this->Query($sql);
+        }
         $Totales["ValorDocumento"]=0;
         $Totales["Impuestos"]=0;
         $Totales["TotalDevoluciones"]=0;
@@ -292,39 +411,41 @@ class TS_Excel extends conexion{
         $Totales["TotalOtrosDescuentos"]=0;
         $Totales["TotalPagos"]=0;
         $Totales["Saldo"]=0;
-        while($DatosVista= $this->FetchAssoc($Consulta)){
-            $z=0;
-            $i++;
-            
-        $Totales["ValorDocumento"]=$Totales["ValorDocumento"]+$DatosVista["ValorDocumento"]; 
-        $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
-        $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
-        $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
-        $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]; 
-        $Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
-        $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
-        $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
-        $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
-        
-        $objPHPExcel->setActiveSheetIndex(0)
-            
-            ->setCellValue($Campos[$z++].$i,$DatosVista["DepartamentoRadicacion"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroRadicado"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["MesServicio"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroFactura"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["ValorDocumento"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalDevoluciones"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalNotasCopagos"])
-            ->setCellValue($Campos[$z++].$i,0)
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["Saldo"])
-                        
-            ;
-        }
+        if($TipoActa<>3){
+            while($DatosVista= $this->FetchAssoc($Consulta)){
+                $z=0;
+                $i++;
+
+            $Totales["ValorDocumento"]=$Totales["ValorDocumento"]+$DatosVista["ValorDocumento"]; 
+            $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
+            $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
+            $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
+            $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]; 
+            $Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
+            $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
+            $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
+            $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
+
+            $objPHPExcel->setActiveSheetIndex(0)
+
+                ->setCellValue($Campos[$z++].$i,$DatosVista["DepartamentoRadicacion"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroRadicado"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["MesServicio"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroFactura"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["ValorDocumento"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalDevoluciones"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalNotasCopagos"])
+                ->setCellValue($Campos[$z++].$i,0)
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["Saldo"])
+
+                ;
+            }
+        }    
         $i++;
         $z=0;
         $objPHPExcel->setActiveSheetIndex(0)
@@ -346,6 +467,7 @@ class TS_Excel extends conexion{
                         
             ; 
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+         
          
         $i=$i+5;
         $z=0;
@@ -390,14 +512,19 @@ class TS_Excel extends conexion{
         ->setDescription("Documento generado por Techno Soluciones SAS")
         ->setKeywords("techno soluciones sas")
         ->setCategory("Formato conciliacion masiva");    
- 
+   
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment;filename="'."Anexo_Liquidacion_XFacturas_$idActaLiquidacion".'.xls"');
     header('Cache-Control: max-age=0');
     header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
     header('Pragma: public'); // HTTP/1.0
+   
     $objWriter=IOFactory::createWriter($objPHPExcel,'Xlsx');
     $objWriter->save('php://output');
+    //$idUser=$_SESSION["idUser"];
+    //$Ruta='../../exports/acta_liquidacion_'.$idActaLiquidacion.'_tempo'.$idUser.'.xlsx';
+    //$objWriter->save($Ruta);
+    
     exit; 
    
     }
@@ -542,31 +669,130 @@ class TS_Excel extends conexion{
         
         if($TipoConsulta==1){
             $Tabla="actas_conciliaciones_items";
-            $Condicion=" WHERE ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion') GROUP BY NumeroRadicado,MesServicio,NumeroContrato";
+            $Condicion=" WHERE ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t5 WHERE t5.idContrato=$Tabla.NumeroContrato AND t5.idActaLiquidacion='$idActaLiquidacion') ";
+            $GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
+            $TablaUnion="historial_carteracargada_eps";
             
-            $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,SUM(ValorDocumento) AS ValorDocumento,
-                                SUM(Impuestos) AS Impuestos,SUM(TotalPagos + TotalAnticipos) AS TotalPagos,SUM(TotalCopagos) AS TotalNotasCopagos,
-                                SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) AS TotalOtrosDescuentos,
-                                SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
-                                SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS Saldo
-                                
-                                FROM $db.$Tabla $Condicion";
+            $Union="     
+                     SELECT  t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,t1.NumeroContrato,
+                        SUM(t1.ValorOriginal) AS ValorDocumento,
+                        '0' AS Impuestos,'0' AS TotalPagos,'0' AS TotalNotasCopagos,
+                        '0' AS DescuentoPGP,'0' AS DescuentoBDUA,'0' AS TotalOtrosDescuentos,
+                        '0' AS TotalGlosaInicial,'0' AS TotalGlosaFavor,
+                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo,'0' as GlosaXConciliar 
+
+                        FROM $db.$TablaUnion t1 WHERE 
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura )
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                    AND NOT EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t2.NumeroRadicado = t1.NumeroRadicado)  
+                        
+                          ";
             
+            $Union2=" UNION ALL   
+                     SELECT t1.MesServicio,t1.DepartamentoRadicacion, t1.NumeroRadicado,t1.NumeroContrato,
+                        SUM(t1.ValorOriginal) AS ValorDocumento,
+                        '0' AS Impuestos,'0' AS TotalPagos,'0' AS TotalNotasCopagos,
+                        '0' AS DescuentoPGP,'0' AS DescuentoBDUA,'0' AS TotalOtrosDescuentos,
+                        '0' AS TotalGlosaInicial,'0' AS TotalGlosaFavor,
+                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo
+
+                       FROM $db.$TablaUnion t1 WHERE NOT
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                      
+                          ";
+            
+            $Union3="     
+                     SELECT  t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,t1.NumeroContrato,
+                        SUM(t1.ValorOriginal) AS ValorDocumento,
+                        '0' AS Impuestos,'0' AS TotalPagos,'0' AS TotalNotasCopagos,
+                        '0' AS DescuentoPGP,'0' AS DescuentoBDUA,'0' AS TotalOtrosDescuentos,
+                        '0' AS TotalGlosaInicial,'0' AS TotalGlosaFavor,
+                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo,'0' as GlosaXConciliar 
+
+                        FROM $db.$TablaUnion t1 WHERE NOT
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado )
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                                           
+                          ";
+                        
+            $sql=" UNION ALL SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,NumeroContrato,SUM(ValorDocumento) AS ValorDocumento,
+                        SUM(Impuestos) AS Impuestos,SUM(TotalPagos + TotalAnticipos) AS TotalPagos,SUM(TotalCopagos) AS TotalNotasCopagos,
+                        SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) AS TotalOtrosDescuentos,
+                        SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
+                        SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS Saldo,SUM(GlosaXConciliar) AS GlosaXConciliar 
+
+                        FROM $db.$Tabla $Condicion";
+            $sql=$Union3.$sql.$GroupOrder;
+            
+            //print($sql);
             
         }    
         
         if($TipoConsulta==2){
             $Tabla="actas_liquidaciones_radicados_items";
-            
-            $Condicion=" WHERE idActaLiquidacion='$idActaLiquidacion' GROUP BY NumeroRadicado,MesServicio,NumeroContrato";
-            $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,SUM(ValorDocumento) AS ValorDocumento,
+            $TablaUnion="historial_carteracargada_eps";
+            $Condicion=" WHERE idActaLiquidacion='$idActaLiquidacion' ";
+            $GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
+            $sql=" UNION ALL
+                
+            SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,SUM(ValorDocumento) AS ValorDocumento,
                                 SUM(Impuestos) AS Impuestos,SUM(TotalPagos + TotalAnticipos) AS TotalPagos,SUM(TotalCopagos) AS TotalNotasCopagos,
                                 SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) AS TotalOtrosDescuentos,
                                 SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
-                                SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS Saldo
+                                SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS Saldo,sum(GlosaXConciliar) as GlosaXConciliar
                                 
-                                FROM $db.$Tabla $Condicion";
+                                FROM $db.$Tabla $Condicion ";
             
+            $Union="     
+                     SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,t1.NumeroContrato,
+                        SUM(t1.ValorOriginal) AS ValorDocumento,
+                        '0' AS Impuestos,'0' AS TotalPagos,'0' AS TotalNotasCopagos,
+                        '0' AS DescuentoPGP,'0' AS DescuentoBDUA,'0' AS TotalOtrosDescuentos,
+                        '0' AS TotalGlosaInicial,'0' AS TotalGlosaFavor,
+                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo
+
+                       FROM $db.$TablaUnion t1 WHERE 
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura )
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                    AND NOT EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t2.NumeroRadicado = t1.NumeroRadicado)  
+                          ";
+            
+            $Union2="  UNION ALL    
+                     SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,t1.NumeroContrato,
+                        SUM(t1.ValorOriginal) AS ValorDocumento,
+                        '0' AS Impuestos,'0' AS TotalPagos,'0' AS TotalNotasCopagos,
+                        '0' AS DescuentoPGP,'0' AS DescuentoBDUA,'0' AS TotalOtrosDescuentos,
+                        '0' AS TotalGlosaInicial,'0' AS TotalGlosaFavor,
+                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo
+
+                       FROM $db.$TablaUnion t1 WHERE NOT
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                    
+                          ";
+            
+            $Union3="     
+                     SELECT  t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,t1.NumeroContrato,
+                        SUM(t1.ValorOriginal) AS ValorDocumento,
+                        '0' AS Impuestos,'0' AS TotalPagos,'0' AS TotalNotasCopagos,
+                        '0' AS DescuentoPGP,'0' AS DescuentoBDUA,'0' AS TotalOtrosDescuentos,
+                        '0' AS TotalGlosaInicial,'0' AS TotalGlosaFavor,
+                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo,'0' AS GlosaXConciliar
+
+                        FROM $db.$TablaUnion t1 WHERE NOT
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado )
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                                           
+                          ";
+            
+            $sql=$Union3.$sql.$GroupOrder;
             
         }    
         //print($sql);
@@ -604,7 +830,7 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalDevoluciones"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"])
+            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalNotasCopagos"])
             ->setCellValue($Campos[$z++].$i,0)
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"])
@@ -680,7 +906,7 @@ class TS_Excel extends conexion{
         ->setCategory("Formato conciliacion masiva");    
  
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment;filename="'."Anexo_Liquidacion_XFacturas_$idActaLiquidacion".'.xls"');
+    header('Content-Disposition: attachment;filename="'."Anexo_Liquidacion_XRadicados_$idActaLiquidacion".'.xls"');
     header('Cache-Control: max-age=0');
     header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
     header('Pragma: public'); // HTTP/1.0
@@ -697,9 +923,11 @@ class TS_Excel extends conexion{
         $objPHPExcel = new Spreadsheet();
         
         $DatosActaTipo=$this->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
+        $TipoActa=$DatosActa["TipoActaLiquidacion"];
         $Encabezado= utf8_encode($DatosActaTipo["Header"]);
         $Footer= utf8_encode($DatosActaTipo["Footer"]);
-        $objPHPExcel->getActiveSheet()->getStyle('E:N')->getNumberFormat()->setFormatCode('#,##0');
+        $objPHPExcel->getActiveSheet()->getStyle('H:N')->getNumberFormat()->setFormatCode('#,##0');
+        $objPHPExcel->getActiveSheet()->getStyle('E')->getNumberFormat()->setFormatCode('#,##0');
         $objPHPExcel->getActiveSheet()->getStyle("A:N")->getFont()->setSize(10);
         $objPHPExcel->getActiveSheet()->getHeaderFooter()
             ->setOddHeader("$Encabezado");
@@ -733,10 +961,10 @@ class TS_Excel extends conexion{
                  "N","O","P","Q","R","S","T","U","V","W","X","Y","Z","AA","AB"];
         $MesServicioInicial=$DatosActa["MesServicioInicial"];
         $MesServicioFinal=$DatosActa["MesServicioFinal"];
-        $DatosContratoTipo=$this->DevuelveValores("contratos_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
+        $DatosContratoTipo=$this->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
                 
         $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue("A1","REPORTE DE LIQUIDACIÓN DE CONTRATOS POR $DatosContratoTipo[Nombre] CON IPS")
+            ->setCellValue("A1","REPORTE DE LIQUIDACIÓN DE CONTRATOS POR $DatosContratoTipo[Titulo] CON IPS")
              
                 ;
         $objPHPExcel->setActiveSheetIndex(0)->mergeCells('A1:N1');
@@ -852,19 +1080,44 @@ class TS_Excel extends conexion{
             ;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
         
+        if($TipoActa==6){
+            $z=0;
+        $i++;
         
-        if($TipoConsulta==1){
+        $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,0)
+            
+            ;
+        }
+        
+        if($TipoConsulta==1 AND $TipoActa<>6){
             $Tabla="actas_conciliaciones_items";
-            $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
+            $sql="SELECT MesServicio,NumeroContrato, DepartamentoRadicacion,GROUP_CONCAT(NumeroRadicado) AS NumeroRadicado,CodigoSucursal AS CodigoDaneAnexo,
                     (SELECT Ciudad FROM municipios_dane WHERE CodigoDane=$Tabla.CodigoSucursal LIMIT 1) as Municipio,
-                    NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos+TotalCopagos+TotalAnticipos) as TotalPagos,
-                    DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
-                    TotalDevoluciones,ValorSegunEPS as Saldo,NumeroDiasLMA,ValorAPagarLMA                   
+                    NumeroContrato,GROUP_CONCAT(NumeroFactura) as NumeroFactura,SUM(ValorDocumento) as ValorDocumento,SUM(Impuestos) AS Impuestos,SUM(TotalPagos+TotalCopagos+TotalAnticipos) as TotalPagos,
+                    SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
+                    SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) as Saldo,SUM(NumeroDiasLMA) AS NumeroDiasLMA,SUM(ValorAPagarLMA) AS  ValorAPagarLMA                  
                     FROM $db.$Tabla WHERE                    
-                      ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato) ";
+                      ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion') 
+                    GROUP BY  MesServicio,NumeroContrato,CodigoDaneAnexo ORDER BY MesServicio,CodigoDaneAnexo,NumeroFactura";
+            
         }    
         if($TipoConsulta==2){
             $Tabla="actas_liquidaciones_items";
+            /*
             $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
                     (SELECT Ciudad FROM municipios_dane WHERE CodigoDane=$Tabla.CodigoSucursal LIMIT 1) as Municipio,
                     NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos+TotalCopagos+TotalAnticipos) as TotalPagos,
@@ -872,9 +1125,21 @@ class TS_Excel extends conexion{
                     TotalDevoluciones,ValorSegunEPS as Saldo,NumeroDiasLMA,ValorAPagarLMA                 
                     FROM $db.$Tabla WHERE idActaLiquidacion='$idActaLiquidacion'                  
                       ";
+             * 
+             */
+            $sql="SELECT MesServicio,NumeroContrato,DepartamentoRadicacion,GROUP_CONCAT(NumeroRadicado) AS NumeroRadicado,CodigoSucursal AS CodigoDaneAnexo,
+                    (SELECT Ciudad FROM municipios_dane WHERE CodigoDane=$Tabla.CodigoSucursal LIMIT 1) as Municipio,
+                    NumeroContrato,GROUP_CONCAT(NumeroFactura) as NumeroFactura,SUM(ValorDocumento) as ValorDocumento,SUM(Impuestos) AS Impuestos,SUM(TotalPagos+TotalCopagos+TotalAnticipos) as TotalPagos,
+                    SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
+                    SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) as Saldo,SUM(NumeroDiasLMA) AS NumeroDiasLMA,SUM(ValorAPagarLMA) AS  ValorAPagarLMA                  
+                    FROM $db.$Tabla WHERE idActaLiquidacion='$idActaLiquidacion'                
+                      
+                    GROUP BY  MesServicio,NumeroContrato,CodigoDaneAnexo ORDER BY MesServicio,CodigoDaneAnexo,NumeroFactura";
         } 
         //print($sql);
-        $Consulta=$this->Query($sql);
+        if($TipoActa<>6){
+            $Consulta=$this->Query($sql);
+        }
         $Totales["ValorDocumento"]=0;
         $Totales["Impuestos"]=0;
         $Totales["TotalDevoluciones"]=0;
@@ -886,41 +1151,44 @@ class TS_Excel extends conexion{
         $Totales["Saldo"]=0;
         $Totales["ValorAPagarLMA"]=0;
         $Totales["DescuentoBDUA"]=0;
-        while($DatosVista= $this->FetchAssoc($Consulta)){
-            $z=0;
-            $i++;
-            
-        $Totales["ValorDocumento"]=$Totales["ValorDocumento"]+$DatosVista["ValorDocumento"]; 
-        $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
-        $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
-        $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
-        $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]; 
-        //$Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
-        $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
-        $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
-        $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
-        $Totales["ValorAPagarLMA"]=$Totales["ValorAPagarLMA"]+$DatosVista["ValorAPagarLMA"]; 
-        $Totales["DescuentoBDUA"]=$Totales["DescuentoBDUA"]+$DatosVista["DescuentoBDUA"]; 
-        
-        $objPHPExcel->setActiveSheetIndex(0)
-            
-            ->setCellValue($Campos[$z++].$i,$DatosVista["DepartamentoRadicacion"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["Municipio"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["MesServicio"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroDiasLMA"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["ValorAPagarLMA"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroRadicado"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroFactura"])  
-            ->setCellValue($Campos[$z++].$i,$DatosVista["ValorDocumento"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])    
-            ->setCellValue($Campos[$z++].$i,$DatosVista["DescuentoBDUA"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"])            
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"])
-            ->setCellValue($Campos[$z++].$i,$DatosVista["Saldo"])
-                        
-            ;
-        }
+        if($TipoActa<>6){
+            while($DatosVista= $this->FetchAssoc($Consulta)){
+                $z=0;
+                $i++;
+
+            $Totales["ValorDocumento"]=$Totales["ValorDocumento"]+$DatosVista["ValorDocumento"]; 
+            $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
+            $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
+            $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
+            $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]; 
+            //$Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
+            $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
+            $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
+            $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
+            $Totales["ValorAPagarLMA"]=$Totales["ValorAPagarLMA"]+$DatosVista["ValorAPagarLMA"]; 
+            $Totales["DescuentoBDUA"]=$Totales["DescuentoBDUA"]+$DatosVista["DescuentoBDUA"]; 
+
+            $objPHPExcel->setActiveSheetIndex(0)
+
+                ->setCellValue($Campos[$z++].$i,$DatosVista["DepartamentoRadicacion"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["Municipio"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["MesServicio"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroDiasLMA"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["ValorAPagarLMA"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroRadicado"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroFactura"])  
+                ->setCellValue($Campos[$z++].$i,$DatosVista["ValorDocumento"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])    
+                ->setCellValue($Campos[$z++].$i,$DatosVista["DescuentoBDUA"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"])            
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["Saldo"])
+
+
+                ;
+            }
+        }    
         $i++;
         $z=0;
         $objPHPExcel->setActiveSheetIndex(0)
@@ -954,13 +1222,13 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[12].$i,"VALOR RETENCION DE IMPUESTOS")
             ->setCellValue($Campos[13].$i++,$Totales["Impuestos"])
             ->setCellValue($Campos[12].$i,"DESCUENTOS A FAVOR ASMET")
-            ->setCellValue($Campos[13].$i++,$Totales["TotalGlosaInicial"])
-            ->setCellValue($Campos[12].$i,"OTRO DESCUENTOS CONCILIADOS")
             ->setCellValue($Campos[13].$i++,$Totales["TotalGlosaFavor"])
+            ->setCellValue($Campos[12].$i,"OTROS DESCUENTOS CONCILIADOS")
+            ->setCellValue($Campos[13].$i++,$DatosActa["OtrosDescuentosConciliadosAfavor"])
             ->setCellValue($Campos[12].$i,"VALOR PAGADO")
             ->setCellValue($Campos[13].$i++,$Totales["TotalPagos"])
             ->setCellValue($Campos[12].$i,"SALDO")
-            ->setCellValue($Campos[13].$i++,$Totales["Saldo"])
+            ->setCellValue($Campos[13].$i++,$Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"])
                         
             ; 
         $i=$i-6;
@@ -992,7 +1260,7 @@ class TS_Excel extends conexion{
             
             ;
             $i=$i-4;
-            $z=$z+2;
+            $z=$z+4;
         }
         $styleTitle = [
             'font' => [
@@ -1078,18 +1346,15 @@ class TS_Excel extends conexion{
         /** add a row at a time */
         $singleRow = WriterEntityFactory::createRow($cells);
         $writer->addRow($singleRow);
-
-        /** add multiple rows at a time */
-        $multipleRows = [
-            WriterEntityFactory::createRow($cells),
-            WriterEntityFactory::createRow($cells),
-        ];
-        $writer->addRows($multipleRows); 
-
+        
         /** Shortcut: add a row from an array of values */
-        $values = ['Carl', 'is', 'great!'];
-        $rowFromValues = WriterEntityFactory::createRowFromArray($values);
-        $writer->addRow($rowFromValues);
+        $sql="SELECT * FROM $db.actas_liquidaciones_items WHERE idActaLiquidacion='14'";
+        $Consulta=$this->Query($sql);
+        while($DatosItem= $this->FetchAssoc($Consulta)){
+            
+            $rowFromValues = WriterEntityFactory::createRowFromArray($DatosItem);
+            $writer->addRow($rowFromValues);
+        }
 
         $writer->close();
     }

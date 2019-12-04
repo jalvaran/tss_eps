@@ -950,7 +950,7 @@ class TS_Excel extends conexion{
         $styleTitle = [
             'font' => [
                 'bold' => true,
-                'size' => 14
+                'size' => 12
             ]
         ];
 
@@ -985,6 +985,7 @@ class TS_Excel extends conexion{
         $i++;
         $objPHPExcel->getActiveSheet()->getStyle('A'.$i)->applyFromArray($styleTitle);
         $objPHPExcel->getActiveSheet()->getStyle('B'.$i)->applyFromArray($styleTitle);
+        $objPHPExcel->setActiveSheetIndex(0)->mergeCells('B3:E3');
         
         $sql="SELECT t1.ID,t2.Contrato,t2.TipoContrato,t2.FechaInicioContrato,t2.FechaFinalContrato,t2.ValorContrato
                              FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente 
@@ -1217,17 +1218,17 @@ class TS_Excel extends conexion{
         $z=0;
         $objPHPExcel->setActiveSheetIndex(0)
             
-            ->setCellValue($Campos[12].$i,"VR A PAGAR IPS S/N LMA")
+            ->setCellValue($Campos[11].$i,"VR A PAGAR IPS S/N LMA")
             ->setCellValue($Campos[13].$i++,$Totales["ValorAPagarLMA"])
-            ->setCellValue($Campos[12].$i,"VALOR RETENCION DE IMPUESTOS")
+            ->setCellValue($Campos[11].$i,"VALOR RETENCION DE IMPUESTOS")
             ->setCellValue($Campos[13].$i++,$Totales["Impuestos"])
-            ->setCellValue($Campos[12].$i,"DESCUENTOS A FAVOR ASMET")
+            ->setCellValue($Campos[11].$i,"DESCUENTOS A FAVOR ASMET")
             ->setCellValue($Campos[13].$i++,$Totales["TotalGlosaFavor"])
-            ->setCellValue($Campos[12].$i,"OTROS DESCUENTOS CONCILIADOS")
+            ->setCellValue($Campos[11].$i,"OTROS DESCUENTOS CONCILIADOS")
             ->setCellValue($Campos[13].$i++,$DatosActa["OtrosDescuentosConciliadosAfavor"])
-            ->setCellValue($Campos[12].$i,"VALOR PAGADO")
+            ->setCellValue($Campos[11].$i,"VALOR PAGADO")
             ->setCellValue($Campos[13].$i++,$Totales["TotalPagos"])
-            ->setCellValue($Campos[12].$i,"SALDO")
+            ->setCellValue($Campos[11].$i,"SALDO")
             ->setCellValue($Campos[13].$i++,$Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"])
                         
             ; 
@@ -1259,6 +1260,33 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z].$i++,$DatosFirmas["Empresa"])
             
             ;
+            
+            $i=$i-4;
+            $FilaActual=$i;
+            $CampoInicial=$Campos[$z].$FilaActual;
+            $CampoFinal=$Campos[$z+2].$FilaActual;            
+            $objPHPExcel->setActiveSheetIndex(0)->mergeCells($CampoInicial.':'.$CampoFinal);
+            
+            $FilaActual=$i++;
+            $CampoInicial=$Campos[$z].$FilaActual;
+            $CampoFinal=$Campos[$z+2].$FilaActual;            
+            $objPHPExcel->setActiveSheetIndex(0)->mergeCells($CampoInicial.':'.$CampoFinal);
+            
+            $FilaActual=$i++;
+            $CampoInicial=$Campos[$z].$FilaActual;
+            $CampoFinal=$Campos[$z+2].$FilaActual;            
+            $objPHPExcel->setActiveSheetIndex(0)->mergeCells($CampoInicial.':'.$CampoFinal);
+            $FilaActual=$i++;
+            $CampoInicial=$Campos[$z].$FilaActual;
+            $CampoFinal=$Campos[$z+2].$FilaActual;            
+            $objPHPExcel->setActiveSheetIndex(0)->mergeCells($CampoInicial.':'.$CampoFinal);
+            
+            $FilaActual=$i++;
+            $CampoInicial=$Campos[$z].$FilaActual;
+            $CampoFinal=$Campos[$z+2].$FilaActual;            
+            $objPHPExcel->setActiveSheetIndex(0)->mergeCells($CampoInicial.':'.$CampoFinal);
+            
+            
             $i=$i-4;
             $z=$z+4;
         }
@@ -1277,8 +1305,8 @@ class TS_Excel extends conexion{
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
         $i++;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-        for($i=1;$i<=14;$i++){
-            $objPHPExcel->getActiveSheet()->getColumnDimensionByColumn($i)->setAutoSize(true);
+        for($i=1;$i<=20;$i++){
+            $objPHPExcel->getActiveSheet()->getColumnDimensionByColumn($i)->setWidth('17');
         }
      
    //Informacion del excel

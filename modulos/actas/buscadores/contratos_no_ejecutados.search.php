@@ -21,6 +21,6 @@ $json = [];
 
 while($row = $obRest->FetchAssoc($result)){
     $Texto=$row['Contrato']." | ".$row['NitIPSContratada']." | ".$row['ClasificacionContrato']." | ".number_format($row['ValorContrato'])." | ".$row['FechaInicioContrato']." | ".$row['FechaFinalContrato'];
-     $json[] = ['id'=>$row['Contrato'], 'text'=>$Texto];
+     $json[] = ['id'=>$row['ID'], 'text'=>$Texto];
 }
 echo json_encode($json);
