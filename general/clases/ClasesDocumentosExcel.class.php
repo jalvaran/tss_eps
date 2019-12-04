@@ -158,7 +158,7 @@ class TS_Excel extends conexion{
         $styleTitle = [
             'font' => [
                 'bold' => true,
-                'size' => 14
+                'size' => 12
             ]
         ];
 
@@ -264,6 +264,7 @@ class TS_Excel extends conexion{
             
             ;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+        $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->getAlignment()->setWrapText(true);
         $z=0;
         $i++;
         if($TipoActa==3){
@@ -481,7 +482,7 @@ class TS_Excel extends conexion{
             
             ;
             $i=$i-4;
-            $z=$z+2;
+            $z=$z+4;
         }
         $styleTitle = [
             'font' => [
@@ -499,9 +500,16 @@ class TS_Excel extends conexion{
         $i++;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
         for($i=1;$i<=14;$i++){
-            $objPHPExcel->getActiveSheet()->getColumnDimensionByColumn($i)->setAutoSize(true);
+            $objPHPExcel->getActiveSheet()->getColumnDimensionByColumn($i)->setWidth('18');
         }
-     
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setTop(0.75);
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setRight(0.2);
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setLeft(0.2);
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setBottom(0.75);
    //Informacion del excel
    $objPHPExcel->
     getProperties()
@@ -562,7 +570,7 @@ class TS_Excel extends conexion{
         $styleTitle = [
             'font' => [
                 'bold' => true,
-                'size' => 14
+                'size' => 12
             ]
         ];
 
@@ -665,7 +673,7 @@ class TS_Excel extends conexion{
             
             ;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-        
+        $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->getAlignment()->setWrapText(true);
         
         if($TipoConsulta==1){
             $Tabla="actas_conciliaciones_items";
@@ -873,7 +881,7 @@ class TS_Excel extends conexion{
             
             ;
             $i=$i-4;
-            $z=$z+2;
+            $z=$z+4;
         }
         $styleTitle = [
             'font' => [
@@ -891,9 +899,16 @@ class TS_Excel extends conexion{
         $i++;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
         for($i=1;$i<=14;$i++){
-            $objPHPExcel->getActiveSheet()->getColumnDimensionByColumn($i)->setAutoSize(true);
+            $objPHPExcel->getActiveSheet()->getColumnDimensionByColumn($i)->setWidth('18');
         }
-     
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setTop(0.75);
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setRight(0.2);
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setLeft(0.2);
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setBottom(0.75);
    //Informacion del excel
    $objPHPExcel->
     getProperties()
@@ -1080,7 +1095,7 @@ class TS_Excel extends conexion{
             
             ;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-        
+        $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->getAlignment()->setWrapText(true); 
         if($TipoActa==6){
             $z=0;
         $i++;
@@ -1306,9 +1321,16 @@ class TS_Excel extends conexion{
         $i++;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
         for($i=1;$i<=20;$i++){
-            $objPHPExcel->getActiveSheet()->getColumnDimensionByColumn($i)->setWidth('17');
+            $objPHPExcel->getActiveSheet()->getColumnDimensionByColumn($i)->setWidth('18');
         }
-     
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setTop(0.75);
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setRight(0.2);
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setLeft(0.2);
+        $objPHPExcel->getActiveSheet()
+            ->getPageMargins()->setBottom(0.75);
    //Informacion del excel
    $objPHPExcel->
     getProperties()
