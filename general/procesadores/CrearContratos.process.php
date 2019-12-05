@@ -50,6 +50,14 @@ if( !empty($_REQUEST["Accion"]) ){
                     exit("E1;El campo $key No Puede estar vacío;$key");
                 }
             }
+            $NitIPS=$Datos["NitIPSContratada"];
+            $Contrato=$Datos["Contrato"];
+            $sql="SELECT * FROM contratos WHERE NitIPSContratada='$NitIPS' AND NumeroContrato='$Contrato'";
+            $DatosContrato=$obCon->FetchAssoc($obCon->Query($sql));
+            if($DatosContrato["ID"]>0){
+                exit("E1;El contrato ya fue creado el ".$DatosContrato["FechaRegistro"]);
+            }
+            
             if($Datos["ClasificacionContrato"]=='OTRO SI'){
                 $Datos["Contrato"]=$obCon->normalizar($_REQUEST['CmbContratoPadre']);
                 if($Datos["Contrato"]==''){

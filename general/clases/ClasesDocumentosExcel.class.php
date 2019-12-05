@@ -507,7 +507,7 @@ class TS_Excel extends conexion{
         $objPHPExcel->getActiveSheet()
             ->getPageMargins()->setRight(0.2);
         $objPHPExcel->getActiveSheet()
-            ->getPageMargins()->setLeft(0.2);
+            ->getPageMargins()->setLeft(1);
         $objPHPExcel->getActiveSheet()
             ->getPageMargins()->setBottom(0.75);
    //Informacion del excel
@@ -906,7 +906,7 @@ class TS_Excel extends conexion{
         $objPHPExcel->getActiveSheet()
             ->getPageMargins()->setRight(0.2);
         $objPHPExcel->getActiveSheet()
-            ->getPageMargins()->setLeft(0.2);
+            ->getPageMargins()->setLeft(1);
         $objPHPExcel->getActiveSheet()
             ->getPageMargins()->setBottom(0.75);
    //Informacion del excel
@@ -1328,7 +1328,7 @@ class TS_Excel extends conexion{
         $objPHPExcel->getActiveSheet()
             ->getPageMargins()->setRight(0.2);
         $objPHPExcel->getActiveSheet()
-            ->getPageMargins()->setLeft(0.2);
+            ->getPageMargins()->setLeft(1);
         $objPHPExcel->getActiveSheet()
             ->getPageMargins()->setBottom(0.75);
    //Informacion del excel
