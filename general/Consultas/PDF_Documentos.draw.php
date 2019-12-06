@@ -99,7 +99,9 @@ if(isset($_REQUEST["idDocumento"])){
         break;//Fin caso 36
         case 37: //PDF de un acta de liquidacion
             $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
-            $obDoc->ActaLiquidacionPDF($idActaLiquidacion,"");            
+            $AnexosEnPdf=$obCon->normalizar($_REQUEST["AnexosEnPdf"]);
+            $TipoConsulta=$obCon->normalizar($_REQUEST["TipoConsulta"]);
+            $obDoc->ActaLiquidacionPDF($idActaLiquidacion,$AnexosEnPdf,$TipoConsulta);            
         break;//Fin caso 37
         case 38: //PDF del informe de tickets
             $FechaInicial=$obCon->normalizar($_REQUEST["FechaInicial"])." 00:00:00";
