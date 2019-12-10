@@ -102,6 +102,10 @@ if( !empty($_REQUEST["Accion"]) ){
                 $MesServicioFinal=$DatosMesServicio[0].$DatosMesServicio[1];
                 $obCon->ActualizaRegistro("actas_liquidaciones", "MesServicioFinal", $MesServicioFinal, "ID", $idActaLiquidacion, 0);
             }
+            if($CampoAEditar=='PrefijoDepartamento' or $CampoAEditar=='ConsecutivoActa' or $CampoAEditar=='Anio'){
+                $sql="UPDATE actas_liquidaciones SET IdentificadorActaEPS=CONCAT(PrefijoDepartamento,'-',ConsecutivoActa,'-',Anio) WHERE ID='$idActaLiquidacion'";
+                $obCon->Query($sql);
+            }
             print("OK;Campo $CampoAEditar del Acta de Liquidación se ha Editado");
         break; // Fin caso 2 
         
@@ -145,6 +149,7 @@ if( !empty($_REQUEST["Accion"]) ){
             }
             $Datos["idActaLiquidacion"]=$idActaLiquidacion;
             $Datos["idContrato"]=$idContrato;
+            $Datos["NIT_IPS"]=$CmbIPS;
             $Datos["FechaInicial"]=$FechaInicial;
             $Datos["FechaFinal"]=$FechaFinal;
             $Datos["Valor"]=$ValorContrato;

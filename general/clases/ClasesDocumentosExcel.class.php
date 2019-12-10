@@ -172,7 +172,7 @@ class TS_Excel extends conexion{
         $DatosContratoTipo= ($this->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]));
                 
         $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue("A1","REPORTE DE LIQUIDACIÓN DE CONTRATOS POR $DatosContratoTipo[Titulo] CON IPS")
+            ->setCellValue("A1","REPORTE DE LIQUIDACIÓN DE CONTRATOS POR $DatosContratoTipo[Titulo]")
              
                 ;
         $objPHPExcel->setActiveSheetIndex(0)->mergeCells('A1:N1');
@@ -421,7 +421,7 @@ class TS_Excel extends conexion{
             $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
             $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
             $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
-            $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]; 
+            $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"]; 
             $Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
             $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
             $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
@@ -469,6 +469,52 @@ class TS_Excel extends conexion{
             ; 
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
          
+        if($DatosActa["PagosPendientesPorLegalizar"]<>0){
+            $i++;
+            $z=0;
+            $objPHPExcel->setActiveSheetIndex(0)
+
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"PAGOS PENDIENTES POR LEGALIZAR")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,$DatosActa["PagosPendientesPorLegalizar"])
+
+                ; 
+            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+            
+            $i++;
+            $z=0;
+            $objPHPExcel->setActiveSheetIndex(0)
+
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"SALDO FINAL")
+                ->setCellValue($Campos[$z++].$i,$Totales["Saldo"]-$DatosActa["PagosPendientesPorLegalizar"])
+
+                ; 
+            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+         
+        }
          
         $i=$i+5;
         $z=0;
@@ -581,10 +627,10 @@ class TS_Excel extends conexion{
                  "N","O","P","Q","R","S","T","U","V","W","X","Y","Z","AA","AB"];
         $MesServicioInicial=$DatosActa["MesServicioInicial"];
         $MesServicioFinal=$DatosActa["MesServicioFinal"];
-        $DatosContratoTipo=$this->DevuelveValores("contratos_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
+        $DatosContratoTipo= ($this->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]));
                 
         $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue("A1","REPORTE DE LIQUIDACIÓN DE CONTRATOS POR $DatosContratoTipo[Nombre] CON IPS")
+            ->setCellValue("A1","REPORTE DE LIQUIDACIÓN DE CONTRATOS POR $DatosContratoTipo[Titulo]")
              
                 ;
         $objPHPExcel->setActiveSheetIndex(0)->mergeCells('A1:N1');
@@ -761,7 +807,7 @@ class TS_Excel extends conexion{
         $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
         $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
         $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
-        $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]; 
+        $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"]; 
         $Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
         $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
         $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
@@ -807,7 +853,52 @@ class TS_Excel extends conexion{
                         
             ; 
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+        if($DatosActa["PagosPendientesPorLegalizar"]<>0){
+            $i++;
+            $z=0;
+            $objPHPExcel->setActiveSheetIndex(0)
+
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                
+                ->setCellValue($Campos[$z++].$i,"PAGOS PENDIENTES POR LEGALIZAR")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,$DatosActa["PagosPendientesPorLegalizar"])
+
+                ; 
+            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+            
+            $i++;
+            $z=0;
+            $objPHPExcel->setActiveSheetIndex(0)
+
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,"")
+                
+                ->setCellValue($Campos[$z++].$i,"SALDO FINAL")
+                ->setCellValue($Campos[$z++].$i,$Totales["Saldo"]-$DatosActa["PagosPendientesPorLegalizar"])
+
+                ; 
+            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
          
+        } 
         $i=$i+5;
         $z=0;
         $Consulta=$this->ConsultarTabla("actas_liquidaciones_firmas", "WHERE idActaLiquidacion='$idActaLiquidacion'");
@@ -1182,11 +1273,15 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[13].$i++,$DatosActa["OtrosDescuentosConciliadosAfavor"])
             ->setCellValue($Campos[11].$i,"VALOR PAGADO")
             ->setCellValue($Campos[13].$i++,$Totales["TotalPagos"])
+            ->setCellValue($Campos[11].$i,"PAGOS PENDINTES POR LEGALIZAR")
+            ->setCellValue($Campos[13].$i++,$DatosActa["PagosPendientesPorLegalizar"])     
             ->setCellValue($Campos[11].$i,"SALDO")
-            ->setCellValue($Campos[13].$i++,$Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"])
+            ->setCellValue($Campos[13].$i++,$Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"])
                         
             ; 
-        $i=$i-6;
+        $i=$i-7;
+        $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
+        $i++;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
         $i++;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
@@ -1328,7 +1423,7 @@ class TS_Excel extends conexion{
         $writer->openToBrowser($fileName); // stream data directly to the browser
 
         $cells = [
-            WriterEntityFactory::createCell("REPORTE DE LIQUIDACIÓN DE CONTRATOS POR $DatosContratoTipo[Nombre] CON IPS",$zebraBlackStyle),
+            WriterEntityFactory::createCell("REPORTE DE LIQUIDACIÓN DE CONTRATOS POR $DatosContratoTipo[Nombre]",$zebraBlackStyle),
             
         ];
 

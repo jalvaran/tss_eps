@@ -632,7 +632,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $this->PDF->writeHTML("".$html, true, false, false, false, '');
             }
             
-            if($TipoActa==1){    
+            if($TipoActa==1 or $TipoActa==7 or $TipoActa==9){    
                 
                 $this->PDF->AddPage();
                 $this->PDF->SetMargins(10, 20, 5);
@@ -658,7 +658,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $AnchoColumnas="51px";
         $html='<table border="0" cellpadding="1" cellspacing="1" align="center" >';
             $html.="<tr>";
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>DEPARTAMENTO</strong></td>';
+                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:5px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>DEPARTAMENTO</strong></td>';
                 $html.='<td style="text-align:center;font-size:6px;width:'.$AnchoColumnas.';border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>RADICADO</strong></td>';
                 $html.='<td style="text-align:center;font-size:6px;width:'.$AnchoColumnas.';border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>MES<BR>DE<BR>SERVICIOS</strong></td>';
                 $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>VALOR<BR>FACTURADO</strong></td>';
@@ -814,7 +814,21 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                         $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["Saldo"]).'</strong></td>';
 
                     $html.="</tr>";
-            $Back="white";
+                    
+            if($DatosActa["PagosPendientesPorLegalizar"]<>0){
+                $html.="<tr>";
+                        
+                    $html.='<td colspan="12" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>PAGOS PENDIENTES POR LEGALIZAR</strong></td>';                
+                    $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($DatosActa["PagosPendientesPorLegalizar"]).'</strong></td>';
+
+                $html.="</tr>";
+                $html.="<tr>";
+                        
+                    $html.='<td colspan="12" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>SALDO FINAL</strong></td>';                
+                    $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["Saldo"]-$DatosActa["PagosPendientesPorLegalizar"]).'</strong></td>';
+
+                $html.="</tr>";
+            }
             
         $html.='</table>';  
         return($html);
@@ -986,8 +1000,12 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $html.='<td colspan="2" style="text-align:left;font-size:9px;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalPagos"]).'</strong></td>';                
             $html.="</tr>";
             $html.="<tr>";                
+                $html.='<td colspan="12" style="text-align:rigth;font-size:9px;background-color: '.$Back.';"><strong>PAGOS PENDIENTES POR LEGALIZAR</strong> </td>';                
+                $html.='<td colspan="2" style="text-align:left;font-size:9px;background-color: '.$Back.';"><strong>'.number_format($DatosActa["PagosPendientesPorLegalizar"]).'</strong></td>';                
+            $html.="</tr>";
+            $html.="<tr>";                
                 $html.='<td colspan="12" style="text-align:rigth;font-size:9px;background-color: '.$Back.';"><strong>SALDO</strong> </td>';                
-                $html.='<td colspan="2" style="text-align:left;font-size:9px;background-color: '.$Back.';"><strong>'.number_format($Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]).'</strong></td>';                
+                $html.='<td colspan="2" style="text-align:left;font-size:9px;background-color: '.$Back.';"><strong>'.number_format($Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"]).'</strong></td>';                
             $html.="</tr>";
             
         $html.='</table>';  
@@ -1007,8 +1025,8 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $html.="</tr>";
             $html.="<tr>";
                 $html.='<td colspan="2" style="text-align:left"><strong>IPS:</strong></td>'; 
-                $html.='<td colspan="6"><strong>'.utf8_encode($DatosActa["RazonSocialIPS"]).'</strong></td>';
-                $html.='<td colspan="6"> </td>';
+                $html.='<td colspan="10"><strong>'.utf8_encode($DatosActa["RazonSocialIPS"]).'</strong></td>';
+                $html.='<td colspan="2"> </td>';
             $html.="</tr>";
             $html.="<tr>";
                 $html.='<td colspan="2"><strong>NIT:</strong></td>'; 
@@ -1032,7 +1050,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $html.="<tr>";
                 $html.='<td colspan="2"><strong>Contrato:</strong></td>';
                 foreach ($ContratosAgregados["Contrato"] as $value) {
-                    $html.='<td colspan="1">'.$value.'</td>';
+                    $html.='<td colspan="2">'.$value.'</td>';
                 }
                 
                 
@@ -1125,91 +1143,176 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             
         }
         if($TipoActa==1 or $TipoActa==3 or $TipoActa==7 or $TipoActa==9){
-            $html='<table cellspacing="1" cellpadding="1" border="1">
-                        <tr>
-                            <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
-                            <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
-                            <td style="text-align:center;"><strong>DEVOLUCIÓN</strong></td>
-                            <td style="text-align:center;"><strong>GLOSA</strong></td>
-                            <td style="text-align:center;"><strong>GLOSA A FAVOR ASMET</strong></td>
+            if($DatosActa["PagosPendientesPorLegalizar"]==0){
+                $html='<table cellspacing="1" cellpadding="1" border="1">
+                            <tr>
+                                <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
+                                <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
+                                <td style="text-align:center;"><strong>DEVOLUCIÓN</strong></td>
+                                <td style="text-align:center;"><strong>GLOSA</strong></td>
+                                <td style="text-align:center;"><strong>GLOSA A FAVOR ASMET</strong></td>
 
-                        </tr>
+                            </tr>
 
-                        <tr>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["Devolucion"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["Glosa"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]).'</td>
+                            <tr>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["Devolucion"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["Glosa"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]).'</td>
 
-                        </tr>
-                        <tr>
-                            <td colspan="5">
+                            </tr>
+                            <tr>
+                                <td colspan="5">
 
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:center;"><strong>NOTA CREDITO / COPAGOS</strong></td>
-                            <td style="text-align:center;"><strong>RECUPERACION EN IMPUESTOS</strong></td>
-                            <td style="text-align:center;"><strong>OTROS DESCUENTOS</strong></td>
-                            <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
-                            <td style="text-align:center;"><strong>SALDO</strong></td>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;"><strong>NOTA CREDITO / COPAGOS</strong></td>
+                                <td style="text-align:center;"><strong>RECUPERACION EN IMPUESTOS</strong></td>
+                                <td style="text-align:center;"><strong>OTROS DESCUENTOS</strong></td>
+                                <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
+                                <td style="text-align:center;"><strong>SALDO</strong></td>
 
-                        </tr>
+                            </tr>
 
-                        <tr>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["NotasCopagos"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["RecuperacionImpuestos"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["OtrosDescuentos"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>
+                            <tr>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["NotasCopagos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["RecuperacionImpuestos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["OtrosDescuentos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>
 
-                        </tr>
+                            </tr>
 
-                        <tr>
-                            <td colspan="5">
+                            <tr>
+                                <td colspan="5">
 
-                            </td>
-                        </tr>
-                        ';
+                                </td>
+                            </tr>
+                            ';
+                $ColspanTotales=4;
+            
+            }else{
+                $html='<table cellspacing="1" cellpadding="1" border="1">
+                            <tr>
+                                <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
+                                <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
+                                <td style="text-align:center;"><strong>DEVOLUCIÓN</strong></td>
+                                <td style="text-align:center;"><strong>GLOSA</strong></td>
+                                <td colspan="2"  style="text-align:center;"><strong>GLOSA A FAVOR ASMET</strong></td>
+
+                            </tr>
+
+                            <tr>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["Devolucion"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["Glosa"]).'</td>
+                                <td colspan="2" style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]).'</td>
+
+                            </tr>
+                            <tr>
+                                <td colspan="6">
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;"><strong>NOTA CREDITO / COPAGOS</strong></td>
+                                <td style="text-align:center;"><strong>RECUPERACION EN IMPUESTOS</strong></td>
+                                <td style="text-align:center;"><strong>OTROS DESCUENTOS</strong></td>
+                                <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
+                                <td style="text-align:center;"><strong>PAGOS PENDIENTES POR LEGALIZAR</strong></td>
+                                <td style="text-align:center;"><strong>SALDO</strong></td>
+
+                            </tr>
+
+                            <tr>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["NotasCopagos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["RecuperacionImpuestos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["OtrosDescuentos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["PagosPendientesPorLegalizar"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>
+
+                            </tr>
+
+                            <tr>
+                                <td colspan="6">
+
+                                </td>
+                            </tr>
+                            ';
+                $ColspanTotales=5;
+            }
                     
                     
         }
         
         if($TipoActa==4 or $TipoActa==6){
-            $html='<table cellspacing="1" cellpadding="1" border="1">
-                        <tr>
-                            <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
-                            <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
-                            <td style="text-align:center;"><strong>Descuento o Reconocimiento por BDUA</strong></td>
-                            <td style="text-align:center;"><strong>DESCUENTOS CONCILIADOS A FAVOR ASMET</strong></td>
-                            <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
-                            <td style="text-align:center;"><strong>SALDO</strong></td>
+            if($DatosActa["PagosPendientesPorLegalizar"]==0){
+                $html='<table cellspacing="1" cellpadding="1" border="1">
+                            <tr>
+                                <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
+                                <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
+                                <td style="text-align:center;"><strong>Descuento o Reconocimiento por BDUA</strong></td>
+                                <td style="text-align:center;"><strong>DESCUENTOS CONCILIADOS A FAVOR ASMET</strong></td>
+                                <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
+                                <td style="text-align:center;"><strong>SALDO</strong></td>
 
-                        </tr>
+                            </tr>
 
-                        <tr>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["DescuentoBDUA"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]+$DatosActa["OtrosDescuentosConciliadosAfavor"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]).'</td>
-                            <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>    
+                            <tr>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["DescuentoBDUA"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]+$DatosActa["OtrosDescuentosConciliadosAfavor"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>    
 
-                        </tr>
-                        <tr>
-                            <td colspan="6">
+                            </tr>
+                            <tr>
+                                <td colspan="6">
 
-                            </td>
-                        </tr>
-                        
-                        ';
+                                </td>
+                            </tr>
+
+                            ';
+                $ColspanTotales=5;
+            }else{
+                $html='<table cellspacing="1" cellpadding="1" border="1">
+                            <tr>
+                                <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
+                                <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
+                                <td style="text-align:center;"><strong>Descuento o Reconocimiento por BDUA</strong></td>
+                                <td style="text-align:center;"><strong>DESCUENTOS CONCILIADOS A FAVOR ASMET</strong></td>
+                                <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
+                                <td style="text-align:center;"><strong>PAGOS PENDIENTES POR LEGALIZAR</strong></td>
+                                <td style="text-align:center;"><strong>SALDO</strong></td>
+
+                            </tr>
+
+                            <tr>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["DescuentoBDUA"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]+$DatosActa["OtrosDescuentosConciliadosAfavor"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["PagosPendientesPorLegalizar"]).'</td>    
+                                <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>    
+
+                            </tr>
+                            <tr>
+                                <td colspan="6">
+
+                                </td>
+                            </tr>
+
+                            ';
+                $ColspanTotales=6;
+            }
         }
-        if($TipoActa==4 or $TipoActa==6){
-            $ColspanTotales=5;
-        }else{
-            $ColspanTotales=4;
-        }
+        
         if($DatosActa["Saldo"]>=0){
             
             $html.='<tr>
@@ -1220,7 +1323,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         }else{
             $html.='<tr>
                 <td  colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE $</strong></td>
-                <td style="text-align:rigth;">'. number_format($SaldoAPagarContratante).'</td>
+                <td style="text-align:rigth;">'. number_format(abs($SaldoAPagarContratante)).'</td>
 
             </tr>';
         }
@@ -1272,7 +1375,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         }
         $DatosUsuario=$this->obCon->DevuelveValores("usuarios","idUsuarios",$DatosActa["idUser"]);
         $html.='<BR><BR>';
-        $html.='Elaboró: '.utf8_encode($DatosUsuario["Nombre"])." ".utf8_encode($DatosUsuario["Apellido"]);
+        $html.='Elaboró: '.($DatosUsuario["Nombre"])." ".($DatosUsuario["Apellido"]);
         $html.='<BR>';
         $html.='Revisó: '.utf8_encode($DatosActa["Revisa"]);
         $html.='<BR>';
@@ -1312,7 +1415,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
         $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";
         $SaldoEnLetras=$obNumLetra->convertir(abs($DatosActa["Saldo"]));
-        $SaldoEnLetras.=" PESOS ($ ".number_format($DatosActa["Saldo"]).")";
+        $SaldoEnLetras.=" PESOS ($ ".number_format(abs($DatosActa["Saldo"])).")";
         
         $html= str_replace("@ValorLetras",strtoupper("<strong>".$SaldoEnLetras."</strong>"), $html);
         

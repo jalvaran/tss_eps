@@ -235,22 +235,33 @@ if( !empty($_REQUEST["Accion"]) ){
             
                 $css->CrearTabla();
                     print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
-                        print("<td>");
-                            print("<strong>Fecha Inicial:</strong>");
+                        
+                        print("<td><strong>Prefijo Departamento:</strong>");
+                            $css->input("text", "TxtPrefijoDepartamento", "form-control", "TxtPrefijoDepartamento", "", ($DatosActa["PrefijoDepartamento"]), "Prefijo del Acta", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtPrefijoDepartamento`,`PrefijoDepartamento`)","");
+                        print("</td>");   
+                        print("<td><strong>Consecutivo:</strong>");
+                            $css->input("text", "TxtConsecutivoActa", "form-control", "TxtConsecutivoActa", "", ($DatosActa["ConsecutivoActa"]), "Consecutivo del Acta", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtConsecutivoActa`,`ConsecutivoActa`)","");
+                        print("</td>");   
+                        print("<td><strong>Año prefijo:</strong>");    
+                            $css->input("text", "TxtAnoPrefijo", "form-control", "TxtAnoPrefijo", "", ($DatosActa["Anio"]), "Año del Prefijo", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtAnoPrefijo`,`Anio`)","");
                         print("</td>");
+                        print("<td><strong>Identificador del Acta:</strong>");    
+                            $css->input("text", "TxtIdentificadorActa", "form-control", "TxtIdentificadorActa", "", ($DatosActa["IdentificadorActaEPS"]), "Identificador del Acta", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtIdentificadorActa`,`IdentificadorActaEPS`)","disabled");
+                        print("</td>");
+                    print("</tr>");
+                    print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
                         print("<td>");
+                        print("</td>");
+                        print("<td><strong>Fecha Inicial:</strong>");
                             $css->input("date", "TxtFechaInicialActaLiquidacion", "form-control", "TxtFechaInicialActaLiquidacion", "", ($DatosActa["FechaInicial"]), "Fecha Inicial", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaInicialActaLiquidacion`,`FechaInicial`)","style='line-height: 15px;'"."max=".date("Y-m-d"));
 
                         print("</td>");
-                    print("</tr>");
-                    print("<tr style=font-size:18px;border-left-style:double;border-bottom-style:double;border-right-style:double;border-width:5px;>");
-                        print("<td>");
-                            print("<strong>Fecha Final:</strong>");
-                        print("</td>");
-                        print("<td>");
+                      
+                        print("<td><strong>Fecha Final:</strong>");
                             $css->input("date", "TxtFechaFinalLiquidacion", "form-control", "TxtFechaFinalLiquidacion", "", ($DatosActa["FechaFinal"]), "Fecha Final", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaFinalLiquidacion`,`FechaFinal`)","style='line-height: 15px;'"."max=".date("Y-m-d"));
 
-                            //print(utf8_decode($DatosActa["FechaCorte"]));
+                        print("</td>");
+                        print("<td>");
                         print("</td>");
                     print("</tr>");
                 
@@ -305,7 +316,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     $DatosContratoExistente=$obCon->FetchArray($obCon->Query($sql));
                     $idItem=$DatosContratoExistente["ID"];
-                    $sql="SELECT * FROM actas_liquidaciones_contratos WHERE idContrato='$idContrato'";
+                    $sql="SELECT * FROM actas_liquidaciones_contratos WHERE idContrato='$idContrato' AND NIT_IPS='$CmbIPS'";
                     $DatosValidacionContratoActa=$obCon->FetchArray($obCon->Query($sql));
                     $css->FilaTabla(16);
                         print("<td>");
@@ -532,7 +543,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     if($TotalesActa["DescuentoBDUA"]==""){
                         $TotalesActa["DescuentoBDUA"]=0;
                     }
-                    $SaldoTotal=$TotalesActa["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"];
+                    $SaldoTotal=$TotalesActa["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"];
                     $sql="UPDATE actas_liquidaciones 
                             SET ValorFacturado=".$TotalFacturado.", 
                                 
@@ -585,7 +596,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     $DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);
                     $css->FilaTabla(16);
-                        $css->ColTabla("<strong>TOTALES ACTA DE LIQUIDACIÓN:</strong>", 5,'C');
+                        $css->ColTabla("<strong>TOTALES ACTA DE LIQUIDACIÓN:</strong>", 6,'C');
                     $css->CierraFilaTabla();
                     if($TipoActa==1 OR $TipoActa==7 OR $TipoActa==9){
                         $css->FilaTabla(16);
@@ -594,6 +605,7 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->ColTabla("<strong>DEVOLUCION</strong>", 1);
                             $css->ColTabla("<strong>GLOSA</strong>", 1);
                             $css->ColTabla("<strong>GLOSA A FAVOR DE ASMET</strong>", 1);
+                            
                         $css->CierraFilaTabla();
 
                         $css->FilaTabla(16);
@@ -602,6 +614,7 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->ColTabla(number_format($DatosActa["Devolucion"]), 1);
                             $css->ColTabla(number_format($DatosActa["Glosa"]), 1);
                             $css->ColTabla(number_format($DatosActa["GlosaFavor"]), 1);
+                            
                         $css->CierraFilaTabla();
 
                         $css->FilaTabla(16);
@@ -609,7 +622,8 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->ColTabla("<strong>RECUPERACION EN IMPUESTOS</strong>", 1);
                             $css->ColTabla("<strong>OTROS DESCUENTOS</strong>", 1);
                             $css->ColTabla("<strong>VALOR PAGADO</strong>", 1);
-                            $css->ColTabla("<strong>SALDO</strong>", 1);
+                            $css->ColTabla("<strong>PAGOS PENDIENTES POR LEGALIZAR</strong>", 1);
+                            
                         $css->CierraFilaTabla();
 
                         $css->FilaTabla(16);
@@ -617,7 +631,15 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->ColTabla(number_format($DatosActa["RecuperacionImpuestos"]), 1);
                             $css->ColTabla(number_format($DatosActa["OtrosDescuentos"]), 1);
                             $css->ColTabla(number_format($DatosActa["ValorPagado"]), 1);
-                            $css->ColTabla(number_format($DatosActa["Saldo"]), 1);
+                            print("<td>");
+                                $css->input("text", "TxtPagosPendientesPorLegalizar", "form-control", "TxtPagosPendientesPorLegalizar", "Pagos Pendientes por legalizar", $DatosActa["PagosPendientesPorLegalizar"], "Pagos pendientes por legalizar", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtPagosPendientesPorLegalizar`,`PagosPendientesPorLegalizar`)");
+                            print("</td>");
+                            
+                        $css->CierraFilaTabla();
+                        $css->FilaTabla(16);
+                            
+                            
+                            $css->ColTabla("<strong>SALDO FINAL DEL ACTA: </strong><h1>".number_format($DatosActa["Saldo"]), 5,'C')."</h1>";
                         $css->CierraFilaTabla();
                     }
                     
@@ -645,7 +667,8 @@ if( !empty($_REQUEST["Accion"]) ){
                             //$css->ColTabla("<strong>NOTA CREDITO / COPAGOS</strong>", 1);
                             $css->ColTabla("<strong>RECUPERACION EN IMPUESTOS</strong>", 1);
                             $css->ColTabla("<strong>OTROS DESCUENTOS</strong>", 1);
-                            $css->ColTabla("<strong>VALOR PAGADO</strong>", 2);
+                            $css->ColTabla("<strong>VALOR PAGADO</strong>", 1);
+                            $css->ColTabla("<strong>PAGOS PENDIENTES POR LEGALIZAR</strong>", 1);
                             $css->ColTabla("<strong>SALDO</strong>", 1);
                         $css->CierraFilaTabla();
 
@@ -653,7 +676,10 @@ if( !empty($_REQUEST["Accion"]) ){
                             //$css->ColTabla(number_format($DatosActa["NotasCopagos"]), 1);
                             $css->ColTabla(number_format($DatosActa["RecuperacionImpuestos"]), 1);
                             $css->ColTabla(number_format($DatosActa["OtrosDescuentos"]), 1);
-                            $css->ColTabla(number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]), 2);
+                            $css->ColTabla(number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]), 1);
+                            print("<td>");
+                                $css->input("text", "TxtPagosPendientesPorLegalizar", "form-control", "TxtPagosPendientesPorLegalizar", "Pagos Pendientes por legalizar", $DatosActa["PagosPendientesPorLegalizar"], "Pagos pendientes por legalizar", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtPagosPendientesPorLegalizar`,`PagosPendientesPorLegalizar`)");
+                            print("</td>");
                             $css->ColTabla(number_format($DatosActa["Saldo"]), 1);
                         $css->CierraFilaTabla();
                     }
