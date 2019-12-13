@@ -15,7 +15,7 @@ $idProyecto=$obRest->normalizar($_REQUEST['idProyecto']);
 
 $sql = "SELECT * FROM tickets_modulos_proyectos 
 		WHERE NombreModulo LIKE '%$key%' AND idProyecto='$idProyecto'
-		LIMIT 200"; 
+		ORDER BY ID LIMIT 200"; 
 $result = $obRest->Query($sql);
 $json = [];
 
