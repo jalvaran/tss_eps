@@ -603,7 +603,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         
         $html= $this->TotalesActaLiquidacion($DatosActa,$TipoActa);
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
-        
+       
         $html= $this->ObservacionesActaLiquidacion3($idActaLiquidacion,$TipoActa,$DatosActa);        
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
@@ -1142,7 +1142,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $DatosActa["GlosaFavor"]=0;
             
         }
-        if($TipoActa==1 or $TipoActa==3 or $TipoActa==7 or $TipoActa==9){
+        if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==9){
             if($DatosActa["PagosPendientesPorLegalizar"]==0){
                 $html='<table cellspacing="1" cellpadding="1" border="1">
                             <tr>
@@ -1457,12 +1457,28 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
     
     public function ConsideracionesActa($idActaLiquidacion,$TipoActa) {
         $obCon=new conexion(1);
+        $DatosActa= $obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);
+        $sql="SELECT t1.ID,t1.NombreContrato AS Contrato,t1.FechaInicial as FechaInicioContrato,t1.FechaFinal  as FechaFinalContrato,t1.Valor as ValorContrato
+                FROM actas_liquidaciones_contratos t1 
+                WHERE t1.idActaLiquidacion='$idActaLiquidacion'";
+        
+        $ConsultaContratos=$obCon->Query($sql);
+        $Contratos="";
+        while($DatosContratos=$obCon->FetchAssoc($ConsultaContratos)){
+            $Contratos.=$DatosContratos["Contrato"].", ";
+            
+        }
+        
         $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND SUBSTRING(Numeral,1,2)<>'op' ORDER BY Orden";
         
         $Consulta=$obCon->Query($sql);
         $html="";
+        
         while($DatosConsideraciones=$obCon->FetchAssoc($Consulta)){
-            $html.='<p align="justify"><strong>'.(utf8_encode($DatosConsideraciones["Numeral"]))."</strong> ".utf8_encode($DatosConsideraciones["Texto"])."</p><br>";
+            $Texto= str_replace("@DocumentoReferencia", $DatosActa["DocumentoReferencia"], $DatosConsideraciones["Texto"]);
+            $Texto= str_replace("@NombreIPS", $DatosActa["RazonSocialIPS"], $Texto);
+            $Texto= str_replace("@NumeroContrato", $Contratos, $Texto);
+            $html.='<p align="justify"><strong>'.(utf8_encode($DatosConsideraciones["Numeral"]))."</strong> ".utf8_encode($Texto)."</p><br>";
             
         }
         

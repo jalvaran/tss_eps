@@ -11,7 +11,7 @@ include_once("../clases/tickets.class.php");
 
 if( !empty($_REQUEST["Accion"]) ){
     $obCon = new Ticket($idUser);
-    
+    $obMail= new TS_Mail($idUser);
     switch ($_REQUEST["Accion"]) {
         
         case 1: //Crear un ticket
@@ -25,6 +25,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $TxtMensaje=$obCon->normalizar($_REQUEST["TxtMensaje"]);
            
             if($CmbUsuarioDestino==''){
+                
                 exit("E1;Debe seleccionar un destinatario;select2-CmbUsuarioDestino-container");
             }
             
@@ -118,7 +119,13 @@ if( !empty($_REQUEST["Accion"]) ){
                 $obCon->AgregarAdjuntoMensaje($destino,$Tamano, $_FILES['upAdjuntosTickets3']['name'], $Extension, $idUser, $idMensaje);
                 
             }
-            print("OK;Ticket $idTicket Creado");          
+            $EstadoEnvio=$obCon->NotificarTicketXMail($idTicket, $idMensaje, $idUser);
+            if($EstadoEnvio=="OK"){
+                print("OK;Ticket $idTicket Creado");
+            }else{
+                print("OK;Ticket $idTicket Creado pero no enviado por mail, error: ".$EstadoEnvio);
+            }
+             
             
         break; //fin caso 1
         
@@ -237,17 +244,13 @@ if( !empty($_REQUEST["Accion"]) ){
                 
             }
             $obCon->ActualizaRegistro("tickets", "Estado", $CmbCerrarTicket, "ID", $idTicket);
-            /*
-            if($CmbCerrarTicket==1){
-                $obCon->ActualizaRegistro("tickets", "Estado", 10, "ID", $idTicket);
-               
-            }else{
-                $obCon->ActualizaRegistro("tickets", "Estado", 3, "ID", $idTicket);
-            }
-             * 
-             */
             
-            print("OK;Respuesta Agregada");          
+            $EstadoEnvio=$obCon->NotificarTicketXMail($idTicket, $idMensaje, $idUser);
+            if($EstadoEnvio=="OK"){
+                print("OK;Respuesta Agregada");
+            }else{
+                print("OK;Respuesta Agregada pero no enviada por mail, error: ".$EstadoEnvio);
+            }
             
         break; //fin caso 3
         

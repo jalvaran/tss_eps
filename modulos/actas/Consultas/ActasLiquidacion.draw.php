@@ -261,7 +261,8 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->input("date", "TxtFechaFinalLiquidacion", "form-control", "TxtFechaFinalLiquidacion", "", ($DatosActa["FechaFinal"]), "Fecha Final", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaFinalLiquidacion`,`FechaFinal`)","style='line-height: 15px;'"."max=".date("Y-m-d"));
 
                         print("</td>");
-                        print("<td>");
+                        print("<td><strong>Documento Referencia y fecha de recibido:</strong>");    
+                            $css->input("text", "TxtDocumentoReferencia", "form-control", "TxtDocumentoReferencia", "", ($DatosActa["DocumentoReferencia"]), "Documento Referencia", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtDocumentoReferencia`,`DocumentoReferencia`)","");
                         print("</td>");
                     print("</tr>");
                 
@@ -598,7 +599,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->FilaTabla(16);
                         $css->ColTabla("<strong>TOTALES ACTA DE LIQUIDACIÓN:</strong>", 6,'C');
                     $css->CierraFilaTabla();
-                    if($TipoActa==1 OR $TipoActa==7 OR $TipoActa==9){
+                    if($TipoActa==1 OR $TipoActa==2 OR $TipoActa==7 OR $TipoActa==9){
                         $css->FilaTabla(16);
                             $css->ColTabla("<strong>VALOR FACTURADO</strong>", 1);
                             $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);

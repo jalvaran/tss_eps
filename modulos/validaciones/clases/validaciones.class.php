@@ -668,7 +668,7 @@ class ValidacionesEPS extends conexion{
         $this->Query($sql);        
     }
     
-    public function obtengaValoresGeneralesActaConciliacion($db,$idActaConciliacion) {
+    public function n($db,$idActaConciliacion) {
         $DatosActa=$this->DevuelveValores("actas_conciliaciones", "ID", $idActaConciliacion);
         $MesServicioInicial=$DatosActa["MesServicioInicial"];
         $MesServicioFinal=$DatosActa["MesServicioFinal"];

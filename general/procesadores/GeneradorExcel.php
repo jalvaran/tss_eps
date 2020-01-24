@@ -29,7 +29,7 @@ if(isset($_REQUEST["idDocumento"])){
             $DatosActa= $obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);     
             //$DatosActaTipo=$obCon->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
             //print($DatosActaTipo["Header"]);
-            if($DatosActa["TipoActaLiquidacion"]==1 or $DatosActa["TipoActaLiquidacion"]==3 or $DatosActa["TipoActaLiquidacion"]==7 or $DatosActa["TipoActaLiquidacion"]==9){
+            if($DatosActa["TipoActaLiquidacion"]==1 or $DatosActa["TipoActaLiquidacion"]==2 or $DatosActa["TipoActaLiquidacion"]==3 or $DatosActa["TipoActaLiquidacion"]==7 or $DatosActa["TipoActaLiquidacion"]==9){
                 if($FacturaRadicado==0){
                     $obCon->GenerarAnexoActaLiquidacionXFacturas1($db,$DatosIPS,$idActaLiquidacion,$DatosActa,$TipoConsulta);
                     //$obCon->GenerarAnexoActaLiquidacionXFacturasSpout($db,$DatosIPS,$idActaLiquidacion,$DatosActa,$TipoConsulta);

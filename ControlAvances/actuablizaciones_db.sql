@@ -117,3 +117,70 @@ INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`,
 
 INSERT INTO `menu_submenus` (`ID`, `Nombre`, `idPestana`, `idCarpeta`, `idMenu`, `TablaAsociada`, `TipoLink`, `JavaScript`, `Pagina`, `Target`, `Estado`, `Image`, `Orden`, `Updated`, `Sync`) VALUES
 (34,	'Historial de Contratos Percapita',	53,	13,	7,	'contrato_percapita',	1,	'',	'contratos_percapita.php',	'_SELF',	1,	'historial2.png',	2,	'2019-07-30 14:56:51',	'0000-00-00 00:00:00');
+
+
+INSERT INTO `configuracion_general` (`ID`, `Descripcion`, `Valor`, `Updated`, `Sync`) VALUES
+(25,	'Determina el metodo de envío de correo electrónico, 1 para php nativo (Windows), 2 para phpmailer (LINUX).',	'1',	'2019-12-12 13:13:50',	'0000-00-00 00:00:00'),
+(24,	'Se configura el Correo que envía la factura electronica',	'technosolucionesfe@gmail.com',	'2019-12-11 22:09:23',	'0000-00-00 00:00:00'),
+(23,	'Configura el cuerpo del mensaje a enviar en una factura electronica',	'Cordial Saludo @RazonSocial,<br><br>\r\n\r\nPor medio del presente nos permitimos enviarle su factura electronica @NumeroFactura.<br><br>\r\n\r\nQue tenga un excelente dia.\r\n ',	'2019-12-11 22:02:02',	'0000-00-00 00:00:00'),
+(22,	'Configura el asunto a mostrar cuando se envia una factura electronica.',	'FACTURA ELECTRONICA',	'2019-12-17 06:24:48',	'0000-00-00 00:00:00');
+
+CREATE TABLE `configuracion_correos_smtp` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `SMTPSecure` varchar(10) COLLATE utf8_spanish_ci NOT NULL,
+  `Host` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
+  `Port` bigint(20) NOT NULL,
+  `Username` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
+  `Password` varchar(200) COLLATE utf8_spanish_ci NOT NULL,
+  `Updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `Sync` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+INSERT INTO `configuracion_correos_smtp` (`ID`, `SMTPSecure`, `Host`, `Port`, `Username`, `Password`, `Updated`, `Sync`) VALUES
+(1,	'ssl',	'smtp.gmail.com',	465,	'technosolucionesfe@gmail.com',	'pirlo1985',	'2019-12-17 11:35:35',	'0000-00-00 00:00:00');
+
+CREATE TABLE `empresa_cargos` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `NombreCargo` varchar(90) COLLATE utf8_spanish_ci NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+INSERT INTO `empresa_cargos` (`ID`, `NombreCargo`) VALUES
+(1,	'GERENTE'),
+(2,	'SUBGERENTE'),
+(3,	'TECNICO FINANCIERO'),
+(4,	'TECNICO EN LIQUIDACION Y CONCILIACION'),
+(5,	'Auxiliar integral Administrativo de servicios'),
+(6,	'APOYO AL PROCESO DE LIQUIDACIONES'),
+(7,	'DIRECTORA ADMINISTRATIVA'),
+(8,	'Asistente Administrativo y Financiero'),
+(9,	'Técnico en Sistemas y asistente financiero'),
+(10,	'Auxiliar de servicios Generales'),
+(11,	'Auxiliar de servicios de seguridad'),
+(12,	'PROFESIONAL EN AUDITORIA DE CUENTAS MEDICAS Y RECOBROS'),
+(13,	'Asesor Jurídico'),
+(14,	'Apoyo jurídico al proceso de auditoría.'),
+(15,	'Ingeniero en sistemas de información'),
+(16,	'Auxiliar de sistemas y soporte'),
+(17,	'Auxiliar integral Administrativo de servicios'),
+(18,	'Administrativo de Calidad'),
+(19,	'Desarrollador del sistema de informacion para el proceso de liquidacion');
+
+
+CREATE TABLE `empresa_nombres_procesos` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `NombreProceso` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+INSERT INTO `empresa_nombres_procesos` (`ID`, `NombreProceso`) VALUES
+(1,	'DIRECCIONAMIENTO ESTRATÉGICO'),
+(2,	'GESTIÓN DE LIQUIDACIÓN DE CONTRATOS'),
+(3,	'GESTIÓN ADMINISTRATIVA Y FINANCIERA'),
+(4,	'GESTIÓN JURÍDICA'),
+(5,	'GESTIÓN DE TICS'),
+(6,	'GESTIÓN DE TALENTO HUMANO-SST'),
+(7,	'GESTION DE CALIDAD'),
+(8,	'PROYECTO INFORMATICO');
+

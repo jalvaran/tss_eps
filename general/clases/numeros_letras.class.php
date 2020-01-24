@@ -10,10 +10,10 @@ class numeros_letras{
     }
    
     function basico($numero){
-        $valor = array ('un','dós','trés','cuatro','cinco','seis','siete','ocho',
-            'nueve','diez', 'once','doce','trece','catorce','quince','dieciséis','diecisiete',
-            'dieciocho','diecinueve','veinte','veintiun','veintidós', 'veintitrés',
-            'veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve');
+        $valor = array ('un','dos','tres','cuatro','cinco','seis','siete','ocho',
+            'nueve','diez', 'once','doce','trece','catorce','quince','dieciseis','diecisiete',
+            'dieciocho','diecinueve','veinte','veintiun','veintidos', 'veintitres',
+            'veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve');
 
             return $valor[$numero - 1];
     }
@@ -59,14 +59,14 @@ class numeros_letras{
 	
     function millones($n) {
         $n=round($n);
-        if($n == 1000000) {return 'un millón';}
+        if($n == 1000000) {return 'un millon';}
         else {
             $l = strlen($n);
             //print("$l");
             $c = (int)substr($n,0,$l-6);
             $x = (int)substr($n,-6);
         if($c == 1) {
-                $cadena = ' millón ';
+                $cadena = ' millon ';
         } else {
                 $cadena = ' millones ';
         }

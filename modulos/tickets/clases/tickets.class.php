@@ -2,6 +2,11 @@
 if(file_exists("../../../modelo/php_conexion.php")){
     include_once("../../../modelo/php_conexion.php");
 }
+
+if(file_exists("../../../general/clases/mail.class.php")){
+    include_once("../../../general/clases/mail.class.php");
+}
+
 /* 
  * Clase donde se realizaran procesos para construir recetas
  * Julian Alvaran
@@ -58,6 +63,29 @@ class Ticket extends conexion{
         $this->Query($sql);
         $ID= $this->ObtenerMAX("tickets_adjuntos", "ID", 1, "");
         return($ID);
+    }
+    
+    public function NotificarTicketXMail($idTicket,$idMensaje,$idUser) {
+        $obMail=new TS_Mail($idUser);
+        $DatosTickets=$this->DevuelveValores("tickets", "ID", $idTicket);
+        $DatosMensaje=$this->DevuelveValores("tickets_mensajes", "ID", $idMensaje);
+        $idUsuarioRemitente=$DatosTickets["idUsuarioSolicitante"];
+        $idUsuarioDestino=$DatosTickets["idUsuarioAsignado"];
+        $sql="SELECT Nombre,Apellido,Email FROM usuarios WHERE idUsuarios = '$idUsuarioRemitente'";
+        $DatosUsuarioRemitente=$this->FetchAssoc($this->Query($sql));
+        $sql="SELECT Nombre,Apellido,Email FROM usuarios WHERE idUsuarios = '$idUsuarioDestino'";
+        $DatosUsuarioDestino=$this->FetchAssoc($this->Query($sql));
+        $Para=$DatosUsuarioRemitente["Email"].",".$DatosUsuarioDestino["Email"];
+        $NombreRemitente=$DatosUsuarioRemitente["Nombre"]." ".$DatosUsuarioRemitente["Apellido"];  
+        $Parametros=$this->DevuelveValores("configuracion_general", "ID", 25); //Determina el metrodo de envio del mail
+        
+        if($Parametros["Valor"]==1){
+                
+            $EstadoEnvio=$obMail->EnviarMailXPHPNativo($Para, $DatosUsuarioRemitente["Email"], $NombreRemitente, "Ticket $idTicket: ".$DatosTickets["Asunto"], $DatosMensaje["Mensaje"]);
+        }else{
+            $EstadoEnvio=$obMail->EnviarMailXPHPMailer($Para, $DatosUsuarioRemitente["Email"], $NombreRemitente, "Ticket $idTicket: ".$DatosTickets["Asunto"], $DatosMensaje["Mensaje"]);
+        }
+        return($EstadoEnvio);
     }
     //Fin Clases
 }
