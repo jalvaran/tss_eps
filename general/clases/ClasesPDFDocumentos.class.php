@@ -576,7 +576,11 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $TipoActa=$DatosActa["TipoActaLiquidacion"];
         
         $this->PDF_IniActaLiquidacion("ACTA DE LIQUIDACIÓN No.", utf8_encode($DatosTipoActa["Header"]), "Footer text");
-        
+        $TamanoFuente=8;
+        if(is_numeric($DatosActa["TamanoFuente"]) and $DatosActa["TamanoFuente"]>0 and $DatosActa["TamanoFuente"]<17){
+            $TamanoFuente=$DatosActa["TamanoFuente"];
+        }
+        $this->PDF->SetFont('helvetica', '', $TamanoFuente);
         
         $Titulo='<p align="center"><h3>ACTA DE LIQUIDACIÓN No. '.utf8_encode($DatosActa["IdentificadorActaEPS"].'</h3></p>');
         $Titulo.="";
@@ -632,7 +636,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $this->PDF->writeHTML("".$html, true, false, false, false, '');
             }
             
-            if($TipoActa==1 or $TipoActa==7 or $TipoActa==9){    
+            if($TipoActa==1 or $TipoActa==2 or $TipoActa==7 or $TipoActa==9){    
                 
                 $this->PDF->AddPage();
                 $this->PDF->SetMargins(10, 20, 5);
@@ -1360,7 +1364,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             }
             $html.='</td>';
             if($i==3){
-                $html.='</tr><BR><BR><BR><BR>';
+                $html.='</tr><BR><BR><BR><BR><BR><BR>';
                 $html.='<tr>';
             }
         }

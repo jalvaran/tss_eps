@@ -250,7 +250,8 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("</td>");
                     print("</tr>");
                     print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
-                        print("<td>");
+                        print("<td><strong>Tamaño de Letra:</strong>");   
+                            $css->input("text", "TxtTamanoFuente", "form-control", "TxtTamanoFuente", "", ($DatosActa["TamanoFuente"]), "Tamaño de Fuente", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtTamanoFuente`,`TamanoFuente`)","");
                         print("</td>");
                         print("<td><strong>Fecha Inicial:</strong>");
                             $css->input("date", "TxtFechaInicialActaLiquidacion", "form-control", "TxtFechaInicialActaLiquidacion", "", ($DatosActa["FechaInicial"]), "Fecha Inicial", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaInicialActaLiquidacion`,`FechaInicial`)","style='line-height: 15px;'"."max=".date("Y-m-d"));
