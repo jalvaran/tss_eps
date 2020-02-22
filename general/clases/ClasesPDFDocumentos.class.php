@@ -574,6 +574,13 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $DatosTipoActa=$this->obCon->DevuelveValores("actas_liquidaciones_tipo","ID",$DatosActa["TipoActaLiquidacion"]);     
         $NIT_IPS=$DatosActa["NIT_IPS"];
         $TipoActa=$DatosActa["TipoActaLiquidacion"];
+        $Unilateral="";
+         
+         if($TipoActa==2 or $TipoActa==5 or $TipoActa==8 or $TipoActa==10 ){
+
+             $Unilateral="UNILATERAL";
+                     
+         };
         
         $this->PDF_IniActaLiquidacion("ACTA DE LIQUIDACIÓN No.", utf8_encode($DatosTipoActa["Header"]), "Footer text");
         $TamanoFuente=8;
@@ -582,7 +589,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         }
         $this->PDF->SetFont('helvetica', '', $TamanoFuente);
         
-        $Titulo='<p align="center"><h3>ACTA DE LIQUIDACIÓN No. '.utf8_encode($DatosActa["IdentificadorActaEPS"].'</h3></p>');
+        $Titulo='<p align="center"><h3>ACTA DE LIQUIDACIÓN '. $Unilateral. 'No. '.utf8_encode($DatosActa["IdentificadorActaEPS"].'</h3></p>');
         $Titulo.="";
         $Titulo.='<p align="center"><h3>'.utf8_encode($DatosTipoActa["Titulo"]).'</h3></p>';
         $this->PDF->writeHTML($Titulo, true, false, false, false, '');
@@ -612,10 +619,12 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         $html= $this->ObservacionesActaLiquidacion4($idActaLiquidacion,$TipoActa);        
-        $this->PDF->writeHTML("<br>".$html, true, false, false, false, '');
-        
-        $html= $this->ObservacionesGenerales($idActaLiquidacion,$DatosActa);        
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
+        if($DatosActa["Observaciones"]<>''){
+            $html= $this->ObservacionesGenerales($idActaLiquidacion,$DatosActa);        
+            $this->PDF->writeHTML("".$html, true, false, false, false, '');
+        } 
+        
         
         $html= $this->ObservacionesActaLiquidacion5($idActaLiquidacion,$TipoActa);        
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
@@ -636,7 +645,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $this->PDF->writeHTML("".$html, true, false, false, false, '');
             }
             
-            if($TipoActa==1 or $TipoActa==2 or $TipoActa==7 or $TipoActa==9){    
+            if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10){    
                 
                 $this->PDF->AddPage();
                 $this->PDF->SetMargins(10, 20, 5);
@@ -699,7 +708,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                         EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado )
                          AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
                         AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
-
+                        AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t4 WHERE t4.Estado=1 AND t1.TipoOperacion=t4.TipoOperacion AND Aplicacion='FACTURA')
                               ";
 
                 $sql=" UNION ALL SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,NumeroContrato,SUM(ValorDocumento) AS ValorDocumento,
@@ -1115,7 +1124,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
     }
     
     public function ObservacionesGenerales($idActaLiquidacion,$DatosActa) {
-           
+          
         $html='<p align="justify">'. ($DatosActa["Observaciones"])."</p>";        
         return($html);
     }
@@ -1146,7 +1155,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $DatosActa["GlosaFavor"]=0;
             
         }
-        if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==9){
+        if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10){
             if($DatosActa["PagosPendientesPorLegalizar"]==0){
                 $html='<table cellspacing="1" cellpadding="1" border="1">
                             <tr>
@@ -1253,7 +1262,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                     
         }
         
-        if($TipoActa==4 or $TipoActa==6){
+        if($TipoActa==4 or $TipoActa==5 or $TipoActa==6){
             if($DatosActa["PagosPendientesPorLegalizar"]==0){
                 $html='<table cellspacing="1" cellpadding="1" border="1">
                             <tr>
@@ -1316,15 +1325,16 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $ColspanTotales=6;
             }
         }
-        
-        if($DatosActa["Saldo"]>=0){
+      
+      if($DatosActa["Saldo"]>0){
             
             $html.='<tr>
                 <td colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE $</strong></td>
                 <td style="text-align:rigth;">'. number_format($SaldoAPagarContratista).'</td>
 
             </tr>';
-        }else{
+        }
+        if($DatosActa["Saldo"]<0){
             $html.='<tr>
                 <td  colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE $</strong></td>
                 <td style="text-align:rigth;">'. number_format(abs($SaldoAPagarContratante)).'</td>
@@ -1345,7 +1355,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $mes=$obNumLetra->meses($DatosFechaFirma[1]);
         $anio=$obNumLetra->convertir($DatosFechaFirma[0]);
         $html=('<p align="justify"><BR>Para constancia se firma en <strong>'.($DatosActa["CiudadFirma"])."</strong>");
-        $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]),  en dos Originales uno para la IPS y otro para la EPS:<br><br></p>");
+        $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]),  en dos Originales uno para la IPS y otro para la EPS:<br><br><br><br><br><br></p>");
         
         $sql="SELECT * FROM actas_liquidaciones_firmas WHERE idActaLiquidacion='$idActaLiquidacion'";
         $Consulta=$this->obCon->Query($sql);
@@ -1381,7 +1391,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $html.='<BR><BR>';
         $html.='Elaboró: '.($DatosUsuario["Nombre"])." ".($DatosUsuario["Apellido"]);
         $html.='<BR>';
-        $html.='Revisó: '.utf8_encode($DatosActa["Revisa"]);
+        $html.='Revisó: '.($DatosActa["Revisa"]);
         $html.='<BR>';
         $html.='Auditó: ';
         //print($html);
@@ -1393,14 +1403,14 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $obCon=new conexion(1);
         $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op5' LIMIT 1";
         $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
-        $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";        
+        $html='<p align="justify">'.utf8_encode($DatosConsideraciones["Texto"])."</p>";        
         return($html);
     }
     public function ObservacionesActaLiquidacion4($idActaLiquidacion,$TipoActa) {
         $obCon=new conexion(1);
         $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op4' LIMIT 1";
         $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
-        $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";        
+        $html='<p align="justify">'.utf8_encode($DatosConsideraciones["Texto"])."</p>";        
         return($html);
     }
     
@@ -1496,20 +1506,29 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));
         $DatosActa= $obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);
         $NIT_IPS=$DatosActa["NIT_IPS"];
+        $DatosRepresentanteEPS= $obCon->DevuelveValores("eps_representantes_legales", "ID", 1);
         $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";
         $sql="SELECT t2.Contrato FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente WHERE t1.idActaLiquidacion='$idActaLiquidacion' ORDER BY t1.ID";
         $sql="SELECT 
-                (SELECT Contrato FROM contratos t2 WHERE t1.idContrato=t2.ContratoEquivalente AND t2.NitIPSContratada='$NIT_IPS' LIMIT 1) AS Contrato
+                (SELECT Contrato FROM contratos t2 WHERE t1.idContrato=t2.ContratoEquivalente AND t2.NitIPSContratada='$NIT_IPS' LIMIT 1) AS Contrato,
+                FechaInicial,FechaFinal
                 FROM actas_liquidaciones_contratos t1  
                 WHERE t1.idActaLiquidacion='$idActaLiquidacion'";
         $Consulta=$obCon->Query($sql);
         $ContratosActa="<strong>";
         while($DatosContratos=$obCon->FetchAssoc($Consulta)){
-            $ContratosActa.=$DatosContratos["Contrato"].", ";
+            $ContratosActa.=$DatosContratos["Contrato"]." del ";
+            $ContratosActa.=$DatosContratos["FechaInicial"]." al ";
+            $ContratosActa.=$DatosContratos["FechaFinal"].", ";
         }
         $ContratosActa=substr($ContratosActa,0,-2);
         $ContratosActa.="</strong>";
+        $html= str_replace("@NombreIPS", $DatosActa["RazonSocialIPS"], $html);
         $html= str_replace("@NumerosContratos", $ContratosActa, $html);
+        $html= str_replace("@RepresentanteEPS", $DatosRepresentanteEPS["Nombres"]." ".$DatosRepresentanteEPS["Apellidos"], $html);
+        $html= str_replace("@IdentificacionRepresentanteEPS", $DatosRepresentanteEPS["Identificacion"], $html);
+        $html= str_replace("@OrigenIdentificacion", $DatosRepresentanteEPS["OrigenIdentificacion"], $html);
+        $html= str_replace("@DireccionRepresentanteEPS", $DatosRepresentanteEPS["Direccion"]." ".$DatosRepresentanteEPS["Domicilio"], $html);
         return($html);
     }
     
@@ -1589,7 +1608,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                     <tr>
                         <td style="width:20%;"><strong>Contratista IPS:</strong></td>
                     
-                        <td style="width:30%;"><strong>'.$DatosActa["RazonSocialIPS"].'</strong></td>
+                        <td style="width:30%;"><strong>'.utf8_encode($DatosActa["RazonSocialIPS"]).'</strong></td>
                     
                         <td style="width:20%;"><strong>NIT IPS:</strong></td>
                     

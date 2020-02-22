@@ -334,6 +334,11 @@ class CarteraEPS extends conexion{
            
             $z++;
             $r++;
+            exit("Encontrado en la linea" );
+            if($data[5]=='568012869'){
+                print_r($data);
+                exit("Encontrado en la linea" );
+            }
             if(!isset($data[8])){ //Se encuentra el nit de la ips
                 continue;
             }

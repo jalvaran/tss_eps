@@ -133,6 +133,7 @@ class TS_Excel extends conexion{
         $objPHPExcel = new Spreadsheet();
         $TipoActa=$DatosActa["TipoActaLiquidacion"];
         $DatosActaTipo=$this->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
+        $Modalidad=   $DatosActaTipo["Nombre"];
         $Encabezado= utf8_encode($DatosActaTipo["Header"]);
         $Footer= utf8_encode($DatosActaTipo["Footer"]);
         $objPHPExcel->getActiveSheet()->getStyle('E:N')->getNumberFormat()->setFormatCode('#,##0');
@@ -239,7 +240,7 @@ class TS_Excel extends conexion{
         $TipoContrato="";
         $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue($Campos[0].$i,"Modalidad:")
-            ->setCellValue($Campos[1].$i,$TipoContrato)
+            ->setCellValue($Campos[1].$i,$Modalidad)
             
                 ;
         $objPHPExcel->getActiveSheet()->getStyle($Campos[0].$i)->applyFromArray($styleTitle);
@@ -329,7 +330,7 @@ class TS_Excel extends conexion{
                     EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
                      AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
                     AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
-                                        
+                    AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t4 WHERE t4.Estado=1 AND t1.TipoOperacion=t4.TipoOperacion AND Aplicacion='FACTURA')                    
 
                        ";
                  // print($Union2) ; 
@@ -591,6 +592,7 @@ class TS_Excel extends conexion{
         $objPHPExcel = new Spreadsheet();
         
         $DatosActaTipo=$this->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
+        $Modalidad=   $DatosActaTipo["Nombre"];
         $Encabezado= utf8_encode($DatosActaTipo["Header"]);
         $Footer= utf8_encode($DatosActaTipo["Footer"]);
         $objPHPExcel->getActiveSheet()->getStyle('D:N')->getNumberFormat()->setFormatCode('#,##0');
@@ -694,7 +696,7 @@ class TS_Excel extends conexion{
         
         $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue($Campos[0].$i,"Modalidad:")
-            ->setCellValue($Campos[1].$i,$TipoContrato)
+            ->setCellValue($Campos[1].$i,$Modalidad)
             
                 ;
         $objPHPExcel->getActiveSheet()->getStyle($Campos[0].$i)->applyFromArray($styleTitle);
@@ -723,7 +725,9 @@ class TS_Excel extends conexion{
         
         if($TipoConsulta==1){
             $Tabla="actas_conciliaciones_items";
-            $Condicion=" WHERE ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t5 WHERE t5.idContrato=$Tabla.NumeroContrato AND t5.idActaLiquidacion='$idActaLiquidacion') ";
+            $Condicion=" WHERE ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) 
+                         AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t5 WHERE t5.idContrato=$Tabla.NumeroContrato AND t5.idActaLiquidacion='$idActaLiquidacion') 
+                         ";
             $GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
             $TablaUnion="historial_carteracargada_eps";
             
@@ -739,7 +743,7 @@ class TS_Excel extends conexion{
                     EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado )
                      AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
                     AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
-                                           
+                    AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t4 WHERE t4.Estado=1 AND t1.TipoOperacion=t4.TipoOperacion AND Aplicacion='FACTURA')                        
                           ";
                         
             $sql=" UNION ALL SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,NumeroContrato,SUM(ValorDocumento) AS ValorDocumento,
@@ -747,7 +751,7 @@ class TS_Excel extends conexion{
                         SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) AS TotalOtrosDescuentos,
                         SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
                         SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS Saldo,SUM(GlosaXConciliar) AS GlosaXConciliar 
-
+                        
                         FROM $db.$Tabla $Condicion";
             $sql=$Union3.$sql.$GroupOrder;
             

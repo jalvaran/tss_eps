@@ -230,13 +230,13 @@ if( !empty($_REQUEST["Accion"]) ){
             $TipoActa=$DatosActa["TipoActaLiquidacion"];
             $MesServicioInicial=$DatosActa["MesServicioInicial"];
             $MesServicioFinal=$DatosActa["MesServicioFinal"];
-                    
-            $css->CrearTitulo("<strong>Acta de Liquidación No. $idActaLiquidacion, Tipo: " .utf8_encode($DatosActa["Titulo"])."</strong>");
+            
+                $css->CrearTitulo("<strong>Acta de Liquidación No. $idActaLiquidacion, Tipo: " .utf8_encode($DatosActa["Titulo"])."</strong>");
             
                 $css->CrearTabla();
                     print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
                         
-                        print("<td><strong>Prefijo Departamento:</strong>");
+                        print("<td ><strong>Prefijo Departamento:</strong>");
                             $css->input("text", "TxtPrefijoDepartamento", "form-control", "TxtPrefijoDepartamento", "", ($DatosActa["PrefijoDepartamento"]), "Prefijo del Acta", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtPrefijoDepartamento`,`PrefijoDepartamento`)","");
                         print("</td>");   
                         print("<td><strong>Consecutivo:</strong>");
@@ -248,9 +248,25 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("<td><strong>Identificador del Acta:</strong>");    
                             $css->input("text", "TxtIdentificadorActa", "form-control", "TxtIdentificadorActa", "", ($DatosActa["IdentificadorActaEPS"]), "Identificador del Acta", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtIdentificadorActa`,`IdentificadorActaEPS`)","disabled");
                         print("</td>");
+                        print("<td><strong>Tipo de Acta:</strong>");   
+                            $css->select("cmdTipoActaEdit", "form-control", "cmdTipoActaEdit", "", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`cmdTipoActaEdit`,`TipoActaLiquidacion`)", "style=width:200px");
+                                $sql="SELECT * FROM actas_liquidaciones_tipo";
+                                $Consulta=$obCon->Query($sql);
+                                while($DatosTipo=$obCon->FetchAssoc($Consulta)){
+                                    $Seleccionar=0;
+                                    if($DatosTipo["ID"]==$DatosActa["TipoActaLiquidacion"]){
+                                        $Seleccionar=1;
+                                    }
+                                    $css->option("", "", "", $DatosTipo["ID"], "", "", $Seleccionar);
+                                        print($DatosTipo["Nombre"]);
+                                    $css->Coption();
+                                }
+                            $css->Cselect();
+                        print("</td>");
                     print("</tr>");
                     print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
-                        print("<td><strong>Tamaño de Letra:</strong>");   
+                        
+                        print("<td ><strong>Tamaño de Letra:</strong>");   
                             $css->input("text", "TxtTamanoFuente", "form-control", "TxtTamanoFuente", "", ($DatosActa["TamanoFuente"]), "Tamaño de Fuente", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtTamanoFuente`,`TamanoFuente`)","");
                         print("</td>");
                         print("<td><strong>Fecha Inicial:</strong>");
@@ -262,7 +278,7 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->input("date", "TxtFechaFinalLiquidacion", "form-control", "TxtFechaFinalLiquidacion", "", ($DatosActa["FechaFinal"]), "Fecha Final", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaFinalLiquidacion`,`FechaFinal`)","style='line-height: 15px;'"."max=".date("Y-m-d"));
 
                         print("</td>");
-                        print("<td><strong>Documento Referencia y fecha de recibido:</strong>");    
+                        print("<td colspan=2><strong>Documento Referencia y fecha de recibido:</strong>");    
                             $css->input("text", "TxtDocumentoReferencia", "form-control", "TxtDocumentoReferencia", "", ($DatosActa["DocumentoReferencia"]), "Documento Referencia", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtDocumentoReferencia`,`DocumentoReferencia`)","");
                         print("</td>");
                     print("</tr>");
@@ -271,7 +287,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                 
                     $css->FilaTabla(16);
-                        $css->ColTabla("<strong>CONTRATOS DISPONIBLES PARA LIQUIDAR:</strong>", 3,"C");
+                        $css->ColTabla("<strong>CONTRATOS DISPONIBLES PARA LIQUIDAR:</strong>", 5,"C");
                     $css->CierraFilaTabla();
                     $css->FilaTabla(16);
                         $css->ColTabla("<strong>CONTRATOS</strong>", 1,"C");
@@ -500,7 +516,8 @@ if( !empty($_REQUEST["Accion"]) ){
                             
                             FROM $db.historial_carteracargada_eps t1 WHERE NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
                         AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
-                       AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                       AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion') 
+                       AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t4 WHERE t4.Estado=1 AND t1.TipoOperacion=t4.TipoOperacion AND Aplicacion='FACTURA')    
                        ";
                         $TotalesActaHistorial=$obCon->FetchAssoc($obCon->Query($sql));
                         
