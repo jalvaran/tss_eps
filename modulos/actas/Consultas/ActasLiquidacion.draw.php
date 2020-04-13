@@ -32,17 +32,30 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CierraFilaTabla();
                 
                 $css->FilaTabla(14);
-                    $css->ColTabla("<strong>Fecha Inicial</strong>", 2);
-                    $css->ColTabla("<strong>Fecha Final</strong>", 2);
+                    $css->ColTabla("<strong>ASMET</strong>", 2);
+                    $css->ColTabla("<strong>Fecha Inicial</strong>", 1);
+                    $css->ColTabla("<strong>Fecha Final</strong>", 1);
                     
                 $css->CierraFilaTabla();    
                 
                 $css->FilaTabla(14);
                     print("<td colspan=2>");
+                        $css->select("CmbAsmet", "form-control", "CmbAsmet", "", "", "", "");
+                            
+                            $css->option("", "", "", 1, "", "");
+                                print("MUTUAL");
+                            $css->Coption();
+                            $css->option("", "", "", 2, "", "");
+                                print("SAS");
+                            $css->Coption();
+                        $css->Cselect();
+                    print("</td>");
+                    
+                    print("<td colspan=1>");
                         $css->input("date", "FechaInicial", "form-control", "FechaInicial", "", date("Y-m-d"), "Fecha Inicial", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
                     
                     print("</td>");
-                    print("<td colspan=2>");
+                    print("<td colspan=1>");
                        $css->input("date", "FechaFinal", "form-control", "FechaFinal", "", date("Y-m-d"), "Fecha Final", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
                     
                     print("</td>");
@@ -278,8 +291,28 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->input("date", "TxtFechaFinalLiquidacion", "form-control", "TxtFechaFinalLiquidacion", "", ($DatosActa["FechaFinal"]), "Fecha Final", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaFinalLiquidacion`,`FechaFinal`)","style='line-height: 15px;'"."max=".date("Y-m-d"));
 
                         print("</td>");
-                        print("<td colspan=2><strong>Documento Referencia y fecha de recibido:</strong>");    
+                        print("<td ><strong>Documento Referencia y fecha de recibido:</strong>");    
                             $css->input("text", "TxtDocumentoReferencia", "form-control", "TxtDocumentoReferencia", "", ($DatosActa["DocumentoReferencia"]), "Documento Referencia", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtDocumentoReferencia`,`DocumentoReferencia`)","");
+                        print("</td>");
+                        print("<td ><strong>ASMET:</strong>");    
+                        
+                            $css->select("CmbAsmet", "form-control", "CmbAsmet", "", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`CmbAsmet`,`Asmet`)", "");
+                                $sel=0;
+                                if($DatosActa["Asmet"]==1){
+                                    $sel=1;
+                                }
+                                $css->option("", "", "", 1, "", "",$sel);
+                                    print("MUTUAL");
+                                $css->Coption();
+
+                                $sel=0;
+                                if($DatosActa["Asmet"]==2){
+                                    $sel=1;
+                                }
+                                $css->option("", "", "", 2, "", "",$sel);
+                                    print("SAS");
+                                $css->Coption();
+                            $css->Cselect();
                         print("</td>");
                     print("</tr>");
                 
@@ -768,17 +801,27 @@ if( !empty($_REQUEST["Accion"]) ){
                 print("<tr><td></td></tr>");
                 print("<tr>");
                     print("<td colspan=1 style=font-size:16px;>");
-                        print("<strong>Fecha de Firma: </strong>");
+                        print("<strong>Fecha de Firma: </strong><br>");
                         
                         $css->input("date", "TxtFechaDeFirma", "", "TxtFechaDeFirma", "", ($DatosActa["FechaFirma"]), "Fecha de la firma", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaDeFirma`,`FechaFirma`);DibujeConstanciaFirmaActa();","style='line-height: 15px;'"."max=".date("Y-m-d",strtotime(date("Y-m-d")."+ 15 days")));
                     
                     print("</td>");
                     print("<td colspan=2 style=font-size:16px;>");
-                        print("<strong>Ciudad de Firma: </strong>");
+                        print("<strong>Ciudad de Firma: </strong><br>");
                         $css->input("text", "TxtCiudadDeFirma", "", "TxtCiudadDeFirma", "", $DatosActa["CiudadFirma"], "Ciudad", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtCiudadDeFirma`,`CiudadFirma`);DibujeConstanciaFirmaActa();");
                     print("</td>");
-                    print("<td colspan=2 style=font-size:16px;>");
-                        print("<strong>Revisará: </strong>");
+                    $ColspanRevisa=2;
+                    if(round($DatosActa["Saldo"])<0 AND $DatosActa["Asmet"]==2){
+                        $ColspanRevisa=1;
+                        print("<td colspan=1 style=font-size:16px;>");
+                            print("<strong>Compromiso de pago de la IPS: </strong><br>");
+
+                            $css->input("date", "FechaCompromisoPagoIPS", "", "FechaCompromisoPagoIPS", "", ($DatosActa["FechaCompromisoPagoIPS"]), "Fecha de la firma", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`FechaCompromisoPagoIPS`,`FechaCompromisoPagoIPS`);","style='line-height: 15px;'");
+
+                        print("</td>");
+                    }
+                    print("<td colspan=$ColspanRevisa style=font-size:16px;>");
+                        print("<strong>Revisará: </strong><br>");
                         $css->input("text", "TxtRevisaActaliquidacion", "", "TxtRevisaActaliquidacion", "", $DatosActa["Revisa"], "Revisará", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtRevisaActaliquidacion`,`Revisa`);");
                     print("</td>");
                 print("</tr>");

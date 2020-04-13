@@ -5,13 +5,14 @@
  * Techno Soluciones SAS
  */
 include_once 'numeros_letras.class.php';
- 
+
 class Documento{
     /**
      * Constructor 
      * @param type $db
      */
     function __construct($db){
+        $this->UltimoNumeral="";
         $this->DataBase=$db;
         $this->obCon=new conexion(1);
         
@@ -614,9 +615,11 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         
         $html= $this->TotalesActaLiquidacion($DatosActa,$TipoActa);
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
-       
-        $html= $this->ObservacionesActaLiquidacion3($idActaLiquidacion,$TipoActa,$DatosActa);        
-        $this->PDF->writeHTML("".$html, true, false, false, false, '');
+        
+        if($DatosActa["Asmet"]<>2){
+            $html= $this->ObservacionesActaLiquidacion3($idActaLiquidacion,$TipoActa,$DatosActa);        
+            $this->PDF->writeHTML("".$html, true, false, false, false, '');
+        }
         
         $html= $this->ObservacionesActaLiquidacion4($idActaLiquidacion,$TipoActa);        
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
@@ -624,10 +627,13 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $html= $this->ObservacionesGenerales($idActaLiquidacion,$DatosActa);        
             $this->PDF->writeHTML("".$html, true, false, false, false, '');
         } 
-        
-        
+        if($DatosActa["Asmet"]==2 and round($DatosActa["Saldo"])<>0){
+            $html= $this->ObservacionesActasLiquidacionSAS($idActaLiquidacion,$DatosActa); 
+            $this->PDF->writeHTML("".$html, true, false, false, false, '');
+        }
         $html= $this->ObservacionesActaLiquidacion5($idActaLiquidacion,$TipoActa);        
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
+        
         
         $html= $this->FirmasActaLiquidacion($DatosActa);        
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
@@ -660,6 +666,29 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         }
         
         $this->PDF_Output("Acta_Liquidacion_$idActaLiquidacion");
+    }
+    
+    public function ObservacionesActasLiquidacionSAS($idActaLiquidacion,$DatosActa) {
+        if(round($DatosActa["Saldo"])==0){
+           return;
+        }
+        $obCon=new conexion(1);
+        
+        if(round($DatosActa["Saldo"])<0){
+            $opt="op13";
+        }
+        if(round($DatosActa["Saldo"])>0){
+            $opt="op14";
+        }
+        $FechaFormateada = date("d/m/Y", strtotime($DatosActa["FechaCompromisoPagoIPS"]));
+        $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE  Numeral='$opt' LIMIT 1";
+        $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql)); 
+        $DatosConsideraciones["Texto"]= str_replace("@FechaCompromisoPagoIPS", $FechaFormateada, $DatosConsideraciones["Texto"]);
+        $Numeral= str_replace(".", "", $this->UltimoNumeral);
+        $Numeral=$Numeral+1;
+        $html='<p align="justify"><strong>'.$Numeral.'.</strong>'.utf8_encode($DatosConsideraciones["Texto"])."</p>";  
+       
+        return($html);
     }
     
     public function DatosItemsAnexoActaLiquidacionEventoXRadicados($DatosActa,$TipoActa,$TipoConsulta) {
@@ -1130,6 +1159,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
     }
     
     public function TotalesActaLiquidacion($DatosActa,$TipoActa) {
+        $obNumLetra=new numeros_letras();
         $SaldoAPagarContratista=0;
         $SaldoAPagarContratante=0;
         if($DatosActa["Saldo"]>0){
@@ -1334,18 +1364,28 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
 
             </tr>';
         }
-        
+      
+         
       if(round($DatosActa["Saldo"])>0){
-            
+            $TextoConclusionTotales="En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE";
+            if($DatosActa["Asmet"]==2){
+                $TextoConclusionTotales=strtoupper($obNumLetra->convertir(abs($DatosActa["Saldo"])))." PESOS";
+            }
             $html.='<tr>
-                <td colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE $</strong></td>
+                <td colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>'.$TextoConclusionTotales.'</strong></td>
                 <td style="text-align:rigth;">'. number_format($SaldoAPagarContratista).'</td>
 
             </tr>';
+           
         }
         if(round($DatosActa["Saldo"])<0){
+            $TextoConclusionTotales="En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE ";
+            if($DatosActa["Asmet"]==2){
+                $TextoConclusionTotales=strtoupper($obNumLetra->convertir(abs($DatosActa["Saldo"])))." PESOS";
+            }
+            
             $html.='<tr>
-                <td  colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE $</strong></td>
+                <td  colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>'.$TextoConclusionTotales.'</strong></td>
                 <td style="text-align:rigth;">'. number_format(abs($SaldoAPagarContratante)).'</td>
 
             </tr>';
@@ -1502,7 +1542,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $Texto= str_replace("@NombreIPS", $DatosActa["RazonSocialIPS"], $Texto);
             $Texto= str_replace("@NumeroContrato", $Contratos, $Texto);
             $html.='<p align="justify"><strong>'.(utf8_encode($DatosConsideraciones["Numeral"]))."</strong> ".utf8_encode($Texto)."</p><br>";
-            
+            $this->UltimoNumeral=$DatosConsideraciones["Numeral"];
         }
         
         //$html= str_replace("@NumerosContratos", $ContratosActa, $html);

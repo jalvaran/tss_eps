@@ -39,7 +39,7 @@ if(isset($_REQUEST["idDocumento"])){
                     $obCon->GenerarAnexoActaLiquidacionXRadicados1($db,$DatosIPS,$idActaLiquidacion,$DatosActa,$TipoConsulta);
                 }
             }
-            if($DatosActa["TipoActaLiquidacion"]==4 or $DatosActa["TipoActaLiquidacion"]==6){
+            if($DatosActa["TipoActaLiquidacion"]==4 or $DatosActa["TipoActaLiquidacion"]==5 or $DatosActa["TipoActaLiquidacion"]==6){
                 $obCon->GenerarAnexoActaLiquidacionXFacturasCapita($db,$DatosIPS,$idActaLiquidacion,$DatosActa,$TipoConsulta);
             }
             

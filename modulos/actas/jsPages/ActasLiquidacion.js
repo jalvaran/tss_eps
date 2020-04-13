@@ -91,6 +91,7 @@ function CrearActaLiquidacion(){
     var TipoActa=document.getElementById('TipoActa').value;
     var FechaInicial=document.getElementById('FechaInicial').value;
     var FechaFinal=document.getElementById('FechaFinal').value;
+    var CmbAsmet=document.getElementById('CmbAsmet').value;
     
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
@@ -117,6 +118,7 @@ function CrearActaLiquidacion(){
         form_data.append('TipoActa', TipoActa);
         form_data.append('FechaInicial', FechaInicial);
         form_data.append('FechaFinal', FechaFinal);
+        form_data.append('CmbAsmet', CmbAsmet);
                 
     $.ajax({
         //async:false,
@@ -388,7 +390,7 @@ function EditeActaLiquidacion(idActaLiquidacion,idCampoTexto,CampoAEditar){
     var NuevoValor = document.getElementById(idCampoTexto).value;
     var CmbEPS=document.getElementById('CmbEPS').value;
     var CmbIPS=document.getElementById('CmbIPS').value;
-    
+    //console.log("Nuevo Valor: "+NuevoValor+" al campor "+CampoAEditar);
     var form_data = new FormData();
         form_data.append('Accion', 2);
         form_data.append('idActaLiquidacion', idActaLiquidacion);

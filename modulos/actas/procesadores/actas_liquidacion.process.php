@@ -36,7 +36,10 @@ if( !empty($_REQUEST["Accion"]) ){
             $TelefonoRepresentanteIPS=$obCon->normalizar($_REQUEST["TelefonoRepresentanteIPS"]);
             $FechaInicial=$obCon->normalizar($_REQUEST["FechaInicial"]);
             $FechaFinal=$obCon->normalizar($_REQUEST["FechaFinal"]);
-            
+            if(!isset($_REQUEST["CmbAsmet"])){
+                exit("E1;No se recibió si el acta es para Mutual o SAS, intente limpiar los datos del navegador");
+            }
+            $Asmet=$obCon->normalizar($_REQUEST["CmbAsmet"]);
             foreach ($_POST as $key => $value) {
                 if($value==''){
                     exit("E1;El campo $key no puede estar vacío;$key");
@@ -49,7 +52,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 exit("E1;El campo Año no es válido;TxtAnio");
             }
             
-            $obCon->CrearActaLiquidacion($FechaInicial,$FechaFinal,$CmbIPS,$CmbEPS,$TipoActa,$TxtPrefijo, $TxtConsecutivo, $TxtAnio, $NombreRepresentanteEPS,$NombreRepresentanteIPS, $ApellidosRepresentanteEPS,$ApellidosRepresentanteIPS,$IdentificacionRepresentanteEPS, $IdentificacionRepresentanteIPS,$DomicilioRepresentanteEPS, $DomicilioRepresentanteIPS, $DireccionRepresentanteEPS,$DireccionRepresentanteIPS, $TelefonoRepresentanteEPS, $TelefonoRepresentanteIPS, $idUser);
+            $obCon->CrearActaLiquidacion($Asmet,$FechaInicial,$FechaFinal,$CmbIPS,$CmbEPS,$TipoActa,$TxtPrefijo, $TxtConsecutivo, $TxtAnio, $NombreRepresentanteEPS,$NombreRepresentanteIPS, $ApellidosRepresentanteEPS,$ApellidosRepresentanteIPS,$IdentificacionRepresentanteEPS, $IdentificacionRepresentanteIPS,$DomicilioRepresentanteEPS, $DomicilioRepresentanteIPS, $DireccionRepresentanteEPS,$DireccionRepresentanteIPS, $TelefonoRepresentanteEPS, $TelefonoRepresentanteIPS, $idUser);
             $obCon->ActualizaRegistro("ips", "CedulaRepresentante", $IdentificacionRepresentanteIPS, "NIT", $CmbIPS);
             print("OK;Acta de Liquidación Creada Correctamente");
             

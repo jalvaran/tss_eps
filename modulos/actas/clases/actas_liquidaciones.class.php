@@ -14,7 +14,7 @@ class ActasLiquidacion extends conexion{
     
     
        
-    public function CrearActaLiquidacion($FechaInicial,$FechaFinal,$CmbIPS,$CmbEPS,$TipoActa,$TxtPrefijo, $TxtConsecutivo, $TxtAnio, $NombreRepresentanteEPS,
+    public function CrearActaLiquidacion($Asmet,$FechaInicial,$FechaFinal,$CmbIPS,$CmbEPS,$TipoActa,$TxtPrefijo, $TxtConsecutivo, $TxtAnio, $NombreRepresentanteEPS,
             $NombreRepresentanteIPS, $ApellidosRepresentanteEPS,$ApellidosRepresentanteIPS,$IdentificacionRepresentanteEPS, 
             $IdentificacionRepresentanteIPS,$DomicilioRepresentanteEPS, $DomicilioRepresentanteIPS, 
             $DireccionRepresentanteEPS,$DireccionRepresentanteIPS, $TelefonoRepresentanteEPS, 
@@ -29,6 +29,7 @@ class ActasLiquidacion extends conexion{
         $Fecha=date("Y-m-d H:i:s");
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $CmbIPS);
         $DatosEPS=$this->DevuelveValores("eps", "NIT", $CmbEPS);
+        $Datos["Asmet"]=$Asmet;
         $Datos["FechaInicial"]=$FechaInicial;
         $Datos["FechaFinal"]=$FechaFinal;
         $Datos["MesServicioInicial"]=$MesServicioInicial;
