@@ -1326,7 +1326,16 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             }
         }
       
-      if($DatosActa["Saldo"]>0){
+        if(round($DatosActa["Saldo"])==0){
+            
+            $html.='<tr>
+                <td colspan="'.$ColspanTotales.'" style="text-align:left;"></td>
+                <td style="text-align:rigth;">'. number_format($SaldoAPagarContratista).'</td>
+
+            </tr>';
+        }
+        
+      if(round($DatosActa["Saldo"])>0){
             
             $html.='<tr>
                 <td colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE $</strong></td>
@@ -1334,7 +1343,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
 
             </tr>';
         }
-        if($DatosActa["Saldo"]<0){
+        if(round($DatosActa["Saldo"])<0){
             $html.='<tr>
                 <td  colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE $</strong></td>
                 <td style="text-align:rigth;">'. number_format(abs($SaldoAPagarContratante)).'</td>
@@ -1423,7 +1432,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op10' LIMIT 1";
         }
         
-        if($DatosActa["Saldo"]==0 or $TipoActa==3 or $TipoActa==6){
+        if(round($DatosActa["Saldo"])==0 or $TipoActa==3 or $TipoActa==6){
             $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op11' LIMIT 1";
         }
         $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
