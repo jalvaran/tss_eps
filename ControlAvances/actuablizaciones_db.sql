@@ -187,4 +187,4 @@ INSERT INTO `empresa_nombres_procesos` (`ID`, `NombreProceso`) VALUES
 ALTER TABLE `actas_liquidaciones` ADD `Asmet` INT(6) NOT NULL AFTER `TipoActaLiquidacion`;
 ALTER TABLE `actas_liquidaciones` ADD INDEX(`Asmet`);
 ALTER TABLE `actas_liquidaciones` ADD `FechaCompromisoPagoIPS` DATE NOT NULL AFTER `DocumentoReferencia`;
-
+ALTER TABLE `actas_liquidaciones` ADD `FormaPagoIPS` INT(6) NOT NULL AFTER `FechaCompromisoPagoIPS`;

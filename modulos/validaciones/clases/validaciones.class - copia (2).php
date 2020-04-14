@@ -1289,10 +1289,9 @@ class ValidacionesEPS extends conexion{
     }
     
     public function CrearVistaCarteraCruce($db) {
-        $sql="DROP VIEW IF EXISTS `vista_cruce_cartera_asmet`;";
-        $this->QueryExterno($sql, HOST, USER, PW, $db, "");
-        //usleep(500);
-        $sql="CREATE VIEW `vista_cruce_cartera_asmet` AS
+        $sql="DROP VIEW IF EXISTS $db.`vista_cruce_cartera_asmet`;";
+        $this->Query($sql);
+        $sql="CREATE VIEW $db.vista_cruce_cartera_asmet AS
             SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,
                     t2.CodigoSucursal,t2.NumeroOperacion,
                     (SELECT TipoNegociacionOperacion FROM ts_eps.tipos_operacion t5 WHERE t5.TipoOperacion=t2.TipoOperacion LIMIT 1 ) AS TipoNegociacion,
@@ -1409,17 +1408,15 @@ class ValidacionesEPS extends conexion{
                     '0' AS DiferenciaVariada
 
                     FROM carteraeps t2 WHERE t2.Estado<2 AND EXISTS (SELECT 1 FROM carteracargadaips t1 WHERE t1.NumeroFactura=t2.NumeroFactura);
-
         ";
-        $this->QueryExterno($sql, HOST, USER, PW, $db, "");
-       // $this->Query($sql);
+        
+        $this->Query($sql);
     }
     
     public function CrearVistaCarteraCruceCompleta($db) {
-        $sql="DROP VIEW IF EXISTS `vista_cruce_cartera_completa`;";
-        $this->QueryExterno($sql, HOST, USER, PW, $db, "");
-        
-        $sql="CREATE VIEW `vista_cruce_cartera_completa` AS
+        $sql="DROP VIEW IF EXISTS $db.`vista_cruce_cartera_completa`;";
+        $this->Query($sql);
+        $sql="CREATE VIEW $db.vista_cruce_cartera_completa AS
             SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,
                     t2.CodigoSucursal,t2.NumeroOperacion,
                     (SELECT TipoNegociacionOperacion FROM ts_eps.tipos_operacion t5 WHERE t5.TipoOperacion=t2.TipoOperacion LIMIT 1 ) AS TipoNegociacion,
@@ -1536,9 +1533,9 @@ class ValidacionesEPS extends conexion{
                     '0' AS DiferenciaVariada
 
                     FROM carteraeps t2 WHERE EXISTS (SELECT 1 FROM carteracargadaips t1 WHERE t1.NumeroFactura=t2.NumeroFactura);
-
         ";
-        $this->QueryExterno($sql, HOST, USER, PW, $db, "");
+        
+        $this->Query($sql);
     }
     
 }

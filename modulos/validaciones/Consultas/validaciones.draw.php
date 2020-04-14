@@ -327,7 +327,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     AND COLUMN_NAME = 'TipoNegociacion' ";
             $Verificacion=$obCon->FetchAssoc($obCon->Query($sql));
             if($Verificacion["COLUMN_NAME"]==""){
-                $css->CrearBotonEvento("BtnConstruirHojaTrabajo", "Construir Hoja de Trabajo", 1, "onclick", "ObtenerNumeroRegistrosACopiarEnHoja()", "azulclaro", "");
+                $css->CrearBotonEvento("BtnConstruirHojaTrabajo", "Construir Hoja de Trabajo", 1, "onclick", "IniciaConstruccionHojaTrabajo()", "azulclaro", "");
                 exit();
                 
             }
@@ -482,7 +482,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         print("<strong>Registros:</strong> <h4 style=color:green>". number_format($ResultadosTotales)."</h4>");
                     print("</td>");
                     print("<td colspan='1' style='text-align:center'>");                        
-                        $css->CrearBotonEvento("BtnConstruirHojaTrabajo", "Construir Hoja de Trabajo", 1, "onclick", "ObtenerNumeroRegistrosACopiarEnHoja()", "azulclaro", "");
+                        $css->CrearBotonEvento("BtnConstruirHojaTrabajo", "Construir Hoja de Trabajo", 1, "onclick", "IniciaConstruccionHojaTrabajo()", "azulclaro", "");
                     print("</td>"); 
                    
                     print("<td colspan='1' style='text-align:center'>");                        

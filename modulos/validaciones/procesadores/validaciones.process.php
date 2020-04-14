@@ -1302,6 +1302,8 @@ if( !empty($_REQUEST["Accion"]) ){
             if($CmbIPS==''){
                 exit("E1;No hay una IPS Seleccionada");
             }
+            $obCon->CrearVistaCarteraCruce($db);
+            $obCon->CrearVistaCarteraCruceCompleta($db);
             $HojaDeTrabajo=$db.".hoja_de_trabajo";
             //$obCon->VaciarTabla($HojaDeTrabajo);           
             $VistaACopiar=$db.".vista_cruce_cartera_asmet";
@@ -1452,7 +1454,72 @@ if( !empty($_REQUEST["Accion"]) ){
             
         break;//Fin caso 37    
         
+        case 38://Crear la tabla para la hoja de trabajo
+            
+            $TotalRegistros=$obCon->normalizar($_REQUEST["TotalRegistros"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+                     
+            if($CmbIPS==''){
+                exit("E1;No hay una IPS Seleccionada");
+            }
+            $HojaDeTrabajo=$db.".hoja_de_trabajo";
+            
+            $sql="UPDATE carteraeps SET NumeroContrato=trim(NumeroContrato)";
+            $obCon->Query2($sql, HOST, USER, PW, $db, "");
+            $sql="UPDATE carteraeps SET NumeroContrato= REPLACE(NumeroContrato,'\n','')";
+            $obCon->Query2($sql, HOST, USER, PW, $db, ""); 
+            $sql="UPDATE carteracargadaips SET TipoNegociacion='EVENTO' WHERE TipoNegociacion=''";
+            $obCon->Query2($sql, HOST, USER, PW, $db, "");
+            $sql="DROP TABLE IF EXISTS $HojaDeTrabajo";
+            $obCon->Query($sql);
+            $obCon->CrearTablaHojaTrabajo($db);
+            
+            print("OK;Hoja de Trabajo Construida");
+            
+        break;//Fin caso 38
         
+        case 39://Copiar registros a la hoja de trabajo
+            $TotalRegistros=$obCon->normalizar($_REQUEST["TotalRegistros"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+                     
+            if($CmbIPS==''){
+                exit("E1;No hay una IPS Seleccionada");
+            }
+            $HojaDeTrabajo=$db.".hoja_de_trabajo";
+            //$obCon->VaciarTabla($HojaDeTrabajo);
+            $VistaACopiar=$db.".vista_cruce_cartera_asmet";
+            $Limit=" LIMIT 500";
+            
+            $sql="INSERT INTO $HojaDeTrabajo 
+                    SELECT *
+                    FROM $VistaACopiar WHERE NOT EXISTS (SELECT 1 FROM $HojaDeTrabajo WHERE $HojaDeTrabajo.NumeroFactura=$VistaACopiar.NumeroFactura) $Limit;
+                         ";
+            
+             
+            $obCon->Query($sql);            
+           
+            $sql="SELECT COUNT(ID) AS TotalRegistros FROM $HojaDeTrabajo";
+            
+            $DatosHoja=$obCon->FetchAssoc($obCon->Query($sql));
+            $TotalRegistrosCopiados=$DatosHoja["TotalRegistros"];
+            $Divisor=$TotalRegistros;
+            if($TotalRegistros==0){
+                $Divisor=1;
+            }
+            $Porcentaje=round((100/$Divisor)*$TotalRegistrosCopiados);
+            if($TotalRegistrosCopiados>=$TotalRegistros){
+                
+                print("FIN;Se copiaron todos los registros $TotalRegistros;$Porcentaje");
+            }else{
+               print("OK;<h2>$TotalRegistrosCopiados Registros copiados de $TotalRegistros</h2>;$Porcentaje");             
+            }
+        break;//Fin caso 39
     }
     
     

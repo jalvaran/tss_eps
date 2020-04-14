@@ -674,12 +674,16 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         }
         $obCon=new conexion(1);
         
-        if(round($DatosActa["Saldo"])<0){
+        if(round($DatosActa["Saldo"])<0 AND $DatosActa["FormaPagoIPS"]==1){
             $opt="op13";
         }
-        if(round($DatosActa["Saldo"])>0){
+        if(round($DatosActa["Saldo"])<0 AND $DatosActa["FormaPagoIPS"]==0){
+            $opt="op15";
+        }
+        if(round($DatosActa["Saldo"])>0 ){
             $opt="op14";
         }
+        
         $FechaFormateada = date("d/m/Y", strtotime($DatosActa["FechaCompromisoPagoIPS"]));
         $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE  Numeral='$opt' LIMIT 1";
         $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql)); 

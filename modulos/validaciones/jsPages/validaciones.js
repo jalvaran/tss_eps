@@ -3783,6 +3783,199 @@ function SeleccioneAccionFormularios(){
         MuestreCruce();
     }
 }
+
+
+
+function IniciaConstruccionHojaTrabajo(){
+    document.getElementById("DivTotalesCruce").innerHTML='<div id="GifProcess">Obteniendo el total de registros a copiar...<br><img   src="../../images/loading.gif" alt="Cargando" height="50" width="50"></div>';
+     
+    var idBoton="BtnConstruirHojaTrabajo";
+    
+    document.getElementById(idBoton).disabled=true;
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 34);
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+                    
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               
+                alertify.success(respuestas[1]);  
+                var TotalRegistros=respuestas[2];
+                document.getElementById("DivTotalesCruce").innerHTML=respuestas[1];
+                CrearTablaHojaDeTrabajo(TotalRegistros);
+                
+               
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+}
+
+function CrearTablaHojaDeTrabajo(TotalRegistros){
+    document.getElementById("DivTotalesCruce").innerHTML='<div id="GifProcess">Creando la tabla de la hoja de trabajo...<br><img   src="../../images/loading.gif" alt="Cargando" height="50" width="50"></div>';
+    
+    var idBoton="BtnConstruirHojaTrabajo";
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 38);//Construirla completa
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('TotalRegistros', TotalRegistros);
+                    
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){                                
+                document.getElementById("DivTotalesCruce").innerHTML=respuestas[1];                
+                $('.progress-bar').css('width',"1%").attr('aria-valuenow', 1);  
+                document.getElementById('LyProgresoUP').innerHTML="1%";
+                CopiarRegistrosHojaDeTrabajo(TotalRegistros);                
+               
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+    
+    
+}
+
+function CopiarRegistrosHojaDeTrabajo(TotalRegistros){
+    document.getElementById("DivTotalesCruce").innerHTML='<div id="GifProcess">Copiado registros a la hoja de trabajo...<br><img   src="../../images/loading.gif" alt="Cargando" height="50" width="50"></div>';
+    
+    var idBoton="BtnConstruirHojaTrabajo";
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 39);//Copiar Registros por partes
+       
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        form_data.append('TotalRegistros', TotalRegistros);
+                    
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){   
+               
+                console.log(data);               
+                document.getElementById("DivMensajes").innerHTML=respuestas[1];
+                var porcentaje=respuestas[2];
+                $('.progress-bar').css('width',porcentaje+"%").attr('aria-valuenow', porcentaje);  
+                document.getElementById('LyProgresoUP').innerHTML=porcentaje+"%";
+                CopiarRegistrosHojaDeTrabajo(TotalRegistros);
+                
+            }else if(respuestas[0]==="FIN"){
+                $('.progress-bar').css('width',"100%").attr('aria-valuenow', 100);  
+                document.getElementById('LyProgresoUP').innerHTML="100%";
+                alertify.success(respuestas[1]);
+                document.getElementById("DivTotalesCruce").innerHTML=respuestas[1];
+                document.getElementById(idBoton).disabled=false;
+                document.getElementById("DivMensajes").innerHTML=respuestas[1];
+                //CalcularDiferenciasVaridas();
+                MuestreCruce();
+                return;     
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById(idBoton).disabled=false;
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+    
+    
+}
+
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();
 $('#CmbEPS').select2();

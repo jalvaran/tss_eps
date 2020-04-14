@@ -806,13 +806,32 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->input("date", "TxtFechaDeFirma", "", "TxtFechaDeFirma", "", ($DatosActa["FechaFirma"]), "Fecha de la firma", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtFechaDeFirma`,`FechaFirma`);DibujeConstanciaFirmaActa();","style='line-height: 15px;'"."max=".date("Y-m-d",strtotime(date("Y-m-d")."+ 15 days")));
                     
                     print("</td>");
-                    print("<td colspan=2 style=font-size:16px;>");
+                    print("<td colspan=1 style=font-size:16px;>");
                         print("<strong>Ciudad de Firma: </strong><br>");
                         $css->input("text", "TxtCiudadDeFirma", "", "TxtCiudadDeFirma", "", $DatosActa["CiudadFirma"], "Ciudad", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtCiudadDeFirma`,`CiudadFirma`);DibujeConstanciaFirmaActa();");
                     print("</td>");
-                    $ColspanRevisa=2;
+                    $ColspanRevisa=3;
                     if(round($DatosActa["Saldo"])<0 AND $DatosActa["Asmet"]==2){
                         $ColspanRevisa=1;
+                        print("<td colspan=1>");
+                            print("<strong>Forma de pago de la IPS: </strong><br>");
+                            $css->select("FormaPagoIPS", "form-control", "FormaPagoIPS", "", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`FormaPagoIPS`,`FormaPagoIPS`);", "");
+                                $Sel=0;
+                                if($DatosActa["FormaPagoIPS"]==0){
+                                    $Sel=1;
+                                }
+                                $css->option("", "", "", 0, "", "",$Sel);
+                                    print("CRUCE CON FACTURACION PENDIENTE");
+                                $css->Coption();
+                                $Sel=0;
+                                if($DatosActa["FormaPagoIPS"]==1){
+                                    $Sel=1;
+                                }
+                                $css->option("", "", "", 1, "", "",$Sel);
+                                    print("FECHA DE COMPROMISO DE PAGO");
+                                $css->Coption();
+                            $css->Cselect();
+                        print("</td>");
                         print("<td colspan=1 style=font-size:16px;>");
                             print("<strong>Compromiso de pago de la IPS: </strong><br>");
 
