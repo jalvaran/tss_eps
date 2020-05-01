@@ -1372,27 +1372,42 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
          
       if(round($DatosActa["Saldo"])>0){
             $TextoConclusionTotales="En razón de lo anterior, la presente liquidación generó un saldo a pagar al CONTRATISTA DE";
-            if($DatosActa["Asmet"]==2){
-                $TextoConclusionTotales=strtoupper($obNumLetra->convertir(abs($DatosActa["Saldo"])))." PESOS";
-            }
+            
             $html.='<tr>
                 <td colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>'.$TextoConclusionTotales.'</strong></td>
                 <td style="text-align:rigth;">'. number_format($SaldoAPagarContratista).'</td>
 
             </tr>';
+            if($DatosActa["Asmet"]==2){
+                $TextoConclusionTotales=strtoupper($obNumLetra->convertir(abs($DatosActa["Saldo"])))." PESOS";
+                
+                $html.='<tr>
+                    <td colspan="'.($ColspanTotales+1).'" style="text-align:left;"><strong>'.$TextoConclusionTotales.'</strong></td>
+                    
+                </tr>';
+                
+            }
            
         }
         if(round($DatosActa["Saldo"])<0){
             $TextoConclusionTotales="En razón de lo anterior, la presente liquidación generó un saldo a favor del CONTRATANTE DE ";
-            if($DatosActa["Asmet"]==2){
-                $TextoConclusionTotales=strtoupper($obNumLetra->convertir(abs($DatosActa["Saldo"])))." PESOS";
-            }
-            
+                        
             $html.='<tr>
                 <td  colspan="'.$ColspanTotales.'" style="text-align:left;"><strong>'.$TextoConclusionTotales.'</strong></td>
                 <td style="text-align:rigth;">'. number_format(abs($SaldoAPagarContratante)).'</td>
 
             </tr>';
+            
+            if($DatosActa["Asmet"]==2){
+                $TextoConclusionTotales=strtoupper($obNumLetra->convertir(abs($DatosActa["Saldo"])))." PESOS";
+                
+                $html.='<tr>
+                    <td colspan="'.($ColspanTotales+1).'" style="text-align:left;"><strong>'.$TextoConclusionTotales.'</strong></td>
+                    
+                </tr>';
+                
+            }
+            
         }
         $html.='</table>';
             

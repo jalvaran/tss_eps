@@ -1471,6 +1471,10 @@ if( !empty($_REQUEST["Accion"]) ){
             $obCon->Query2($sql, HOST, USER, PW, $db, "");
             $sql="UPDATE carteraeps SET NumeroContrato= REPLACE(NumeroContrato,'\n','')";
             $obCon->Query2($sql, HOST, USER, PW, $db, ""); 
+            $sql="UPDATE historial_carteracargada_eps SET NumeroContrato=trim(NumeroContrato)";
+            $obCon->Query2($sql, HOST, USER, PW, $db, "");
+            $sql="UPDATE historial_carteracargada_eps SET NumeroContrato= REPLACE(NumeroContrato,'\n','')";
+            $obCon->Query2($sql, HOST, USER, PW, $db, ""); 
             $sql="UPDATE carteracargadaips SET TipoNegociacion='EVENTO' WHERE TipoNegociacion=''";
             $obCon->Query2($sql, HOST, USER, PW, $db, "");
             $sql="DROP TABLE IF EXISTS $HojaDeTrabajo";
