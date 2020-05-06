@@ -616,10 +616,10 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $html= $this->TotalesActaLiquidacion($DatosActa,$TipoActa);
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
-        //if($DatosActa["Asmet"]<>2){
+        if($DatosActa["Asmet"]<>2){
             $html= $this->ObservacionesActaLiquidacion3($idActaLiquidacion,$TipoActa,$DatosActa);        
             $this->PDF->writeHTML("".$html, true, false, false, false, '');
-        //}
+        }
         
         $html= $this->ObservacionesActaLiquidacion4($idActaLiquidacion,$TipoActa);        
         $this->PDF->writeHTML("".$html, true, false, false, false, '');

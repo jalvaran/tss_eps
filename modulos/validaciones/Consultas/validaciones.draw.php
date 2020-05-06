@@ -672,7 +672,12 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->ColTabla($DatosFactura["FechaRadicado"], 1);
                         $css->ColTabla($DatosFactura["DepartamentoRadicacion"], 1);
                         $css->ColTabla(number_format($DatosFactura["ValorDocumento"]), 1,'R');
-                        $css->ColTabla(number_format($DatosFactura["Impuestos"]), 1,'R');
+                        print("<td>");
+                            $css->div("", "", "", "", "", 'onclick="VerHistorialFactura(`'.$NumeroFactura.'`,`35`)"', "style=cursor:pointer;");
+                                print(number_format($DatosFactura["Impuestos"]));
+                            $css->CerrarDiv();
+                        print("</td>"); 
+                        //$css->ColTabla(number_format($DatosFactura["Impuestos"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["ImpuestosCalculados"]), 1,'R');
                         $css->ColTabla(number_format($DatosFactura["ValorMenosImpuestos"]), 1,'R');
                         print("<td>");
@@ -4008,7 +4013,49 @@ if( !empty($_REQUEST["Accion"]) ){
                 }
                 $css->CerrarTabla();
             //print("</div>");
-        break;//Fin caso 34    
+        break;//Fin caso 34   
+        
+        case 35: //Dibuja el historial de retenciones de una factura 
+            
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Archivo de retenciones de la Factura No. $NumeroFactura</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                
+                $Columnas=$obCon->getColumnasDisponibles("$db.retenciones","");
+
+                foreach ($Columnas["Field"] as $key => $value) {
+                    $css->ColTabla("<strong>$value</strong>",1);
+                }
+                                  
+                      
+                $css->CierraFilaTabla();
+                $sql=" SELECT * FROM $db.retenciones WHERE NumeroFactura='$NumeroFactura'
+                        ";
+               
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        foreach ($Columnas["Field"] as $key => $value) {
+                            
+                            $css->ColTabla(($DatosPagos[$value]), 1,'L');
+                        }
+                                                
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+            
+                
+        break; //Fin caso 35
     
         
     }

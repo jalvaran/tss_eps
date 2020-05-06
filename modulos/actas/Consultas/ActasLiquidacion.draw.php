@@ -874,20 +874,14 @@ if( !empty($_REQUEST["Accion"]) ){
                 print("<tr>");
                 
                 print("<tr>");
-                    print("<td colspan=2>");
+                    print("<td colspan=5>");
                         print("<strong>Imprimir<strong>");
                     print("</td>");
-                    print("<td>");
-                        print("<strong>Soporte del Acta<strong>");
-                    print("</td>");
                     
-                    print("<td colspan=2>");
-                        print("<strong>Cerrar Acta<strong>");
-                    print("</td>");
                 print("</tr>");
                 print("<tr>");
                     
-                    print("<td colspan=2>");
+                    print("<td colspan=5>");
                         $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=37&idActaLiquidacion=$idActaLiquidacion&AnexosEnPdf=0&TipoConsulta=1";
                         print("<a href='$Ruta' target='_BLANK'><button class='btn btn-success'>Imprimir PDF</button></a> ");
                         $Ruta="../../general/Consultas/PDF_Documentos.draw.php?idDocumento=37&idActaLiquidacion=$idActaLiquidacion&AnexosEnPdf=1&TipoConsulta=1";
@@ -898,12 +892,17 @@ if( !empty($_REQUEST["Accion"]) ){
                         print(" <a href='$Ruta' target='_BLANK'><button class='btn btn-warning'>Anexo por radicados</button></a>");
                         
                     print("</td>");
-                    print("<td>");        
+                    print("</tr>");
+                    print("<tr>");
+                    print("<td colspan=5>");   
+                        print("<strong>Soporte:</strong>");
                        $css->input("file", "UpSoporteActaLiquidacionCierre", "", "UpSoporteActaLiquidacionCierre", "Soporte Acta", "Subir Acta Firmada", "Subir Acta Firmada", "off", "", "");
                     print("</td>");
+                    print("</tr>");
+                    print("<tr>");
                     print("<td colspan=2>");
         
-                        $css->CrearBotonEvento("btnGuardarActaLiquidacion", "Cerrar Acta", 1, "onclick", "CerrarActaLiquidacion()", "rojo", "");
+                        $css->CrearBotonEvento("btnGuardarActaLiquidacion", "Cerrar Acta de liquidación", 1, "onclick", "CerrarActaLiquidacion()", "rojo", "");
                         $css->ProgressBar("PgProgresoCruce", "LyProgresoCruce", "", 0, 0, 100, 0, "100%", "", "");
                         
                         $css->CrearDiv("DivMensajesCerrarActa", "", "center", 1, 1);
