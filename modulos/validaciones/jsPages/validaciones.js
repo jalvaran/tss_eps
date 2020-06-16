@@ -3976,6 +3976,102 @@ function CopiarRegistrosHojaDeTrabajo(TotalRegistros){
     
 }
 
+
+function ContratosTiposNegociacion(){
+    document.getElementById("DivTab11").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 36);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);
+        
+        $.ajax({
+        url: './Consultas/validaciones.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivTab11').innerHTML=data;
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+function EditarTipoNegociacion(id,NumeroContrato){
+    
+    var idBoton="btnCambiarTipoNegociacion_"+id;
+    document.getElementById(idBoton).disabled=true;
+    document.getElementById(idBoton).value="Editando";
+    var selector="cmbTipoNegociacion_"+id;
+    var TipoContratacion=document.getElementById(selector).value;
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 40);//Construirla completa
+        
+        form_data.append('CmbEPS', CmbEPS);
+        form_data.append('CmbIPS', CmbIPS);
+        
+        form_data.append('NumeroContrato', NumeroContrato);
+        form_data.append('TipoContratacion', TipoContratacion);
+                    
+    $.ajax({
+        //async:false,
+        url: './procesadores/validaciones.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';'); 
+           if(respuestas[0]==="OK"){                                
+                alertify.success(respuestas[1]);            
+                document.getElementById(idBoton).disabled=false;
+                document.getElementById(idBoton).value="Editar";
+            }else if(respuestas[0]==="E1"){
+                
+                alertify.alert(respuestas[1]);
+                MarqueErrorElemento(respuestas[2]);
+                document.getElementById(idBoton).disabled=false;
+                document.getElementById(idBoton).value="Editar";
+                return;                
+            }else{
+               
+                alertify.alert(data);
+                document.getElementById(idBoton).disabled=false;
+                document.getElementById(idBoton).value="Editar";
+            }
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            document.getElementById(idBoton).disabled=false;
+                document.getElementById(idBoton).value="Editar";
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })
+    
+    
+}
+
 document.getElementById('TabCuentas1').click();
 $('#CmbIPS').select2();
 $('#CmbEPS').select2();

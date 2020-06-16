@@ -83,7 +83,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
             $keyArchivo=$obCon->getKeyArchivoEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             if($DatosEPS["ID"]<=2){
-                $LineaActual=$obCon->LeerArchivo($keyArchivo,$FechaCorteCartera,$CmbIPS,$LineaActual,$Separador,$idUser);
+                $LineaActual=$obCon->LeerArchivo($DatosEPS["ID"],$keyArchivo,$FechaCorteCartera,$CmbIPS,$LineaActual,$Separador,$idUser);
             }
             
             print("OK;Archivo cargado;$LineaActual");
@@ -144,7 +144,13 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $DatosEPS=$obCon->DevuelveValores("eps", "NIT", $CmbEPS);
-            $NumeroColumnasEncabezado=12;// 51 para mutual y 52 para sas
+            if($DatosEPS["ID"]==1){
+                $NumeroColumnasEncabezado=13;// 51 para mutual y 52 para sas
+            }else{
+                $NumeroColumnasEncabezado=12;// 51 para mutual y 52 para sas
+            }
+                
+            
             
             $keyArchivo=$obCon->getKeyArchivoEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $NumLineasArchivo=$obCon->CalcularNumeroRegistros($keyArchivo,$CmbIPS,$Separador,$NumeroColumnasEncabezado,$CmbEPS,$idUser);

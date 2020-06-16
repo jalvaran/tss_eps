@@ -216,7 +216,7 @@ class CarteraEPS extends conexion{
                 continue;
             }
             if($data[8]<>$idIPS){
-                exit("E1;El archivo contiene registros de otra ips con NIT: $data[8]");
+                exit("E1;El archivo contiene registros de otra ips con NIT: $data[8], en la linea $r");
             }
             
             
@@ -362,7 +362,7 @@ class CarteraEPS extends conexion{
                      if($i==8){
                         if($data[$i]<>$idIPS){
                             print_r($data);
-                            exit("E1;El archivo contiene registros de otra ips con NIT: $data[$i]");
+                            exit("E1;El archivo contiene registros de otra ips con NIT: $data[$i], en la linea $r");
                         }
                     }
                     $Dato= str_replace(".", "", $data[$i]);
@@ -685,7 +685,7 @@ class CarteraEPS extends conexion{
                 continue;
             }
             if($data[8]<>$idIPS){
-                print("El archivo contiene registros de otra ips con NIT: $data[8]");
+                print("El archivo contiene registros de otra ips con NIT: $data[8], en la linea $r");
                 print_r($data);
             }
             

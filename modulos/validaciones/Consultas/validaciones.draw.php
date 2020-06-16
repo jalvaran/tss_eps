@@ -2909,6 +2909,9 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->option("", "", "", "CAPITA", "", "");
                                 print("CAPITA");
                             $css->Coption();
+                            $css->option("", "", "", "PGP", "", "");
+                                print("PGP");
+                            $css->Coption();
                         $css->Cselect();
                     print("</td>");
                     print("<td>");
@@ -3088,6 +3091,13 @@ if( !empty($_REQUEST["Accion"]) ){
                     }
                     $css->option("", "", "", "CAPITA", "", "", $Seleccionar);
                         print("CAPITA");
+                    $css->Coption();
+                    $Seleccionar=0;
+                    if($TipoNegociacionActa=='PGP'){
+                        $Seleccionar=1;
+                    }
+                    $css->option("", "", "", "PGP", "", "", $Seleccionar);
+                        print("PGP");
                     $css->Coption();
 
                 $css->Cselect();
@@ -3701,7 +3711,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 exit();
             }
             
-            $Consulta=$obCon->ConsultarTabla("actas_conciliaciones_firmas", "WHERE idActaConciliacion='$idActaConciliacion'");
+            $Consulta=$obCon->ConsultarTabla("actas_conciliaciones_firmas", "WHERE idActaConciliacion='$idActaConciliacion' ORDER BY ID ASC");
             $i=0;
             while($DatosFirmas=$obCon->FetchAssoc($Consulta)){
                 
@@ -4057,7 +4067,57 @@ if( !empty($_REQUEST["Accion"]) ){
                 
         break; //Fin caso 35
     
-        
+        case 36://DIbuja los contratos disponibles en el cruce
+            
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $css->CrearTitulo("<strong>Contratos Disponibles en esta IPS:</strong>","verde");                
+            $css->CrearTabla();    
+
+            $sql="SELECT DISTINCT NumeroContrato FROM $db.hoja_de_trabajo ";
+
+            $Consulta=$obCon->Query($sql);
+            
+            $css->FilaTabla(16);
+                $css->ColTabla("<strong>Contrato</strong>", 2);
+                $css->ColTabla("<strong>Negociacion</strong>", 1);
+                $css->ColTabla("<strong>Accion</strong>", 1);
+            $css->CierraFilaTabla();
+            $i=0;
+            while($DatosContratos=$obCon->FetchAssoc($Consulta)){
+                $i++;
+                $Contrato=$DatosContratos["NumeroContrato"];
+                $css->FilaTabla(16);
+                    print("<td colspan=2>");
+                        print("<pre>$Contrato</pre>");
+                    print("</td>");
+                    print("<td>");
+                        $css->select("cmbTipoNegociacion_".$i, "form-control", "cmbTipoNegociacion_$i", "", "", "", "");
+                            $css->option("", "", "", "", "", "");
+                                print("Seleccione un tipo de Negociacion");
+                            $css->Coption();
+                            $css->option("", "", "", "EVENTO", "", "");
+                                print("EVENTO");
+                            $css->Coption();
+                            $css->option("", "", "", "CAPITA", "", "");
+                                print("CAPITA");
+                            $css->Coption();
+                            $css->option("", "", "", "PGP", "", "");
+                                print("PGP");
+                            $css->Coption();
+                        $css->Cselect();
+                    print("</td>");
+                    print("<td>");
+                        $css->CrearBotonEvento("btnCambiarTipoNegociacion_".$i, "Editar", 1, "onclick", "EditarTipoNegociacion(`$i`,`$Contrato`)", "rojo");
+                    print("</td>");
+                $css->CierraFilaTabla();
+            }    
+            $css->CerrarTabla();
+            
+        break;//Fin caso 36
     }
     
     

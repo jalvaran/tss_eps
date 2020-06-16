@@ -102,6 +102,7 @@ $css->PageInit($myTitulo);
             $css->TabLabel("TabCuentas4", "<strong >Cruce de Cartera</strong>", "Tab_4",0,"onclick=MuestreCruce()"); 
             $css->TabLabel("TabCuentas7", "<strong >Historial de Conciliaciones</strong>", "Tab_7",0,"onclick=MuestreConciliaciones()"); 
             $css->TabLabel("TabCuentas8", "<strong >Actas de Conciliaciones</strong>", "Tab_8",0,"onclick=ActasConciliaciones();"); 
+            $css->TabLabel("TabCuentas11", "<strong >Asociar Contratos A Tipos de Negociación</strong>", "Tab_11",0,"onclick=ContratosTiposNegociacion();"); 
             
             $css->TabLabel("TabCuentas5", "<strong >Informe Consolidado</strong>", "Tab_5",0,"onclick=MuestreConsolidado()"); 
         $css->TabInitEnd();
@@ -162,7 +163,10 @@ $css->PageInit($myTitulo);
                             $css->Coption();
                             $css->option("", "", "", "CAPITA", "", "");
                                 print("CAPITA");
-                            $css->Coption();        
+                            $css->Coption();    
+                            $css->option("", "", "", "PGP", "", "");
+                                print("PGP");
+                            $css->Coption();  
                         $css->Cselect();
                     print("</td>");
                     print("<td style= width:20%>");
@@ -244,6 +248,14 @@ $css->PageInit($myTitulo);
             $css->CerrarDiv();
             print("<br><br><br><br><br>");
             $css->CrearDiv("DivTab10", "", "center", 1, 1);
+
+            $css->CerrarDiv();
+            
+        $css->TabPaneEnd();
+        
+        $css->TabPaneInit("Tab_11", 0);
+            
+            $css->CrearDiv("DivTab11", "", "center", 1, 1);
 
             $css->CerrarDiv();
             

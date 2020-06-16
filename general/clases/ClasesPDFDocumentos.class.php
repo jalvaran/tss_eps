@@ -539,7 +539,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $html=("Para constancia, se firma en <strong>".($DatosActa["CiudadFirma"])."</strong>");
         $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]) en dos originales:<br><br><br><br><br>");
         
-        $sql="SELECT * FROM actas_conciliaciones_firmas WHERE idActaConciliacion='$idActaConsolidacion'";
+        $sql="SELECT * FROM actas_conciliaciones_firmas WHERE idActaConciliacion='$idActaConsolidacion' ORDER BY ID ASC";
         $Consulta=$this->obCon->Query($sql);
         $html.='<table cellspacing="2" cellpadding="2" border="0">';
         $html.='<tr>';
@@ -577,7 +577,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $TipoActa=$DatosActa["TipoActaLiquidacion"];
         $Unilateral="";
          
-         if($TipoActa==2 or $TipoActa==5 or $TipoActa==8 or $TipoActa==10 ){
+         if($TipoActa==2 or $TipoActa==5 or $TipoActa==8 or $TipoActa==10 or $TipoActa==12 ){
 
              $Unilateral="UNILATERAL";
                      
@@ -651,7 +651,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $this->PDF->writeHTML("".$html, true, false, false, false, '');
             }
             
-            if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10){    
+            if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10 or $TipoActa==11 or $TipoActa==12){    
                 
                 $this->PDF->AddPage();
                 $this->PDF->SetMargins(10, 20, 5);
@@ -1189,7 +1189,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $DatosActa["GlosaFavor"]=0;
             
         }
-        if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10){
+        if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10 or $TipoActa==11 or $TipoActa==12){
             if($DatosActa["PagosPendientesPorLegalizar"]==0){
                 $html='<table cellspacing="1" cellpadding="1" border="1">
                             <tr>
@@ -1425,7 +1425,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $html=('<p align="justify"><BR>Para constancia se firma en <strong>'.($DatosActa["CiudadFirma"])."</strong>");
         $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]),  en dos Originales uno para la IPS y otro para la EPS:<br><br><br><br><br><br></p>");
         
-        $sql="SELECT * FROM actas_liquidaciones_firmas WHERE idActaLiquidacion='$idActaLiquidacion'";
+        $sql="SELECT * FROM actas_liquidaciones_firmas WHERE idActaLiquidacion='$idActaLiquidacion' ORDER BY ID ASC";
         $Consulta=$this->obCon->Query($sql);
         if($this->obCon->NumRows($Consulta)){
         $html.='<table cellspacing="2" cellpadding="2" border="0">';

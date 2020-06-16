@@ -178,7 +178,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     t1.NumeroContrato=(SELECT NumeroContrato FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),
                     t1.NumeroOperacion=(SELECT NumeroOperacion FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1), 
                     t1.TipoOperacion=(SELECT TipoOperacion FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),   
-                    t1.CarteraEPSTipoNegociacion = IF(MOD(t1.TipoOperacion,2) = 0, 'EVENTO', 'CAPITA'),    
+                    t1.CarteraEPSTipoNegociacion = (SELECT TipoNegociacionOperacion FROM tipos_operacion t2 WHERE t1.TipoOperacion=t2.TipoOperacion LIMIT 1 ),    
                     t1.ValorMenosImpuestos=(SELECT ValorMenosImpuestos FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1);";
               
            $obCon->Query($sql);

@@ -70,7 +70,7 @@ class GlosasEPS extends conexion{
         return $i;
     }
     
-    public function LeerArchivo($keyArchivo,$FechaCorte,$idIPS,$LineaActual,$Separador,$idUser) {
+    public function LeerArchivo($idEPS,$keyArchivo,$FechaCorte,$idIPS,$LineaActual,$Separador,$idUser) {
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $idIPS);
         $db=$DatosIPS["DataBase"];
         $sql="SELECT * FROM $db.controlcargueseps WHERE NombreCargue='$keyArchivo' AND idUser='$idUser'";
@@ -118,7 +118,13 @@ class GlosasEPS extends conexion{
              }
              $sql.="('',";
              
-             for($z=0;$z<=10;$z++){
+             for($z=0;$z<=11;$z++){
+                 if($idEPS==1 and $z==6){
+                     continue;
+                 }
+                 if($idEPS==2 and $z==11){
+                     continue;
+                 }
                  $Dato= explode(",",$data[$z]);
                  
                  if($z==5){

@@ -92,7 +92,7 @@ if( !empty($_REQUEST["Accion"]) ){
                   FROM $db.`temporal_retenciones` as t1 
                     WHERE NOT EXISTS (SELECT 1 FROM $db.`retenciones` t2 
                         WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion AND t1.FechaTransaccion=t2.FechaTransaccion
-                            AND t1.ValorDebito=t2.ValorDebito AND t1.ValorCredito=t2.ValorCredito 
+                            
 
                         );
                     

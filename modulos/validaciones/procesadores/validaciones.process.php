@@ -1524,6 +1524,29 @@ if( !empty($_REQUEST["Accion"]) ){
                print("OK;<h2>$TotalRegistrosCopiados Registros copiados de $TotalRegistros</h2>;$Porcentaje");             
             }
         break;//Fin caso 39
+        
+        case 40://Editar el tipo de contratacion de un bloque de facturas segun el contrato
+            
+            $NumeroContrato=$obCon->normalizar($_REQUEST["NumeroContrato"]);
+            $TipoContratacion=$obCon->normalizar($_REQUEST["TipoContratacion"]);
+            
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+                     
+            if($TipoContratacion==''){
+                exit("E1;No seleccionó el tipo de negociacion");
+            }
+            
+            $sql="UPDATE $db.hoja_de_trabajo SET TipoNegociacion='$TipoContratacion',TipoNegociacionContrato='$TipoContratacion' WHERE NumeroContrato='$NumeroContrato'  ";
+            $obCon->Query($sql);
+            $sql="UPDATE $db.carteraeps SET CarteraEPSTipoNegociacion='$TipoContratacion' WHERE NumeroContrato='$NumeroContrato'  ";
+            $obCon->Query($sql);
+            
+            print("OK;Contrato actualizado a $TipoContratacion");
+            
+        break;//Fin caso 40    
     }
     
     

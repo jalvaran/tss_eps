@@ -925,7 +925,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 exit();
             }
             //$DatosActa=$obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);
-            $Consulta=$obCon->ConsultarTabla("actas_liquidaciones_firmas", "WHERE idActaLiquidacion='$idActaLiquidacion'");
+            $Consulta=$obCon->ConsultarTabla("actas_liquidaciones_firmas", "WHERE idActaLiquidacion='$idActaLiquidacion' ORDER BY ID ASC");
             $i=0;
             while($DatosFirmas=$obCon->FetchAssoc($Consulta)){
                 
