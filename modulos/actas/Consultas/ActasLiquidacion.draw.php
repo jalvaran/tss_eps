@@ -335,7 +335,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 
                 * 
                 */
-                if($TipoActa==3 or $TipoActa==6) {  
+                //if($TipoActa==3 or $TipoActa==6) {  
                     $css->FilaTabla(16);
                         print("<td>");
                             
@@ -350,7 +350,7 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->CrearBotonEvento("btnAgregarContratoNoEjecutado", "Agregar", 1, "onclick", "AgregarContratoNoEjecutado(`$idActaLiquidacion`)", "naranja","style=width:500px");
                         print("</td>");
                     $css->CierraFilaTabla();
-                }else{
+                //}else{
                    $sql="SELECT DISTINCT t1.NumeroContrato FROM $db.actas_conciliaciones_items t1 "
                                 . "INNER JOIN actas_conciliaciones t2 ON t1.idActaConciliacion=t2.ID "
                                 . "WHERE t2.Estado=1 AND t1.MesServicio>='$MesServicioInicial' AND t1.MesServicio<='$MesServicioFinal' AND t2.NIT_IPS='$CmbIPS' ORDER BY t1.NumeroContrato;";
@@ -436,7 +436,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->CierraFilaTabla();
                     }
                 
-                }
+               // }
                 $css->CerrarTabla();
                 
             $css->div("DivDatosGeneralesActaLiquidacion", "col-md-12", "", "", "", "", "");

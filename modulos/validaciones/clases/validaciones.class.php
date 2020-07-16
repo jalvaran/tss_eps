@@ -1343,7 +1343,7 @@ class ValidacionesEPS extends conexion{
                     (t2.ValorOriginal-t2.ValorMenosImpuestos) as ImpuestosCalculados,
                     (SELECT IFNULL((SELECT (Creditos-Debitos) FROM vista_retenciones_facturas WHERE vista_retenciones_facturas.NumeroFactura=t2.NumeroFactura ),0) + (SELECT ConciliacionEPSXImpuestos)) AS Impuestos,
                             t2.ValorMenosImpuestos,
-                            (SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND notas_db_cr_2.TipoOperacion2=t1.TipoOperacion AND Aplicacion='TotalPagos')  AND (notas_db_cr_2.TipoOperacion!='2103') ),0)) AS TotalPagosNotas,
+                            (SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND notas_db_cr_2.TipoOperacion2=t1.TipoOperacion AND Aplicacion='TotalPagos')  AND (notas_db_cr_2.TipoOperacion!='2103' or notas_db_cr_2.TipoOperacion!='2117') ),0)) AS TotalPagosNotas,
                     (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND anticipos2.NumeroInterno=t1.TipoOperacion AND Aplicacion='Capitalizacion') ),0)) AS Capitalizacion,
                     (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=1),0)) AS ConciliacionesAFavorEPS,
                     (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=2),0)) AS ConciliacionesAFavorIPS,
@@ -1470,7 +1470,7 @@ class ValidacionesEPS extends conexion{
                     (t2.ValorOriginal-t2.ValorMenosImpuestos) as ImpuestosCalculados,
                     (SELECT IFNULL((SELECT (Creditos-Debitos) FROM vista_retenciones_facturas WHERE vista_retenciones_facturas.NumeroFactura=t2.NumeroFactura ),0) + (SELECT ConciliacionEPSXImpuestos)) AS Impuestos,
                             t2.ValorMenosImpuestos,
-                            (SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND notas_db_cr_2.TipoOperacion2=t1.TipoOperacion AND Aplicacion='TotalPagos')  AND (notas_db_cr_2.TipoOperacion!='2103') ),0)) AS TotalPagosNotas,
+                            (SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND notas_db_cr_2.TipoOperacion2=t1.TipoOperacion AND Aplicacion='TotalPagos')  AND (notas_db_cr_2.TipoOperacion!='2103' or notas_db_cr_2.TipoOperacion!='2117') ),0)) AS TotalPagosNotas,
                     (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND anticipos2.NumeroInterno=t1.TipoOperacion AND Aplicacion='Capitalizacion') ),0)) AS Capitalizacion,
                     (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=1),0)) AS ConciliacionesAFavorEPS,
                     (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=2),0)) AS ConciliacionesAFavorIPS,
@@ -1512,7 +1512,7 @@ class ValidacionesEPS extends conexion{
                     (t2.ValorOriginal - (SELECT Impuestos) - (SELECT TotalPagos)-(SELECT TotalAnticipos)-(SELECT TotalGlosaFavor)-(SELECT GlosaXConciliar)-(SELECT OtrosDescuentos)-(SELECT ABS(TotalCopagos))-(SELECT ABS(TotalDevoluciones))-(SELECT ABS(DescuentoPGP)) + (SELECT DescuentoReconocimientoBDUA) + (SELECT ConciliacionesAFavorIPS) ) AS ValorSegunEPS,
                     (SELECT IFNULL((SELECT ROUND(ValorTotalpagar) FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1),0)) AS ValorSegunIPS,
 
-                    (SELECT IFNULL((SELECT 'SI' FROM radicadospendientes t4 WHERE EstadoAuditoria LIKE '%AUDITORIA%' AND EstadoAuditoria NOT LIKE '%FINALIZAD%' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorRadicados,
+                    (SELECT IFNULL((SELECT 'SI' FROM radicadospendientes t4 WHERE EstadoAuditoria LIKE '%AUDITORIA%' AND EstadoAuditoria NOT LIKE '%FINALIZAD%'  AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorRadicados,
                     (SELECT IFNULL( (SELECT 'SI' FROM devoluciones_pendientes t4 WHERE NoEnviados > '0' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorDevoluciones,
                     (SELECT IFNULL( (SELECT 'SI' FROM notas_pendientes t4 WHERE NoEnviados > '0' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorNotas,
                     (SELECT IFNULL( (SELECT 'SI' FROM copagos_pendientes t4 WHERE NoEnviados > '0' AND t4.NumeroRadicado=t2.NumeroRadicado LIMIT 1),'NO')) AS PendientesPorCopagos,
@@ -1540,6 +1540,133 @@ class ValidacionesEPS extends conexion{
 
         ";
         $this->QueryExterno($sql, HOST, USER, PW, $db, "");
+    }
+    
+    public function CrearVistaInicialCarteraCruce($db) {
+        $sql="DROP VIEW IF EXISTS `vista_inicial_cruce_cartera_asmet`;";
+        $this->QueryExterno($sql, HOST, USER, PW, $db, "");
+        //usleep(500);
+        $sql="CREATE VIEW `vista_inicial_cruce_cartera_asmet` AS
+            SELECT t2.ID,t2.NumeroFactura,t2.Estado,t2.DepartamentoRadicacion,
+                    t2.CodigoSucursal,t2.NumeroOperacion,
+                    (SELECT TipoNegociacionOperacion FROM ts_eps.tipos_operacion t5 WHERE t5.TipoOperacion=t2.TipoOperacion LIMIT 1 ) AS TipoNegociacion,
+                    (SELECT TipoNegociacionOperacion FROM ts_eps.tipos_operacion t5 WHERE t5.TipoOperacion=t2.TipoOperacion LIMIT 1 ) AS TipoNegociacionContrato,
+                    (SELECT NoRelacionada FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1) as NoRelacionada,
+
+                    (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=12),0)) as ConciliacionEPSXPagos1,
+                    (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=15),0)) as ConciliacionEPSXPagos2,
+                    (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=16),0)) as ConciliacionEPSXGlosas1,
+                    (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=13),0)) as ConciliacionEPSXCopagos,
+                    (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=14),0)) as ConciliacionEPSXImpuestos,
+                    (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=25),0)) as ConciliacionEPSXGlosas2,
+                    (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces t3 WHERE t2.NumeroFactura=t3.NumeroFactura AND t3.ConceptoConciliacion=26),0)) as ConciliacionEPSXDevolucion,
+
+                    ((SELECT ConciliacionEPSXPagos1) + (SELECT ConciliacionEPSXPagos2) ) AS ConciliacionEPSXPagos, 
+                    ((SELECT ConciliacionEPSXGlosas1) + (SELECT ConciliacionEPSXGlosas2) ) AS ConciliacionEPSXGlosas, 
+
+
+                    (SELECT Contrato FROM ts_eps.contratos c WHERE c.ContratoEquivalente=t2.NumeroContrato LIMIT 1) AS ContratoPadre,
+
+                    (SELECT IF(TipoNegociacionContrato='CAPITA',
+                                             (SELECT COUNT(NumeroFactura) FROM carteraeps ce WHERE ce.NumeroContrato= t2.NumeroContrato AND ce.MesServicio= t2.MesServicio AND ce.CarteraEPSTipoNegociacion='CAPITA' AND ce.CodigoSucursal=t2.CodigoSucursal) ,
+                                              1)) AS DivisorMesServicio,    
+                    (SELECT IF(TipoNegociacionContrato='CAPITA',
+                                             (SELECT SUM(NumeroAfiliadosPleno) FROM ts_eps.lma_asmet la WHERE la.CodigoDane= (t2.CodigoSucursal) AND la.MesServicio=t2.MesServicio),
+                                              0)) AS NumeroAfiliadosLMA,
+                    (SELECT IF(TipoNegociacionContrato='CAPITA',
+                                             (SELECT SUM(DiasLiquidadosSubsidioPleno) FROM ts_eps.lma_asmet la WHERE la.CodigoDane= (t2.CodigoSucursal) AND la.MesServicio=t2.MesServicio)/(SELECT DivisorMesServicio) ,
+                                              0)) AS NumeroDiasLMA,
+                    (SELECT IF(TipoNegociacionContrato='CAPITA',
+                                             (SELECT (ValorPercapitaXDia) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT ContratoPadre) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
+                                              0)) AS ValorPercapita, 
+                    (SELECT IF(TipoNegociacionContrato='CAPITA',
+                                             (SELECT (PorcentajePoblacional) FROM ts_eps.contrato_percapita cp WHERE cp.Contrato= (SELECT ContratoPadre) AND cp.NIT_IPS=t2.Nit_IPS AND cp.CodigoDane=t2.CodigoSucursal AND (t2.MesServicio BETWEEN cp.CodigoFechaInicioPercapita AND cp.CodigoFechaFinPercapita) LIMIT 1 ),
+                                              0)) AS PorcentajePoblacional, 
+
+                    (SELECT IFNULL((SELECT ROUND((SELECT NumeroDiasLMA) * (SELECT ValorPercapita) * ((SELECT PorcentajePoblacional)/100),2 )),0)) AS ValorAPagarLMA,
+
+                    (SELECT FechaFactura FROM carteracargadaips WHERE carteracargadaips.NumeroFactura=t2.NumeroFactura LIMIT 1) as FechaFactura,
+                    t2.MesServicio,
+                        t2.NumeroRadicado,
+
+                    (SELECT FechaRegistro FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND t2.Estado=1 ORDER BY FechaRegistro DESC LIMIT 1) AS FechaConciliacion,
+                    t2.FechaRadicado,
+                            t2.NumeroContrato,
+                            t2.ValorOriginal as ValorDocumento,
+                    (t2.ValorOriginal-t2.ValorMenosImpuestos) as ImpuestosCalculados,
+                    (SELECT IFNULL((SELECT (Creditos-Debitos) FROM vista_retenciones_facturas WHERE vista_retenciones_facturas.NumeroFactura=t2.NumeroFactura ),0) + (SELECT ConciliacionEPSXImpuestos)) AS Impuestos,
+                            t2.ValorMenosImpuestos,
+                            '0' AS TotalPagosNotas,
+                    '0' AS Capitalizacion,
+                    (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=1),0)) AS ConciliacionesAFavorEPS,
+                    (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=2),0)) AS ConciliacionesAFavorIPS,
+
+                    '0' AS TotalPagos,
+
+                    '0' AS DescuentoReconocimientoBDUA,
+
+                    '0' AS TotalAnticipos,
+                    '0' AS DescuentoPGP,
+                    '0' AS FacturasDevueltasAnticipos,
+
+
+                    '0' AS NumeroFacturasDevueltasAnticipos,
+
+                    '0' AS CopagosEnNotas,
+
+                    '0' as CopagosEnAnticipos,
+                    '0' AS TotalCopagos,
+
+                    '0' AS OtrosDescuentos,
+                    '0' AS AjustesCartera,
+
+                    '0' AS DevolucionesPresentadas,
+                    '0' AS FacturasPresentadas,
+                    '0' AS FacturaActiva,
+
+                    '0' AS ImpuestosPorRecuperar,
+
+
+                    '0' AS TotalGlosaInicial,
+                    '0' AS TotalGlosaFavor,
+                    '0' AS TotalGlosaContra,
+                    '0' AS GlosaXConciliar,
+
+                    '0' AS TotalDevoluciones,
+                    '0' AS CarteraXEdades,
+        
+                    '0' AS ValorSegunEPS,
+                    '0' AS ValorSegunIPS,
+
+                    '0' AS PendientesPorRadicados,
+                    '0' AS PendientesPorDevoluciones,
+                    '0' AS PendientesPorNotas,
+                    '0' AS PendientesPorCopagos,
+
+
+                    '0' AS Diferencia,
+                    '0' AS ValorIPSMenor,
+                    '0' AS TotalConciliaciones,
+
+                    '0' AS TotalAPagar, 
+                    '0' AS ConciliacionesPendientes,
+                    '0' as DiferenciaXPagos,
+                    '0' AS DiferenciaXPagosNoDescargados,
+                    '0' AS DiferenciaXGlosasPendientesXConciliar,
+                    '0' AS DiferenciaXFacturasDevueltas,
+                    '0' AS DiferenciaXDiferenciaXImpuestos,
+                    '0' AS DiferenciaXFacturasNoRelacionadasXIPS,
+                    '0' AS DiferenciaXAjustesDeCartera,
+                    '0' AS DiferenciaXValorFacturado,
+                    '0' AS DiferenciaXGlosasPendientesXDescargarIPS,
+                    '0' AS DiferenciaXDescuentoReconocimientoLMA,
+                    '0' AS DiferenciaVariada
+
+                    FROM carteraeps t2 WHERE EXISTS (SELECT 1 FROM carteracargadaips t1 WHERE t1.NumeroFactura=t2.NumeroFactura);
+
+        ";
+        $this->QueryExterno($sql, HOST, USER, PW, $db, "");
+       // $this->Query($sql);
     }
     
 }

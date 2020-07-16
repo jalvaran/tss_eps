@@ -22,3 +22,7 @@ SELECT count(t1.ID) AS Total,
  (SELECT t2.Nombre FROM usuarios t2 WHERE t2.idUsuarios=t1.idUser) as Nombre, 
  (SELECT t2.Apellido FROM usuarios t2 WHERE t2.idUsuarios=t1.idUser) as Apellido 
 FROM log_pages_visits t1 GROUP BY idUser ORDER BY Total DESC;
+
+
+SHOW VARIABLES LIKE 'max_allowed_packet';
+SET GLOBAL max_allowed_packet=524288000;

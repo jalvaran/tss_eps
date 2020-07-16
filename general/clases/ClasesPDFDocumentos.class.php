@@ -673,7 +673,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
            return;
         }
         $obCon=new conexion(1);
-        
+        $obNumLetra=new numeros_letras();
         if(round($DatosActa["Saldo"])<0 AND $DatosActa["FormaPagoIPS"]==1){
             $opt="op13";
         }
@@ -690,6 +690,47 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $DatosConsideraciones["Texto"]= str_replace("@FechaCompromisoPagoIPS", $FechaFormateada, $DatosConsideraciones["Texto"]);
         $Numeral= str_replace(".", "", $this->UltimoNumeral);
         $Numeral=$Numeral+1;
+        
+        $SaldoEnLetras=$obNumLetra->convertir(abs($DatosActa["Saldo"]));
+        $SaldoEnLetras.=" PESOS ($ ".number_format(abs($DatosActa["Saldo"])).")";
+        
+        $DatosConsideraciones["Texto"]= str_replace("@ValorLetras",strtoupper("<strong>".$SaldoEnLetras."</strong>"), $DatosConsideraciones["Texto"]);
+        
+        
+        
+        $sql="SELECT t1.ID,t1.NombreContrato AS Contrato,t1.FechaInicial as FechaInicioContrato,t1.FechaFinal  as FechaFinalContrato,t1.Valor as ValorContrato
+                FROM actas_liquidaciones_contratos t1 
+                WHERE t1.idActaLiquidacion='$idActaLiquidacion' ORDER BY ID";
+        
+        $Consulta=$obCon->Query($sql);
+        $ContratosActa="";
+        
+        while($DatosContratos=$obCon->FetchAssoc($Consulta)){
+            
+            $FechaInicial=explode("-",$DatosContratos["FechaInicioContrato"]);   
+            //print_r($FechaInicial);
+            $dia=$obNumLetra->convertir($FechaInicial[2]); 
+            if($dia=="un"){
+                $dia="primero";
+            }
+            
+            $mes=$obNumLetra->meses($FechaInicial[1]);
+            $anio=$obNumLetra->convertir($FechaInicial[0]);
+            $FechaFinal=explode("-",$DatosContratos["FechaFinalContrato"]);
+            $diaFin=$obNumLetra->convertir($FechaFinal[2]); 
+            if($diaFin=="un"){
+                $diaFin="primero";
+            }
+            $mesFin=$obNumLetra->meses($FechaFinal[1]);
+            $anioFin=$obNumLetra->convertir($FechaFinal[0]);
+            $ContratosActa.="<strong>".$DatosContratos["Contrato"]."</strong> con vigencia del $dia de $mes del $anio al $diaFin de $mesFin del $anioFin, ";
+        }
+        //print("Contratos $ContratosActa");
+        $ContratosActa=substr($ContratosActa,0,-2);
+        
+        $DatosConsideraciones["Texto"]= str_replace("@Numerocontratos", $ContratosActa, $DatosConsideraciones["Texto"]);
+        
+        
         $html='<p align="justify"><strong>'.$Numeral.'.</strong>'.utf8_encode($DatosConsideraciones["Texto"])."</p>";  
        
         return($html);
@@ -1423,7 +1464,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $mes=$obNumLetra->meses($DatosFechaFirma[1]);
         $anio=$obNumLetra->convertir($DatosFechaFirma[0]);
         $html=('<p align="justify"><BR>Para constancia se firma en <strong>'.($DatosActa["CiudadFirma"])."</strong>");
-        $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]),  en dos Originales uno para la IPS y otro para la EPS:<br><br><br><br><br><br></p>");
+        $html.=(", a los $dia ($DatosFechaFirma[2]) días del mes de $mes del $anio ($DatosFechaFirma[0]),  en dos Originales uno para la IPS y otro para la EPS:<br><br><br><br><br><br><br><br><br></p>");
         
         $sql="SELECT * FROM actas_liquidaciones_firmas WHERE idActaLiquidacion='$idActaLiquidacion' ORDER BY ID ASC";
         $Consulta=$this->obCon->Query($sql);
@@ -1442,7 +1483,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             }
             $html.='</td>';
             if($i==3){
-                $html.='</tr><BR><BR><BR><BR><BR><BR>';
+                $html.='</tr><BR><BR><BR><BR><BR><BR><BR><BR>';
                 $html.='<tr>';
             }
         }
@@ -1485,16 +1526,20 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
     public function ObservacionesActaLiquidacion3($idActaLiquidacion,$TipoActa,$DatosActa) {
         $obCon=new conexion(1);
         $obNumLetra=new numeros_letras();
-        if($DatosActa["Saldo"]>=0){
+        $sql="";
+        if($DatosActa["Saldo"]>=0 and $DatosActa["Asmet"]==1){
             $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op3' LIMIT 1";
-        }else{
+        }else if($DatosActa["Saldo"]<0 and $DatosActa["Asmet"]==1){
             $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op10' LIMIT 1";
         }
         
         if(round($DatosActa["Saldo"])==0 or $TipoActa==3 or $TipoActa==6){
             $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op11' LIMIT 1";
         }
-        $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));        
+        $DatosConsideraciones["Texto"]='';
+        if($sql<>''){
+            $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));    
+        }
         $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";
         $SaldoEnLetras=$obNumLetra->convertir(abs($DatosActa["Saldo"]));
         $SaldoEnLetras.=" PESOS ($ ".number_format(abs($DatosActa["Saldo"])).")";
