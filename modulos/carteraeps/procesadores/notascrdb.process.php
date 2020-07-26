@@ -87,7 +87,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $TablaTemporal="$db.temporal_notas_db_cr_2";
             
             $sql="UPDATE $db.temporal_notas_db_cr_2 t1 INNER JOIN $db.notas_db_cr_2 t2 ON t1.NumeroFactura=t2.NumeroFactura SET t1.FlagUpdate=1  
-                    WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion AND t1.NumeroAutorizacion=t2.NumeroAutorizacion ;";
+                    WHERE t1.TipoOperacion=t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion AND t1.NumeroAutorizacion=t2.NumeroAutorizacion AND t1.ValorPago=t2.ValorPago ;";
             $obCon->Query($sql);
             $sql="INSERT INTO $db.notas_db_cr_2 SELECT * FROM $db.temporal_notas_db_cr_2 as t1 WHERE t1.FlagUpdate=0";
             //print($sql);

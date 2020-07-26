@@ -1538,12 +1538,21 @@ if( !empty($_REQUEST["Accion"]) ){
             if($TipoContratacion==''){
                 exit("E1;No seleccionó el tipo de negociacion");
             }
-            
+            if($TipoContratacion=='EVENTO'){
+                $TipoOperacion="2082";
+            }
+            if($TipoContratacion=='CAPITA'){
+                $TipoOperacion="2081";
+            }
+            if($TipoContratacion=='PGP'){
+                $TipoOperacion="2009";
+            }
             $sql="UPDATE $db.hoja_de_trabajo SET TipoNegociacion='$TipoContratacion',TipoNegociacionContrato='$TipoContratacion' WHERE NumeroContrato='$NumeroContrato'  ";
             $obCon->Query($sql);
-            $sql="UPDATE $db.carteraeps SET CarteraEPSTipoNegociacion='$TipoContratacion' WHERE NumeroContrato='$NumeroContrato'  ";
+            $sql="UPDATE $db.carteraeps SET TipoOperacion='$TipoOperacion',CarteraEPSTipoNegociacion='$TipoContratacion' WHERE NumeroContrato='$NumeroContrato'  ";
             $obCon->Query($sql);
-            
+            $sql="UPDATE $db.historial_carteracargada_eps SET TipoOperacion='$TipoOperacion' WHERE NumeroContrato='$NumeroContrato'  ";
+            $obCon->Query($sql);
             print("OK;Contrato actualizado a $TipoContratacion");
             
         break;//Fin caso 40    

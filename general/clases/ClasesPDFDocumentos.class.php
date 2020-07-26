@@ -767,7 +767,8 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             if($TipoConsulta==1){
                 $Tabla="actas_conciliaciones_items";
                 $Condicion=" WHERE ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t5 WHERE t5.idContrato=$Tabla.NumeroContrato AND t5.idActaLiquidacion='$idActaLiquidacion') ";
-                $GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
+                //$GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
+                $GroupOrder=" GROUP BY NumeroRadicado,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
                 $TablaUnion="historial_carteracargada_eps";
 
                 $Union3="     
@@ -802,7 +803,8 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $Tabla="actas_liquidaciones_radicados_items";
                 $TablaUnion="historial_carteracargada_eps";
                 $Condicion=" WHERE idActaLiquidacion='$idActaLiquidacion' ";
-                $GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
+                //$GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
+                $GroupOrder=" GROUP BY NumeroRadicado,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
                 $sql=" UNION ALL
 
                 SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,SUM(ValorDocumento) AS ValorDocumento,
