@@ -112,8 +112,8 @@ class CarteraIPS extends conexion{
                 $_DATOS_EXCEL[$i]['NumeroCuentaGlobal'] = $objPHPExcel->getActiveSheet()->getCell('E'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['NumeroRadicado'] = $objPHPExcel->getActiveSheet()->getCell('F'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['TipoNegociacion'] =trim(strtoupper($objPHPExcel->getActiveSheet()->getCell('H'.$i)->getCalculatedValue()));
-                if($_DATOS_EXCEL[$i]['TipoNegociacion']<>'' AND $_DATOS_EXCEL[$i]['TipoNegociacion'] <> 'EVENTO' AND $_DATOS_EXCEL[$i]['TipoNegociacion']<>'CAPITA'){
-                    exit("E1;El Campo H en la Fila $i debe contener el tipo de negociación, se acepta vacío o 'Evento' o 'Capita' y contiene: ".$_DATOS_EXCEL[$i]['TipoNegociacion']);
+                if($_DATOS_EXCEL[$i]['TipoNegociacion']<>'' AND $_DATOS_EXCEL[$i]['TipoNegociacion'] <> 'EVENTO' AND $_DATOS_EXCEL[$i]['TipoNegociacion']<>'CAPITA' AND $_DATOS_EXCEL[$i]['TipoNegociacion']<>'PGP'){
+                    exit("E1;El Campo H en la Fila $i debe contener el tipo de negociación, se acepta vacío o 'Evento', 'Capita' O 'PGP' y contiene: ".$_DATOS_EXCEL[$i]['TipoNegociacion']);
                 }
                 $_DATOS_EXCEL[$i]['NumeroContrato'] = $objPHPExcel->getActiveSheet()->getCell('I'.$i)->getCalculatedValue();
                 $_DATOS_EXCEL[$i]['DiasPactados'] = $objPHPExcel->getActiveSheet()->getCell('J'.$i)->getCalculatedValue();

@@ -447,7 +447,7 @@ class ValidacionesEPS extends conexion{
         
     }
     
-    public function CrearActaConciliacion($CmbTipoNegocionActa,$FechaInicial,$FechaCorte,$CmbIPS,$RepresentanteLegalIPS,$EncargadoEPS,$idUser) {
+    public function CrearActaConciliacion($CmbTipoNegocionActa,$FechaInicial,$FechaCorte,$CmbIPS,$RepresentanteLegalIPS,$EncargadoEPS,$idUser,$TamanoFuente=0) {
         $FechaRegistro=date("Y-m-d H:i:s");
         $FechaFirma=date("Y-m-d");
         $DatosIPS=$this->DevuelveValores("ips", "NIT", $CmbIPS);
@@ -460,7 +460,7 @@ class ValidacionesEPS extends conexion{
         $Datos["FechaInicial"]=$FechaInicial;
         $Datos["MesServicioInicial"]=$MesServicioInicial;
         $Datos["MesServicioFinal"]=$MesServicioFinal;
-        
+        $Datos["TamanoFuente"]=$TamanoFuente;
         $Datos["RazonSocialIPS"]=$DatosIPS["Nombre"];
         $Datos["NIT_IPS"]=$CmbIPS;
         $Datos["RepresentanteLegal"]=$RepresentanteLegalIPS;
@@ -475,6 +475,12 @@ class ValidacionesEPS extends conexion{
         $sql=$this->getSQLInsert("actas_conciliaciones", $Datos);
         $this->Query($sql);
         $idActa=$this->ObtenerMAX("actas_conciliaciones", "ID", 1, "");
+        
+        $sql="SELECT * FROM actas_conciliaciones_resultados_compromisos_predeterminados ORDER BY ID ASC";
+        $consulta=$this->Query($sql);
+        while($datos_consulta=$this->FetchAssoc($consulta)){
+            $this->AgregarCompromisoActaConciliacion($idActa, utf8_encode($datos_consulta["Texto"]), "", $idUser);
+        }
         return($idActa);
     }
     
@@ -1343,7 +1349,7 @@ class ValidacionesEPS extends conexion{
                     (t2.ValorOriginal-t2.ValorMenosImpuestos) as ImpuestosCalculados,
                     (SELECT IFNULL((SELECT (Creditos-Debitos) FROM vista_retenciones_facturas WHERE vista_retenciones_facturas.NumeroFactura=t2.NumeroFactura ),0) + (SELECT ConciliacionEPSXImpuestos)) AS Impuestos,
                             t2.ValorMenosImpuestos,
-                            (SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND notas_db_cr_2.TipoOperacion2=t1.TipoOperacion AND Aplicacion='TotalPagos')  AND (notas_db_cr_2.TipoOperacion!='2103' or notas_db_cr_2.TipoOperacion!='2117') ),0)) AS TotalPagosNotas,
+                            (SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND notas_db_cr_2.TipoOperacion2=t1.TipoOperacion AND Aplicacion='TotalPagos')  AND (notas_db_cr_2.TipoOperacion!='2103' and notas_db_cr_2.TipoOperacion!='2117' and notas_db_cr_2.TipoOperacion!='2351' and notas_db_cr_2.TipoOperacion!='2122' and notas_db_cr_2.TipoOperacion!='3130') ),0)) AS TotalPagosNotas,
                     (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND anticipos2.NumeroInterno=t1.TipoOperacion AND Aplicacion='Capitalizacion') ),0)) AS Capitalizacion,
                     (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=1),0)) AS ConciliacionesAFavorEPS,
                     (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=2),0)) AS ConciliacionesAFavorIPS,
@@ -1470,7 +1476,7 @@ class ValidacionesEPS extends conexion{
                     (t2.ValorOriginal-t2.ValorMenosImpuestos) as ImpuestosCalculados,
                     (SELECT IFNULL((SELECT (Creditos-Debitos) FROM vista_retenciones_facturas WHERE vista_retenciones_facturas.NumeroFactura=t2.NumeroFactura ),0) + (SELECT ConciliacionEPSXImpuestos)) AS Impuestos,
                             t2.ValorMenosImpuestos,
-                            (SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND notas_db_cr_2.TipoOperacion2=t1.TipoOperacion AND Aplicacion='TotalPagos')  AND (notas_db_cr_2.TipoOperacion!='2103' or notas_db_cr_2.TipoOperacion!='2117') ),0)) AS TotalPagosNotas,
+                            (SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND notas_db_cr_2.TipoOperacion2=t1.TipoOperacion AND Aplicacion='TotalPagos')  AND (notas_db_cr_2.TipoOperacion!='2103' and notas_db_cr_2.TipoOperacion!='2117' and notas_db_cr_2.TipoOperacion!='2351' and notas_db_cr_2.TipoOperacion!='2122' and notas_db_cr_2.TipoOperacion!='3130') ),0)) AS TotalPagosNotas,
                     (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND anticipos2.NumeroInterno=t1.TipoOperacion AND Aplicacion='Capitalizacion') ),0)) AS Capitalizacion,
                     (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=1),0)) AS ConciliacionesAFavorEPS,
                     (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=2),0)) AS ConciliacionesAFavorIPS,

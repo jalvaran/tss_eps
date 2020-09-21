@@ -532,7 +532,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $sql="SELECT SUM(t1.ValorDocumento) as TotalFacturado, 
                         SUM(t1.Impuestos) as Impuestos, SUM(t1.TotalDevoluciones) AS Devoluciones,
                         SUM(t1.TotalGlosaInicial) as Glosa, SUM(t1.TotalGlosaFavor+t1.GlosaXConciliar) AS GlosaFavor,
-                        SUM(t1.TotalCopagos) as Copagos, SUM(t1.OtrosDescuentos) AS OtrosDescuentos,
+                        SUM(t1.TotalCopagos) as Copagos, SUM(t1.OtrosDescuentos+t1.DescuentoPGP) AS OtrosDescuentos,
                         SUM(t1.TotalPagos) as TotalPagos,SUM(t1.TotalAnticipos) as TotalAnticipos,
                         SUM(t1.AjustesCartera) as AjustesCartera,SUM(t1.ValorSegunEPS) AS Saldo,
                         SUM(t1.DescuentoBDUA) as DescuentoBDUA
@@ -650,7 +650,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->FilaTabla(16);
                         $css->ColTabla("<strong>TOTALES ACTA DE LIQUIDACIÓN:</strong>", 6,'C');
                     $css->CierraFilaTabla();
-                    if($TipoActa==1 OR $TipoActa==2 OR $TipoActa==7 OR $TipoActa==9){
+                    if($TipoActa==1 OR $TipoActa==2 OR $TipoActa==7 OR $TipoActa==9 OR $TipoActa==11 OR $TipoActa==12){
                         $css->FilaTabla(16);
                             $css->ColTabla("<strong>VALOR FACTURADO</strong>", 1);
                             $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);

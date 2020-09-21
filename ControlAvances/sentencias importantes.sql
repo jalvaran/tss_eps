@@ -26,3 +26,10 @@ FROM log_pages_visits t1 GROUP BY idUser ORDER BY Total DESC;
 
 SHOW VARIABLES LIKE 'max_allowed_packet';
 SET GLOBAL max_allowed_packet=524288000;
+
+
+DELETE t1 FROM notas_db_cr_2 t1
+INNER JOIN notas_db_cr_2 t2 
+WHERE t1.ID > t2.ID AND t1.TipoOperacion = t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion 
+AND t1.FechaTransaccion=t2.FechaTransaccion AND t1.NumeroFactura=t2.NumeroFactura AND t1.ValorTotal=t2.ValorTotal 
+AND t1.TipoOperacion2=t2.TipoOperacion2 AND t1.NumeroOrdenPago=t2.NumeroOrdenPago AND t1.NumeroAutorizacion=t2.NumeroAutorizacion;

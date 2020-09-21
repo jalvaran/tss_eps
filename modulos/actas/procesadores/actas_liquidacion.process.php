@@ -109,7 +109,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 $sql="UPDATE actas_liquidaciones SET IdentificadorActaEPS=CONCAT(PrefijoDepartamento,'-',ConsecutivoActa,'-',Anio) WHERE ID='$idActaLiquidacion'";
                 $obCon->Query($sql);
             }
-            print("OK;Campo $CampoAEditar del Acta de Liquidación se ha Editado");
+            print("OK;Campo $CampoAEditar del Acta de Liquidación se ha Editado con el valor: $NuevoValor");
         break; // Fin caso 2 
         
         case 3://Agregar contrato a acta liquidacion

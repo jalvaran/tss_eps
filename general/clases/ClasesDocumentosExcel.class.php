@@ -413,18 +413,20 @@ class TS_Excel extends conexion{
         $Totales["TotalOtrosDescuentos"]=0;
         $Totales["TotalPagos"]=0;
         $Totales["Saldo"]=0;
+        
         if($TipoActa<>3){
             while($DatosVista= $this->FetchAssoc($Consulta)){
                 $z=0;
                 $i++;
 
-            $Totales["ValorDocumento"]=$Totales["ValorDocumento"]+$DatosVista["ValorDocumento"]; 
+            $Totales["ValorDocumento"]=$Totales["ValorDocumento"]+$DatosVista["ValorDocumento"];
+            
             $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
             $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
             $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
             $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"]; 
             $Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
-            $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
+            $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"];
             $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
             $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
 
@@ -441,7 +443,7 @@ class TS_Excel extends conexion{
                 ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"])
                 ->setCellValue($Campos[$z++].$i,$DatosVista["TotalNotasCopagos"])
                 ->setCellValue($Campos[$z++].$i,0)
-                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"])
                 ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"])
                 ->setCellValue($Campos[$z++].$i,$DatosVista["Saldo"])
 
@@ -813,7 +815,7 @@ class TS_Excel extends conexion{
         $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
         $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"]; 
         $Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
-        $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
+        $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"];
         $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
         $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
         
@@ -830,7 +832,7 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalNotasCopagos"])
             ->setCellValue($Campos[$z++].$i,0)
-            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"])
+            ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"])
             ->setCellValue($Campos[$z++].$i,$DatosVista["Saldo"])
                         
@@ -1267,7 +1269,7 @@ class TS_Excel extends conexion{
         $z=0;
         $objPHPExcel->setActiveSheetIndex(0)
             
-            ->setCellValue($Campos[11].$i,"VR A PAGAR IPS S/N LMA")
+            ->setCellValue($Campos[11].$i,"VR A PAGAR SEGÚN ACTA DE EJECUCIÓN DE METAS")
             ->setCellValue($Campos[13].$i++,$Totales["ValorAPagarLMA"])
             ->setCellValue($Campos[11].$i,"VALOR RETENCION DE IMPUESTOS")
             ->setCellValue($Campos[13].$i++,$Totales["Impuestos"])
@@ -1277,9 +1279,9 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[13].$i++,$DatosActa["OtrosDescuentosConciliadosAfavor"])
             ->setCellValue($Campos[11].$i,"VALOR PAGADO")
             ->setCellValue($Campos[13].$i++,$Totales["TotalPagos"])
-            ->setCellValue($Campos[11].$i,"PAGOS PENDINTES POR LEGALIZAR")
+            ->setCellValue($Campos[11].$i,"PAGOS PENDIENTES POR LEGALIZAR")
             ->setCellValue($Campos[13].$i++,$DatosActa["PagosPendientesPorLegalizar"])     
-            ->setCellValue($Campos[11].$i,"SALDO")
+            ->setCellValue($Campos[11].$i,"SALDO FINAL ACTA DE LIQUIDACIÓN")
             ->setCellValue($Campos[13].$i++,$Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"])
                         
             ; 
@@ -1447,6 +1449,91 @@ class TS_Excel extends conexion{
         $writer->close();
     }
     
+    
+    
+    public function ExportarHojaTrabajoExcel($db,$tipo_negociacion,$CmbIPS) {
+        
+        require_once('../../librerias/Excel/PHPExcel2.php');
+        require_once('administrador.class.php');
+        $obCon=new Administrador(1);
+        $DatosIPS= $this->DevuelveValores("ips", "NIT", $CmbIPS);
+        $objPHPExcel = new Spreadsheet();
+        
+        $styleName = [
+        
+            'font' => [
+                'bold' => true,
+                'size' => 20
+            ]
+        ];
+        $styleTitle = [
+            'font' => [
+                'bold' => true,
+                'size' => 12
+            ]
+        ];
+        $Tabla="hoja_de_trabajo";
+        
+        $ColumnasSeleccionadas=$obCon->getColumnasVisibles($db.".".$Tabla, "");
+        
+        $Campos=["A","B","C","D","E","F","G","H","I","J","K","L","M",
+                    "N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+                    "AA","AB","AC","AD","AE","AF","AG","AH","AI","AJ","AK","AL",
+                    "AM","AN","AO","AP","AQ","AR","AS","AT","AU","AV","AW","AX","AY","AZ",
+                    "BA","BB","BC","BD","BE","BF","BG","BH","BI","BJ","BK","BL",
+                    "BM","BN","BO","BP","BQ","BR","BS","BT","BU","BV","BW","BX","BY","BZ"
+                    
+                ];
+        
+        $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue("A1","HOJA DE TRABAJO IPS: ".$DatosIPS["Nombre"])
+             
+                ;
+        $z=0;
+        $i=2;
+        $sql="SELECT ";
+        foreach ($ColumnasSeleccionadas["Field"] as $key => $value) {
+            if($tipo_negociacion<>'CAPITA' AND ($value=='NumeroAfiliadosLMA' OR $value=='NumeroDiasLMA' OR $value=='ValorPercapita' OR $value=='PorcentajePoblacional' OR $value=='ValorAPagarLMA' ) ){
+                continue;
+            }
+            $sql.="$value,";
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue($Campos[$z++].$i,$value);
+        }
+        
+        $i++;
+        $sql = substr($sql, 0, -1);
+        $sql.=" FROM $db.hoja_de_trabajo WHERE TipoNegociacion='$tipo_negociacion'";
+        $Consulta=$obCon->Query($sql);
+        while($DatosConsulta=$obCon->FetchAssoc($Consulta)){
+            $z=0;
+            foreach ($DatosConsulta as $key => $value) {
+                $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue($Campos[$z++].$i,$value);
+            }
+            $i++;
+        }
+   //Informacion del excel
+   $objPHPExcel->
+    getProperties()
+        ->setCreator("www.technosoluciones.com.co")
+        ->setLastModifiedBy("www.technosoluciones.com.co")
+        ->setTitle("Hoja de trabajo")
+        ->setSubject("Hoja de trabajo")
+        ->setDescription("Documento generado por Techno Soluciones SAS")
+        ->setKeywords("techno soluciones sas")
+        ->setCategory("Formato conciliacion masiva");    
+ 
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="'."Hoja de trabajo".'.xls"');
+    header('Cache-Control: max-age=0');
+    header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+    header('Pragma: public'); // HTTP/1.0
+    $objWriter=IOFactory::createWriter($objPHPExcel,'Xlsx');
+    $objWriter->save('php://output');
+    exit; 
+   
+    }
    //Fin Clases
 }
     

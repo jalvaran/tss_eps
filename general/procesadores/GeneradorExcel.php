@@ -45,6 +45,15 @@ if(isset($_REQUEST["idDocumento"])){
             
         break;//Fin caso 2
         
+        case 3: //Exportar hoja de trabajo a excel
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $db=$obCon->normalizar($_REQUEST["db"]);
+            $tipo_negociacion=$obCon->normalizar($_REQUEST["tipo_negociacion"]);
+            
+            $obCon->ExportarHojaTrabajoExcel($db,$tipo_negociacion,$CmbIPS);
+            
+        break;//Fin caso 3
+        
     }
 }else{
     print("No se recibió parametro de documento");

@@ -1,0 +1,1 @@
+ALTER TABLE `carteracargadaips` ADD INDEX(`TipoNegociacion`);

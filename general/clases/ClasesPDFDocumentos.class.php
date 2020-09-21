@@ -80,7 +80,7 @@ class Documento{
         //$pdf->SetFont('helvetica', 'B', 6);
         // add a page
         $this->PDF->AddPage();
-        $this->PDF->SetFont('helvetica', '', 6);
+        $this->PDF->SetFont('helvetica', '', $FontSize);
         
     }
     
@@ -211,8 +211,10 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
     public function ActaConciliacionPDF($idActaConciliacion) {
         
         $DatosActa=$this->obCon->DevuelveValores("actas_conciliaciones","ID",$idActaConciliacion);
-                
-        $this->PDF_Ini("Acta de Concilacion de Cartera", 7, "");
+        if($DatosActa["TamanoFuente"]==0 or $DatosActa["TamanoFuente"]>9){
+            $DatosActa["TamanoFuente"]=6;
+        }        
+        $this->PDF_Ini("Acta de Concilacion de Cartera", $DatosActa["TamanoFuente"], "");
         $html= $this->EncabezadoActaConciliacion($idActaConciliacion);
         $this->PDF->writeHTML($html, true, false, false, false, '');
         
@@ -691,7 +693,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $Numeral= str_replace(".", "", $this->UltimoNumeral);
         $Numeral=$Numeral+1;
         
-        $SaldoEnLetras=$obNumLetra->convertir(abs($DatosActa["Saldo"]));
+        $SaldoEnLetras=$obNumLetra->convertir(abs(round($DatosActa["Saldo"])));
         $SaldoEnLetras.=" PESOS ($ ".number_format(abs($DatosActa["Saldo"])).")";
         
         $DatosConsideraciones["Texto"]= str_replace("@ValorLetras",strtoupper("<strong>".$SaldoEnLetras."</strong>"), $DatosConsideraciones["Texto"]);
@@ -860,7 +862,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                     $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
                     $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]; 
                     $Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
-                    $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
+                    $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"];
                     $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
                     $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
                     $Totales["GlosaXConciliar"]=$Totales["GlosaXConciliar"]+$DatosVista["GlosaXConciliar"];
@@ -875,7 +877,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                         $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"]).'</td>';
                         $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalNotasCopagos"]).'</td>';
                         $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">0</td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalOtrosDescuentos"]).'</td>';
+                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"]).'</td>';
                         $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalPagos"]).'</td>';                
                         $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["Saldo"]).'</td>';
 
@@ -1067,7 +1069,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $html.="</tr>";
             $html.="<tr>";
             
-                $html.='<td colspan="12" style="text-align:rigth;font-size:9px;background-color: '.$Back.';"><strong>VR A PAGAR IPS S/N LMA: </strong> </td>';
+                $html.='<td colspan="12" style="text-align:rigth;font-size:9px;background-color: '.$Back.';"><strong>VR A PAGAR SEGÚN ACTA DE EJECUCIÓN DE METAS: </strong> </td>';
                 
                 $html.='<td colspan="2" style="text-align:left;font-size:9px;background-color: '.$Back.';"><strong>'.number_format($Totales["ValorAPagarLMA"]).'</strong></td>';
                 
@@ -1093,7 +1095,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $html.='<td colspan="2" style="text-align:left;font-size:9px;background-color: '.$Back.';"><strong>'.number_format($DatosActa["PagosPendientesPorLegalizar"]).'</strong></td>';                
             $html.="</tr>";
             $html.="<tr>";                
-                $html.='<td colspan="12" style="text-align:rigth;font-size:9px;background-color: '.$Back.';"><strong>SALDO</strong> </td>';                
+                $html.='<td colspan="12" style="text-align:rigth;font-size:9px;background-color: '.$Back.';"><strong>SALDO FINAL ACTA DE LIQUIDACIÓN</strong> </td>';                
                 $html.='<td colspan="2" style="text-align:left;font-size:9px;background-color: '.$Back.';"><strong>'.number_format($Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"]).'</strong></td>';                
             $html.="</tr>";
             
@@ -1422,7 +1424,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
 
             </tr>';
             if($DatosActa["Asmet"]==2){
-                $TextoConclusionTotales=strtoupper($obNumLetra->convertir(abs($DatosActa["Saldo"])))." PESOS";
+                $TextoConclusionTotales=strtoupper($obNumLetra->convertir(abs(round($DatosActa["Saldo"]))))." PESOS";
                 
                 $html.='<tr>
                     <td colspan="'.($ColspanTotales+1).'" style="text-align:left;"><strong>'.$TextoConclusionTotales.'</strong></td>
@@ -1442,7 +1444,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             </tr>';
             
             if($DatosActa["Asmet"]==2){
-                $TextoConclusionTotales=strtoupper($obNumLetra->convertir(abs($DatosActa["Saldo"])))." PESOS";
+                $TextoConclusionTotales=strtoupper($obNumLetra->convertir(abs(round($DatosActa["Saldo"]))))." PESOS";
                 
                 $html.='<tr>
                     <td colspan="'.($ColspanTotales+1).'" style="text-align:left;"><strong>'.$TextoConclusionTotales.'</strong></td>
@@ -1543,7 +1545,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $DatosConsideraciones=$obCon->FetchAssoc($obCon->Query($sql));    
         }
         $html='<p align="justify">'. utf8_encode($DatosConsideraciones["Texto"])."</p>";
-        $SaldoEnLetras=$obNumLetra->convertir(abs($DatosActa["Saldo"]));
+        $SaldoEnLetras=$obNumLetra->convertir(abs(round($DatosActa["Saldo"])));
         $SaldoEnLetras.=" PESOS ($ ".number_format(abs($DatosActa["Saldo"])).")";
         
         $html= str_replace("@ValorLetras",strtoupper("<strong>".$SaldoEnLetras."</strong>"), $html);

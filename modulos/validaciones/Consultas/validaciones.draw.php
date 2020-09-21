@@ -497,7 +497,10 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CrearBotonEvento("BtnCargarTotales", "Ver Totales", 1, "onclick", "DibujaTotalesCruce()", "azul", "");
                     print("</td>"); 
                     print("<td colspan='1' style='text-align:center'>");    
-                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar", 1, "onclick", "ExportarHojaDeTrabajo('$db','hoja_de_trabajo','')", "verde", "");
+                        $css->CrearBotonEvento("BtnExportarExcelCruce", "Exportar CSV", 1, "onclick", "ExportarHojaDeTrabajo('$db','hoja_de_trabajo','')", "verde", "");
+                        $link="../../general/procesadores/GeneradorExcel.php?idDocumento=3&db=$db&tipo_negociacion=$TipoNegociacion&CmbIPS=$CmbIPS";
+                        print('<a class="btn btn-primary" href="'.$link.'" target="_blank">Exportar a Excel</a>');
+                        
                     print("</td>"); 
                     print("<td colspan='1' style='text-align:center'>");
                         $css->CrearBotonEvento("BtnExportarReporteIps", "Exportar-Reporte_Ips", 1, "onclick", "ExportarHojaDeTrabajo('$db','vista_reporte_ips','')", "verde", "");
@@ -589,6 +592,12 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     $css->ColTabla("<strong>Contrato</strong>", 1);
                     $css->ColTabla("<strong>Factura</strong>", 1);
+                    if($TipoNegociacion=='CAPITA'){
+                        
+                        $css->ColTabla("<strong>Dias LMA</strong>", 1);
+                        $css->ColTabla("<strong>Dto Rto BDUA</strong>", 1);
+                        
+                    }
                     $css->ColTabla("<strong>Saldo IPS Menor?</strong>", 1);
                     $css->ColTabla("<strong>Conciliaciones Pendientes?</strong>", 1);
                     $css->ColTabla("<strong>Conciliada?</strong>", 1);
@@ -651,6 +660,14 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->CerrarDiv();
                             
                         print("</td>");
+                        
+                        if($TipoNegociacion=='CAPITA'){
+                        
+                            $css->ColTabla(number_format($DatosFactura["NumeroDiasLMA"],2), 1);
+                            $css->ColTabla(number_format($DatosFactura["DescuentoReconocimientoBDUA"],2), 1);
+
+                        }
+                        
                         $css->ColTabla($DatosFactura["ValorIPSMenor"], 1);
                         $css->ColTabla($DatosFactura["ConciliacionesPendientes"], 1);
                         $css->ColTabla($EstadoConciliado, 1);
@@ -2895,8 +2912,6 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Tipo de Acta:</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Inicial:</strong>", 1);
                     $css->ColTabla("<strong>Fecha de Final:</strong>", 1);
-                    $css->ColTabla("<strong>Representante Legal IPS:</strong>", 1);
-                    $css->ColTabla("<strong>Encargado de la EPS:</strong>", 1);
                 $css->CierraFilaTabla();
                 
                 $css->FilaTabla(14);
@@ -2922,18 +2937,30 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->input("date", "FechaActaConciliacion", "form-control", "FechaActaConciliacion", "", date("Y-m-d"), "Fecha Corte Cartera", "", "", "style='line-height: 15px;'"."max=".date("Y-m-d"));
         
                     print("</td>");
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);    
+                    $css->ColTabla("<strong>Representante Legal IPS:</strong>", 1);
+                    $css->ColTabla("<strong>Encargado de la EPS:</strong>", 1);
+                    $css->ColTabla("<strong>Tamaño de la fuente:</strong>", 1);
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14); 
                     print("<td>");
                         $css->input("text", "TxtRepresentanteLegalIPS", "form-control", "TxtRepresentanteLegalIPS", "", $DatosIPS["RepresentanteLegal"], "Representante Legal", "", "", "");
                     print("</td>");
                     
-                     print("<td>");
+                    print("<td>");
                         $css->input("text", "TxtEncargadoEPS", "form-control", "TxtEncargadoEPS", "", "", "Encargado EPS", "", "", "");
                     print("</td>");
                     
+                    print("<td>");
+                        $css->input("number", "TamanoFuente", "form-control", "TamanoFuente", "", "0", "Tamaño de la Fuente", "", "", "");
+                    print("</td>");
                 $css->CierraFilaTabla();
                 
                 $css->FilaTabla(16);
-                    print("<td colspan=5>");
+                    print("<td colspan=3>");
                         $css->CrearBotonEvento("BtnGuardarActa", "Crear Acta", 1, "onclick", "ConfirmarCrearActa()", "rojo", "");
                     print("</td>");
                 $css->CierraFilaTabla();
@@ -3227,7 +3254,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     print("</td>");
                 print("</tr>");
-                print("<tr style=font-size:18px;border-left-style:double;border-bottom-style:double;border-right-style:double;border-width:5px;>");
+                print("<tr style=font-size:18px;border-left-style:double;border-right-style:double;border-width:5px;>");
                     print("<td>");
                         print("<strong>Fecha Final:</strong>");
                     print("</td>");
@@ -3237,6 +3264,19 @@ if( !empty($_REQUEST["Accion"]) ){
                         //print(utf8_decode($DatosActa["FechaCorte"]));
                     print("</td>");
                 print("</tr>");
+                
+                print("<tr style=font-size:18px;border-left-style:double;border-bottom-style:double;border-right-style:double;border-width:5px;>");
+                    print("<td>");
+                        print("<strong>Tamaño de Fuente:</strong>");
+                    print("</td>");
+                    print("<td>");
+                        
+                        $css->input("text", "TamanoFuenteActa", "form-control", "TamanoFuenteActa", "", ($DatosActa["TamanoFuente"]), "Tamaño de la fuente", "off", "", "onchange=EditeActaConciliacion(`$idActaConciliacion`,`TamanoFuenteActa`,`TamanoFuente`)");
+                    
+                        //print(utf8_decode($DatosActa["EncargadoEPS"]));
+                    print("</td>");
+                print("</tr>");
+                
                 print("<tr>");
                     print("<td colspan=3>");
                     print("</td>");

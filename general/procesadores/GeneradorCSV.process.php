@@ -520,7 +520,7 @@ if(isset($_REQUEST["Opcion"])){
             foreach($ColumnasSeleccionadas["Field"] as $key => $value){
                 $Titulo= utf8_encode($ColumnasSeleccionadas["Visualiza"][$key]); 
                 
-                if($CmbTipoNegociacion=="EVENTO"){
+                if($CmbTipoNegociacion=="EVENTO" or $CmbTipoNegociacion=="PGP"){
                     if($value<>"NumeroAfiliadosLMA" and $value<>"NumeroDiasLMA" and $value<>"ValorPercapita" and $value<>"PorcentajePoblacional" and $value<>"ValorAPagarLMA" and $value<>"DescuentoReconocimientoBDUA"){
                         //print(" Entra ");
                         

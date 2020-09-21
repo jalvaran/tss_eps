@@ -574,6 +574,10 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaActaInicial=$obCon->normalizar($_REQUEST["FechaActaInicial"]);
             $TxtRepresentanteLegalIPS=$obCon->normalizar($_REQUEST["TxtRepresentanteLegalIPS"]);
             $TxtEncargadoEPS=$obCon->normalizar($_REQUEST["TxtEncargadoEPS"]);
+            if(!isset($_REQUEST["TamanoFuente"]) or !is_numeric($_REQUEST["TamanoFuente"])){
+                exit("E1;No se recibió el tamaño de la fuente o no tiene un valor válido;TamanoFuente");
+            }
+            $TamanoFuente=$obCon->normalizar($_REQUEST["TamanoFuente"]);
             $CmbTipoNegocionActa=$obCon->normalizar($_REQUEST["CmbTipoNegocionActa"]);
             if($FechaActaInicial==''){
                 exit("E1;No se recibió una Fecha Inicial;FechaActaInicial");
@@ -597,7 +601,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 
             }
             
-            $idActa=$obCon->CrearActaConciliacion($CmbTipoNegocionActa,$FechaActaInicial,$FechaActaConciliacion, $CmbIPS, $TxtRepresentanteLegalIPS, $TxtEncargadoEPS,$idUser);
+            $idActa=$obCon->CrearActaConciliacion($CmbTipoNegocionActa,$FechaActaInicial,$FechaActaConciliacion, $CmbIPS, $TxtRepresentanteLegalIPS, $TxtEncargadoEPS,$idUser,$TamanoFuente);
             
             print("OK;Acta $idActa Creada Correctamente;$idActa");
         break;//Fin caso 14  
@@ -1176,7 +1180,7 @@ if( !empty($_REQUEST["Accion"]) ){
         (t2.ValorOriginal-t2.ValorMenosImpuestos) as ImpuestosCalculados,
         (SELECT IFNULL((SELECT (Creditos-Debitos) FROM vista_retenciones_facturas WHERE vista_retenciones_facturas.NumeroFactura=t2.NumeroFactura ),0) + (SELECT ConciliacionEPSXImpuestos)) AS Impuestos,
 		t2.ValorMenosImpuestos,
-		(SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND notas_db_cr_2.TipoOperacion2=t1.TipoOperacion AND Aplicacion='TotalPagos')  AND (notas_db_cr_2.TipoOperacion!='2103') ),0)) AS TotalPagosNotas,
+		(SELECT IFNULL((SELECT SUM(ValorPago) FROM notas_db_cr_2 WHERE notas_db_cr_2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND notas_db_cr_2.TipoOperacion2=t1.TipoOperacion AND Aplicacion='TotalPagos')  AND (notas_db_cr_2.TipoOperacion!='2103' and notas_db_cr_2.TipoOperacion!='2117' and notas_db_cr_2.TipoOperacion!='2351' and notas_db_cr_2.TipoOperacion!='2122') ),0)) AS TotalPagosNotas,
         (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM anticipos2 WHERE anticipos2.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t1 WHERE Estado=1 AND anticipos2.NumeroInterno=t1.TipoOperacion AND Aplicacion='Capitalizacion') ),0)) AS Capitalizacion,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=1),0)) AS ConciliacionesAFavorEPS,
         (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM conciliaciones_cruces WHERE conciliaciones_cruces.NumeroFactura=t2.NumeroFactura AND conciliaciones_cruces.ConciliacionAFavorDe=2),0)) AS ConciliacionesAFavorIPS,
