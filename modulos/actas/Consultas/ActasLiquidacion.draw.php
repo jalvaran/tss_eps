@@ -206,6 +206,10 @@ if( !empty($_REQUEST["Accion"]) ){
                 exit();
             }
             
+            $sql="DELETE t1 FROM $db.historial_carteracargada_eps t1
+                    INNER JOIN $db.historial_carteracargada_eps t2 
+                    WHERE t1.ID < t2.ID AND t1.NumeroFactura= t2.NumeroFactura AND t1.NumeroRadicado= t2.NumeroRadicado; ";
+            $obCon->Query($sql);
             $Titulo="Ajustes";
             $Nombre="ImgShowMenu";
             $RutaImage="../../images/actualizar.gif";
@@ -529,22 +533,36 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CrearTitulo("Debe agregar al menos un contrato a esta acta",'rojo');
                         exit();
                     }
-                    $sql="SELECT SUM(t1.ValorDocumento) as TotalFacturado, 
-                        SUM(t1.Impuestos) as Impuestos, SUM(t1.TotalDevoluciones) AS Devoluciones,
-                        SUM(t1.TotalGlosaInicial) as Glosa, SUM(t1.TotalGlosaFavor+t1.GlosaXConciliar) AS GlosaFavor,
-                        SUM(t1.TotalCopagos) as Copagos, SUM(t1.OtrosDescuentos+t1.DescuentoPGP) AS OtrosDescuentos,
-                        SUM(t1.TotalPagos) as TotalPagos,SUM(t1.TotalAnticipos) as TotalAnticipos,
-                        SUM(t1.AjustesCartera) as AjustesCartera,SUM(t1.ValorSegunEPS) AS Saldo,
-                        SUM(t1.DescuentoBDUA) as DescuentoBDUA
-                        FROM $db.actas_conciliaciones_items t1 
-                        WHERE EXISTS 
-                        (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato AND idActaLiquidacion='$idActaLiquidacion') AND t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal;  ";
-                    
+                    if($TipoActa==13 or $TipoActa==14 or $TipoActa==15){
+                        $TotalFacturado=$DatosActa["ValorSegunActaCumplimientoMetas"];
+                        $sql="SELECT '$TotalFacturado' as TotalFacturado, 
+                            SUM(t1.Impuestos) as Impuestos, SUM(t1.TotalDevoluciones) AS Devoluciones,
+                            SUM(t1.TotalGlosaInicial) as Glosa, SUM(t1.TotalGlosaFavor+t1.GlosaXConciliar) AS GlosaFavor,
+                            SUM(t1.TotalCopagos) as Copagos, SUM(t1.OtrosDescuentos+t1.DescuentoPGP) AS OtrosDescuentos,
+                            SUM(t1.TotalPagos) as TotalPagos,SUM(t1.TotalAnticipos) as TotalAnticipos,
+                            SUM(t1.AjustesCartera) as AjustesCartera,SUM(t1.ValorSegunEPS) AS Saldo,
+                            SUM(t1.DescuentoBDUA) as DescuentoBDUA
+                            FROM $db.actas_conciliaciones_items t1 
+                            WHERE EXISTS 
+                            (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato AND idActaLiquidacion='$idActaLiquidacion') AND t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal;  ";
+
+                    }else{
+                        $sql="SELECT SUM(t1.ValorDocumento) as TotalFacturado, 
+                            SUM(t1.Impuestos) as Impuestos, SUM(t1.TotalDevoluciones) AS Devoluciones,
+                            SUM(t1.TotalGlosaInicial) as Glosa, SUM(t1.TotalGlosaFavor+t1.GlosaXConciliar) AS GlosaFavor,
+                            SUM(t1.TotalCopagos) as Copagos, SUM(t1.OtrosDescuentos+t1.DescuentoPGP) AS OtrosDescuentos,
+                            SUM(t1.TotalPagos) as TotalPagos,SUM(t1.TotalAnticipos) as TotalAnticipos,
+                            SUM(t1.AjustesCartera) as AjustesCartera,SUM(t1.ValorSegunEPS) AS Saldo,
+                            SUM(t1.DescuentoBDUA) as DescuentoBDUA
+                            FROM $db.actas_conciliaciones_items t1 
+                            WHERE EXISTS 
+                            (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t1.NumeroContrato=t2.idContrato AND idActaLiquidacion='$idActaLiquidacion') AND t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal;  ";
+                    }
                     $TotalesActa=$obCon->FetchAssoc($obCon->Query($sql));
                     
                     $TotalesActaHistorial["TotalFacturado"]=0;
                     $TotalesActaHistorial2["TotalFacturado"]=0;
-                    if($TipoActa<>4 and $TipoActa<>5 and $TipoActa<>6){
+                    if($TipoActa<>4 and $TipoActa<>5 and $TipoActa<>6 and $TipoActa<>13 and $TipoActa<>14 and $TipoActa<>15){
                         $sql="SELECT  SUM(t1.ValorOriginal) as TotalFacturado
                             
                             FROM $db.historial_carteracargada_eps t1 WHERE NOT EXISTS (SELECT 1 FROM $db.actas_conciliaciones_items t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
@@ -564,6 +582,7 @@ if( !empty($_REQUEST["Accion"]) ){
                        // $TotalesActaHistorial2=$obCon->FetchAssoc($obCon->Query($sql));
                     }
                     $TotalFacturado=$TotalesActa["TotalFacturado"]+$TotalesActaHistorial["TotalFacturado"];
+                    
                     $TotalDevolucion=($TotalesActa["Devoluciones"])+($TotalesActaHistorial["TotalFacturado"]);
                     if($TotalesActa["Impuestos"]==""){
                         $TotalesActa["Impuestos"]=0;
@@ -595,7 +614,22 @@ if( !empty($_REQUEST["Accion"]) ){
                     if($TotalesActa["DescuentoBDUA"]==""){
                         $TotalesActa["DescuentoBDUA"]=0;
                     }
+                    
+                    
+                    
+                    if($TipoActa==3 or $TipoActa==6 or $TipoActa==15 or $TipoActa==16  or $TipoActa==17 or $TipoActa==18 or $TipoActa==19 ){
+                        foreach ($TotalesActa as $key => $value) {
+                            $TotalesActa[$key]=0;
+                            $SaldoTotal=0;
+                        }
+                    }
                     $SaldoTotal=$TotalesActa["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"];
+                    
+                    if($TipoActa==13 or $TipoActa==14 or $TipoActa==15){
+                        
+                        $SaldoTotal=$TotalFacturado-$TotalDevolucion-$TotalesActa["Impuestos"]-$TotalesActa["GlosaFavor"]-$TotalesActa["Copagos"]-$TotalesActa["OtrosDescuentos"]-$TotalesActa["AjustesCartera"]-$TotalesActa["TotalPagos"]-$TotalesActa["TotalAnticipos"]+$TotalesActa["DescuentoBDUA"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"];
+                    }
+                    
                     $sql="UPDATE actas_liquidaciones 
                             SET ValorFacturado=".$TotalFacturado.", 
                                 
@@ -650,7 +684,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->FilaTabla(16);
                         $css->ColTabla("<strong>TOTALES ACTA DE LIQUIDACIÓN:</strong>", 6,'C');
                     $css->CierraFilaTabla();
-                    if($TipoActa==1 OR $TipoActa==2 OR $TipoActa==7 OR $TipoActa==9 OR $TipoActa==11 OR $TipoActa==12){
+                    if($TipoActa==1 OR $TipoActa==2 OR $TipoActa==3 OR $TipoActa==7 OR $TipoActa==9 OR $TipoActa==11 OR $TipoActa==12  OR $TipoActa==16  OR $TipoActa==17){
                         $css->FilaTabla(16);
                             $css->ColTabla("<strong>VALOR FACTURADO</strong>", 1);
                             $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);
@@ -695,9 +729,15 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CierraFilaTabla();
                     }
                     
-                    if($TipoActa==4){
+                    if($TipoActa==4 or $TipoActa==5 or $TipoActa==6  or $TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==16 or $TipoActa==17 or $TipoActa==18 or $TipoActa==19 ){
+                        $TituloValorFacturado="VALOR FACTURADO";
+                        $ValorFacturado=$DatosActa["ValorFacturado"];
+                        if($TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==16 or $TipoActa==17 or $TipoActa==18 or $TipoActa==19){
+                            $TituloValorFacturado="VALOR A PAGAR SEGÚN ACTA DE EJECUCION DE METAS";
+                            $ValorFacturado=$DatosActa["ValorSegunActaCumplimientoMetas"];
+                        }
                         $css->FilaTabla(16);
-                            $css->ColTabla("<strong>VALOR FACTURADO</strong>", 1);
+                            $css->ColTabla("<strong>$TituloValorFacturado</strong>", 1);
                             $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);
                             $css->ColTabla("<strong>Descuento o Reconocimiento por BDUA</strong>", 1);
                             $css->ColTabla("<strong>DESCUENTOS A FAVOR DE ASMET</strong>", 1);
@@ -706,7 +746,14 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CierraFilaTabla();
 
                         $css->FilaTabla(16);
-                            $css->ColTabla(number_format($DatosActa["ValorFacturado"]), 1);
+                            if($TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==18){
+                                print("<td>");
+                                    $css->input("text", "TxtValorActaMetas", "form-control", "TxtValorActaMetas", "Valor según acta de cumplimiento de metas", $DatosActa["ValorSegunActaCumplimientoMetas"], "Valor según acta de cumplimiento de metas", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtValorActaMetas`,`ValorSegunActaCumplimientoMetas`)");
+                                print("</td>");
+                            }else{
+                                $css->ColTabla(number_format($ValorFacturado), 1);
+                            }
+                            
                             $css->ColTabla(number_format($DatosActa["RetencionImpuestos"]), 1);
                             $css->ColTabla(number_format($DatosActa["DescuentoBDUA"]), 1);
                             $css->ColTabla(number_format($DatosActa["GlosaFavor"]), 1);

@@ -1092,7 +1092,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $TotalesDiferencias["TxtACPendientesAuditoria"]=$obCon->normalizar($_REQUEST["TxtACPendientesAuditoria"]);
             
             foreach ($TotalesDiferencias as $key => $value) {
-                if(!is_numeric($TotalesDiferencias[$key]) or $TotalesDiferencias[$key]<0){
+                if(!is_numeric($TotalesDiferencias[$key])){
                     exit("E1;El campo $key debe ser un número igual o mayor a Cero;$key");
                 }
             }
@@ -1308,6 +1308,7 @@ if( !empty($_REQUEST["Accion"]) ){
             }
             $obCon->CrearVistaCarteraCruce($db);
             $obCon->CrearVistaCarteraCruceCompleta($db);
+            $obCon->CrearVistaCruceCarteraEps($db);
             $HojaDeTrabajo=$db.".hoja_de_trabajo";
             //$obCon->VaciarTabla($HojaDeTrabajo);           
             $VistaACopiar=$db.".vista_cruce_cartera_asmet";

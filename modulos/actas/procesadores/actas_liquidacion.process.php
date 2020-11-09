@@ -73,7 +73,11 @@ if( !empty($_REQUEST["Accion"]) ){
             if($NuevoValor==''){
                 exit("E1;la caja de texto no puede estar vacía;$idCampoTexto");
                 
-            }                        
+            }
+            if(!is_numeric($NuevoValor) and ($CampoAEditar=='ValorSegunActaCumplimientoMetas' or $CampoAEditar=='OtrosDescuentosConciliadosAfavor' or $CampoAEditar=='PagosPendientesPorLegalizar') ){
+                
+                exit("E1;Este campo debe ser un valor numerico;$idCampoTexto");
+            }
             $obCon->ActualizaRegistro("actas_liquidaciones", $CampoAEditar, $NuevoValor, "ID", $idActaLiquidacion, 0);
             
             if($CampoAEditar=='IPS_Nombres_Representante_Legal'){

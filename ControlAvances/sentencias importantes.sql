@@ -33,3 +33,9 @@ INNER JOIN notas_db_cr_2 t2
 WHERE t1.ID > t2.ID AND t1.TipoOperacion = t2.TipoOperacion AND t1.NumeroTransaccion=t2.NumeroTransaccion 
 AND t1.FechaTransaccion=t2.FechaTransaccion AND t1.NumeroFactura=t2.NumeroFactura AND t1.ValorTotal=t2.ValorTotal 
 AND t1.TipoOperacion2=t2.TipoOperacion2 AND t1.NumeroOrdenPago=t2.NumeroOrdenPago AND t1.NumeroAutorizacion=t2.NumeroAutorizacion;
+
+
+DELETE t1 FROM historial_carteracargada_eps t1
+INNER JOIN historial_carteracargada_eps t2 
+WHERE t1.ID > t2.ID AND t1.NumeroFactura= t2.NumeroFactura AND t1.NumeroRadicado= t2.NumeroRadicado; 
+

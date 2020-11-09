@@ -62,7 +62,7 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z++].$i,"TotalConciliaciones")
             ;
             
-        $sql="SELECT * FROM $db.hoja_de_trabajo";
+        $sql="SELECT * FROM $db.hoja_de_trabajo WHERE Estado=0 AND Diferencia<>0";
         $Consulta=$this->Query($sql);
         $i=1;
         while($DatosVista= $this->FetchAssoc($Consulta)){
@@ -247,44 +247,23 @@ class TS_Excel extends conexion{
         $z=0;
         $i++;
         $i++;
-        if($TipoActa==11 or $TipoActa==12){   //Si es un acta tipo pgp excluimos las columnas devoluciones y recuperacion de impuestos
-            $objPHPExcel->setActiveSheetIndex(0)
-                ->setCellValue($Campos[$z++].$i,"DPTO RADICACION")
-                ->setCellValue($Campos[$z++].$i,"RADICADO")
-                ->setCellValue($Campos[$z++].$i,"MES DE SERVICIOS")
-                ->setCellValue($Campos[$z++].$i,"FACTURA")
-                ->setCellValue($Campos[$z++].$i,"VALOR FACTURADO")
-                ->setCellValue($Campos[$z++].$i,"RETENCION IMPUESTOS")
-                
-                ->setCellValue($Campos[$z++].$i,"GLOSA")
-                ->setCellValue($Campos[$z++].$i,"GLOSA A FAVOR ASMET")
-                ->setCellValue($Campos[$z++].$i,"NOTA CREDITO / COPAGOS")
-                
-                ->setCellValue($Campos[$z++].$i,"OTROS DESCUENTOS")
-                ->setCellValue($Campos[$z++].$i,"VALOR PAGADO")
-                ->setCellValue($Campos[$z++].$i,"SALDO")
-
-                ;
-        }else{  //Si no es un acta Tipo PGP
-            $objPHPExcel->setActiveSheetIndex(0)
-                ->setCellValue($Campos[$z++].$i,"DPTO RADICACION")
-                ->setCellValue($Campos[$z++].$i,"RADICADO")
-                ->setCellValue($Campos[$z++].$i,"MES DE SERVICIOS")
-                ->setCellValue($Campos[$z++].$i,"FACTURA")
-                ->setCellValue($Campos[$z++].$i,"VALOR FACTURADO")
-                ->setCellValue($Campos[$z++].$i,"RETENCION IMPUESTOS")
-                ->setCellValue($Campos[$z++].$i,"DEVOLUCION")
-                ->setCellValue($Campos[$z++].$i,"GLOSA")
-                ->setCellValue($Campos[$z++].$i,"GLOSA A FAVOR ASMET")
-                ->setCellValue($Campos[$z++].$i,"NOTA CREDITO / COPAGOS")
-                ->setCellValue($Campos[$z++].$i,"RECUPERACION EN IMPUESTOS")
-                ->setCellValue($Campos[$z++].$i,"OTROS DESCUENTOS")
-                ->setCellValue($Campos[$z++].$i,"VALOR PAGADO")
-                ->setCellValue($Campos[$z++].$i,"SALDO")
-
-                ;
-        }
-        
+        $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue($Campos[$z++].$i,"DPTO RADICACION")
+            ->setCellValue($Campos[$z++].$i,"RADICADO")
+            ->setCellValue($Campos[$z++].$i,"MES DE SERVICIOS")
+            ->setCellValue($Campos[$z++].$i,"FACTURA")
+            ->setCellValue($Campos[$z++].$i,"VALOR FACTURADO")
+            ->setCellValue($Campos[$z++].$i,"RETENCION IMPUESTOS")
+            ->setCellValue($Campos[$z++].$i,"DEVOLUCION")
+            ->setCellValue($Campos[$z++].$i,"GLOSA")
+            ->setCellValue($Campos[$z++].$i,"GLOSA A FAVOR ASMET")
+            ->setCellValue($Campos[$z++].$i,"NOTA CREDITO / COPAGOS")
+            ->setCellValue($Campos[$z++].$i,"RECUPERACION EN IMPUESTOS")
+            ->setCellValue($Campos[$z++].$i,"OTROS DESCUENTOS")
+            ->setCellValue($Campos[$z++].$i,"VALOR PAGADO")
+            ->setCellValue($Campos[$z++].$i,"SALDO")
+            
+            ;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->getAlignment()->setWrapText(true);
         $z=0;
@@ -440,296 +419,57 @@ class TS_Excel extends conexion{
                 $z=0;
                 $i++;
 
-                $Totales["ValorDocumento"]=$Totales["ValorDocumento"]+$DatosVista["ValorDocumento"];
-
-                $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
-                $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
-                $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
-                $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"]; 
-                $Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
-                $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"];
-                $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
-                $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
-
-                if($TipoActa==11 or $TipoActa==12){
-                    $objPHPExcel->setActiveSheetIndex(0)
-
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["DepartamentoRadicacion"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroRadicado"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["MesServicio"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroFactura"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["ValorDocumento"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])
-                        
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["TotalNotasCopagos"])
-                        
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["Saldo"])
-
-                        ;
-                    
-                }else{
+            $Totales["ValorDocumento"]=$Totales["ValorDocumento"]+$DatosVista["ValorDocumento"];
             
-                    $objPHPExcel->setActiveSheetIndex(0)
+            $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
+            $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
+            $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
+            $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"]; 
+            $Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
+            $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"];
+            $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
+            $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
 
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["DepartamentoRadicacion"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroRadicado"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["MesServicio"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroFactura"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["ValorDocumento"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["TotalDevoluciones"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["TotalNotasCopagos"])
-                        ->setCellValue($Campos[$z++].$i,0)
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"])
-                        ->setCellValue($Campos[$z++].$i,$DatosVista["Saldo"])
+            $objPHPExcel->setActiveSheetIndex(0)
 
-                        ;
-                }
+                ->setCellValue($Campos[$z++].$i,$DatosVista["DepartamentoRadicacion"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroRadicado"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["MesServicio"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["NumeroFactura"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["ValorDocumento"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalDevoluciones"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalNotasCopagos"])
+                ->setCellValue($Campos[$z++].$i,0)
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"])
+                ->setCellValue($Campos[$z++].$i,$DatosVista["Saldo"])
+
+                ;
             }
         }    
-        if($TipoActa==11 or $TipoActa==12){
-            $i++;
-            $z=0;
-            $objPHPExcel->setActiveSheetIndex(0)
-
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"TOTAL")
-                ->setCellValue($Campos[$z++].$i,$Totales["ValorDocumento"])
-                ->setCellValue($Campos[$z++].$i,$Totales["Impuestos"])
-                
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalGlosaInicial"])
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalGlosaFavor"])
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalNotasCopagos"])
-                
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalOtrosDescuentos"])
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalPagos"])
-                ->setCellValue($Campos[$z++].$i,$Totales["Saldo"])
-
-                ; 
-            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-        }else{
-            $i++;
-            $z=0;
-            $objPHPExcel->setActiveSheetIndex(0)
-
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"TOTAL")
-                ->setCellValue($Campos[$z++].$i,$Totales["ValorDocumento"])
-                ->setCellValue($Campos[$z++].$i,$Totales["Impuestos"])
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalDevoluciones"])
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalGlosaInicial"])
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalGlosaFavor"])
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalNotasCopagos"])
-                ->setCellValue($Campos[$z++].$i,0)
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalOtrosDescuentos"])
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalPagos"])
-                ->setCellValue($Campos[$z++].$i,$Totales["Saldo"])
-
-                ; 
-            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-        }
         $i++;
         $z=0;
-        
-        if($TipoActa==11){
-            $i++;
-            $z=0;
-            $objPHPExcel->setActiveSheetIndex(0)
-
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"VALOR CUMPLIMIENTO DE INDICADORES S/N ACTA")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                
-
-                ; 
+        $objPHPExcel->setActiveSheetIndex(0)
             
-            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-            
-            $i++;            
-            $z=0;
-            
-            $objPHPExcel->setActiveSheetIndex(0)
-
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"RETENCION DE IMPUESTOS")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,$Totales["Impuestos"])
-                
-
-                ; 
-            
-            
-            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-            
-            
-            $i++;            
-            $z=0;
-            
-            $objPHPExcel->setActiveSheetIndex(0)
-
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"DESCUENTO POR INCUMPLIMIENTO")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                
-
-                ; 
-            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-            
-            $i++;            
-            $z=0;
-            
-            $objPHPExcel->setActiveSheetIndex(0)
-
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"COPAGOS Y NOTAS CREDITO")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalNotasCopagos"])
-                
-
-                ; 
-            
-            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-            
-            $i++;            
-            $z=0;
-            
-            $objPHPExcel->setActiveSheetIndex(0)
-
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"DESCUENTOS A FAVOR DE ASMET")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalGlosaFavor"])
-                
-
-                ; 
-            
-            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-            
-            $i++;            
-            $z=0;
-            
-            $objPHPExcel->setActiveSheetIndex(0)
-
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"OTROS DESCUENTOS")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalOtrosDescuentos"])
-                
-
-                ; 
-            
-            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-            
-            $i++;            
-            $z=0;
-            
-            $objPHPExcel->setActiveSheetIndex(0)
-
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"VALOR PAGADO")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalPagos"])
-                
-
-                ; 
-            
-            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-            
-            $i++;            
-            $z=0;
-            
-            $objPHPExcel->setActiveSheetIndex(0)
-
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"SALDO ACTA DE LIQUIDACIÓN")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,$Totales["Saldo"])
-                
-
-                ; 
-            
-            $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
-            
-            
-        }
-        
+            ->setCellValue($Campos[$z++].$i,"")
+            ->setCellValue($Campos[$z++].$i,"")
+            ->setCellValue($Campos[$z++].$i,"")
+            ->setCellValue($Campos[$z++].$i,"TOTAL")
+            ->setCellValue($Campos[$z++].$i,$Totales["ValorDocumento"])
+            ->setCellValue($Campos[$z++].$i,$Totales["Impuestos"])
+            ->setCellValue($Campos[$z++].$i,$Totales["TotalDevoluciones"])
+            ->setCellValue($Campos[$z++].$i,$Totales["TotalGlosaInicial"])
+            ->setCellValue($Campos[$z++].$i,$Totales["TotalGlosaFavor"])
+            ->setCellValue($Campos[$z++].$i,$Totales["TotalNotasCopagos"])
+            ->setCellValue($Campos[$z++].$i,0)
+            ->setCellValue($Campos[$z++].$i,$Totales["TotalOtrosDescuentos"])
+            ->setCellValue($Campos[$z++].$i,$Totales["TotalPagos"])
+            ->setCellValue($Campos[$z++].$i,$Totales["Saldo"])
+                        
+            ; 
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
          
         if($DatosActa["PagosPendientesPorLegalizar"]<>0){
@@ -1373,12 +1113,6 @@ class TS_Excel extends conexion{
         $z=0;
         $i++;
         $i++;
-        $TituloSaldo="SALDO";
-        $TituloTotalPagar="VR A PAGAR IPS SEGÚN LMA";
-        if($TipoActa==13 or $TipoActa==14 or $TipoActa==15){
-            $TituloSaldo="SALDO INICIAL";
-            $TituloTotalPagar="VALOR A PAGAR SEGÚN ACTA DE EJECUCION DE METAS";
-        }
         $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue($Campos[$z++].$i,"DEPARTAMENTO")
             ->setCellValue($Campos[$z++].$i,"MUNICIPIO")
@@ -1393,12 +1127,12 @@ class TS_Excel extends conexion{
             ->setCellValue($Campos[$z++].$i,"DESCUENTO INICIAL")
             ->setCellValue($Campos[$z++].$i,"DESCUENTOS CONCILIADO A FAVOR ASMET")
             ->setCellValue($Campos[$z++].$i,"VALOR PAGADO")
-            ->setCellValue($Campos[$z++].$i,$TituloSaldo)
+            ->setCellValue($Campos[$z++].$i,"SALDO")
             
             ;
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->applyFromArray($styleTitle);
         $objPHPExcel->getActiveSheet()->getStyle("A$i:N$i")->getAlignment()->setWrapText(true); 
-        if($TipoActa==6 or $TipoActa==15){
+        if($TipoActa==6){
             $z=0;
         $i++;
         
@@ -1421,7 +1155,7 @@ class TS_Excel extends conexion{
             ;
         }
         
-        if($TipoConsulta==1 AND $TipoActa<>6 AND $TipoActa<>15){
+        if($TipoConsulta==1 AND $TipoActa<>6){
             $Tabla="actas_conciliaciones_items";
             $sql="SELECT MesServicio,NumeroContrato, DepartamentoRadicacion,GROUP_CONCAT(NumeroRadicado) AS NumeroRadicado,CodigoSucursal AS CodigoDaneAnexo,
                     (SELECT Ciudad FROM municipios_dane WHERE CodigoDane=$Tabla.CodigoSucursal LIMIT 1) as Municipio,
@@ -1455,7 +1189,7 @@ class TS_Excel extends conexion{
                     GROUP BY  MesServicio,NumeroContrato,CodigoDaneAnexo ORDER BY MesServicio,CodigoDaneAnexo,NumeroFactura";
         } 
         //print($sql);
-        if($TipoActa<>6 AND $TipoActa<>15){
+        if($TipoActa<>6){
             $Consulta=$this->Query($sql);
         }
         $Totales["ValorDocumento"]=0;
@@ -1469,7 +1203,7 @@ class TS_Excel extends conexion{
         $Totales["Saldo"]=0;
         $Totales["ValorAPagarLMA"]=0;
         $Totales["DescuentoBDUA"]=0;
-        if($TipoActa<>6 AND $TipoActa<>15){
+        if($TipoActa<>6){
             while($DatosVista= $this->FetchAssoc($Consulta)){
                 $z=0;
                 $i++;
@@ -1478,7 +1212,7 @@ class TS_Excel extends conexion{
             $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
             $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
             $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
-            $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]+$DatosVista["DescuentoPGP"]; 
+            $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]; 
             //$Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
             $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
             $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
@@ -1499,7 +1233,7 @@ class TS_Excel extends conexion{
                 ->setCellValue($Campos[$z++].$i,$DatosVista["Impuestos"])    
                 ->setCellValue($Campos[$z++].$i,$DatosVista["DescuentoBDUA"])
                 ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaInicial"])
-                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"]+$DatosVista["DescuentoPGP"])            
+                ->setCellValue($Campos[$z++].$i,$DatosVista["TotalGlosaFavor"])            
                 ->setCellValue($Campos[$z++].$i,$DatosVista["TotalPagos"]+$DatosVista["TotalOtrosDescuentos"])
                 ->setCellValue($Campos[$z++].$i,$DatosVista["Saldo"])
 
@@ -1535,7 +1269,7 @@ class TS_Excel extends conexion{
         $z=0;
         $objPHPExcel->setActiveSheetIndex(0)
             
-            ->setCellValue($Campos[11].$i,$TituloTotalPagar)
+            ->setCellValue($Campos[11].$i,"VR A PAGAR IPS SEGÚN LMA")
             ->setCellValue($Campos[13].$i++,$Totales["ValorAPagarLMA"])
             ->setCellValue($Campos[11].$i,"VALOR RETENCION DE IMPUESTOS")
             ->setCellValue($Campos[13].$i++,$Totales["Impuestos"])
