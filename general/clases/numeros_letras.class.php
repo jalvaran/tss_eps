@@ -12,7 +12,7 @@ class numeros_letras{
     function basico($numero){
         $valor = array ('un','dos','tres','cuatro','cinco','seis','siete','ocho',
             'nueve','diez', 'once','doce','trece','catorce','quince','dieciseis','diecisiete',
-            'dieciocho','diecinueve','veinte','veintiun','veintidos', 'veintitres',
+            'dieciocho','diecinueve','veinte','veintiuno','veintidos', 'veintitres',
             'veinticuatro','veinticinco','veintiseis','veintisiete','veintiocho','veintinueve');
 
             return $valor[$numero - 1];

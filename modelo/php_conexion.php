@@ -26,16 +26,20 @@ class conexion extends db_conexion{
      * @return boolean
      */
     public function VerificaPermisos($VectorPermisos) {
-    if($this->TipoUser<>"administrador"){
-        $Page=$VectorPermisos["Page"];        
-        $Consulta=  $this->ConsultarTabla("paginas_bloques", " WHERE Pagina='$Page' AND TipoUsuario='$this->TipoUser' AND Habilitado='SI'");
-        $PaginasUser=  $this->FetchArray($Consulta);
-        if($PaginasUser["Pagina"]==$Page){
-            return true;
+        if($this->TipoUser<>"administrador"){
+            $Page=$VectorPermisos["Page"];        
+            $Consulta=  $this->ConsultarTabla("paginas_bloques", " WHERE Pagina='$Page' AND TipoUsuario='$this->TipoUser' AND Habilitado='SI'");
+            $PaginasUser=  $this->FetchArray($Consulta);
+            if($PaginasUser["Pagina"]==$Page){
+                return true;
+            }
+            return false;
         }
-        return false;
+        return true;
     }
-    return true;
-}
+    
+    public function getUniqId($prefijo='') {
+         return (str_replace(".","",uniqid($prefijo, true)));
+     }
 
 }

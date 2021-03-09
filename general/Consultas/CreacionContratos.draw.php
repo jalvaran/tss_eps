@@ -1,6 +1,6 @@
 <?php
 
-session_start();
+@session_start();
 if (!isset($_SESSION['username'])){
   exit("<a href='../../index.php' ><img src='../images/401.png'>Iniciar Sesion </a>");
   
@@ -315,7 +315,82 @@ if( !empty($_REQUEST["Accion"]) ){
                 
             $css->CerrarTabla();
             
-        break;    
+        break;//fin caso 5
+    
+        case 6:// Dibuja la interfaz para adjuntar un archivo a un contrato
+            $contrato_id=$obCon->normalizar($_REQUEST["contrato_id"]);                
+            $DatosContratos=$obCon->DevuelveValores("contratos", "ID", $contrato_id);
+            
+            $css->input("hidden", "idFormulario", "", "idFormulario", "", '111', "", "", "", "");
+           
+            $Mensaje="Adjuntos para el contrato: ".$DatosContratos["Contrato"];
+            $css->CrearTitulo("<strong>".$Mensaje."</strong>");
+            
+            $css->CrearDiv("", "row", "center", 1, 1);
+                $css->CrearDiv("", "col-md-6", "center", 1, 1);
+                $css->CrearTitulo("<strong>Subir adjuntos al contrato</strong>", "verde");
+                print('<div class="panel">
+                            
+                            <div class="panel-body">
+                                <form data-contrato_id="'.$contrato_id.'" action="/" class="dropzone dz-clickable" id="contrato_adjuntos"><div class="dz-default dz-message"><span><i class="icon-plus"></i>Arrastre archivos aquí o de click para subir.<br> Suba cualquier tipo de archivos.</span></div></form>
+                            </div>
+                        </div>
+                    ');
+                $css->Cdiv();
+                $css->CrearDiv("div_adjuntos_contrato", "col-md-6", "center", 1, 1);
+                    
+                $css->CerrarDiv();
+                
+            $css->Cdiv();
+            
+        break;  //Fin caso 6
+    
+        case 7: //Dibuja los adjuntos en un proyecto
+            
+            $contrato_id=$obCon->normalizar($_REQUEST["contrato_id"]);                
+            $DatosContratos=$obCon->DevuelveValores("contratos", "ID", $contrato_id);
+            
+            $css->CrearTitulo("Adjuntos de este contrato");
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                
+                    $css->ColTabla("ID", 1);
+                    $css->ColTabla("Nombre de Archivo", 1);
+                    
+                    $css->ColTabla("Eliminar", 1);
+                    
+                $css->CierraFilaTabla();
+                
+                $sql="SELECT t1.*
+                        FROM contratos_adjuntos t1 
+                        WHERE contrato_id='$contrato_id' 
+                            ";
+                $Consulta=$obCon->Query($sql);
+                while($DatosConsulta=$obCon->FetchAssoc($Consulta)){
+                    $idItem=$DatosConsulta["ID"];
+                    $Nombre=$DatosConsulta["NombreArchivo"];
+                    $css->FilaTabla(14);
+                
+                        $css->ColTabla($idItem, 1);
+                       
+                        print('<td style="text-align:center;color:blue;font-size:18px;">');
+                            $Ruta= "../../".str_replace("../", "", $DatosConsulta["Ruta"]);
+                            print('<a href="'.$Ruta.'" target="blank">'.$Nombre.' <li class="fa fa-paperclip"></li></a>');
+                        print('</td>');
+                        
+                        print("<td style='font-size:16px;text-align:center;color:red' title='Borrar'>");   
+                            
+                            $css->li("", "fa  fa-remove", "", "onclick=EliminarItemContrato(`1`,`$idItem`,`$contrato_id`) style=font-size:16px;cursor:pointer;text-align:center;color:red");
+                            $css->Cli();
+                        print("</td>");
+                          
+                    $css->CierraFilaTabla();
+                }
+            $css->CerrarTabla();
+            
+            
+        break; //Fin caso 7
     }
     
           

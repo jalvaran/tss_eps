@@ -99,6 +99,54 @@ function GenerarInformeTicketsPDF(){
 }
 
 
+
+function GenerarInformeGestionExcel(){
+    document.getElementById("DivProcess").innerHTML='<div id="GifProcess">Procesando...<br><img   src="../../images/loader.gif" alt="Cargando" height="100" width="100"></div>';
+    
+    var FechaInicial=document.getElementById('FechaInicial').value;
+    var FechaFinal=document.getElementById('FechaFinal').value;  
+    var CmbEstado=document.getElementById('CmbEstado').value; 
+    var CmbProyectosTicketsListado=document.getElementById('CmbProyectosTicketsListado').value; 
+    var CmbModulosTicketsListado=document.getElementById('CmbModulosTicketsListado').value; 
+    var CmbTiposTicketsListado=document.getElementById('CmbTiposTicketsListado').value;
+    var usuario_id=document.getElementById('usuario_id').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 2);
+        
+        form_data.append('FechaInicial', FechaInicial);
+        form_data.append('FechaFinal', FechaFinal);
+        form_data.append('CmbEstado', CmbEstado);
+        
+        form_data.append('CmbProyectosTicketsListado', CmbProyectosTicketsListado);
+        form_data.append('CmbModulosTicketsListado', CmbModulosTicketsListado);
+        form_data.append('CmbTiposTicketsListado', CmbTiposTicketsListado);
+        form_data.append('usuario_id', usuario_id);
+        
+        $.ajax({
+        url: './Consultas/adminTickets.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivProcess').innerHTML=data;
+           document.getElementById("LinkExcel").click();
+           
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            LimpiarDivs();
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+
 function CrearTicket(){
     document.getElementById('BtnGuardarTicket').disabled=true;
     document.getElementById('BtnGuardarTicket').value="Guardando...";

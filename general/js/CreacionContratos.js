@@ -351,3 +351,157 @@ function CrearContratoPercapita(){
           }
       });
 }
+
+
+function adjuntos_contrato(contrato_id){
+        
+    AbreModal('ModalAcciones');
+    
+    var CmbEPS=document.getElementById('CmbEPS').value;
+    var CmbIPS=document.getElementById('CmbIPS').value;
+    
+    var form_data = new FormData();
+        form_data.append('Accion', 6);
+        form_data.append('CmbIPS', CmbIPS);   
+        form_data.append('CmbEPS', CmbEPS);        
+        form_data.append('contrato_id', contrato_id);
+        
+        $.ajax({
+        url: '../../general/Consultas/CreacionContratos.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivFrmModalAcciones').innerHTML=data;
+           add_events_dropzone_contrato();
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+
+
+function add_events_dropzone_contrato(){
+    Dropzone.autoDiscover = false;
+           
+    urlQuery='../../general/procesadores/CrearContratos.process.php';
+    var contrato_id=$("#contrato_adjuntos").data("contrato_id");
+    
+    var myDropzone = new Dropzone("#contrato_adjuntos", { url: urlQuery,paramName: "adjunto_contrato"});
+        myDropzone.on("sending", function(file, xhr, formData) { 
+
+            formData.append("Accion", 4);
+            formData.append("contrato_id", contrato_id);
+            
+            
+        });
+
+        myDropzone.on("addedfile", function(file) {
+            file.previewElement.addEventListener("click", function() {
+                myDropzone.removeFile(file);
+            });
+        });
+
+        myDropzone.on("success", function(file, data) {
+
+            var respuestas = data.split(';');
+            if(respuestas[0]=="OK"){
+                alertify.success(respuestas[1]);
+                listar_adjuntos_contrato(contrato_id);
+            }else if(respuestas[0]=="E1"){
+                alertify.error(respuestas[1]);
+            }else{
+                alert(data);
+            }
+
+        });
+    listar_adjuntos_contrato(contrato_id);
+}
+
+
+ 
+ function listar_adjuntos_contrato(contrato_id=''){
+    var idDiv="div_adjuntos_contrato";
+     
+    var form_data = new FormData();
+        form_data.append('Accion', 7);// pasamos la accion y el numero de accion para el dibujante sepa que caso tomar
+        
+        
+        form_data.append('contrato_id', contrato_id);
+                        
+       $.ajax({// se arma un objecto por medio de ajax  
+        url: '../../general/Consultas/CreacionContratos.draw.php',
+        
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post', // se especifica que metodo de envio se utilizara normalmente y por seguridad se utiliza el post
+        success: function(data){            
+            document.getElementById(idDiv).innerHTML=data; //La respuesta del servidor la dibujo en el div DivTablasBaseDatos                      
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {// si hay error se ejecuta la funcion
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+
+function EliminarItemContrato(tabla_id,item_id,contrato_id){    
+    
+    
+         
+    var form_data = new FormData();
+        
+        form_data.append('Accion', 5);
+        
+        form_data.append('item_id', item_id);  
+        form_data.append('tabla_id', tabla_id);
+                        
+        $.ajax({
+        url: '../../general/procesadores/CrearContratos.process.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            var respuestas = data.split(';');
+            if(respuestas[0]=="OK"){
+                alertify.success(respuestas[1]);
+                if(tabla_id==1){
+                    listar_adjuntos_contrato(contrato_id);
+                }
+                
+                
+            }else if(respuestas[0]=="E1"){
+                alertify.alert(respuestas[1]);
+                
+                MarqueErrorElemento(respuestas[2]);
+                
+            }else{
+                alertify.alert(data);
+            }
+               
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      })  
+}  

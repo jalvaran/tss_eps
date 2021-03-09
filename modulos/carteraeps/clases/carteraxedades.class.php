@@ -85,7 +85,7 @@ class CarteraXEdades extends conexion{
             $filas = $objPHPExcel->setActiveSheetIndex($h)->getHighestRow();
           
             if($columnas<>'O'){
-                exit('E1;<h3>No se recibió el archivo de <strong>La Cartera por Edades de la EPS ASMET Mutual, Ultima Columna: $columnas</strong></h3>');
+                exit('E1;<h3>No se recibió el archivo de <strong>La Cartera por Edades de la EPS ASMET Mutual, Ultima Columna: '.$columnas.'</strong></h3>');
             }
             $sql= "INSERT INTO $db.`temporal_carteraxedades` ( ";
             foreach ($ColumnasTabla["Field"] as $key => $value) {

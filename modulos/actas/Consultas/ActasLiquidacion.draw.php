@@ -205,11 +205,13 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->CrearTitulo("Seleccione un acta de liquidación");
                 exit();
             }
-            
+            /* Se puso en validaciones.daw
             $sql="DELETE t1 FROM $db.historial_carteracargada_eps t1
                     INNER JOIN $db.historial_carteracargada_eps t2 
-                    WHERE t1.ID < t2.ID AND t1.NumeroFactura= t2.NumeroFactura AND t1.NumeroRadicado= t2.NumeroRadicado; ";
+                    WHERE t1.ID < t2.ID AND t1.NumeroFactura= t2.NumeroFactura AND t1.NumeroRadicado= t2.NumeroRadicado AND t1.NumeroOperacion= t2.NumeroOperacion; ";
             $obCon->Query($sql);
+             * 
+             */
             $Titulo="Ajustes";
             $Nombre="ImgShowMenu";
             $RutaImage="../../images/actualizar.gif";
@@ -624,10 +626,12 @@ if( !empty($_REQUEST["Accion"]) ){
                         }
                     }
                     $SaldoTotal=$TotalesActa["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"];
-                    
+                    $DescuentoBDUACuadro= number_format($TotalesActa["DescuentoBDUA"]);
                     if($TipoActa==13 or $TipoActa==14 or $TipoActa==15){
                         
-                        $SaldoTotal=$TotalFacturado-$TotalDevolucion-$TotalesActa["Impuestos"]-$TotalesActa["GlosaFavor"]-$TotalesActa["Copagos"]-$TotalesActa["OtrosDescuentos"]-$TotalesActa["AjustesCartera"]-$TotalesActa["TotalPagos"]-$TotalesActa["TotalAnticipos"]+$TotalesActa["DescuentoBDUA"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"];
+                        $SaldoTotal=$TotalFacturado-$TotalDevolucion-$TotalesActa["Impuestos"]-$TotalesActa["GlosaFavor"]-$TotalesActa["Copagos"]-$TotalesActa["OtrosDescuentos"]-$TotalesActa["AjustesCartera"]-$TotalesActa["TotalPagos"]-$TotalesActa["TotalAnticipos"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"];
+                        $DescuentoBDUACuadro="N/A";
+                        
                     }
                     
                     $sql="UPDATE actas_liquidaciones 
@@ -755,7 +759,7 @@ if( !empty($_REQUEST["Accion"]) ){
                             }
                             
                             $css->ColTabla(number_format($DatosActa["RetencionImpuestos"]), 1);
-                            $css->ColTabla(number_format($DatosActa["DescuentoBDUA"]), 1);
+                            $css->ColTabla($DescuentoBDUACuadro, 1);
                             $css->ColTabla(number_format($DatosActa["GlosaFavor"]), 1);
                             print("<td>");
                                 $css->input("text", "TxtOtrosDescuentosAFavorAsmet", "form-control", "TxtOtrosDescuentosAFavorAsmet", "Otros Descuentos A Favor", $DatosActa["OtrosDescuentosConciliadosAfavor"], "Otros Descuentos A Favor", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtOtrosDescuentosAFavorAsmet`,`OtrosDescuentosConciliadosAfavor`)");

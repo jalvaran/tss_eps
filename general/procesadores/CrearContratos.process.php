@@ -161,6 +161,70 @@ if( !empty($_REQUEST["Accion"]) ){
             print("OK;Percapita Creada");
         break;//fin caso 3
         
+        case 4://Recibir un adjunto para un contrato
+            
+            $contrato_id=$obCon->normalizar($_REQUEST["contrato_id"]);
+            $datos_contrato=$obCon->DevuelveValores("contratos", "ID", $contrato_id);
+            $Extension="";
+            if(!empty($_FILES['adjunto_contrato']['name'])){
+                
+                $info = new SplFileInfo($_FILES['adjunto_contrato']['name']);
+                $Extension=($info->getExtension()); 
+                
+                $Tamano=filesize($_FILES['adjunto_contrato']['tmp_name']);
+                $DatosConfiguracion=$obCon->DevuelveValores("configuracion_general", "ID", 38);
+                
+                $carpeta="../../".$DatosConfiguracion["Valor"];
+                if (!file_exists($carpeta)) {
+                    mkdir($carpeta, 0777);
+                }
+                
+                $carpeta.=$datos_contrato["NitIPSContratada"]."/";
+                if (!file_exists($carpeta)) {
+                    mkdir($carpeta, 0777);
+                }
+                $carpeta.="contratos/";
+                if (!file_exists($carpeta)) {
+                    mkdir($carpeta, 0777);
+                }
+                $carpeta.=$contrato_id."/";
+                if (!file_exists($carpeta)) {
+                    mkdir($carpeta, 0777);
+                }
+                
+                opendir($carpeta);
+                $idAdjunto=$obCon->getUniqId("ct_");
+                $destino=$carpeta.$idAdjunto.".".$Extension;
+                
+                move_uploaded_file($_FILES['adjunto_contrato']['tmp_name'],$destino);
+                $obCon->RegistreAdjuntoContrato($contrato_id, $destino, $Tamano, $_FILES['adjunto_contrato']['name'], $Extension, $idUser);
+            }else{
+                exit("E1;No se recibió el archivo");
+            }
+            print("OK;Archivo adjuntado");
+           
+        break;//Fin caso 4
+        
+        case 5://eliminar un registro
+            
+            $tabla_id=$obCon->normalizar($_REQUEST["tabla_id"]);
+            $item_id=$obCon->normalizar($_REQUEST["item_id"]);
+            if($tabla_id==''){
+                exit("E1;No se envio tabla");
+            }
+            
+            if($tabla_id==1){
+                $tabla="contratos_adjuntos";
+                $DatosAdjunto=$obCon->DevuelveValores("contratos_adjuntos", "ID", $item_id);
+                if(file_exists($DatosAdjunto["Ruta"])){
+                    unlink($DatosAdjunto["Ruta"]);
+                }
+            }
+            
+            $obCon->BorraReg($tabla, "ID", $item_id);
+            print("OK;Registro Eliminado");
+        break;//Fin caso 5
+        
                 
     }
     

@@ -247,7 +247,7 @@ class TS_Excel extends conexion{
         $z=0;
         $i++;
         $i++;
-        if($DatosActaTipo["tipo_anexo_pdf"]==3){   //Si es un acta tipo pgp excluimos las columnas devoluciones y recuperacion de impuestos
+        if($TipoActa==11 or $TipoActa==12){   //Si es un acta tipo pgp excluimos las columnas devoluciones y recuperacion de impuestos
             $objPHPExcel->setActiveSheetIndex(0)
                 ->setCellValue($Campos[$z++].$i,"DPTO RADICACION")
                 ->setCellValue($Campos[$z++].$i,"RADICADO")
@@ -451,7 +451,7 @@ class TS_Excel extends conexion{
                 $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
                 $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
 
-                if($DatosActaTipo["tipo_anexo_pdf"]==3){//Si es PGP
+                if($TipoActa==11 or $TipoActa==12){
                     $objPHPExcel->setActiveSheetIndex(0)
 
                         ->setCellValue($Campos[$z++].$i,$DatosVista["DepartamentoRadicacion"])
@@ -494,7 +494,7 @@ class TS_Excel extends conexion{
                 }
             }
         }    
-        if($DatosActaTipo["tipo_anexo_pdf"]==3){//Si es pgp
+        if($TipoActa==11 or $TipoActa==12){
             $i++;
             $z=0;
             $objPHPExcel->setActiveSheetIndex(0)
@@ -542,7 +542,7 @@ class TS_Excel extends conexion{
         $i++;
         $z=0;
         
-        if($DatosActaTipo["tipo_anexo_pdf"]==3){//Si es pgp
+        if($TipoActa==11 or $TipoActa==12){
             $i++;
             $z=0;
             $objPHPExcel->setActiveSheetIndex(0)
@@ -987,42 +987,35 @@ class TS_Excel extends conexion{
         
         if($TipoConsulta==1){
             $Tabla="actas_conciliaciones_items";
+            $Condicion=" WHERE ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) 
+                         AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t5 WHERE t5.idContrato=$Tabla.NumeroContrato AND t5.idActaLiquidacion='$idActaLiquidacion') 
+                         ";
+            $GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
             $TablaUnion="historial_carteracargada_eps";
             
-            $Condicion=" WHERE ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t5 WHERE t5.idContrato=$Tabla.NumeroContrato AND t5.idActaLiquidacion='$idActaLiquidacion') ";
-                //$GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
-                $GroupOrder=" GROUP BY NumeroRadicado ORDER BY MesServicio,NumeroRadicado ";
-                
-                
-                $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,NumeroContrato,SUM(ValorDocumento) AS ValorDocumento,
-                            SUM(Impuestos) AS Impuestos,SUM(TotalPagos) AS TotalPagos,SUM(TotalNotasCopagos) AS TotalNotasCopagos,
-                            SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(TotalOtrosDescuentos) AS TotalOtrosDescuentos,
-                            SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
-                            SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(Saldo) AS Saldo,SUM(GlosaXConciliar) AS GlosaXConciliar
-                            
-                            FROM (";
-                
-                $sql.="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
-                        NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos + TotalAnticipos) AS TotalPagos,
-                        (TotalCopagos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
-                        TotalDevoluciones,ValorSegunEPS as Saldo ,GlosaXConciliar                       
-                        FROM $db.$Tabla WHERE                    
-                        ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion')";
-                    
+            $Union3="     
+                     SELECT  t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,t1.NumeroContrato,
+                        SUM(t1.ValorOriginal) AS ValorDocumento,
+                        '0' AS Impuestos,'0' AS TotalPagos,'0' AS TotalNotasCopagos,
+                        '0' AS DescuentoPGP,'0' AS DescuentoBDUA,'0' AS TotalOtrosDescuentos,
+                        '0' AS TotalGlosaInicial,'0' AS TotalGlosaFavor,
+                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo,'0' as GlosaXConciliar 
 
-                $sql.="UNION ALL 
-                            SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,
-                            t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
-                            '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
-                            t1.ValorOriginal as TotalDevoluciones,'0' as Saldo,'0' as GlosaXConciliar                        
-                            FROM $db.$TablaUnion t1 WHERE NOT
-                            EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
-                             AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
-                            AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
-                            AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t4 WHERE t4.Estado=1 AND t1.TipoOperacion=t4.TipoOperacion AND Aplicacion='FACTURA') 
-                    
-                    ) t ";
-                $sql.=$GroupOrder;
+                        FROM $db.$TablaUnion t1 WHERE NOT
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado )
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                    AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t4 WHERE t4.Estado=1 AND t1.TipoOperacion=t4.TipoOperacion AND Aplicacion='FACTURA')                        
+                          ";
+                        
+            $sql=" UNION ALL SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,NumeroContrato,SUM(ValorDocumento) AS ValorDocumento,
+                        SUM(Impuestos) AS Impuestos,SUM(TotalPagos + TotalAnticipos) AS TotalPagos,SUM(TotalCopagos) AS TotalNotasCopagos,
+                        SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) AS TotalOtrosDescuentos,
+                        SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
+                        SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS Saldo,SUM(GlosaXConciliar) AS GlosaXConciliar 
+                        
+                        FROM $db.$Tabla $Condicion";
+            $sql=$Union3.$sql.$GroupOrder;
             
             //print($sql);
             
@@ -1032,36 +1025,33 @@ class TS_Excel extends conexion{
             $Tabla="actas_liquidaciones_radicados_items";
             $TablaUnion="historial_carteracargada_eps";
             $Condicion=" WHERE idActaLiquidacion='$idActaLiquidacion' ";
-            $GroupOrder=" GROUP BY NumeroRadicado ORDER BY MesServicio,NumeroRadicado ";
-            $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,NumeroContrato,SUM(ValorDocumento) AS ValorDocumento,
-                            SUM(Impuestos) AS Impuestos,SUM(TotalPagos) AS TotalPagos,SUM(TotalNotasCopagos) AS TotalNotasCopagos,
-                            SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(TotalOtrosDescuentos) AS TotalOtrosDescuentos,
-                            SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
-                            SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(Saldo) AS Saldo,SUM(GlosaXConciliar) AS GlosaXConciliar
-                            
-                            FROM (";
+            $GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
+            $sql=" UNION ALL
                 
-                $sql.="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
-                        NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos + TotalAnticipos) AS TotalPagos,
-                        (TotalCopagos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
-                        TotalDevoluciones,ValorSegunEPS as Saldo ,GlosaXConciliar                       
-                        FROM $db.$Tabla WHERE                    
-                        ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion')";
-                    
+            SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,SUM(ValorDocumento) AS ValorDocumento,
+                                SUM(Impuestos) AS Impuestos,SUM(TotalPagos + TotalAnticipos) AS TotalPagos,SUM(TotalCopagos) AS TotalNotasCopagos,
+                                SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(OtrosDescuentos+AjustesCartera) AS TotalOtrosDescuentos,
+                                SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
+                                SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(ValorSegunEPS) AS Saldo,sum(GlosaXConciliar) as GlosaXConciliar
+                                
+                                FROM $db.$Tabla $Condicion ";
+                      
+            $Union3="     
+                     SELECT  t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,t1.NumeroContrato,
+                        SUM(t1.ValorOriginal) AS ValorDocumento,
+                        '0' AS Impuestos,'0' AS TotalPagos,'0' AS TotalNotasCopagos,
+                        '0' AS DescuentoPGP,'0' AS DescuentoBDUA,'0' AS TotalOtrosDescuentos,
+                        '0' AS TotalGlosaInicial,'0' AS TotalGlosaFavor,
+                        SUM(t1.ValorOriginal) AS TotalDevoluciones,'0' AS Saldo,'0' AS GlosaXConciliar
 
-                $sql.="UNION ALL 
-                            SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,
-                            t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
-                            '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
-                            t1.ValorOriginal as TotalDevoluciones,'0' as Saldo,'0' as GlosaXConciliar                        
-                            FROM $db.$TablaUnion t1 WHERE NOT
-                            EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
-                             AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
-                            AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
-                            AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t4 WHERE t4.Estado=1 AND t1.TipoOperacion=t4.TipoOperacion AND Aplicacion='FACTURA') 
-                    
-                    ) t ";
-                $sql.=$GroupOrder;
+                        FROM $db.$TablaUnion t1 WHERE NOT
+                    EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado )
+                     AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
+                    AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
+                                           
+                          ";
+            
+            $sql=$Union3.$sql.$GroupOrder;
             
         }    
         //print($sql);

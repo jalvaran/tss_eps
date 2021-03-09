@@ -49,7 +49,7 @@ $css->PageInit($myTitulo);
         
     $css->CerrarDiv();
     
-    $css->CrearDiv("", "col-md-2", "center", 1, 1);
+    $css->CrearDiv("", "col-md-1", "center", 1, 1);
         $css->select("CmbEstado", "form-control", "CmbEstado", "Estado:", "", "", "");
             $css->option("", "", "", '', "", "");
                 print("Todos los Estados");
@@ -65,7 +65,7 @@ $css->PageInit($myTitulo);
         $css->Cselect();
     $css->CerrarDiv();
     
-    $css->CrearDiv("", "col-md-2", "center", 1, 1);
+    $css->CrearDiv("", "col-md-1", "center", 1, 1);
         $css->select("CmbProyectosTicketsListado", "form-control", "CmbProyectosTicketsListado", "Proyectos:", "", "onchange=CargarModulosProyectosEnSelect()", "");
             $css->option("", "", "", '', "", "");
                 print("Todos los proyectos");
@@ -114,10 +114,21 @@ $css->PageInit($myTitulo);
     $css->CerrarDiv();
     
     $css->CrearDiv("", "col-md-2", "center", 1, 1);
-        
-        print(" ");
-        
+        $css->select("usuario_id", "form-control", "usuario_id", "Usuario:", "", "", "");
+            $css->option("", "", "", '', "", "");
+                print("Todos los usuarios");
+            $css->Coption();
+
+            $Consulta=$obCon->ConsultarTabla("usuarios", " WHERE Habilitado='SI'");
+            while($DatosSelect=$obCon->FetchAssoc($Consulta)){
+                $css->option("", "", "", $DatosSelect["idUsuarios"], "", "");
+                    print(($DatosSelect["idUsuarios"]." ".$DatosSelect["Nombre"]." ".$DatosSelect["Apellido"]));
+                $css->Coption();
+            }
+
+        $css->Cselect();
     $css->CerrarDiv();
+    
     $css->CrearDiv("", "col-md-2", "center", 1, 1);
         
         print(" ");
@@ -125,7 +136,13 @@ $css->PageInit($myTitulo);
     $css->CerrarDiv();
     $css->CrearDiv("", "col-md-4", "center", 1, 1);
         
-        print("<br><strong>Generar Informe:</strong><br>");
+        print("<br><strong>Informe de Gestión:</strong><br>");
+        $css->CrearBotonEvento("BtnGenerar", "Generar", 1, "onclick", "GenerarInformeGestionExcel()", "azul", "");
+        
+    $css->CerrarDiv();
+    $css->CrearDiv("", "col-md-4", "center", 1, 1);
+        
+        print("<br><strong>Informe de Tickets:</strong><br>");
         $css->CrearBotonEvento("BtnGenerar", "Generar", 1, "onclick", "GenerarInformeTicketsPDF()", "verde", "");
     $css->CerrarDiv();
     

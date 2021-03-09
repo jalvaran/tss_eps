@@ -188,3 +188,9 @@ ALTER TABLE `actas_liquidaciones` ADD `Asmet` INT(6) NOT NULL AFTER `TipoActaLiq
 ALTER TABLE `actas_liquidaciones` ADD INDEX(`Asmet`);
 ALTER TABLE `actas_liquidaciones` ADD `FechaCompromisoPagoIPS` DATE NOT NULL AFTER `DocumentoReferencia`;
 ALTER TABLE `actas_liquidaciones` ADD `FormaPagoIPS` INT(6) NOT NULL AFTER `FechaCompromisoPagoIPS`;
+
+
+INSERT INTO `configuracion_tablas_acciones_adicionales` (`TablaDB`, `JavaScript`, `ClaseIcono`, `Titulo`, `Ruta`, `Target`, `Updated`, `Sync`)
+SELECT 'contratos', 'onclick=adjuntos_contrato', 'fa fa-paperclip', 'Adjuntos', '#', '_SELF', '2019-04-06 14:49:13', '2019-04-06 14:49:13'
+FROM `configuracion_tablas_acciones_adicionales`
+WHERE ((`ID` = '8'));

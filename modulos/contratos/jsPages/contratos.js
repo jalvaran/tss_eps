@@ -16,6 +16,9 @@ function SeleccioneAccionFormularios(){
     if(idFormulario==110){
         CrearContratoPercapita();
     }
+    if(idFormulario==111){
+        CierraModal('ModalAcciones');
+    }
 }
 
 MostrarHistorial();

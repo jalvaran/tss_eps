@@ -1,6 +1,6 @@
 <?php
 
-session_start();
+@session_start();
 if (!isset($_SESSION['username'])){
   exit("<a href='../../index.php' ><img src='../images/401.png'>Iniciar Sesion </a>");
   
@@ -319,6 +319,11 @@ if( !empty($_REQUEST["Accion"]) ){
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
             
+            $sql="DELETE t1 FROM $db.historial_carteracargada_eps t1
+                    INNER JOIN $db.historial_carteracargada_eps t2 
+                    WHERE t1.ID < t2.ID AND t1.NumeroFactura= t2.NumeroFactura AND t1.NumeroRadicado= t2.NumeroRadicado AND t1.NumeroOperacion= t2.NumeroOperacion AND t1.NumeroContrato= t2.NumeroContrato; ";
+            $obCon->Query($sql);
+            
             $sql="SELECT COLUMN_NAME 
                     FROM information_schema.COLUMNS 
                     WHERE 
@@ -510,75 +515,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         
                         
                     print("</td>");
-                    /*
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Total Según EPS:</strong> <h4 style=color:red>". number_format($Total)."</h4>");
-                    print("</td>");
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Total Según IPS:</strong> <h4 style=color:red>". number_format($TotalIPS)."</h4>");
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        
-                            $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`21`)", "style=cursor:pointer;");
-
-                              print("<strong>Pendientes Radicados:</strong> <h4 style=color:red>". number_format($TotalPendientesRadicados)."</h4>");
-                           $css->CerrarDiv();
-                         
-                        
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`22`)", "style=cursor:pointer;");
-
-                            print("<strong>Pendientes Devoluciones:</strong> <h4 style=color:red>". number_format($TotalPendientesDevoluciones)."</h4>");
-                        $css->CerrarDiv();
-                        
-                    print("</td>");
-                    
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`23`)", "style=cursor:pointer;");
-
-                            print("<strong>Pendientes Copagos:</strong> <h4 style=color:red>". number_format($TotalPendientesCopagos)."</h4>");
-                        $css->CerrarDiv();
-                        
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        $css->div("", "", "", "", "", "onclick=VerHistorialFactura(`1`,`24`)", "style=cursor:pointer;");
-
-                            print("<strong>Pendientes Notas Crédito:</strong> <h4 style=color:red>". number_format($TotalPendientesNotas)."</h4>");
-                        $css->CerrarDiv();
-                        
-                    print("</td>");
-                    //$sql="SELECT SUM(ValorImpuestosCalculados) AS TotalRetencionesDevueltas FROM $db.vista_facturas_sr_eps_2 WHERE Saldo<0";
-                    //$Consulta2=$obCon->Query($sql);
-                    //$DatosSaldosDevoluciones=$obCon->FetchAssoc($Consulta2);
-                    //$TotalRetencionesDevolucionesNoRelacionadas=$DatosSaldosDevoluciones["TotalRetencionesDevueltas"];
-                    $TotalRetencionesDevolucionesNoRelacionadas=0;
-                    //print("<td colspan=1 style='text-align:center'>");
-                     //   print("<strong>Retenciones Pagadas en Devoluciones:</strong> <h4 style=color:red>". number_format($TotalRetencionesDevolucionesNoRelacionadas)."</h4>");
-                    //print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Posible Valor a Liquidar:</strong> <h4 style=color:red>". number_format($Total-$TotalPendientesNotas-$TotalPendientesCopagos-$TotalPendientesDevoluciones-$TotalPendientesRadicados-$TotalRetencionesDevolucionesNoRelacionadas)."</h4>");
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Facturas Conciliadas:</strong> <h4 style=color:red>". number_format($NumeroConciliaciones)."</h4>");
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Total Conciliado:</strong> <h4 style=color:red>". number_format($TotalConciliaciones)."</h4>");
-                    print("</td>");
-                    
-                    print("<td colspan=1 style='text-align:center'>");
-                        print("<strong>Total Conciliado - Pendientes:</strong> <h4 style=color:red>". number_format($TotalConciliaciones-$TotalPendientesNotas-$TotalPendientesCopagos-$TotalPendientesDevoluciones-$TotalPendientesRadicados-$TotalRetencionesDevolucionesNoRelacionadas)."</h4>");
-                    print("</td>");
-                    
-                    
-                       */     
+                       
                             
                            $css->CierraFilaTabla(); 
                       
@@ -755,7 +692,16 @@ if( !empty($_REQUEST["Accion"]) ){
                             
                         print("</td>");
                         $css->ColTabla(number_format($DatosFactura["GlosaXConciliar"]), 1,'R');
-                        $css->ColTabla(number_format($DatosFactura["OtrosDescuentos"]), 1,'R');
+                        
+                        print("<td>");
+                            $css->div("", "", "", "", "", 'onclick="VerHistorialFactura(`'.$NumeroFactura.'`,37)"', "style=cursor:pointer;");
+                            
+                                print(number_format($DatosFactura["OtrosDescuentos"]));
+                            $css->CerrarDiv();
+                            
+                        print("</td>");
+                        
+                        
                         $css->ColTabla(number_format($DatosFactura["DescuentoPGP"]), 1,'R');
                         print("<td style=text-align:center;font-size:18px>");
                             print(number_format($DatosFactura["CarteraXEdades"]));
@@ -3542,7 +3488,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 
                 print("<tr style=font-size:16px;border-bottom-style:double;border-left-style:double;border-right-style:double;border-width:5px;>");
                     print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        print("<strong>SALDO CONCILIADO PARA PAGO</strong>");
+                        print("<strong>SALDO CONCILIADO</strong>");
                     print("</td>");
                     print("<td style=font-size:18px;border-style:solid;border-width:3px;border-color:black;>");
                         //$TipoCaja="text";
@@ -4158,6 +4104,49 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
             
         break;//Fin caso 36
+        
+        
+        case 37: //Dibuja el historial de otros descuentos de una factura
+            
+            $NumeroFactura=$obCon->normalizar($_REQUEST["NumeroFactura"]);
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosIPS["DataBase"];
+            
+            $css->CrearTabla();
+                
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Otros Descuentos de la Factura No. $NumeroFactura</strong>", 12,'C');
+                $css->CierraFilaTabla();
+                
+                $css->FilaTabla(14);
+                
+                $Columnas=$obCon->getColumnasDisponibles("$db.anticipos2","");
+
+                foreach ($Columnas["Field"] as $key => $value) {
+                    $css->ColTabla("<strong>$value</strong>",1);
+                }
+                                  
+                $database_principal=DB;      
+                $css->CierraFilaTabla();
+                $sql=" SELECT t2.* FROM $db.anticipos2 t2 WHERE t2.NumeroFactura='$NumeroFactura' AND EXISTS (SELECT 1 FROM $database_principal.tipos_operacion t1 WHERE Estado=1 AND t2.NumeroInterno=t1.TipoOperacion AND Aplicacion='otrosdescuentos')
+                        ";
+               
+                $Consulta=$obCon->Query($sql);
+                while($DatosPagos=$obCon->FetchAssoc($Consulta)){
+                     $css->FilaTabla(14);
+                        foreach ($Columnas["Field"] as $key => $value) {
+                            
+                            $css->ColTabla(($DatosPagos[$value]), 1,'L');
+                        }
+                                                
+                    $css->CierraFilaTabla();
+                }
+                
+            $css->CerrarTabla();
+            
+                
+        break; //Fin caso 37
     }
     
     

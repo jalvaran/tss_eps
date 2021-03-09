@@ -646,7 +646,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         
         if($AnexosEnPdf==1){
             $tipo_anexo_pdf=$DatosTipoActa["tipo_anexo_pdf"];
-            if($tipo_anexo_pdf==1){   //Anexo para actas tipo capita
+            if($TipoActa==4 OR $TipoActa==5 OR $TipoActa==6 OR $TipoActa==13 OR $TipoActa==14 OR $TipoActa==15 OR $TipoActa==18 OR $TipoActa==19){    
                 
                 $this->PDF->AddPage('L', 'letter');
                 $this->PDF->SetMargins(10, 20, 5);
@@ -658,7 +658,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $this->PDF->writeHTML("".$html, true, false, false, false, '');
             }
             
-            if($tipo_anexo_pdf==2){//Anexo para todo lo correspondiente a evento    
+            if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10 or $TipoActa==11 or $TipoActa==12 or $TipoActa==16 or $TipoActa==17){    
                 
                 $this->PDF->AddPage();
                 $this->PDF->SetMargins(10, 20, 5);
@@ -670,15 +670,13 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $this->PDF->writeHTML("".$html, true, false, false, false, '');
             }
             
-            if($tipo_anexo_pdf==3){    //Anexo par pgp
+            if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10 or $TipoActa==11 or $TipoActa==12 or $TipoActa==16 or $TipoActa==17){    
                 
-                //$this->PDF->AddPage('L', 'A4');
                 $this->PDF->AddPage();
                 $this->PDF->SetMargins(10, 20, 5);
-                
                 $html= $this->EncabezadoAnexoActaLiquidacion($DatosActa,$DatosTipoActa,0);                
                 $this->PDF->writeHTML("".$html, true, false, false, false, '');
-                $html= $this->DatosItemsAnexoActaLiquidacionPGP($DatosActa,$TipoActa,$TipoConsulta);                
+                $html= $this->DatosItemsAnexoActaLiquidacionEventoXRadicados($DatosActa,$TipoActa,$TipoConsulta);                
                 $this->PDF->writeHTML("".$html, true, false, false, false, '');
                 $html= $this->FirmasActaLiquidacion($DatosActa);        
                 $this->PDF->writeHTML("".$html, true, false, false, false, '');
@@ -687,249 +685,6 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         }
         
         $this->PDF_Output("Acta_Liquidacion_$idActaLiquidacion");
-    }
-    
-    public function DatosItemsAnexoActaLiquidacionPGP($DatosActa,$TipoActa,$TipoConsulta) {
-        $obCon=new conexion(1);
-        $idActaLiquidacion=$DatosActa["ID"];
-        $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $DatosActa["NIT_IPS"]);
-        $db=$DatosIPS["DataBase"];
-        $Back="#f2f2f2";
-        $AnchoColumnas="48px";
-        $html='<table border="0" cellpadding="1" cellspacing="1" align="center" >';
-            $html.="<tr>";
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:5px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>DEPARTAMENTO</strong></td>';
-                $html.='<td style="text-align:center;font-size:6px;width:'.$AnchoColumnas.';border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>RADICADO</strong></td>';
-                $html.='<td style="text-align:center;font-size:6px;width:'.$AnchoColumnas.';border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>MES<BR>DE<BR>SERVICIOS</strong></td>';
-                $html.='<td style="text-align:center;font-size:6px;width:'.$AnchoColumnas.';border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>FACTURA</strong></td>';
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>VALOR<BR>FACTURADO</strong></td>';
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>RETENCION<BR>IMPUESTOS</strong></td>';
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>DEVOLUCION</strong></td>';
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>GLOSA</strong></td>';
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>GLOSA A<BR>FAVOR<BR>ASMET</strong></td>';
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>NOTA<BR>CREDITO /<BR>COPAGOS</strong></td>';
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>RECUPERACION<BR>EN<BR>IMPUESTOS</strong></td>';
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>OTROS<BR>DESCUENTOS</strong></td>';
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>VALOR<BR>PAGADO</strong></td>';                
-                $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>SALDO</strong></td>';
-                
-            $html.="</tr>";
-            
-            $MesServicioInicial=$DatosActa["MesServicioInicial"];
-            $MesServicioFinal=$DatosActa["MesServicioFinal"];
-            
-            if($TipoConsulta==1){
-                $Tabla="actas_conciliaciones_items";
-                $TablaUnion="historial_carteracargada_eps";
-                $Condicion=" WHERE ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t5 WHERE t5.idContrato=$Tabla.NumeroContrato AND t5.idActaLiquidacion='$idActaLiquidacion') ";
-                //$GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
-                $GroupOrder=" ";
-                
-                
-                
-                
-                $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
-                        NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos + TotalAnticipos) AS TotalPagos,
-                        (TotalCopagos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
-                        TotalDevoluciones,ValorSegunEPS as Saldo ,GlosaXConciliar                       
-                        FROM $db.$Tabla WHERE                    
-                        ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion')";
-                    
-
-                $sql.="UNION ALL 
-                            SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,
-                            t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
-                            '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
-                            t1.ValorOriginal as TotalDevoluciones,'0' as Saldo,'0' as GlosaXConciliar                        
-                            FROM $db.$TablaUnion t1 WHERE NOT
-                            EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
-                             AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
-                            AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
-                            AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t4 WHERE t4.Estado=1 AND t1.TipoOperacion=t4.TipoOperacion AND Aplicacion='FACTURA') 
-                    
-                    ";
-                $sql.=$GroupOrder;
-
-                //print($sql);
-
-            }    
-
-            if($TipoConsulta==2){
-                $Tabla="actas_liquidaciones_radicados_items";
-                $TablaUnion="historial_carteracargada_eps";
-                $Condicion=" WHERE idActaLiquidacion='$idActaLiquidacion' ";
-                //$GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
-                $GroupOrder=" GROUP BY NumeroRadicado ORDER BY MesServicio,NumeroRadicado ";
-                $sql="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,NumeroContrato,SUM(ValorDocumento) AS ValorDocumento,
-                            SUM(Impuestos) AS Impuestos,SUM(TotalPagos) AS TotalPagos,SUM(TotalNotasCopagos) AS TotalNotasCopagos,
-                            SUM(DescuentoPGP) AS DescuentoPGP,SUM(DescuentoBDUA) AS DescuentoBDUA,SUM(TotalOtrosDescuentos) AS TotalOtrosDescuentos,
-                            SUM(TotalGlosaInicial) AS TotalGlosaInicial,SUM(TotalGlosaFavor) AS TotalGlosaFavor,
-                            SUM(TotalDevoluciones) AS TotalDevoluciones,SUM(Saldo) AS Saldo,SUM(GlosaXConciliar) AS GlosaXConciliar
-                            
-                            FROM (";
-                
-                $sql.="SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,
-                        NumeroContrato,NumeroFactura,ValorDocumento,Impuestos,(TotalPagos + TotalAnticipos) AS TotalPagos,
-                        (TotalCopagos) as TotalNotasCopagos,DescuentoPGP,DescuentoBDUA,(OtrosDescuentos+AjustesCartera) as TotalOtrosDescuentos,TotalGlosaInicial,TotalGlosaFavor,
-                        TotalDevoluciones,ValorSegunEPS as Saldo ,GlosaXConciliar                       
-                        FROM $db.$Tabla WHERE                    
-                        ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t2 WHERE t2.idContrato=$Tabla.NumeroContrato AND t2.idActaLiquidacion='$idActaLiquidacion')";
-                    
-
-                $sql.="UNION ALL 
-                            SELECT t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,
-                            t1.NumeroContrato,t1.NumeroFactura,t1.ValorOriginal as ValorDocumento,'0' as Impuestos,'0' AS TotalPagos,
-                            '0' as TotalNotasCopagos,'0' as DescuentoPGP,'0' as DescuentoBDUA,'0' as TotalOtrosDescuentos,'0' as TotalGlosaInicial,'0' as TotalGlosaFavor,
-                            t1.ValorOriginal as TotalDevoluciones,'0' as Saldo,'0' as GlosaXConciliar                        
-                            FROM $db.$TablaUnion t1 WHERE NOT
-                            EXISTS (SELECT 1 FROM $db.$Tabla t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND t1.NumeroRadicado=t2.NumeroRadicado)
-                             AND (t1.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal)                         
-                            AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t3 WHERE t3.idContrato=t1.NumeroContrato AND t3.idActaLiquidacion='$idActaLiquidacion')     
-                            AND EXISTS (SELECT 1 FROM ts_eps.tipos_operacion t4 WHERE t4.Estado=1 AND t1.TipoOperacion=t4.TipoOperacion AND Aplicacion='FACTURA') 
-                    
-                    ) t ";
-                $sql.=$GroupOrder;
-
-            }    
-            $Consulta=$obCon->Query($sql);
-            $Totales["ValorDocumento"]=0;
-            $Totales["Impuestos"]=0;
-            $Totales["TotalDevoluciones"]=0;
-            $Totales["TotalGlosaInicial"]=0;
-            $Totales["TotalGlosaFavor"]=0;
-            $Totales["TotalNotasCopagos"]=0;
-            $Totales["TotalOtrosDescuentos"]=0;
-            $Totales["TotalPagos"]=0;
-            $Totales["Saldo"]=0;
-            $Totales["GlosaXConciliar"]=0;
-            if($TipoActa<>6){
-                $z=0;
-                while($DatosVista=$obCon->FetchAssoc($Consulta)){
-                    if($z==0){
-                        $Back="white";
-                        $z=1;
-                    }else{
-                        $Back="#f2f2f2";                        
-                        $z=0;
-                    }
-                    $Totales["ValorDocumento"]=$Totales["ValorDocumento"]+$DatosVista["ValorDocumento"]; 
-                    $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
-                    $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
-                    $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
-                    $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]; 
-                    $Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
-                    $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"];
-                    $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
-                    $Totales["Saldo"]=$Totales["Saldo"]+$DatosVista["Saldo"]; 
-                    $Totales["GlosaXConciliar"]=$Totales["GlosaXConciliar"]+$DatosVista["GlosaXConciliar"];
-                    $html.="<tr>";
-                        $html.='<td style="text-align:left;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.$DatosVista["DepartamentoRadicacion"].'</td>';
-                        $html.='<td style="text-align:left;font-size:6px;width:'.$AnchoColumnas.';border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.$DatosVista["NumeroRadicado"].'</td>';
-                        $html.='<td style="text-align:left;font-size:6px;width:'.$AnchoColumnas.';border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.$DatosVista["MesServicio"].'</td>';
-                        $html.='<td style="text-align:left;font-size:6px;width:'.$AnchoColumnas.';border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.$DatosVista["NumeroFactura"].'</td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["ValorDocumento"]).'</td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["Impuestos"]).'</td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalDevoluciones"]).'</td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalGlosaInicial"]).'</td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalGlosaFavor"]+$DatosVista["GlosaXConciliar"]).'</td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalNotasCopagos"]).'</td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">0</td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalOtrosDescuentos"]+$DatosVista["DescuentoPGP"]).'</td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalPagos"]).'</td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["Saldo"]).'</td>';
-
-                    $html.="</tr>";
-                    
-                    
-                }               
-                
-            }
-            $Back="#f2f2f2";
-            
-            $html.="<tr>";
-                        $html.='<td style="text-align:center;width:'.$AnchoColumnas.';font-size:6px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"> </td>';
-                        $html.='<td style="text-align:center;font-size:6px;width:'.$AnchoColumnas.';border-bottom: 1px solid #ddd;background-color: '.$Back.';"> </td>';
-                        $html.='<td style="text-align:center;font-size:6px;width:'.$AnchoColumnas.';border-bottom: 1px solid #ddd;background-color: '.$Back.';"> </td>';
-                        $html.='<td style="text-align:center;font-size:7px;width:'.$AnchoColumnas.';border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>TOTAL</strong></td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["ValorDocumento"]).'</strong></td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["Impuestos"]).'</strong></td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalDevoluciones"]).'</strong></td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalGlosaInicial"]).'</strong></td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalGlosaFavor"]+$Totales["GlosaXConciliar"]).'</strong></td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalNotasCopagos"]).'</strong></td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>0</strong></td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalOtrosDescuentos"]).'</strong></td>';
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalPagos"]).'</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["Saldo"]).'</strong></td>';
-
-                    $html.="</tr>";
-             
-                    $html.="<tr>";
-                        
-                        $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>VALOR CUMPLIMIENTO DE INDICADORES S/N ACTA</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong> </strong></td>';
-
-                    $html.="</tr>";
-                    $html.="<tr>";
-                        
-                        $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>RETENCION DE IMPUESTOS</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["Impuestos"]).' </strong></td>';
-
-                    $html.="</tr>";
-                    $html.="<tr>";
-                        
-                        $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>DESCUENTO POR INCUMPLIMIENTO</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong> </strong></td>';
-
-                    $html.="</tr>";
-                    $html.="<tr>";
-                        
-                        $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>COPAGOS Y NOTAS CREDITO</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalNotasCopagos"]).' </strong></td>';
-
-                    $html.="</tr>";
-                    $html.="<tr>";
-                        
-                        $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>DESCUENTOS A FAVOR DE ASMET</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalGlosaFavor"]).' </strong></td>';
-
-                    $html.="</tr>";
-                    $html.="<tr>";
-                        
-                        $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>OTROS DESCUENTOS</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalOtrosDescuentos"]).' </strong></td>';
-
-                    $html.="</tr>";
-                    $html.="<tr>";
-                        
-                        $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>VALOR PAGADO</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalPagos"]).' </strong></td>';
-
-                    $html.="</tr>";
-                    $html.="<tr>";
-                        
-                        $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>SALDO ACTA DE LIQUIDACIÓN</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["Saldo"]).' </strong></td>';
-
-                    $html.="</tr>";
-                
-            if($DatosActa["PagosPendientesPorLegalizar"]<>0){
-                $html.="<tr>";
-                        
-                    $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>PAGOS PENDIENTES POR LEGALIZAR</strong></td>';                
-                    $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($DatosActa["PagosPendientesPorLegalizar"]).'</strong></td>';
-
-                $html.="</tr>";
-                $html.="<tr>";
-                        
-                    $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>SALDO FINAL</strong></td>';                
-                    $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["Saldo"]-$DatosActa["PagosPendientesPorLegalizar"]).'</strong></td>';
-
-                $html.="</tr>";
-            }
-            
-        $html.='</table>';  
-        return($html);
     }
     
     public function ObservacionesActasLiquidacionSAS($idActaLiquidacion,$DatosActa) {

@@ -503,7 +503,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             
             $html.='<tr>';
                 $html.='<td  border="0" colspan="2" style="text-align:right">';
-                    $html.='<h4>SALDO CONCILIADO PARA PAGO:</h4>';
+                    $html.='<h4>SALDO CONCILIADO:</h4>';
                 $html.='</td>';  
                 $html.='<td  border="0" style="text-align:right;">';
                     $html.="<h3>$ ".number_format($DatosActa["SaldoConciliadoPago"])."</h3>";
@@ -579,20 +579,24 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $TipoActa=$DatosActa["TipoActaLiquidacion"];
         $Unilateral="";
          
-         if($TipoActa==2 or $TipoActa==5 or $TipoActa==8 or $TipoActa==10 or $TipoActa==12 ){
+         if($TipoActa==2 or $TipoActa==5 or $TipoActa==8 or $TipoActa==10 or $TipoActa==12 or $TipoActa==16 ){
 
              $Unilateral="UNILATERAL";
                      
-         };
+         }
+         $TituloTipoActa="ACTA DE LIQUIDACIÓN ";
+         if($DatosTipoActa["NoEjecucion"]==1){
+             $TituloTipoActa="ACTA DE NO EJECUCIÓN";
+         }
         
-        $this->PDF_IniActaLiquidacion("ACTA DE LIQUIDACIÓN No.", utf8_encode($DatosTipoActa["Header"]), "Footer text");
+        $this->PDF_IniActaLiquidacion($TituloTipoActa." No. ", utf8_encode($DatosTipoActa["Header"]), "Footer text");
         $TamanoFuente=8;
         if(is_numeric($DatosActa["TamanoFuente"]) and $DatosActa["TamanoFuente"]>0 and $DatosActa["TamanoFuente"]<17){
             $TamanoFuente=$DatosActa["TamanoFuente"];
         }
         $this->PDF->SetFont('helvetica', '', $TamanoFuente);
         
-        $Titulo='<p align="center"><h3>ACTA DE LIQUIDACIÓN '. $Unilateral. 'No. '.utf8_encode($DatosActa["IdentificadorActaEPS"].'</h3></p>');
+        $Titulo='<p align="center"><h3>'.$TituloTipoActa.' '. $Unilateral. ' No. '.utf8_encode($DatosActa["IdentificadorActaEPS"].'</h3></p>');
         $Titulo.="";
         $Titulo.='<p align="center"><h3>'.utf8_encode($DatosTipoActa["Titulo"]).'</h3></p>';
         $this->PDF->writeHTML($Titulo, true, false, false, false, '');
@@ -641,7 +645,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         if($AnexosEnPdf==1){
-            if($TipoActa==4){    
+            if($TipoActa==4 OR $TipoActa==5 OR $TipoActa==6 OR $TipoActa==13 OR $TipoActa==14 OR $TipoActa==15 OR $TipoActa==18 OR $TipoActa==19){    
                 
                 $this->PDF->AddPage('L', 'letter');
                 $this->PDF->SetMargins(10, 20, 5);
@@ -653,7 +657,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $this->PDF->writeHTML("".$html, true, false, false, false, '');
             }
             
-            if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10 or $TipoActa==11 or $TipoActa==12){    
+            if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10 or $TipoActa==11 or $TipoActa==12 or $TipoActa==16 or $TipoActa==17){    
                 
                 $this->PDF->AddPage();
                 $this->PDF->SetMargins(10, 20, 5);
@@ -682,7 +686,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         if(round($DatosActa["Saldo"])<0 AND $DatosActa["FormaPagoIPS"]==0){
             $opt="op15";
         }
-        if(round($DatosActa["Saldo"])>0 ){
+        if(round($DatosActa["Saldo"])>0){
             $opt="op14";
         }
         
@@ -694,6 +698,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $Numeral=$Numeral+1;
         
         $SaldoEnLetras=$obNumLetra->convertir(abs(round($DatosActa["Saldo"])));
+        //$SaldoEnLetras=0;
         $SaldoEnLetras.=" PESOS ($ ".number_format(abs($DatosActa["Saldo"])).")";
         
         $DatosConsideraciones["Texto"]= str_replace("@ValorLetras",strtoupper("<strong>".$SaldoEnLetras."</strong>"), $DatosConsideraciones["Texto"]);
@@ -732,6 +737,12 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         
         $DatosConsideraciones["Texto"]= str_replace("@Numerocontratos", $ContratosActa, $DatosConsideraciones["Texto"]);
         
+        $resolucion_escision="";
+        if($DatosActa["Asmet"]==1){
+            $resolucion_escision=",dentro del proceso de reorganización Institucional escisión, emitido por la Superintendencia Nacional de Salud mediante Resolución No 127 de 2018, expedida el 24 de Enero de 2018";
+            
+        }
+        $DatosConsideraciones["Texto"]= str_replace("@ResolucionEscision",$resolucion_escision, $DatosConsideraciones["Texto"]);
         
         $html='<p align="justify"><strong>'.$Numeral.'.</strong>'.utf8_encode($DatosConsideraciones["Texto"])."</p>";  
        
@@ -768,10 +779,11 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             
             if($TipoConsulta==1){
                 $Tabla="actas_conciliaciones_items";
+                $TablaUnion="historial_carteracargada_eps";
                 $Condicion=" WHERE ($Tabla.MesServicio BETWEEN $MesServicioInicial AND $MesServicioFinal) AND EXISTS (SELECT 1 FROM actas_liquidaciones_contratos t5 WHERE t5.idContrato=$Tabla.NumeroContrato AND t5.idActaLiquidacion='$idActaLiquidacion') ";
                 //$GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
-                $GroupOrder=" GROUP BY NumeroRadicado,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
-                $TablaUnion="historial_carteracargada_eps";
+                $GroupOrder=" GROUP BY NumeroRadicado ORDER BY MesServicio,NumeroRadicado ";
+                
 
                 $Union3="     
                          SELECT  t1.MesServicio,t1.DepartamentoRadicacion,t1.NumeroRadicado,t1.NumeroContrato,
@@ -806,7 +818,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $TablaUnion="historial_carteracargada_eps";
                 $Condicion=" WHERE idActaLiquidacion='$idActaLiquidacion' ";
                 //$GroupOrder=" GROUP BY NumeroRadicado,MesServicio,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
-                $GroupOrder=" GROUP BY NumeroRadicado,NumeroContrato ORDER BY MesServicio,NumeroRadicado ";
+                $GroupOrder=" GROUP BY NumeroRadicado ORDER BY MesServicio,NumeroRadicado ";
                 $sql=" UNION ALL
 
                 SELECT MesServicio,DepartamentoRadicacion,NumeroRadicado,SUM(ValorDocumento) AS ValorDocumento,
@@ -930,6 +942,14 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $idActaLiquidacion=$DatosActa["ID"];
         $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $DatosActa["NIT_IPS"]);
         $db=$DatosIPS["DataBase"];
+        
+        $TituloSaldo="SALDO";
+        $TituloTotalPagar="VR A PAGAR IPS SEGÚN LMA";
+        if($TipoActa==13 or $TipoActa==14 or $TipoActa==15){
+            $TituloSaldo="SALDO INICIAL";
+            $TituloTotalPagar="VALOR A PAGAR SEGÚN ACTA DE EJECUCION DE METAS";
+        }
+        
         $Back="#f2f2f2";
         $html='<table border="0" cellpadding="1" cellspacing="1" align="center" >';
             $html.="<tr>";
@@ -946,15 +966,15 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 $html.='<td style="text-align:center;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>DESCUENTO<BR>INICIAL</strong></td>';
                 $html.='<td style="text-align:center;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>DESCUENTOS<BR>CONCILIADO A FAVOR ASMET</strong></td>';
                 $html.='<td style="text-align:center;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>VALOR<BR>PAGADO</strong></td>';
-                $html.='<td style="text-align:center;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>SALDO</strong></td>';
+                $html.='<td style="text-align:center;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.$TituloSaldo.'</strong></td>';
                 
             $html.="</tr>";
             
             $MesServicioInicial=$DatosActa["MesServicioInicial"];
             $MesServicioFinal=$DatosActa["MesServicioFinal"];
             
-            if($TipoConsulta==1 AND $TipoActa<>6 ){
-                $Tabla="actas_conciliaciones_ites";
+            if($TipoConsulta==1 AND $TipoActa<>6  AND $TipoActa<>15){
+                $Tabla="actas_conciliaciones_items";
                 $sql="SELECT MesServicio,NumeroContrato, DepartamentoRadicacion,GROUP_CONCAT(NumeroRadicado) AS NumeroRadicado,CodigoSucursal AS CodigoDaneAnexo,
                         (SELECT Ciudad FROM municipios_dane WHERE CodigoDane=$Tabla.CodigoSucursal LIMIT 1) as Municipio,
                         NumeroContrato,GROUP_CONCAT(NumeroFactura) as NumeroFactura,SUM(ValorDocumento) as ValorDocumento,SUM(Impuestos) AS Impuestos,SUM(TotalPagos+TotalCopagos+TotalAnticipos) as TotalPagos,
@@ -987,7 +1007,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                         GROUP BY  MesServicio,NumeroContrato,CodigoDaneAnexo ORDER BY MesServicio,CodigoDaneAnexo,NumeroFactura";
             } 
             //print($sql);
-            if($TipoActa<>6){
+            if($TipoActa<>6  AND $TipoActa<>15){
                 $Consulta=$obCon->Query($sql);
             }
             $Totales["ValorDocumento"]=0;
@@ -1001,7 +1021,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $Totales["Saldo"]=0;
             $Totales["ValorAPagarLMA"]=0;
             $Totales["DescuentoBDUA"]=0;
-            if($TipoActa<>6){
+            if($TipoActa<>6  AND $TipoActa<>15){
                 $z=0;
                 while($DatosVista=$obCon->FetchAssoc($Consulta)){
                     if($z==0){
@@ -1015,7 +1035,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                     $Totales["Impuestos"]=$Totales["Impuestos"]+$DatosVista["Impuestos"]; 
                     $Totales["TotalDevoluciones"]=$Totales["TotalDevoluciones"]+$DatosVista["TotalDevoluciones"]; 
                     $Totales["TotalGlosaInicial"]=$Totales["TotalGlosaInicial"]+$DatosVista["TotalGlosaInicial"]; 
-                    $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]; 
+                    $Totales["TotalGlosaFavor"]=$Totales["TotalGlosaFavor"]+$DatosVista["TotalGlosaFavor"]+$DatosVista["DescuentoPGP"]; 
                     //$Totales["TotalNotasCopagos"]=$Totales["TotalNotasCopagos"]+$DatosVista["TotalNotasCopagos"]; 
                     $Totales["TotalOtrosDescuentos"]=$Totales["TotalOtrosDescuentos"]+$DatosVista["TotalOtrosDescuentos"];
                     $Totales["TotalPagos"]=$Totales["TotalPagos"]+$DatosVista["TotalPagos"]; 
@@ -1035,7 +1055,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                         $html.='<td style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["Impuestos"]).'</td>';
                         $html.='<td style="text-align:rigth;;width:85px;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["DescuentoBDUA"]).'</td>';
                         $html.='<td style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalGlosaInicial"]).'</td>';
-                        $html.='<td style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalGlosaFavor"]).'</td>';
+                        $html.='<td style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalGlosaFavor"]+$DatosVista["DescuentoPGP"]).'</td>';
                         $html.='<td style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["TotalPagos"]+$DatosVista["TotalOtrosDescuentos"]).'</td>';
                         $html.='<td style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';">'.number_format($DatosVista["Saldo"]).'</td>';
 
@@ -1067,11 +1087,19 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $html.="<tr>";
                 $html.='<td colspan="14"> </td>';
             $html.="</tr>";
+            
+            $TotalValorAPagarActaEjecucion=$Totales["ValorAPagarLMA"];
+            $SaldoFinal=$Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"];
+            if($DatosActa["TipoActaLiquidacion"]==13 or $DatosActa["TipoActaLiquidacion"]==14 or $DatosActa["TipoActaLiquidacion"]==15){
+                $TotalValorAPagarActaEjecucion=$DatosActa["ValorSegunActaCumplimientoMetas"];
+                $SaldoFinal=$TotalValorAPagarActaEjecucion-$Totales["Impuestos"]-$Totales["TotalGlosaFavor"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$Totales["TotalPagos"]-$DatosActa["PagosPendientesPorLegalizar"];
+            }
+            
             $html.="<tr>";
             
-                $html.='<td colspan="12" style="text-align:rigth;font-size:9px;background-color: '.$Back.';"><strong>VR A PAGAR IPS SEGÚN LMA: </strong> </td>';
+                $html.='<td colspan="12" style="text-align:rigth;font-size:9px;background-color: '.$Back.';"><strong>'.$TituloTotalPagar.': </strong> </td>';
                 
-                $html.='<td colspan="2" style="text-align:left;font-size:9px;background-color: '.$Back.';"><strong>'.number_format($Totales["ValorAPagarLMA"]).'</strong></td>';
+                $html.='<td colspan="2" style="text-align:left;font-size:9px;background-color: '.$Back.';"><strong>'.number_format($TotalValorAPagarActaEjecucion).'</strong></td>';
                 
             $html.="</tr>";
             $html.="<tr>";                
@@ -1096,7 +1124,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $html.="</tr>";
             $html.="<tr>";                
                 $html.='<td colspan="12" style="text-align:rigth;font-size:9px;background-color: '.$Back.';"><strong>SALDO FINAL ACTA DE LIQUIDACIÓN</strong> </td>';                
-                $html.='<td colspan="2" style="text-align:left;font-size:9px;background-color: '.$Back.';"><strong>'.number_format($Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"]).'</strong></td>';                
+                $html.='<td colspan="2" style="text-align:left;font-size:9px;background-color: '.$Back.';"><strong>'.number_format($SaldoFinal).'</strong></td>';                
             $html.="</tr>";
             
         $html.='</table>';  
@@ -1217,7 +1245,8 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $SaldoAPagarContratante=$DatosActa["Saldo"];
         }
         $html="";
-        if($TipoActa==3 or $TipoActa==6){
+        /*
+        if($TipoActa==3 or $TipoActa==6 or $TipoActa==15  or $TipoActa==16 or $TipoActa==17 OR $TipoActa==18 OR $TipoActa==19){
             $DatosActa["Saldo"]=0;
             $DatosActa["ValorFacturado"]=0;
             $DatosActa["RetencionImpuestos"]=0;
@@ -1229,12 +1258,15 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $DatosActa["OtrosDescuentos"]=0;
             
             $DatosActa["ValorPagado"]=0;
-            $DatosActa["Saldo"]=0;
+            
             $DatosActa["DescuentoBDUA"]=0;
-            $DatosActa["GlosaFavor"]=0;
+            $SaldoAPagarContratista=0;
+            
             
         }
-        if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10 or $TipoActa==11 or $TipoActa==12){
+         * 
+         */
+        if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10 or $TipoActa==11 or $TipoActa==12 or $TipoActa==16 or $TipoActa==17){
             if($DatosActa["PagosPendientesPorLegalizar"]==0){
                 $html='<table cellspacing="1" cellpadding="1" border="1">
                             <tr>
@@ -1341,67 +1373,87 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                     
         }
         
-        if($TipoActa==4 or $TipoActa==5 or $TipoActa==6){
+        if($TipoActa==4 or $TipoActa==5 or $TipoActa==6 or $TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==18 or $TipoActa==19){
+            $TituloValorFacturado="VALOR FACTURADO";
+            $TituloSaldo="SALDO";
+            $TotalValorFacturado=$DatosActa["ValorFacturado"];
+            $MostrarBDUA=1;
+            if($TipoActa==13 or $TipoActa==14 or $TipoActa==15){
+                $TituloValorFacturado="VALOR A PAGAR SEGÚN ACTA DE EJECUCION DE METAS";
+                $TituloSaldo="SALDO FINAL ACTA DE LIQUIDACIÓN";
+                $TotalValorFacturado=$DatosActa["ValorSegunActaCumplimientoMetas"];
+                $MostrarBDUA=0;
+            }
             if($DatosActa["PagosPendientesPorLegalizar"]==0){
                 $html='<table cellspacing="1" cellpadding="1" border="1">
                             <tr>
-                                <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
-                                <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
-                                <td style="text-align:center;"><strong>Descuento o Reconocimiento por BDUA</strong></td>
-                                <td style="text-align:center;"><strong>DESCUENTOS CONCILIADOS A FAVOR ASMET</strong></td>
+                                <td style="text-align:center;"><strong>'.$TituloValorFacturado.'</strong></td>
+                                <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>';
+                if($MostrarBDUA==1){
+                    $html.='     <td style="text-align:center;"><strong>Descuento o Reconocimiento por BDUA</strong></td>';
+                }
+                $html.='         <td style="text-align:center;"><strong>DESCUENTOS CONCILIADOS A FAVOR ASMET</strong></td>
                                 <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
-                                <td style="text-align:center;"><strong>SALDO</strong></td>
+                                <td style="text-align:center;"><strong>'.$TituloSaldo.'</strong></td>
 
                             </tr>
 
                             <tr>
-                                <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
-                                <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
-                                <td style="text-align:rigth;">'. number_format($DatosActa["DescuentoBDUA"]).'</td>
-                                <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]+$DatosActa["OtrosDescuentosConciliadosAfavor"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($TotalValorFacturado).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>';
+                        if($MostrarBDUA==1){
+                            $html.='<td style="text-align:rigth;">'. number_format($DatosActa["DescuentoBDUA"]).'</td>';
+                        }  
+                        $ColspanLinea=5+$MostrarBDUA;
+                        $html.='<td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]+$DatosActa["OtrosDescuentosConciliadosAfavor"]).'</td>
                                 <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]).'</td>
                                 <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>    
 
                             </tr>
                             <tr>
-                                <td colspan="6">
+                                <td colspan="'.$ColspanLinea.'">
 
                                 </td>
                             </tr>
 
                             ';
-                $ColspanTotales=5;
+                $ColspanTotales=4+$MostrarBDUA;
             }else{
                 $html='<table cellspacing="1" cellpadding="1" border="1">
                             <tr>
-                                <td style="text-align:center;"><strong>VALOR FACTURADO</strong></td>
-                                <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>
-                                <td style="text-align:center;"><strong>Descuento o Reconocimiento por BDUA</strong></td>
-                                <td style="text-align:center;"><strong>DESCUENTOS CONCILIADOS A FAVOR ASMET</strong></td>
+                                <td style="text-align:center;"><strong>'.$TituloValorFacturado.'</strong></td>
+                                <td style="text-align:center;"><strong>RETENCION IMPUESTOS</strong></td>';
+                if($MostrarBDUA==1){
+                    $html.='   <td style="text-align:center;"><strong>Descuento o Reconocimiento por BDUA</strong></td>';
+                }
+                $html.='        <td style="text-align:center;"><strong>DESCUENTOS CONCILIADOS A FAVOR ASMET</strong></td>
                                 <td style="text-align:center;"><strong>VALOR PAGADO</strong></td>
                                 <td style="text-align:center;"><strong>PAGOS PENDIENTES POR LEGALIZAR</strong></td>
-                                <td style="text-align:center;"><strong>SALDO</strong></td>
+                                <td style="text-align:center;"><strong>'.$TituloSaldo.'</strong></td>
 
                             </tr>
 
                             <tr>
-                                <td style="text-align:rigth;">'. number_format($DatosActa["ValorFacturado"]).'</td>
-                                <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>
-                                <td style="text-align:rigth;">'. number_format($DatosActa["DescuentoBDUA"]).'</td>
-                                <td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]+$DatosActa["OtrosDescuentosConciliadosAfavor"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($TotalValorFacturado).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["RetencionImpuestos"]).'</td>';
+                        if($MostrarBDUA==1){
+                            $html.='<td style="text-align:rigth;">'. number_format($DatosActa["DescuentoBDUA"]).'</td>';
+                        } 
+                        $ColspanLinea=6+$MostrarBDUA;
+                        $html.='<td style="text-align:rigth;">'. number_format($DatosActa["GlosaFavor"]+$DatosActa["OtrosDescuentosConciliadosAfavor"]).'</td>
                                 <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]+$DatosActa["NotasCopagos"]).'</td>
                                 <td style="text-align:rigth;">'. number_format($DatosActa["PagosPendientesPorLegalizar"]).'</td>    
                                 <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>    
 
                             </tr>
                             <tr>
-                                <td colspan="6">
+                                <td colspan="'.$ColspanLinea.'">
 
                                 </td>
                             </tr>
 
                             ';
-                $ColspanTotales=6;
+                $ColspanTotales=5+$MostrarBDUA;
             }
         }
       
@@ -1537,7 +1589,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op10' LIMIT 1";
         }
         
-        if(round($DatosActa["Saldo"])==0 or $TipoActa==3 or $TipoActa==6){
+        if(round($DatosActa["Saldo"])==0 ){
             $sql="SELECT * FROM actas_liquidaciones_consideraciones WHERE TipoActaLiquidacion='$TipoActa' AND Numeral='op11' LIMIT 1";
         }
         $DatosConsideraciones["Texto"]='';
@@ -1549,6 +1601,12 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $SaldoEnLetras.=" PESOS ($ ".number_format(abs($DatosActa["Saldo"])).")";
         
         $html= str_replace("@ValorLetras",strtoupper("<strong>".$SaldoEnLetras."</strong>"), $html);
+        $resolucion_escision="";
+        if($DatosActa["Asmet"]==1){
+            $resolucion_escision=",dentro del proceso de reorganización Institucional escisión, emitido por la Superintendencia Nacional de Salud mediante Resolución No 127 de 2018, expedida el 24 de Enero de 2018";
+            
+        }
+        $html= str_replace("@ResolucionEscision",$resolucion_escision, $html);
         
         $sql="SELECT t2.* FROM actas_liquidaciones_contratos t1 INNER JOIN contratos t2 ON t1.idContrato=t2.ContratoEquivalente WHERE t1.idActaLiquidacion='$idActaLiquidacion' ORDER BY t1.ID";
         
@@ -1583,6 +1641,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $ContratosActa=substr($ContratosActa,0,-2);
         
         $html= str_replace("@Numerocontratos", $ContratosActa, $html);
+        
         return($html);
     }
     
@@ -1609,6 +1668,18 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $Texto= str_replace("@DocumentoReferencia", $DatosActa["DocumentoReferencia"], $DatosConsideraciones["Texto"]);
             $Texto= str_replace("@NombreIPS", $DatosActa["RazonSocialIPS"], $Texto);
             $Texto= str_replace("@NumeroContrato", $Contratos, $Texto);
+            if($DatosActa["Asmet"]==1){
+                $dias_calendario="15 días";
+            }else{
+                $dias_calendario="1 (mes)";
+            }
+            $Texto= str_replace("@Objetacion", $dias_calendario, $Texto);
+            $resolucion_escision="";
+            if($DatosActa["Asmet"]==1){
+                $resolucion_escision=",dentro del proceso de reorganización Institucional escisión, emitido por la Superintendencia Nacional de Salud mediante Resolución No 127 de 2018, expedida el 24 de Enero de 2018, Anexo a la presente acta";
+
+            }
+            $Texto= str_replace("@ResolucionEscision",$resolucion_escision, $Texto);
             $html.='<p align="justify"><strong>'.(utf8_encode($DatosConsideraciones["Numeral"]))."</strong> ".utf8_encode($Texto)."</p><br>";
             $this->UltimoNumeral=$DatosConsideraciones["Numeral"];
         }
