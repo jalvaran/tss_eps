@@ -558,7 +558,7 @@ class TS_Excel extends conexion{
                 ->setCellValue($Campos[$z++].$i,"VALOR CUMPLIMIENTO DE INDICADORES S/N ACTA")
                 ->setCellValue($Campos[$z++].$i,"")
                 ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,"")
+                ->setCellValue($Campos[$z++].$i,$Totales["ValorDocumento"])
                 
 
                 ; 
@@ -651,7 +651,7 @@ class TS_Excel extends conexion{
                 ->setCellValue($Campos[$z++].$i,"DESCUENTOS A FAVOR DE ASMET")
                 ->setCellValue($Campos[$z++].$i,"")
                 ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,$Totales["TotalGlosaFavor"])
+                ->setCellValue($Campos[$z++].$i,$Totales["TotalGlosaFavor"]+$DatosActa["OtrosDescuentosConciliadosAfavor"])
                 
 
                 ; 
@@ -720,7 +720,7 @@ class TS_Excel extends conexion{
                 ->setCellValue($Campos[$z++].$i,"SALDO ACTA DE LIQUIDACIÓN")
                 ->setCellValue($Campos[$z++].$i,"")
                 ->setCellValue($Campos[$z++].$i,"")
-                ->setCellValue($Campos[$z++].$i,$Totales["Saldo"])
+                ->setCellValue($Campos[$z++].$i,$DatosActa["Saldo"])
                 
 
                 ; 
@@ -1545,9 +1545,10 @@ class TS_Excel extends conexion{
         $z=0;
         $TotalValorAPagarActaEjecucion=$Totales["ValorAPagarLMA"];
         $SaldoFinal=$Totales["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"];
-        if($DatosActa["TipoActaLiquidacion"]==13 or $DatosActa["TipoActaLiquidacion"]==14 or $DatosActa["TipoActaLiquidacion"]==15){
+        if($DatosActa["TipoActaLiquidacion"]==13 or $DatosActa["TipoActaLiquidacion"]==14 or $DatosActa["TipoActaLiquidacion"]==15 or $DatosActa["TipoActaLiquidacion"]==113 or $DatosActa["TipoActaLiquidacion"]==114 or $DatosActa["TipoActaLiquidacion"]==115){
             $TotalValorAPagarActaEjecucion=$DatosActa["ValorSegunActaCumplimientoMetas"];
-            $SaldoFinal=$TotalValorAPagarActaEjecucion-$Totales["Impuestos"]-$Totales["TotalGlosaFavor"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$Totales["TotalPagos"]-$DatosActa["PagosPendientesPorLegalizar"];
+            //$SaldoFinal=$TotalValorAPagarActaEjecucion-$Totales["Impuestos"]-$Totales["TotalGlosaFavor"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$Totales["TotalPagos"]-$DatosActa["PagosPendientesPorLegalizar"];
+            $SaldoFinal=$DatosActa["Saldo"];
         }
         $objPHPExcel->setActiveSheetIndex(0)
             

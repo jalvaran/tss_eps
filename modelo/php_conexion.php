@@ -41,5 +41,15 @@ class conexion extends db_conexion{
     public function getUniqId($prefijo='') {
          return (str_replace(".","",uniqid($prefijo, true)));
      }
+     
+     public function CalculeDiferenciaFechas($FechaInicial,$FechaFinal,$Vector) {
+        $datetime1 = date_create($FechaInicial);
+        $datetime2 = date_create($FechaFinal);
+        $interval = date_diff($datetime1, $datetime2);
+        $Resultados["Anios"]=$interval->format('%y');
+        $Resultados["Dias"]=$interval->format('%a');
+        $Resultados["Meses"]=$interval->format('%m');
+        return($Resultados);
+    }
 
 }

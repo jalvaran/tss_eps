@@ -10,7 +10,7 @@
  * 
  */
 $myPage="tickets.php";
-$myTitulo="Tickets TSS";
+$myTitulo="Tickets TAGS";
 include_once("../../sesiones/php_control_usuarios.php");
 include_once("../../constructores/paginas_constructor.php");
 

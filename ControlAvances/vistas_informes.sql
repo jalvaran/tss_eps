@@ -55,9 +55,9 @@ SELECT t1.*,
 
 DROP VIEW IF EXISTS `vista_informe_conciliaciones_tags`;
 CREATE VIEW vista_informe_conciliaciones_tags AS 
-SELECT ID AS 'ACTA CONCILIACION',NIT_IPS AS NIT,RazonSocialIPS AS 'RAZON SOCIAL',
-TipoActa AS 'TIPO ACTA',MesServicioInicial AS 'MES INICIAL DE ACTA',MesServicioFinal AS 'MES FINAL DE ACTA',FechaFirma AS 'FECHA DE FIRMA' ,FechaRegistro AS 'FECHA DE REGISTRO',Updated AS 'FECHA DE ACTUALIZACION',
-(SELECT CONCAT(Nombre,' ',Apellido) FROM usuarios WHERE idUsuarios=idUser) as 'NOMBRE_LIQUIDADOR',
-(SELECT GROUP_CONCAT(NumeroContrato SEPARATOR ' | ') FROM actas_conciliaciones_contratos where actas_conciliaciones_contratos.idActaConciliacion=actas_conciliaciones.ID ) AS 'CONTRATOS', 
-Estado AS 'ESTADO' 
+SELECT ID ,NIT_IPS,RazonSocialIPS ,
+TipoActa as tipo_acta ,MesServicioInicial,MesServicioFinal ,FechaFirma ,FechaRegistro ,Updated ,
+(SELECT CONCAT(Nombre,' ',Apellido) FROM usuarios WHERE idUsuarios=idUser) as 'nombre_liquidador',
+(SELECT GROUP_CONCAT(NumeroContrato SEPARATOR ' | ') FROM actas_conciliaciones_contratos where actas_conciliaciones_contratos.idActaConciliacion=actas_conciliaciones.ID ) AS 'contratos', 
+Estado  
 FROM actas_conciliaciones ORDER BY idUser;

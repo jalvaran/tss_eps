@@ -533,7 +533,7 @@ if(isset($_REQUEST["Opcion"])){
                 }
                 
             }
-            if($CmbTipoNegociacion=="EVENTO"){
+            if($CmbTipoNegociacion=="EVENTO" or $CmbTipoNegociacion=="PGP"){
                 $QueryParcial= str_replace("NumeroDiasLMA,", "", $QueryParcial);
                 $QueryParcial= str_replace("NumeroAfiliadosLMA,", "", $QueryParcial);
                 $QueryParcial= str_replace("ValorPercapita,", "", $QueryParcial);
@@ -550,7 +550,7 @@ if(isset($_REQUEST["Opcion"])){
             
             //$sql=$sqlColumnas."SELECT $CamposShow FROM $Tabla $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
             $sql=$sqlColumnas."$QueryParcial $Condicion INTO OUTFILE '$OuputFile' FIELDS TERMINATED BY '$Separador' $Enclosed LINES TERMINATED BY '\r\n';";
-            
+            //print($sql);
             $obCon->Query($sql);
             $Fecha=date("Ymd_His");
             

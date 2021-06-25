@@ -27,9 +27,9 @@ if(isset($_REQUEST["idDocumento"])){
             $DatosIPS=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosIPS["DataBase"];
             $DatosActa= $obCon->DevuelveValores("actas_liquidaciones", "ID", $idActaLiquidacion);     
-            //$DatosActaTipo=$obCon->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
+            $DatosActaTipo=$obCon->DevuelveValores("actas_liquidaciones_tipo", "ID", $DatosActa["TipoActaLiquidacion"]);
             //print($DatosActaTipo["Header"]);
-            if($DatosActa["TipoActaLiquidacion"]==1 or $DatosActa["TipoActaLiquidacion"]==2 or $DatosActa["TipoActaLiquidacion"]==3 or $DatosActa["TipoActaLiquidacion"]==7 or $DatosActa["TipoActaLiquidacion"]==8 or $DatosActa["TipoActaLiquidacion"]==9 or $DatosActa["TipoActaLiquidacion"]==10 or $DatosActa["TipoActaLiquidacion"]==11 or $DatosActa["TipoActaLiquidacion"]==12 ){
+            if($DatosActaTipo["tipo_anexo_pdf"]==2 or $DatosActaTipo["tipo_anexo_pdf"]==3 ){
                 if($FacturaRadicado==0){
                     $obCon->GenerarAnexoActaLiquidacionXFacturas1($db,$DatosIPS,$idActaLiquidacion,$DatosActa,$TipoConsulta);
                     //$obCon->GenerarAnexoActaLiquidacionXFacturasSpout($db,$DatosIPS,$idActaLiquidacion,$DatosActa,$TipoConsulta);
@@ -39,7 +39,7 @@ if(isset($_REQUEST["idDocumento"])){
                     $obCon->GenerarAnexoActaLiquidacionXRadicados1($db,$DatosIPS,$idActaLiquidacion,$DatosActa,$TipoConsulta);
                 }
             }
-            if($DatosActa["TipoActaLiquidacion"]==4 or $DatosActa["TipoActaLiquidacion"]==5 or $DatosActa["TipoActaLiquidacion"]==6 or $DatosActa["TipoActaLiquidacion"]==13 or $DatosActa["TipoActaLiquidacion"]==14 or $DatosActa["TipoActaLiquidacion"]==15 ){
+            if($DatosActaTipo["tipo_anexo_pdf"]==1 ){
                 $obCon->GenerarAnexoActaLiquidacionXFacturasCapita($db,$DatosIPS,$idActaLiquidacion,$DatosActa,$TipoConsulta);
             }
             

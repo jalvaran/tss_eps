@@ -241,12 +241,13 @@ if( !empty($_REQUEST["Accion"]) ){
                 $obCon->ActualizaRegistro("actas_liquidaciones", "IPS_Telefono", $DatosIPS["Telefono"], "ID", $idActaLiquidacion);
             }
             
-            $sql="SELECT t1.*, t2.Nombre AS NombreTipoActa,t2.Titulo FROM actas_liquidaciones t1 "
+            $sql="SELECT t1.*, t2.Nombre AS NombreTipoActa,t2.Titulo,t2.tipo_anexo_pdf FROM actas_liquidaciones t1 "
                     . "INNER JOIN actas_liquidaciones_tipo t2 ON t2.ID=t1.TipoActaLiquidacion WHERE t1.ID='$idActaLiquidacion';";
             
             $DatosActa=$obCon->FetchAssoc($obCon->Query($sql));
             $NitIPS=$DatosActa["NIT_IPS"];
             $TipoActa=$DatosActa["TipoActaLiquidacion"];
+            $tipo_anexo=$DatosActa["tipo_anexo_pdf"];
             $MesServicioInicial=$DatosActa["MesServicioInicial"];
             $MesServicioFinal=$DatosActa["MesServicioFinal"];
             
@@ -619,7 +620,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     
                     
                     
-                    if($TipoActa==3 or $TipoActa==6 or $TipoActa==15 or $TipoActa==16  or $TipoActa==17 or $TipoActa==18 or $TipoActa==19 ){
+                    if($TipoActa==3 or $TipoActa==6 or $TipoActa==15 or $TipoActa==16  or $TipoActa==17 or $TipoActa==18 or $TipoActa==19 or $TipoActa==103 or $TipoActa==106 or $TipoActa==115 or $TipoActa==116  or $TipoActa==117 or $TipoActa==118 or $TipoActa==119 ){
                         foreach ($TotalesActa as $key => $value) {
                             $TotalesActa[$key]=0;
                             $SaldoTotal=0;
@@ -627,9 +628,10 @@ if( !empty($_REQUEST["Accion"]) ){
                     }
                     $SaldoTotal=$TotalesActa["Saldo"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"];
                     $DescuentoBDUACuadro= number_format($TotalesActa["DescuentoBDUA"]);
-                    if($TipoActa==13 or $TipoActa==14 or $TipoActa==15){
+                
+                    if($TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==113 or $TipoActa==114 or $TipoActa==115){
                         
-                        $SaldoTotal=$TotalFacturado-$TotalDevolucion-$TotalesActa["Impuestos"]-$TotalesActa["GlosaFavor"]-$TotalesActa["Copagos"]-$TotalesActa["OtrosDescuentos"]-$TotalesActa["AjustesCartera"]-$TotalesActa["TotalPagos"]-$TotalesActa["TotalAnticipos"]-$DatosActa["OtrosDescuentosConciliadosAfavor"]-$DatosActa["PagosPendientesPorLegalizar"];
+                        $SaldoTotal=$TotalFacturado-$TotalDevolucion-$TotalesActa["Impuestos"]-$TotalesActa["Copagos"]-$TotalesActa["OtrosDescuentos"]-$TotalesActa["AjustesCartera"]-$TotalesActa["TotalPagos"]-$TotalesActa["TotalAnticipos"]-$DatosActa["PagosPendientesPorLegalizar"];
                         $DescuentoBDUACuadro="N/A";
                         
                     }
@@ -688,22 +690,37 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->FilaTabla(16);
                         $css->ColTabla("<strong>TOTALES ACTA DE LIQUIDACIÓN:</strong>", 6,'C');
                     $css->CierraFilaTabla();
-                    if($TipoActa==1 OR $TipoActa==2 OR $TipoActa==3 OR $TipoActa==7 OR $TipoActa==9 OR $TipoActa==11 OR $TipoActa==12  OR $TipoActa==16  OR $TipoActa==17){
+                    
+                    if($tipo_anexo==2 or $tipo_anexo==3){
                         $css->FilaTabla(16);
+                        /*
+                            if($TipoActa==11 or $TipoActa==12 or $TipoActa==17 or $TipoActa==111 or $TipoActa==112 or $TipoActa==117){
+                                $css->ColTabla("<strong>VALOR SEGUN ACTA DE EJECUCION DE METAS</strong>", 1);
+                            }
+                         * 
+                         */
                             $css->ColTabla("<strong>VALOR FACTURADO</strong>", 1);
                             $css->ColTabla("<strong>RETENCION IMPUESTOS</strong>", 1);
                             $css->ColTabla("<strong>DEVOLUCION</strong>", 1);
                             $css->ColTabla("<strong>GLOSA</strong>", 1);
-                            $css->ColTabla("<strong>GLOSA A FAVOR DE ASMET</strong>", 1);
+                            $css->ColTabla("<strong>GLOSA A FAVOR DE ASMET</strong>", 2);
                             
                         $css->CierraFilaTabla();
 
                         $css->FilaTabla(16);
+                        /*
+                            if($TipoActa==11 or $TipoActa==12 or $TipoActa==17 or $TipoActa==111 or $TipoActa==112 or $TipoActa==117){
+                                print("<td>");
+                                    $css->input("text", "TxtValorActaMetas", "form-control", "TxtValorActaMetas", "Valor según acta de cumplimiento de metas", $DatosActa["ValorSegunActaCumplimientoMetas"], "Valor según acta de cumplimiento de metas", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtValorActaMetas`,`ValorSegunActaCumplimientoMetas`)");
+                                print("</td>");
+                            }
+                         * 
+                         */
                             $css->ColTabla(number_format($DatosActa["ValorFacturado"]), 1);
                             $css->ColTabla(number_format($DatosActa["RetencionImpuestos"]), 1);
                             $css->ColTabla(number_format($DatosActa["Devolucion"]), 1);
                             $css->ColTabla(number_format($DatosActa["Glosa"]), 1);
-                            $css->ColTabla(number_format($DatosActa["GlosaFavor"]), 1);
+                            $css->ColTabla(number_format($DatosActa["GlosaFavor"]), 2);
                             
                         $css->CierraFilaTabla();
 
@@ -713,6 +730,7 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->ColTabla("<strong>OTROS DESCUENTOS</strong>", 1);
                             $css->ColTabla("<strong>VALOR PAGADO</strong>", 1);
                             $css->ColTabla("<strong>PAGOS PENDIENTES POR LEGALIZAR</strong>", 1);
+                            $css->ColTabla("<strong>OTROS DESCUENTOS CONCILIADOS A FAVOR DE ASMET</strong>", 1);
                             
                         $css->CierraFilaTabla();
 
@@ -723,8 +741,11 @@ if( !empty($_REQUEST["Accion"]) ){
                             $css->ColTabla(number_format($DatosActa["ValorPagado"]), 1);
                             print("<td>");
                                 $css->input("text", "TxtPagosPendientesPorLegalizar", "form-control", "TxtPagosPendientesPorLegalizar", "Pagos Pendientes por legalizar", $DatosActa["PagosPendientesPorLegalizar"], "Pagos pendientes por legalizar", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtPagosPendientesPorLegalizar`,`PagosPendientesPorLegalizar`)");
+                                
                             print("</td>");
-                            
+                            print("<td>");
+                                $css->input("text", "TxtOtrosDescuentosAFavorAsmet", "form-control", "TxtOtrosDescuentosAFavorAsmet", "Otros Descuentos A Favor", $DatosActa["OtrosDescuentosConciliadosAfavor"], "Otros Descuentos A Favor", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtOtrosDescuentosAFavorAsmet`,`OtrosDescuentosConciliadosAfavor`)");
+                            print("</td>");
                         $css->CierraFilaTabla();
                         $css->FilaTabla(16);
                             
@@ -733,10 +754,10 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CierraFilaTabla();
                     }
                     
-                    if($TipoActa==4 or $TipoActa==5 or $TipoActa==6  or $TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==16 or $TipoActa==17 or $TipoActa==18 or $TipoActa==19 ){
+                    if($tipo_anexo==1){
                         $TituloValorFacturado="VALOR FACTURADO";
                         $ValorFacturado=$DatosActa["ValorFacturado"];
-                        if($TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==16 or $TipoActa==17 or $TipoActa==18 or $TipoActa==19){
+                        if($TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==18 or $TipoActa==19 or $TipoActa==113 or $TipoActa==114 or $TipoActa==115 or $TipoActa==118 or $TipoActa==119) {
                             $TituloValorFacturado="VALOR A PAGAR SEGÚN ACTA DE EJECUCION DE METAS";
                             $ValorFacturado=$DatosActa["ValorSegunActaCumplimientoMetas"];
                         }
@@ -750,7 +771,7 @@ if( !empty($_REQUEST["Accion"]) ){
                         $css->CierraFilaTabla();
 
                         $css->FilaTabla(16);
-                            if($TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==18){
+                            if($TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==18 or $TipoActa==113 or $TipoActa==114 or $TipoActa==115 or $TipoActa==118){
                                 print("<td>");
                                     $css->input("text", "TxtValorActaMetas", "form-control", "TxtValorActaMetas", "Valor según acta de cumplimiento de metas", $DatosActa["ValorSegunActaCumplimientoMetas"], "Valor según acta de cumplimiento de metas", "off", "", "onchange=EditeActaLiquidacion(`$idActaLiquidacion`,`TxtValorActaMetas`,`ValorSegunActaCumplimientoMetas`)");
                                 print("</td>");

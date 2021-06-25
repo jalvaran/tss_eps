@@ -78,9 +78,9 @@ class PageConstruct extends html_estruct_class{
         print('
             <header class="main-header">
                 <!-- Logo -->
-                <a href="../index.php" class="logo">
+                <a href="#" class="logo">
                   <!-- mini logo for sidebar mini 50x50 pixels -->
-                  <span class="logo-mini"><b>T</b>SS</span>
+                  <span class="logo-mini"><b>T</b>AGS</span>
                   <!-- logo for regular state and mobile devices -->
                   <span class="logo-lg"><b>'.$Title.'</b></span>
                 </a>
@@ -1320,6 +1320,8 @@ class PageConstruct extends html_estruct_class{
                           
                         ');
                 foreach ($DatosSubMenu[$keyMenu] as $keySubmenu => $SubMenu) {
+                    $SubMenu["Ruta"]= str_replace("../", "", $SubMenu["Ruta"]);
+                    $SubMenu["Ruta"]="../../".$SubMenu["Ruta"];
                     print('<li><a href="'.$SubMenu["Ruta"].$SubMenu["Pagina"].'" target="'.$SubMenu["Target"].'"><i class="fa fa-circle-o"></i>'.utf8_encode($SubMenu["Nombre"]).'</a></li>');
                     /*
                     print('<li><a href="'.$SubMenu["Ruta"].$SubMenu["Pagina"].'" target="'.$SubMenu["Target"].'"><span>'.$SubMenu["Nombre"].'</span></a></li>
@@ -2077,6 +2079,28 @@ class PageConstruct extends html_estruct_class{
         public function AddJSTextAreaEnriquecida(){
             print(' <link rel="stylesheet" href="../../plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
                     <script src="../../plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>');
+        }
+        
+        public function box_toogle($titulo,$html_body,$color="primary") {
+            print('
+                    <div class="box box-'.$color.' box-solid ts-collapse">
+                      <div class="box-header with-border">
+                        <h3 class="box-title">'.$titulo.'</h3>
+
+                        <div class="box-tools pull-right">
+                          <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                          </button>
+                        </div>
+                        
+                      </div>
+                      
+                      <div class="box-body" style="">
+                        '.$html_body.'
+                      </div>
+                      
+                    </div>
+                    
+                  ');
         }
         
         //////////////////////////////////FIN

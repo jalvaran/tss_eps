@@ -3306,7 +3306,7 @@ if( !empty($_REQUEST["Accion"]) ){
                 print("</tr>");
                 print("<tr style=font-size:16px;border-left-style:double;border-right-style:double;border-width:5px;>");
                     print("<td colspan=2 style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
-                        print("2. Relación de facturas no registradas por ASMET SALUD");
+                        print("2. Relación de facturas no radicadas por el prestador");
                     print("</td>");
                     print("<td style=font-size:16px;border-style:solid;border-width:1px;border-color:black;>");
                         $css->input("$TipoCaja", "TxtACFacturasIPSNoRelacionadasEPS", "", "TxtACFacturasIPSNoRelacionadasEPS", "", $DatosActa["FacturasNoRegistradasXEPS"], "", "off", "", "style='display:none;'");

@@ -368,7 +368,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             
             $html.='<tr>';
                 $html.='<td  border="0" colspan="2">';
-                    $html.='2. Relación de facturas no registradas por ASMET SALUD:';
+                    $html.='2. Relación de facturas no radicadas por el prestador:';
                 $html.='</td>';  
                 $html.='<td  border="0" style="text-align:right;">';
                     $html.="<h3>".number_format($DatosActa["FacturasNoRegistradasXEPS"])."</h3>";
@@ -577,9 +577,10 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $DatosTipoActa=$this->obCon->DevuelveValores("actas_liquidaciones_tipo","ID",$DatosActa["TipoActaLiquidacion"]);     
         $NIT_IPS=$DatosActa["NIT_IPS"];
         $TipoActa=$DatosActa["TipoActaLiquidacion"];
+        $tipo_anexo=$DatosTipoActa["tipo_anexo_pdf"];
         $Unilateral="";
-         
-         if($TipoActa==2 or $TipoActa==5 or $TipoActa==8 or $TipoActa==10 or $TipoActa==12 or $TipoActa==16 ){
+         /*
+         if($DatosTipoActa["Unilateral"]==1){
 
              $Unilateral="UNILATERAL";
                      
@@ -587,16 +588,18 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
          $TituloTipoActa="ACTA DE LIQUIDACIÓN ";
          if($DatosTipoActa["NoEjecucion"]==1){
              $TituloTipoActa="ACTA DE NO EJECUCIÓN";
-         }
-        
-        $this->PDF_IniActaLiquidacion($TituloTipoActa." No. ", utf8_encode($DatosTipoActa["Header"]), "Footer text");
+         
+          * }
+          */
+        $TituloTipoActa=utf8_encode($DatosTipoActa["EncabezadoActa"]);
+        $this->PDF_IniActaLiquidacion($TituloTipoActa." ", utf8_encode($DatosTipoActa["Header"]), "Footer text");
         $TamanoFuente=8;
         if(is_numeric($DatosActa["TamanoFuente"]) and $DatosActa["TamanoFuente"]>0 and $DatosActa["TamanoFuente"]<17){
             $TamanoFuente=$DatosActa["TamanoFuente"];
         }
         $this->PDF->SetFont('helvetica', '', $TamanoFuente);
         
-        $Titulo='<p align="center"><h3>'.$TituloTipoActa.' '. $Unilateral. ' No. '.utf8_encode($DatosActa["IdentificadorActaEPS"].'</h3></p>');
+        $Titulo='<p align="center"><h3>'.$TituloTipoActa.' '.utf8_encode($DatosActa["IdentificadorActaEPS"].'</h3></p>');
         $Titulo.="";
         $Titulo.='<p align="center"><h3>'.utf8_encode($DatosTipoActa["Titulo"]).'</h3></p>';
         $this->PDF->writeHTML($Titulo, true, false, false, false, '');
@@ -607,7 +610,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $html= $this->ContratosActaLiquidacion($idActaLiquidacion,$NIT_IPS);
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
-        $html= $this->RepresentantesLegalesActaLiquidacion($DatosActa);
+        $html= $this->RepresentantesLegalesActaLiquidacion($DatosActa,$DatosTipoActa);
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         $html= $this->ObservacionesActaLiquidacion1($idActaLiquidacion,$TipoActa);        
@@ -619,7 +622,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $html= $this->ObservacionesActaLiquidacion2($idActaLiquidacion,$TipoActa);        
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
-        $html= $this->TotalesActaLiquidacion($DatosActa,$TipoActa);
+        $html= $this->TotalesActaLiquidacion($DatosActa,$TipoActa,$tipo_anexo);
         $this->PDF->writeHTML("".$html, true, false, false, false, '');
         
         //if($DatosActa["Asmet"]<>2){
@@ -867,7 +870,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                     $html.="<tr>";
                         
                         $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>VALOR CUMPLIMIENTO DE INDICADORES S/N ACTA</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong> </strong></td>';
+                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["ValorDocumento"]).'</strong></td>';
 
                     $html.="</tr>";
                     $html.="<tr>";
@@ -891,7 +894,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                     $html.="<tr>";
                         
                         $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>DESCUENTOS A FAVOR DE ASMET</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalGlosaFavor"]).' </strong></td>';
+                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["TotalGlosaFavor"]+$DatosActa["OtrosDescuentosConciliadosAfavor"]).' </strong></td>';
 
                     $html.="</tr>";
                     $html.="<tr>";
@@ -909,7 +912,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                     $html.="<tr>";
                         
                         $html.='<td colspan="13" style="text-align:rigth;font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>SALDO ACTA DE LIQUIDACIÓN</strong></td>';                
-                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($Totales["Saldo"]).' </strong></td>';
+                        $html.='<td style="text-align:rigth;width:'.$AnchoColumnas.';font-size:7px;border-bottom: 1px solid #ddd;background-color: '.$Back.';"><strong>'.number_format($DatosActa["Saldo"]).' </strong></td>';
 
                     $html.="</tr>";
                 
@@ -936,6 +939,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         if(round($DatosActa["Saldo"])==0){
            return;
         }
+        
         $obCon=new conexion(1);
         $obNumLetra=new numeros_letras();
         if(round($DatosActa["Saldo"])<0 AND $DatosActa["FormaPagoIPS"]==1){
@@ -1502,7 +1506,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         return($html);
     }
     
-    public function TotalesActaLiquidacion($DatosActa,$TipoActa) {
+    public function TotalesActaLiquidacion($DatosActa,$TipoActa,$tipo_anexo) {
         $obNumLetra=new numeros_letras();
         $SaldoAPagarContratista=0;
         $SaldoAPagarContratante=0;
@@ -1512,28 +1516,8 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
             $SaldoAPagarContratante=$DatosActa["Saldo"];
         }
         $html="";
-        /*
-        if($TipoActa==3 or $TipoActa==6 or $TipoActa==15  or $TipoActa==16 or $TipoActa==17 OR $TipoActa==18 OR $TipoActa==19){
-            $DatosActa["Saldo"]=0;
-            $DatosActa["ValorFacturado"]=0;
-            $DatosActa["RetencionImpuestos"]=0;
-            $DatosActa["Devolucion"]=0;
-            $DatosActa["Glosa"]=0;
-            $DatosActa["GlosaFavor"]=0;
-            $DatosActa["NotasCopagos"]=0;
-            $DatosActa["RecuperacionImpuestos"]=0;
-            $DatosActa["OtrosDescuentos"]=0;
-            
-            $DatosActa["ValorPagado"]=0;
-            
-            $DatosActa["DescuentoBDUA"]=0;
-            $SaldoAPagarContratista=0;
-            
-            
-        }
-         * 
-         */
-        if($TipoActa==1 or $TipoActa==2 or $TipoActa==3 or $TipoActa==7 or $TipoActa==8 or $TipoActa==9 or $TipoActa==10 or $TipoActa==11 or $TipoActa==12 or $TipoActa==16 or $TipoActa==17){
+        
+        if($tipo_anexo==2 or $tipo_anexo==3){
             if($DatosActa["PagosPendientesPorLegalizar"]==0){
                 $html='<table cellspacing="1" cellpadding="1" border="1">
                             <tr>
@@ -1570,7 +1554,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                             <tr>
                                 <td style="text-align:rigth;">'. number_format($DatosActa["NotasCopagos"]).'</td>
                                 <td style="text-align:rigth;">'. number_format($DatosActa["RecuperacionImpuestos"]).'</td>
-                                <td style="text-align:rigth;">'. number_format($DatosActa["OtrosDescuentos"]).'</td>
+                                <td style="text-align:rigth;">'. number_format($DatosActa["OtrosDescuentos"]+$DatosActa["OtrosDescuentosConciliadosAfavor"]).'</td>
                                 <td style="text-align:rigth;">'. number_format($DatosActa["ValorPagado"]).'</td>
                                 <td style="text-align:rigth;">'. number_format($DatosActa["Saldo"]).'</td>
 
@@ -1640,12 +1624,12 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                     
         }
         
-        if($TipoActa==4 or $TipoActa==5 or $TipoActa==6 or $TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==18 or $TipoActa==19){
+        if($tipo_anexo==1){
             $TituloValorFacturado="VALOR FACTURADO";
             $TituloSaldo="SALDO";
             $TotalValorFacturado=$DatosActa["ValorFacturado"];
             $MostrarBDUA=1;
-            if($TipoActa==13 or $TipoActa==14 or $TipoActa==15){
+            if($TipoActa==13 or $TipoActa==14 or $TipoActa==15 or $TipoActa==113 or $TipoActa==114 or $TipoActa==115){
                 $TituloValorFacturado="VALOR A PAGAR SEGÚN ACTA DE EJECUCION DE METAS";
                 $TituloSaldo="SALDO FINAL ACTA DE LIQUIDACIÓN";
                 $TotalValorFacturado=$DatosActa["ValorSegunActaCumplimientoMetas"];
@@ -1995,12 +1979,13 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         return($html);
     }
     
-    public function RepresentantesLegalesActaLiquidacion($DatosActa) {
+    public function RepresentantesLegalesActaLiquidacion($DatosActa,$DatosTipoActa) {
+        
         $html="<h3>REPRESENTANTES LEGALES:</h3>";
         $html.='<table cellspacing="3" cellpadding="2" border="1">
                     <tr>
-                        <td colspan="2" style="width:50%;text-align:center;"><h2>E.P.S.</h2></td>
-                        <td colspan="2" style="width:50%;text-align:center;"><h2>I.P.S.</h2></td>
+                        <td colspan="2" style="width:50%;text-align:center;"><h2>E.P.S. CONTRATANTE</h2></td>
+                        <td colspan="2" style="width:50%;text-align:center;"><h2>CONTRATISTA</h2></td>
                     
                     </tr>
                     
@@ -2061,11 +2046,11 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
         $html="<h3>PARTES CONTRATANTES:</h3><br>";
         $html.='<table cellspacing="3" cellpadding="2" border="1">
                     <tr>
-                        <td style="width:20%;"><strong>Contratista IPS:</strong></td>
+                        <td style="width:20%;"><strong>Contratista:</strong></td>
                     
                         <td style="width:30%;"><strong>'.utf8_encode($DatosActa["RazonSocialIPS"]).'</strong></td>
                     
-                        <td style="width:20%;"><strong>NIT IPS:</strong></td>
+                        <td style="width:20%;"><strong>NIT CONTRATISTA:</strong></td>
                     
                         <td style="width:30%;" ><strong>'.$DatosActa["NIT_IPS"].'</strong></td>
                     </tr>
@@ -2125,7 +2110,7 @@ $this->PDF->writeHTML("<br>", true, false, false, false, '');
                 
                 $html.='<tr>';
                     $html.='<td style="text-align:rigth" colspan="2">';
-                        $html.='<h4>Valor:</h4>';
+                        $html.='<h4>Valor Inicial del Contrato:</h4>';
                     $html.='</td>';
                     $html.='<td>';
                         $html.="<h4>".number_format($DatosContratos["ValorContrato"])."</h4>";
