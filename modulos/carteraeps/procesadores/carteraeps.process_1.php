@@ -1,6 +1,6 @@
 <?php
 
-@session_start();
+session_start();
 if (!isset($_SESSION['username'])){
   exit("<a href='../../index.php' ><img src='../images/401.png'>Iniciar Sesion </a>");
   
@@ -166,20 +166,12 @@ if( !empty($_REQUEST["Accion"]) ){
             $FechaCorteCartera=$obCon->normalizar($_REQUEST["FechaCorteCartera"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
-            $page=$obCon->normalizar($_REQUEST["page"]);
-            $total_items=$obCon->normalizar($_REQUEST["total_items"]);
-            $fecha_actualizacion=$obCon->normalizar($_REQUEST["fecha_actualizacion"]);
-            $limit=1000;
-            $startpoint = ($page * $limit) - $limit;
-            $total_pages= ceil($total_items/$limit);
-            
-            $condition_limit=" LIMIT $limit ";
+            $keyArchivo=$obCon->getKeyCarteraEPS($FechaCorteCartera, $CmbIPS, $CmbEPS);
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             
             $sql="UPDATE $db.carteraeps t1 
-                SET t1.Sync='$fecha_actualizacion',
-                    t1.ValorOriginal=(SELECT ValorOriginal FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),
+                SET t1.ValorOriginal=(SELECT ValorOriginal FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),
                     t1.FechaRadicado=(SELECT FechaFactura FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),
                     t1.MesServicio=(SELECT MesServicio FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),
                     t1.NumeroRadicado=(SELECT NumeroRadicado FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),
@@ -187,42 +179,25 @@ if( !empty($_REQUEST["Accion"]) ){
                     t1.NumeroOperacion=(SELECT NumeroOperacion FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1), 
                     t1.TipoOperacion=(SELECT TipoOperacion FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1),   
                     t1.CarteraEPSTipoNegociacion = (SELECT TipoNegociacionOperacion FROM tipos_operacion t2 WHERE t1.TipoOperacion=t2.TipoOperacion LIMIT 1 ),    
-                    t1.ValorMenosImpuestos=(SELECT ValorMenosImpuestos FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1) 
-                    
-                     WHERE Sync<>'$fecha_actualizacion' $condition_limit  ;";
-             
-            $obCon->Query($sql);
-            if($total_pages<=$page){
-                print("OK;Registros Actualizados correctamente");
-            }else{
-                $next_page=$page+1;
-                print("UP;Actualizando $page de $total_pages bloques de registros;$next_page");
-            }       
-            
+                    t1.ValorMenosImpuestos=(SELECT ValorMenosImpuestos FROM $db.historial_carteracargada_eps t2 WHERE t1.NumeroFactura=t2.NumeroFactura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t2.TipoOperacion = t3.TipoOperacion AND Aplicacion='FACTURA' ) ORDER BY t2.FechaFactura DESC LIMIT 1) LIMIT 1000;";
+              
+           $obCon->Query($sql);
+                        
+            print("OK;Registros Actualizados correctamente");
         break; //fin caso 8
     
         case 9://cuente registros en cartera eps
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
-            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]); 
-            $fecha_actualizacion=$obCon->normalizar($_REQUEST["fecha_actualizacion"]); 
+            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);            
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             
-            $sql="SELECT COUNT(*) as total_items FROM $db.carteraeps WHERE Sync<>'$fecha_actualizacion'";
+            $sql="SELECT COUNT(*) as total_items FROM $db.carteraeps";
             $datos_consulta=$obCon->FetchAssoc($obCon->Query($sql));
             $total_items=$datos_consulta["total_items"];
-            
             print("OK;$total_items registros encontrados para actualizar;$total_items");
         break;//fin caso 9
-    
-        case 10://obtenga la fecha de sinconizacion
-            $fecha_actualizacion=date("Y-m-d H:i:s");            
-            print("OK;Fecha de Sincronizacion obtenida $fecha_actualizacion;$fecha_actualizacion");           
-            
-        break;//fin caso 10    
         
-        
-       
     }
     
     

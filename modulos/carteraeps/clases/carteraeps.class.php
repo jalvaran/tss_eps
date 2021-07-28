@@ -181,7 +181,8 @@ class CarteraEPS extends conexion{
         $length_array=count($CamposDatos);
         $i = 1;        
         foreach ($CamposDatos as $key => $value) {
-            $sqlCampos .= "`$key`";            
+            $sqlCampos .= "`$key`";
+            
             if ($i!= $length_array) {
               $sqlCampos .= ", " ;              
             }else {
@@ -227,6 +228,8 @@ class CarteraEPS extends conexion{
                 if(isset($data[$value])){
                     $dato=str_replace(".", "", $data[$value]);
                     $dato= str_replace(",", "", $dato);
+                    $dato= str_replace("'", "", $dato);
+                    $dato= preg_replace("/[\r\n|\n|\r]+/", " ", $dato);
                     if($key=='FechaFactura' or $key=="FechaTransaccionCF" or $key=="FechaTransaccionPF" or $key=="FechaPlanoPF" or $key=="FechaTransaccionGA2702" or $key=="FechaTransaccionGD2702"){
                         $dato=$this->formatearFechaCsv($data[$value]);
                     }  

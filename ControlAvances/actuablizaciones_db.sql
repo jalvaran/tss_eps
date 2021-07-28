@@ -194,3 +194,16 @@ INSERT INTO `configuracion_tablas_acciones_adicionales` (`TablaDB`, `JavaScript`
 SELECT 'contratos', 'onclick=adjuntos_contrato', 'fa fa-paperclip', 'Adjuntos', '#', '_SELF', '2019-04-06 14:49:13', '2019-04-06 14:49:13'
 FROM `configuracion_tablas_acciones_adicionales`
 WHERE ((`ID` = '8'));
+
+
+CREATE TABLE `auditoria_registra_anexos` (
+  `ID` varchar(45) COLLATE utf8_spanish_ci DEFAULT NULL,  
+  `Ruta` varchar(200) COLLATE utf8_spanish_ci DEFAULT NULL COMMENT 'ruta del archivo',
+  `NombreArchivo` varchar(200) COLLATE utf8_spanish_ci DEFAULT NULL COMMENT 'Nombre del archivo',
+  `Extension` varchar(15) COLLATE utf8_spanish_ci DEFAULT NULL COMMENT 'Extension del archivo',
+  `Tamano` double NOT NULL DEFAULT '0' COMMENT 'Tamaño del archivo',
+  `idUser` int(11) NOT NULL DEFAULT '0' COMMENT 'usuario que lo sube',
+  `created` datetime NOT NULL COMMENT 'Fecha de Creacion',
+  PRIMARY KEY (`ID`)
+  
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;

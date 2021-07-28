@@ -137,7 +137,8 @@ class CargarRadicadosPendientes extends conexion{
                 
                 if(isset($data[$value])){
                     $dato=str_replace(".", "", $data[$value]);
-                    $dato=str_replace("'", "", $data[$value]);
+                    $dato=str_replace("'", "", $dato);                   
+                    $dato= preg_replace("/[\r\n|\n|\r]+/", " ", $dato);
                     if($key=='FechaRadicacion' or $key=="FechaAprobacion"){
                         $dato=$this->formatearFechaCsv($data[$value]);
                     }  

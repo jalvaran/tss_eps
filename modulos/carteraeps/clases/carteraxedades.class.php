@@ -192,7 +192,6 @@ class CarteraXEdades extends conexion{
         unset($key);
         unset($ColumnasTabla);
         
-        
     }
     
     

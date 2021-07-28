@@ -1256,6 +1256,8 @@ if( !empty($_REQUEST["Accion"]) ){
                     ADD INDEX(`MesServicio`),
                     ADD INDEX(`NumeroRadicado`),
                     ADD INDEX(`NumeroContrato`),
+                    ADD INDEX(`TipoNegociacion`),
+                    ADD INDEX(`TipoNegociacionContrato`),
                     ADD INDEX(`CodigoSucursal`),
                     CHANGE `DiferenciaXPagosNoDescargados` `DiferenciaXPagosNoDescargados` DOUBLE NOT NULL,
                     CHANGE `DiferenciaXGlosasPendientesXConciliar` `DiferenciaXGlosasPendientesXConciliar` DOUBLE NOT NULL,                    

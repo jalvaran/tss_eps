@@ -1,0 +1,2 @@
+ALTER TABLE `carteracargadaips` CHANGE `TipoNegociacion` `TipoNegociacion` VARCHAR(25) CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL;
+ALTER TABLE `temporalcarguecarteraips` CHANGE `TipoNegociacion` `TipoNegociacion` VARCHAR(25) CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL;
