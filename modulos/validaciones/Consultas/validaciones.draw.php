@@ -2119,7 +2119,7 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->Cdiv();
             $css->CrearTabla();
                 $css->FilaTabla(16);
-                    $css->ColTabla("<strong>Subir conciliaciones desde Archivo</strong>", 6,'C');
+                    $css->ColTabla("<strong>Subir Ajustes desde Archivo</strong>", 6,'C');
                 $css->CierraFilaTabla();
                 $css->FilaTabla(16);
                     print("<td colspan=6>");
@@ -2200,7 +2200,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->CierraFilaTabla();  
                     
                     $css->FilaTabla(16);    
-                        $css->ColTabla("<strong>Archivo de conciliaciones</strong>", 2,'C');
+                        $css->ColTabla("<strong>Archivo de conciliaciones</strong>", 3,'C');
                         $css->ColTabla("<strong>Soporte</strong>", 1,'C');
                         $css->ColTabla("<strong>Ejecutar</strong>", 1,'C');
                     $css->CierraFilaTabla();

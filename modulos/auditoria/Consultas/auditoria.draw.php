@@ -68,12 +68,12 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->Cdiv();
                                 
                 $css->CrearDiv("", "col-md-8", "left", 1, 1);
-                    print("<strong>Contratos disponibles en el anexo:</strong><br>");
+                    //print("<strong>Contratos disponibles en el anexo:</strong><br>");
                     $css->CrearDiv("contratos_anexo_div", "col-md-12", "left", 1, 1);
                     $css->Cdiv();   
                 $css->Cdiv();   
                 $css->CrearDiv("", "col-md-4", "left", 1, 1);
-                    print("<strong>Contratos agregados:</strong><br>");
+                    //print("<strong>Contratos agregados:</strong><br>");
                     $css->CrearDiv("contratos_anexo_agregados_div", "col-md-12", "left", 1, 1);
                     
                     $css->Cdiv();   
@@ -119,6 +119,17 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $css->CrearTabla();
                 $css->FilaTabla(16);
+                    print('<td>');
+                        $css->CrearBotonEvento("btnOpcionesMasivas", "Ajustes A Facturas", 1, "onclick", "AbreOpcionesMasivas()", "naranja");
+                    print('</td>');
+                    print('<td>');
+                        $css->CrearBotonEvento("btnEliminarAjsutes", "Eliminar ajustes a facturas", 1, "onclick", "eliminar_ajustes_facturas()", "rojo");
+                    print('</td>');
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Contratos Disponibles en el Anexo</strong>", 4,"C");
+                $css->CierraFilaTabla();
+                $css->FilaTabla(16);
                     $css->ColTabla("<strong>Acciones</strong>", 1,"C");
                     
                     $css->ColTabla("<strong>Contrato</strong>", 1,"C");
@@ -133,7 +144,7 @@ if( !empty($_REQUEST["Accion"]) ){
                     print('<td>');
                         print('<div class="text-left">');
                             print('<a title="Agregar" onclick="agregar_contrato_hoja_trabajo(`'.$hoja_trabajo_id.'`,`'.$contrato.'`);"  class="btn btn-social-icon btn-bitbucket"><i class="fa fa-mail-forward"></i></a> ');
-                            print('<a title="Renombrar" class="btn btn-social-icon btn-flickr"><i class="fa fa-edit"></i></a> ');
+                            print('<a title="Renombrar" onclick="ModalRenombrarContrato(`'.$contrato.'`)" class="btn btn-social-icon btn-flickr"><i class="fa fa-edit"></i></a> ');
                             print('<a title="Percapitas" class="btn btn-social-icon btn-github"><i class="fa fa-indent"></i></a>');
                         
                         
@@ -338,6 +349,9 @@ if( !empty($_REQUEST["Accion"]) ){
             
             
             $css->CrearTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>Contratos Agregados</strong>", 2,"C");
+                $css->CierraFilaTabla();
                 $css->FilaTabla(16);
                                      
                     $css->ColTabla("<strong>Contrato</strong>", 1,"C");

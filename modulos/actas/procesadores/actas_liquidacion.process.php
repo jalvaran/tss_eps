@@ -410,7 +410,6 @@ if( !empty($_REQUEST["Accion"]) ){
             $NumeroContrato=$obCon->normalizar($_REQUEST["NumeroContrato"]);
             $idActaLiquidacion=$obCon->normalizar($_REQUEST["idActaLiquidacion"]);
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
-            $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
             
             $FechaInicial=$obCon->normalizar($_REQUEST["FechaInicial"]);
             $FechaFinal=$obCon->normalizar($_REQUEST["FechaFinal"]);
@@ -446,9 +445,25 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $sql="UPDATE $db.actas_conciliaciones_items SET NumeroContrato='$ContratoNuevo' WHERE NumeroContrato='$NumeroContrato' AND MesServicio>='$MesServicioInicial' AND MesServicio<='$MesServicioFinal'";
             $obCon->Query($sql);
+            if($idActaLiquidacion<>'NA'){
+                $sql="UPDATE actas_liquidaciones_contratos SET idContrato='$ContratoNuevo' WHERE idContrato='$NumeroContrato' AND idActaLiquidacion='$idActaLiquidacion'";
+                $obCon->Query($sql);            
+            }
+            if(isset($_REQUEST["hoja_trabajo_id"])){
+                $hoja_trabajo_id=$obCon->normalizar($_REQUEST["hoja_trabajo_id"]);
+                $datos_hoja=$obCon->DevuelveValores("auditoria_hojas_trabajo", "hoja_trabajo_id", $hoja_trabajo_id);
+                $sql="UPDATE auditoria_hojas_trabajo_contrato SET contrato='$ContratoNuevo' WHERE contrato='$NumeroContrato' AND hoja_trabajo_id='$hoja_trabajo_id'";
+                $obCon->Query($sql);
+                if($datos_hoja["tipo_negociacion"]==1){//Si es un evento
+                    $sql="UPDATE $db.auditoria_anexo_aly_evento SET contrato='$ContratoNuevo' WHERE contrato='$NumeroContrato' AND mes_servicio>='$MesServicioInicial' AND mes_servicio<='$MesServicioFinal'";
+                    $obCon->Query($sql);
+
+                    $sql="UPDATE $db.auditoria_hoja_de_trabajo_evento SET contrato='$ContratoNuevo' WHERE contrato='$NumeroContrato' AND mes_servicio>='$MesServicioInicial' AND mes_servicio<='$MesServicioFinal'";
+                    $obCon->Query($sql);
+                }
+                
+            }
             
-            $sql="UPDATE actas_liquidaciones_contratos SET idContrato='$ContratoNuevo' WHERE idContrato='$NumeroContrato' AND idActaLiquidacion='$idActaLiquidacion'";
-            $obCon->Query($sql);
             
             print("OK;Contrato Renombrado");
             

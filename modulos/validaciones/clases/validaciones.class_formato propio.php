@@ -296,7 +296,10 @@ class ValidacionesEPS extends conexion{
        
         $objPHPExcel = $objReader->load($RutaArchivo);   
         $hojas=$objPHPExcel->getSheetCount();
-                         
+                 
+              
+        $hojas=$objPHPExcel->getSheetCount();
+        
         date_default_timezone_set('UTC'); //establecemos la hora local
         
         $Cols=[ 'ZZ','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
@@ -312,19 +315,12 @@ class ValidacionesEPS extends conexion{
             $columnas = $objPHPExcel->setActiveSheetIndex(0)->getHighestColumn();
             $filas = $objPHPExcel->setActiveSheetIndex(0)->getHighestRow();
             
-            if($columnas<>'AA'){
+            if($columnas<>'AB'){
                 exit('E1;<h3>No se recibió el archivo de <strong>Actualizaciones Masivas: '.$columnas.'</strong></h3>');
             }
            
             $sql= "INSERT INTO $db.`temp_conciliaciones_cruces` ( ";
             $sql.="`NumeroFactura`,";
-            
-            $sql.="`NumeroContrato`,"; 
-            $sql.="`FechaFactura`,";
-            $sql.="`MesServicio`,";
-            $sql.="`NumeroRadicado`,";
-            $sql.="`FechaRadicado`,";
-            
             $sql.="`ConceptoConciliacion`,";
             $sql.="`ConciliacionAFavorDe`,";
             $sql.="`Observacion`,";
@@ -340,60 +336,36 @@ class ValidacionesEPS extends conexion{
             $r=0;
             
             for ($i=1;$i<=$filas;$i++){
-                $FilaB=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
+                $FilaA=$objPHPExcel->getActiveSheet()->getCell('A'.$i)->getCalculatedValue();
                 
-                if($FilaB==''){
+                if($FilaA==''){
                     continue; 
                 }
                                          
-                if(is_numeric($FilaB)){
+                if(is_numeric($FilaA)){
                     $r++;//Contador de filas a insertar
-                    if($FilaB<>$idIPS){
-                        exit("E1;El archivo contiene registros de una IPS diferente en la Fila A$i, $FilaB");
+                    if($FilaA<>$idIPS){
+                        exit("E1;El archivo contiene registros de una IPS diferente en la Fila A$i, $FilaA");
                     }
-                    $NumeroFactura=$objPHPExcel->getActiveSheet()->getCell('C'.$i)->getCalculatedValue();
+                    $NumeroFactura=$objPHPExcel->getActiveSheet()->getCell('B'.$i)->getCalculatedValue();
                     $NumeroFactura= str_replace("'", "", $NumeroFactura);
                     
-                    //$ConciliacionAFavorDe=$objPHPExcel->getActiveSheet()->getCell('Y'.$i)->getCalculatedValue();
-                    
-                    //$ConciliacionAFavorDe= str_replace("'", "", $ConciliacionAFavorDe);
-                    $ConciliacionAFavorDe="EPS";
+                    $ConciliacionAFavorDe=$objPHPExcel->getActiveSheet()->getCell('Y'.$i)->getCalculatedValue();
+                    $ConciliacionAFavorDe= str_replace("'", "", $ConciliacionAFavorDe);
                     $Observaciones=$objPHPExcel->getActiveSheet()->getCell('Z'.$i)->getCalculatedValue();
                     $Observaciones= str_replace("'", "", $Observaciones);
                     $ValorConciliacion=$objPHPExcel->getActiveSheet()->getCell('AA'.$i)->getCalculatedValue();
                     $ValorConciliacion= str_replace("'", "", $ValorConciliacion);
-                    
-                    $contrato=$objPHPExcel->getActiveSheet()->getCell('G'.$i)->getCalculatedValue();
-                    $contrato= str_replace("'", "", $contrato);
-                    
-                    $radicado=$objPHPExcel->getActiveSheet()->getCell('E'.$i)->getCalculatedValue();
-                    $radicado= str_replace("'", "", $radicado);
-                    
-                    $fecha_factura=$objPHPExcel->getActiveSheet()->getCell('D'.$i)->getCalculatedValue();
-                    
-                    $fecha_radicado=$objPHPExcel->getActiveSheet()->getCell('F'.$i)->getCalculatedValue();
-                    $fecha_radicado= str_replace("'", "", $fecha_radicado);
-                    
-                    $valor_original=$objPHPExcel->getActiveSheet()->getCell('H'.$i)->getCalculatedValue();
-                    $valor_original= str_replace("'", "", $valor_original);
-                    
-                    $mes_servicio=$objPHPExcel->getActiveSheet()->getCell('J'.$i)->getCalculatedValue();
-                    $mes_servicio= str_replace("'", "", $mes_servicio);
-                    
                     if($NumeroFactura==''){
-                        exit("E1;El archivo no contiene el Numero de la Factura en el Campo C$i");
+                        exit("E1;El archivo no contiene el Numero de la Factura en el Campo B$i");
                     }
-                    /*
+                    
                     if($ConciliacionAFavorDe==''){
                         exit("E1;El archivo no especifíca a favor de quien se realiza la conciliacion en el Campo Y$i");
                     }
-                     
                     if(strtoupper($ConciliacionAFavorDe)<>"IPS" and strtoupper($ConciliacionAFavorDe)<>"EPS"){
                         exit("E1;El archivo debe especificar si es a favor de la EPS o IPS en el Campo Campo Y$i");
                     }
-                     * * 
-                     */
-                    
                     if(strtoupper($ConciliacionAFavorDe)=="EPS"){
                         $ConciliacionAFavorDe=1;
                     }
@@ -409,26 +381,13 @@ class ValidacionesEPS extends conexion{
                     if($ValorConciliacion==''){
                         exit("E1;El archivo no contiene el valor de la Conciliacion en el Campo AA$i");
                     }
-                    /*
-                    if(!is_numeric($ValorConciliacion) or $ValorConciliacion<=0){
-                        exit("E1;El archivo contiene un valor de la Conciliación no admitido, solo se permiten valores númericos positivos en el Campo AA$i");
-                    }
-                     * 
-                     */
                     
-                    if(!is_numeric($ValorConciliacion)){
+                    if(!is_numeric($ValorConciliacion) or $ValorConciliacion<=0){
                         exit("E1;El archivo contiene un valor de la Conciliación no admitido, solo se permiten valores númericos positivos en el Campo AA$i");
                     }
                     
                     $sql.="(";
                     $sql.="'$NumeroFactura',";
-                    
-                    $sql.="'$contrato',";
-                    $sql.="'$fecha_factura',";
-                    $sql.="'$mes_servicio',";
-                    $sql.="'$radicado',";
-                    $sql.="'$fecha_radicado',";
-                    
                     $sql.="'$ConceptoConciliacion',";
                     $sql.="'$ConciliacionAFavorDe',";
                     $sql.="'$Observaciones',";
@@ -447,13 +406,6 @@ class ValidacionesEPS extends conexion{
                         $this->Query($sql);
                         $sql= "INSERT INTO $db.`temp_conciliaciones_cruces` ( ";
                         $sql.="`NumeroFactura`,";
-            
-                        $sql.="`NumeroContrato`,"; 
-                        $sql.="`FechaFactura`,";
-                        $sql.="`MesServicio`,";
-                        $sql.="`NumeroRadicado`,";
-                        $sql.="`FechaRadicado`,";
-
                         $sql.="`ConceptoConciliacion`,";
                         $sql.="`ConciliacionAFavorDe`,";
                         $sql.="`Observacion`,";

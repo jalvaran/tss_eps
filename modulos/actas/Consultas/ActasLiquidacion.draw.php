@@ -1258,12 +1258,26 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $css->CrearTabla();
                 
-                print("<td>");
-                    $css->input("text", "TxtNumeroContratoRenombrar", "form-control", "TxtNumeroContratoRenombrar", "", "", "Contrato Nuevo", "off", "", "", "");
-                print("</td>");
-                print("<td>");
-                    $css->CrearBotonEvento("BtnRenombrarContrato", "Renombrar", 1, "onclick", "RenombrarContrato(`$NumeroContrato`)", "rojo");
-                print("</td>");
+                if(isset($_REQUEST["dibuje_rangos"])){
+                    $css->FilaTabla(16);
+                        print('<td>');
+                            print("<strong>Desde: </strong>");
+                            $css->input("date", "FechaInicial", "form-control", "FechaInicial", "Fecha Inicial", "", "Fecha Inicial", "off", "", "","style='line-height: 15px;'");
+                        print('</td>');
+                        print('<td>');
+                            print("<strong>Hasta: </strong>");
+                            $css->input("date", "FechaFinal", "form-control", "FechaFinal", "Fecha Inicial", "", "Fecha Final", "off", "", "","style='line-height: 15px;'");
+                        print('</td>');
+                    $css->CierraFilaTabla();
+                }
+                $css->FilaTabla(16);
+                    print("<td>");
+                        $css->input("text", "TxtNumeroContratoRenombrar", "form-control", "TxtNumeroContratoRenombrar", "", "", "Contrato Nuevo", "off", "", "", "");
+                    print("</td>");
+                    print("<td>");
+                        $css->CrearBotonEvento("BtnRenombrarContrato", "Renombrar", 1, "onclick", "RenombrarContrato(`$NumeroContrato`)", "rojo");
+                    print("</td>");
+                $css->CierraFilaTabla();    
             $css->CerrarTabla();
             
         break;//Fin caso 7

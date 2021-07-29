@@ -423,6 +423,7 @@ if( !empty($_REQUEST["Accion"]) ){
         break;    //Fin caso 10
         
         case 11: //se actualizan los valores de las conciliaciones masivas
+            exit("OK;Actualizacion de la temporal realizado");
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
             $CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);
             $FechaConciliacionMasiva=$obCon->normalizar($_REQUEST["FechaConciliacionMasiva"]);

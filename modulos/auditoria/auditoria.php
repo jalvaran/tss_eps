@@ -25,6 +25,11 @@ $DatosUsuario=$obCon->FetchAssoc($DatosUsuario);
 $TipoUser=$DatosUsuario["TipoUser"];
 
 $css->PageInit($myTitulo);
+    $css->Modal("ModalAcciones", "TS5", "", 1);
+        $css->div("DivFrmModalAcciones", "", "", "", "", "", "");
+        $css->Cdiv();        
+    $css->CModal("BntModalAcciones", "onclick=SeleccioneAccionFormularios()", "button", "Guardar");
+    
     //$css->div("", "col-md-12", "", "", "", "", "");
     $css->section("", "content-header", "", "");
         print("<h1>Módulo de Auditoría");
@@ -86,8 +91,8 @@ $css->PageInit($myTitulo);
                     $sql="SELECT r.idIPS,i.Nombre FROM relacion_usuarios_ips r INNER JOIN ips i ON i.NIT=r.idIPS WHERE idUsuario='$idUser' ";
                 }
                 $Consulta=$obCon->Query($sql);
-
-                $css->select("CmbIPS", "form-control", "CmbIPS", "IPS<br>", "", "", "");
+                //$css->select($id, $class, $name, $title, $vectorhtml, $Script, $style)
+                $css->select("CmbIPS", "form-control", "CmbIPS", "IPS<br>", "", "onchange=listar_hojas_trabajo()", "");
                     while($DatosIPS=$obCon->FetchAssoc($Consulta)){
                         $css->option("", "", "", $DatosIPS["idIPS"], "", "");
                             print($DatosIPS["Nombre"]." ".$DatosIPS["idIPS"]);
@@ -101,7 +106,7 @@ $css->PageInit($myTitulo);
                 $sql="SELECT * FROM eps ORDER BY ID";
                 $Consulta=$obCon->Query($sql);
 
-                $css->select("CmbEPS", "form-control", "CmbEPS", "EPS<br>", "", "", "");
+                $css->select("CmbEPS", "form-control", "CmbEPS", "EPS<br>", "", "onchange=listar_hojas_trabajo()", "");
                     while($DatosEPS=$obCon->FetchAssoc($Consulta)){
                         $css->option("", "", "", $DatosEPS["NIT"], "", "");
                             print($DatosEPS["Nombre"]." ".$DatosEPS["NIT"]);
@@ -110,7 +115,7 @@ $css->PageInit($myTitulo);
                 $css->Cselect();
             $css->CerrarDiv();
             $css->CrearDiv("", "col-md-3", "center", 1, 1);
-                $css->select("tipo_anexo", "form-control", "tipo_anexo", "Tipo de Negociacion:<br>", "", "", "");
+                $css->select("tipo_anexo", "form-control", "tipo_anexo", "Tipo de Negociacion:<br>", "", "onchange=listar_hojas_trabajo()", "");
                     $css->option("", "", "", "", "", "");
                         print("Seleccione el Tipo de Anexo");
                     $css->Coption();
@@ -128,7 +133,7 @@ $css->PageInit($myTitulo);
             $css->CrearDiv("", "col-md-3", "left", 1, 1);
                 print("<strong>Buscar</strong><br>");
                 print('<div class="input-group">');               
-                    $css->input("text", "TxtBusquedas", "form-control", "TxtBusquedas", "", "", "Buscar", "", "", "onchange=VerListadoTickets()");
+                    $css->input("text", "TxtBusquedas", "form-control", "TxtBusquedas", "", "", "Buscar", "", "", "onchange=listar_hojas_trabajo()");
 
                 print('<span class="input-group-addon"><i class="fa fa-fw fa-search"></i></span>
                           </div>');

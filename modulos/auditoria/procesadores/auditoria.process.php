@@ -271,6 +271,16 @@ if( !empty($_REQUEST["Accion"]) ){
             
             
         break;//Fin caso 12
+    
+        case 13://vaciar las conciliaciones a las facturas
+            $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]);
+            
+            $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
+            $db=$DatosCargas["DataBase"];
+            
+            $obCon->VaciarTabla("$db.conciliaciones_cruces");
+            print("OK;Ajustes Borrados");
+        break;//Fin caso 13    
         
     }
     
