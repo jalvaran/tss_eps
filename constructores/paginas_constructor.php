@@ -756,8 +756,21 @@ class PageConstruct extends html_estruct_class{
      * @param type $Vector
      */
     public function ProgressBar($NombreBarra,$NombreLeyenda,$Tipo,$Valor,$Min,$Max,$Ancho,$Leyenda,$Color,$Vector) {
+        $color_bar="";
+        if($Color==1){
+            $color_bar="progress-bar-primary";
+        }
+        if($Color==2){
+            $color_bar="progress-bar-success";
+        }
+        if($Color==3){
+            $color_bar="progress-bar-warning";
+        }
+        if($Color==4){
+            $color_bar="progress-bar-danger";
+        }
         print('<div class="progress">
-                <div id="'.$NombreBarra.'" name="'.$NombreBarra.'" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="'.$Valor.'" aria-valuemin="'.$Min.'" aria-valuemax="'.$Max.'" style="width:'.$Ancho.'%">
+                <div id="'.$NombreBarra.'" name="'.$NombreBarra.'" class="progress-bar '.$color_bar.' progress-bar-striped active" role="progressbar" aria-valuenow="'.$Valor.'" aria-valuemin="'.$Min.'" aria-valuemax="'.$Max.'" style="width:'.$Ancho.'%">
                   <div id="'.$NombreLeyenda.'" name="'.$NombreLeyenda.'"">'.$Leyenda.'</div>
                 </div>
               </div>');

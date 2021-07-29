@@ -82,9 +82,21 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->Cdiv();
             print("<br>");
             $css->div("", "row", "", "", "", "", "");
-                $css->CrearDiv("progres_div", "col-md-12", "center", 1, 1);
-                    $css->ProgressBar("PgProgresoUp", "LyProgresoUP", "", 0, 0, 100, 0, "0%", "", "");
+                $css->CrearDiv("opciones_construccion", "col-md-4", "center", 1, 1);
+                    $css->CrearBotonEvento("btn_construir_hoja_trabajo", "Construir Hoja de Trabajo", 1, "onclick", "confirma_construir_hoja_trabajo(`".$hoja_trabajo_id."`)", "azul");
+                $css->Cdiv();
+                $css->CrearDiv("opciones_construccion", "col-md-4", "center", 1, 1);
+                    $css->CrearBotonEvento("btn_actualizar_hoja_trabajo", "Actualizar Hoja de Trabajo", 1, "onclick", "confirma_actualizar_hoja_trabajo(`".$hoja_trabajo_id."`)", "verde");
+                $css->Cdiv();
+            $css->Cdiv();
+            print("<br>");
+            $css->div("", "row", "", "", "", "", "");
+                $css->CrearDiv("progres_div_insert", "col-md-12", "center", 1, 1);
+                    $css->ProgressBar("PgProgresoUp_insert", "LyProgresoUP_insert", "", 0, 0, 100, 0, "0%", 1, "");
                 $css->Cdiv();  
+                $css->CrearDiv("progres_div_update", "col-md-12", "center", 1, 1);
+                    $css->ProgressBar("PgProgresoUp_update", "LyProgresoUP_update", "", 0, 0, 100, 0, "0%", 2, "");
+                $css->Cdiv(); 
                 print("<br>");
                 $css->CrearDiv("mensajes_div", "col-md-12", "center", 1, 1);
                     
@@ -124,6 +136,9 @@ if( !empty($_REQUEST["Accion"]) ){
                     print('</td>');
                     print('<td>');
                         $css->CrearBotonEvento("btnEliminarAjsutes", "Eliminar ajustes a facturas", 1, "onclick", "eliminar_ajustes_facturas()", "rojo");
+                    print('</td>');
+                    print('<td colspan="2">');
+                        $css->input("text", "txt_descripcion_hoja", "form-control", "txt_descripcion_hoja", "Descripcion de la hoja de trabajo", $datos_hoja_trabajo["Descripcion"], "Descipcion", "off", "", 'onchange="editar_campo(`1`,`txt_descripcion_hoja`,`Descripcion`,`hoja_trabajo_id`,`'.$hoja_trabajo_id.'`)"');
                     print('</td>');
                 $css->CierraFilaTabla();
                 $css->FilaTabla(16);

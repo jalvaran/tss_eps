@@ -63,7 +63,8 @@ class Auditoria extends conexion{
         $table_name="auditoria_hoja_de_trabajo_evento";       
                         
         $sql="CREATE TABLE IF NOT EXISTS `$table_name` (
-            `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+            
+            `hoja_trabajo_id` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
             `contrato` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
             `departamento_radicacion` varchar(45) COLLATE utf8_spanish_ci NOT NULL,
             
@@ -119,13 +120,17 @@ class Auditoria extends conexion{
             `saldo_ts` double NOT NULL,
             `saldo_diferencia` double NOT NULL,
             
+            `updated_ts` datetime DEFAULT NULL,
             `Sync` datetime DEFAULT NULL,
                         
-            PRIMARY KEY (`ID`),
+            
             KEY `contrato` (`contrato`),
+            KEY `hoja_trabajo_id` (`hoja_trabajo_id`),
             KEY `departamento_radicacion` (`departamento_radicacion`),
             KEY `radicado` (`radicado`),
             KEY `mes_servicio` (`mes_servicio`),
+            KEY `Sync` (`Sync`),
+            KEY `updated_ts` (`updated_ts`),
             KEY `factura` (`factura`)
           ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;";
         
@@ -168,7 +173,7 @@ class Auditoria extends conexion{
             `otros_descuentos` double NOT NULL,
             `valor_pagado` double NOT NULL,
             `saldo` double NOT NULL,           
-            
+            `copied_work_sheet` datetime DEFAULT NULL,
             `Sync` datetime DEFAULT NULL,
             
             PRIMARY KEY (`ID`),
@@ -176,6 +181,8 @@ class Auditoria extends conexion{
             KEY `departamento_radicacion` (`departamento_radicacion`),
             KEY `radicado` (`radicado`),
             KEY `mes_servicio` (`mes_servicio`),
+            KEY `copied_work_sheet` (`copied_work_sheet`),
+            KEY `Sync` (`Sync`),
             KEY `factura` (`factura`)
           ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;";
         
@@ -199,7 +206,7 @@ class Auditoria extends conexion{
             `otros_descuentos` double NOT NULL,
             `valor_pagado` double NOT NULL,
             `saldo` double NOT NULL,           
-            
+            `copied_work_sheet` datetime DEFAULT NULL,
             `Sync` datetime DEFAULT NULL,
             
             
@@ -207,6 +214,7 @@ class Auditoria extends conexion{
             KEY `departamento_radicacion` (`departamento_radicacion`),
             KEY `radicado` (`radicado`),
             KEY `mes_servicio` (`mes_servicio`),
+            KEY `copied_work_sheet` (`copied_work_sheet`),
             KEY `Sync` (`Sync`),
             KEY `factura` (`factura`)
           ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;";
