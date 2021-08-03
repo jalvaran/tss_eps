@@ -1662,6 +1662,54 @@ function actualizar_registros_hoja_trabajo(hoja_trabajo_id,tipo_anexo,total_item
       })
 }
 
+function frm_percapita(idContrato){
+        
+    AbreModal('ModalAcciones');
+        
+    var form_data = new FormData();
+        form_data.append('Accion', 7);
+        form_data.append('idContrato', idContrato);   
+        
+        
+        $.ajax({
+        url: 'Consultas/auditoria.draw.php',
+        //dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: 'post',
+        success: function(data){
+            
+           document.getElementById('DivFrmModalAcciones').innerHTML=data;
+           $('#CmbMunicipioPercapita').select2({
+		
+                placeholder: 'Seleccione un municipio',
+                ajax: {
+                  url: 'buscadores/municipios.search.php',
+                  dataType: 'json',
+                  delay: 250,
+                                    
+                  processResults: function (data) {
+                      
+                    return {                     
+                      results: data
+                    };
+                  },
+                 cache: true
+                }
+              });     
+            
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+            alert(xhr.status);
+            alert(thrownError);
+          }
+      });
+}
+
+
 function create_tables(){
     create_tables_module();
     

@@ -140,11 +140,14 @@ if( !empty($_REQUEST["Accion"]) ){
             if($tipo_anexo==1){
                 $tabla_anexo="auditoria_anexo_aly_evento";   
             }
+            if($tipo_anexo==2){
+                $tabla_anexo="auditoria_anexo_aly_capita";   
+            }
             if($tipo_anexo==3){
                 $tabla_anexo="auditoria_anexo_aly_pgp";   
             }
             
-            if($tipo_anexo<1 or $tipo_anexo>3 or $tipo_anexo==2){
+            if($tipo_anexo<1 or $tipo_anexo>3){
                 exit("E1;Tipo de negociacion no valida");
             }
             
@@ -195,8 +198,9 @@ if( !empty($_REQUEST["Accion"]) ){
                         print('<div class="text-left">');
                             print('<a title="Agregar" onclick="agregar_contrato_hoja_trabajo(`'.$hoja_trabajo_id.'`,`'.$contrato.'`);"  class="btn btn-social-icon btn-bitbucket"><i class="fa fa-mail-forward"></i></a> ');
                             print('<a title="Renombrar" onclick="ModalRenombrarContrato(`'.$contrato.'`)" class="btn btn-social-icon btn-flickr"><i class="fa fa-edit"></i></a> ');
-                            print('<a title="Percapitas" class="btn btn-social-icon btn-github"><i class="fa fa-indent"></i></a>');
-                        
+                            if($tipo_anexo==2){
+                                print('<a onclick="frm_percapita(`'.$contrato.'`)" title="Percapitas" class="btn btn-social-icon btn-github"><i class="fa fa-indent"></i></a>');
+                            }
                         
                         print('</div>');
                     print('</td>');
@@ -435,6 +439,52 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->CerrarTabla();
             
         break;//fin caso 6
+        
+        case 7:// Dibuja la interfaz para crear un contrato percapita
+            $idContrato=$obCon->normalizar($_REQUEST["idContrato"]);                
+                        
+            $css->input("hidden", "idContratoPadre", "", "idContratoPadre", "", $idContrato, "", "", "", "");
+            $css->input("hidden", "idFormulario", "", "idFormulario", "", 110, "", "", "", "");
+            $Mensaje="Crear un Valor Percapita para el Contrato ".$idContrato;
+            $css->CrearTitulo("<strong>".$Mensaje."</strong>");
+            
+            $css->CrearTabla();
+                $css->FilaTabla(16);
+                    $css->ColTabla("<strong>FECHA DE INICIO</strong>", 1,"C");
+                    $css->ColTabla("<strong>FECHA FINAL</strong>", 1,"C");
+                    $css->ColTabla("<strong>MUNICIPIO</strong>", 1,"C");
+                    $css->ColTabla("<strong>PORCENTAJE POBLACIONAL</strong>", 1,"C");
+                    $css->ColTabla("<strong>VALOR PERCAPITA POR DÍA</strong>", 1,"C");                    
+                $css->CierraFilaTabla();
+                
+                    print("<td>");
+                        $css->input("date", "FechaInicialPercapita", "form-control", "FechaInicialPercapita", "", "", "Fecha Inicial", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->input("date", "FechaFinalPercapita", "form-control", "FechaFinalPercapita", "", "", "Fecha Final", "off", "", "","style='line-height: 15px;'"."max=".date("Y-m-d"));
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->select("CmbMunicipioPercapita", "form-control", "CmbMunicipioPercapita", "", "", "", "");
+                            $css->option("", "form-control", "", "", "", "");
+                                print("Seleccione un municipio");
+                            $css->Coption();
+                        $css->Cselect();
+                        
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->input("text", "TxtPorcentajePercapita", "form-control", "TxtPorcentajePercapita", "", "", "Porcentaje Poblacional", "off", "", "");
+                    print("</td>");
+                    
+                    print("<td>");
+                        $css->input("text", "TxtValorPercapita", "form-control", "TxtValorPercapita", "", "", "Valor Percapita", "off", "", "");
+                    print("</td>");
+                
+            $css->CerrarTabla();
+            
+        break;//fin caso 7
         
     }
     

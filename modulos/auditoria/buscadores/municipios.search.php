@@ -1,7 +1,7 @@
 <?php
 
 include_once("../../../modelo/php_conexion.php");
-session_start();
+@session_start();
 $idUser=$_SESSION['idUser'];
 if($idUser==''){
     $json[0]['id']="";
@@ -11,16 +11,15 @@ if($idUser==''){
 }
 $obRest=new conexion($idUser);
 $key=$obRest->normalizar($_REQUEST['q']);
-$idProyecto=$obRest->normalizar($_REQUEST['idProyecto']);
 
-$sql = "SELECT * FROM tickets_modulos_proyectos 
-		WHERE NombreModulo LIKE '%$key%' AND idProyecto='$idProyecto'
-		ORDER BY ID LIMIT 200"; 
+$sql = "SELECT * FROM municipios_dane 
+		WHERE (Ciudad LIKE '%$key%') 
+		LIMIT 200"; 
 $result = $obRest->Query($sql);
 $json = [];
 
 while($row = $obRest->FetchAssoc($result)){
-    $Texto= utf8_encode($row['NombreModulo']);
+    $Texto=$row['Ciudad']." ".$row['Departamento'];
      $json[] = ['id'=>$row['ID'], 'text'=>$Texto];
 }
 echo json_encode($json);
