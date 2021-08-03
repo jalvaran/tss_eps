@@ -115,19 +115,20 @@ $css->PageInit($myTitulo);
                 $css->Cselect();
             $css->CerrarDiv();
             $css->CrearDiv("", "col-md-3", "center", 1, 1);
-                $css->select("tipo_anexo", "form-control", "tipo_anexo", "Tipo de Negociacion:<br>", "", "onchange=listar_hojas_trabajo()", "");
+                $sql="SELECT * FROM auditoria_tipos_anexo";
+                $Consulta=$obCon->Query($sql);
+                $css->select("tipo_anexo", "form-control", "tipo_anexo", "Tipo de Negociacion:<br>", "", "", "");
                     $css->option("", "", "", "", "", "");
                         print("Seleccione el Tipo de Anexo");
                     $css->Coption();
-                    $css->option("", "", "", "1", "", "");
-                        print("EVENTO");
-                    $css->Coption();
-                    $css->option("", "", "", "2", "", "");
-                        print("CAPITA");
-                    $css->Coption();
-                    $css->option("", "", "", "3", "", "");
-                        print("PGP");
-                    $css->Coption();
+                    
+                    while($datos_consulta=$obCon->FetchAssoc($Consulta)){
+                        $css->option("", "", "", $datos_consulta["ID"], "", "");
+                            print($datos_consulta["tipo_negociacion"]);
+                        $css->Coption();
+                    }
+                            
+                    
                 $css->Cselect();
             $css->CerrarDiv();
             $css->CrearDiv("", "col-md-3", "left", 1, 1);

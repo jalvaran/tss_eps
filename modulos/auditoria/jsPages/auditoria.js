@@ -852,7 +852,7 @@ function copiar_registros_anexo_real(anexo_id,total_items,page=1){
                 document.getElementById('LyProgresoUP').innerHTML="70%";
                 alertify.success(respuestas[1]);
                 
-                document.getElementById("mensajes_div").innerHTML="registros actualizados";
+                document.getElementById("mensajes_div").innerHTML="registros copiados";
                 contar_registros_anexo_real(anexo_id);
             }else if(respuestas[0]==="UP"){
                 document.getElementById("mensajes_div").innerHTML=respuestas[1];
@@ -1387,7 +1387,9 @@ function editar_campo(tabla,campo_id,campo_edit,table_id,item_id){
             }else if(respuestas[0]==="E1"){
                 
                 alertify.alert(respuestas[1]);
-                
+                if(tabla==2){
+                    listar_hojas_trabajo();
+                }
                 return;                
             }else{
                 

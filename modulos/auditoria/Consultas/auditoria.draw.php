@@ -52,8 +52,15 @@ if( !empty($_REQUEST["Accion"]) ){
         
         case 2:// formulario para construir una hoja de trabajo
             
-            $hoja_trabajo_id=$obCon->normalizar($_REQUEST["hoja_trabajo_id"]);  
+            $hoja_trabajo_id=$obCon->normalizar($_REQUEST["hoja_trabajo_id"]); 
+             
             $datos_hoja_trabajo=$obCon->DevuelveValores("auditoria_hojas_trabajo", "hoja_trabajo_id", $hoja_trabajo_id);
+            if($datos_hoja_trabajo["estado"]==2){//Estado cerrada
+                $css->CrearTitulo("<strong>Ésta Hoja de trabajo se encuentra cerrada</strong>", "rojo");
+                exit();
+            }
+                
+            $CmbIPS=$datos_hoja_trabajo["ips_id"];
             $datos_ips=$obCon->DevuelveValores("ips", "NIT", $datos_hoja_trabajo["ips_id"]);
             $tipo_anexo=$datos_hoja_trabajo["tipo_negociacion"];  
             
@@ -82,11 +89,19 @@ if( !empty($_REQUEST["Accion"]) ){
             $css->Cdiv();
             print("<br>");
             $css->div("", "row", "", "", "", "", "");
-                $css->CrearDiv("opciones_construccion", "col-md-4", "center", 1, 1);
+                $css->CrearDiv("opciones_construccion", "col-md-3", "center", 1, 1);
                     $css->CrearBotonEvento("btn_construir_hoja_trabajo", "Construir Hoja de Trabajo", 1, "onclick", "confirma_construir_hoja_trabajo(`".$hoja_trabajo_id."`)", "azul");
                 $css->Cdiv();
-                $css->CrearDiv("opciones_construccion", "col-md-4", "center", 1, 1);
+                $css->CrearDiv("", "col-md-3", "center", 1, 1);
                     $css->CrearBotonEvento("btn_actualizar_hoja_trabajo", "Actualizar Hoja de Trabajo", 1, "onclick", "confirma_actualizar_hoja_trabajo(`".$hoja_trabajo_id."`)", "verde");
+                $css->Cdiv();
+                $css->CrearDiv("", "col-md-3", "center", 1, 1);
+                    $link='procesadores/auditoria_excel.process.php?Accion=1&CmbIPS='.$CmbIPS.'&hoja_trabajo_id='.$hoja_trabajo_id;
+                    print('<a title="Exportar" href="'.$link.'" target="_blank" class="btn btn-social-icon btn-success"><i class="fa fa-file-excel-o"></i></a> ');
+                                        
+                $css->Cdiv();
+                $css->CrearDiv("", "col-md-3", "center", 1, 1);
+                    $css->CrearBotonEvento("btn_cerrar_hoja_trabajo", "Cerrar Hoja de Trabajo", 1, "onclick", "editar_campo(`2`,`btn_cerrar_hoja_trabajo`,`estado`,`hoja_trabajo_id`,`$hoja_trabajo_id`)", "rojo");
                 $css->Cdiv();
             $css->Cdiv();
             print("<br>");
@@ -114,21 +129,32 @@ if( !empty($_REQUEST["Accion"]) ){
             
             $tipo_anexo=$datos_hoja_trabajo["tipo_negociacion"];  
             
+            
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             if($tipo_anexo==""){
                 exit("E1;Seleccione un tipo de negociacion");
             }
+            
+            $tabla_anexo="";
             if($tipo_anexo==1){
-                $sql="SELECT contrato,count(contrato) as numero_contratos,
-                    sum(valor_facturado) as valor_facturado                     
-                    FROM $db.auditoria_anexo_aly_evento GROUP BY contrato
-                    
-                    ";
-                $consulta=$obCon->Query($sql);
+                $tabla_anexo="auditoria_anexo_aly_evento";   
+            }
+            if($tipo_anexo==3){
+                $tabla_anexo="auditoria_anexo_aly_pgp";   
             }
             
+            if($tipo_anexo<1 or $tipo_anexo>3 or $tipo_anexo==2){
+                exit("E1;Tipo de negociacion no valida");
+            }
             
+            $sql="SELECT contrato,count(contrato) as total_items_aly,
+                sum(valor_facturado) as valor_facturado                     
+                FROM $db.$tabla_anexo GROUP BY contrato
+
+                ";
+            $consulta=$obCon->Query($sql);
+          
             $css->CrearTabla();
                 $css->FilaTabla(16);
                     print('<td>');
@@ -148,7 +174,8 @@ if( !empty($_REQUEST["Accion"]) ){
                     $css->ColTabla("<strong>Acciones</strong>", 1,"C");
                     
                     $css->ColTabla("<strong>Contrato</strong>", 1,"C");
-                    $css->ColTabla("<strong>Número Facturas</strong>", 1,"C");
+                    $css->ColTabla("<strong># Facturas Aly</strong>", 1,"C");
+                    $css->ColTabla("<strong># Facturas TS</strong>", 1,"C");
                     $css->ColTabla("<strong>Valor Facturado</strong>", 1,"C");
                     
                 $css->CierraFilaTabla();
@@ -156,6 +183,14 @@ if( !empty($_REQUEST["Accion"]) ){
                 $css->FilaTabla(16);
                     $ID_hoja_trabajo=$datos_hoja_trabajo["ID"];
                     $contrato=$datos_consulta["contrato"];
+                    
+                    $sql="SELECT count(DISTINCT t1.NumeroFactura,t1.NumeroRadicado ) as total_items_ts  
+                        FROM $db.historial_carteracargada_eps t1 WHERE t1.NumeroContrato='$contrato'
+                        AND t1.MesServicio>=((select MIN(mes_servicio) FROM $db.$tabla_anexo t2 WHERE t2.contrato='$contrato')) 
+                        AND t1.MesServicio<=((select MAX(mes_servicio) FROM $db.$tabla_anexo t2 WHERE t2.contrato='$contrato')) 
+                        ;";
+                    $datos_consulta2=$obCon->FetchArray($obCon->Query($sql));
+                    
                     print('<td>');
                         print('<div class="text-left">');
                             print('<a title="Agregar" onclick="agregar_contrato_hoja_trabajo(`'.$hoja_trabajo_id.'`,`'.$contrato.'`);"  class="btn btn-social-icon btn-bitbucket"><i class="fa fa-mail-forward"></i></a> ');
@@ -167,7 +202,8 @@ if( !empty($_REQUEST["Accion"]) ){
                     print('</td>');
                     
                     $css->ColTabla("<span>".$datos_consulta["contrato"]."</span>", 1,"L");
-                    $css->ColTabla(number_format($datos_consulta["numero_contratos"]), 1,"R");
+                    $css->ColTabla(number_format($datos_consulta["total_items_aly"]), 1,"R");
+                    $css->ColTabla(number_format($datos_consulta2["total_items_ts"]), 1,"R");
                     $css->ColTabla(number_format($datos_consulta["valor_facturado"]), 1,"R");
                 $css->CierraFilaTabla();
             }
@@ -262,11 +298,18 @@ if( !empty($_REQUEST["Accion"]) ){
                         print('<tbody>');
                         while($datos_consulta=$obCon->FetchAssoc($Consulta)){
                             $hoja_trabajo_id=$datos_consulta["hoja_trabajo_id"];
+                            $estado=$datos_consulta["estado"];
                             print('<tr>');
                                 print("<td class='mailbox-name'>");
                                     print('<div class="text-left">');
-                                        print('<a title="Ver" onclick="frm_construir_hoja_trabajo(`'.$hoja_trabajo_id.'`)" class="btn btn-social-icon btn-bitbucket"><i class="fa fa-eye"></i></a> ');
-                                        print('<a title="Exportar" class="btn btn-social-icon btn-success"><i class="fa fa-file-excel-o"></i></a> ');
+                                        $disabled="";
+                                        if($estado==2){
+                                            $disabled="disabled";
+                                        }
+                                            
+                                        print('<button title="Ver" '.$disabled.' onclick="frm_construir_hoja_trabajo(`'.$hoja_trabajo_id.'`)" class="btn btn-social-icon btn-bitbucket"><i class="fa fa-eye"></i></button> ');
+                                        $link='procesadores/auditoria_excel.process.php?Accion=1&CmbIPS='.$CmbIPS.'&hoja_trabajo_id='.$hoja_trabajo_id;
+                                        print('<a title="Exportar" href="'.$link.'" target="_blank" class="btn btn-social-icon btn-success"><i class="fa fa-file-excel-o"></i></a> ');
                                         
                                     print('</div>');
                                 print("</td>");

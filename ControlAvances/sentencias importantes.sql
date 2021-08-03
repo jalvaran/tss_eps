@@ -25,7 +25,7 @@ FROM log_pages_visits t1 GROUP BY idUser ORDER BY Total DESC;
 
 
 SHOW VARIABLES LIKE 'max_allowed_packet';
-SET GLOBAL max_allowed_packet=524288000;
+SET GLOBAL max_allowed_packet=9524288000;
 
 
 DELETE t1 FROM notas_db_cr_2 t1

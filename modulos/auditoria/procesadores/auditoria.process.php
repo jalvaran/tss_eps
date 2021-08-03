@@ -14,13 +14,16 @@ if( !empty($_REQUEST["Accion"]) ){
     
     switch ($_REQUEST["Accion"]) {
         
-        case 1: //Crear la hoja de trabajo de auditoria
+        case 1: //Crear las tablas necesarias para auditoria
             $CmbIPS=$obCon->normalizar($_REQUEST["CmbIPS"]); 
             //$CmbEPS=$obCon->normalizar($_REQUEST["CmbEPS"]);            
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
             $obCon->create_table_auditoria_hoja_de_trabajo_evento($db); 
+            $obCon->create_table_auditoria_hoja_de_trabajo_pgp($db); 
             $obCon->create_tables_auditoria_anexo_evento($db);
+            $obCon->create_tables_auditoria_anexo_pgp($db);
+            $obCon->create_tables_auditoria_anexo_capita($db);
             exit("OK;Modulo Inicializado");            
             
         break; //fin caso 1
@@ -113,6 +116,12 @@ if( !empty($_REQUEST["Accion"]) ){
             if($tipo_anexo==1){                
                 $obCon->copiar_anexo_evento_temporal($keyArchivo,$db,$CmbIPS,$idUser);
             }
+            if($tipo_anexo==2){                
+                $obCon->copiar_anexo_capita_temporal($keyArchivo,$db,$CmbIPS,$idUser);
+            }
+            if($tipo_anexo==3){                
+                $obCon->copiar_anexo_pgp_temporal($keyArchivo,$db,$CmbIPS,$idUser);
+            }
                
             print("OK;El archivo Se guardó en la tabla temporal correctamente");
         break; //fin caso 5
@@ -125,6 +134,12 @@ if( !empty($_REQUEST["Accion"]) ){
             $db=$DatosCargas["DataBase"];
             if($tipo_anexo==1){//Evento
                 $sql="SELECT COUNT(*) as total_items FROM $db.auditoria_anexo_aly_evento_temp WHERE Sync='0000-00-00 00:00:00'";
+            }
+            if($tipo_anexo==2){//CAPITA
+                $sql="SELECT COUNT(*) as total_items FROM $db.auditoria_anexo_aly_capita_temp WHERE Sync='0000-00-00 00:00:00'";
+            }
+            if($tipo_anexo==3){//PGP
+                $sql="SELECT COUNT(*) as total_items FROM $db.auditoria_anexo_aly_pgp_temp WHERE Sync='0000-00-00 00:00:00'";
             }
             
             $datos_consulta=$obCon->FetchAssoc($obCon->Query($sql));
@@ -165,6 +180,40 @@ if( !empty($_REQUEST["Accion"]) ){
                 
             }
             
+            if($tipo_anexo==2){//Anexo capita
+                $sql="INSERT INTO $db.auditoria_anexo_aly_capita 
+                        (departamento_radicacion,municipio,mes_servicio,dias_lma,valor_segun_lma,radicado,factura,valor_facturado,retencion_impuestos,descuento_reconocimiento_bdua,descuento_inicial,descuento_conciliado_asmet,valor_pagado,saldo)
+                         
+                        SELECT t1.departamento_radicacion,t1.municipio,t1.mes_servicio,t1.dias_lma,t1.valor_segun_lma,t1.radicado,t1.factura,t1.valor_facturado,t1.retencion_impuestos,t1.descuento_reconocimiento_bdua,t1.descuento_inicial,t1.descuento_conciliado_asmet,t1.valor_pagado,t1.saldo
+                        FROM $db.auditoria_anexo_aly_capita_temp t1
+                       
+                        WHERE t1.Sync='0000-00-00 00:00:00' $condition_limit
+                        
+
+                        ";
+                $obCon->Query($sql);
+                $sql="UPDATE $db.auditoria_anexo_aly_capita_temp SET Sync='$fecha_actualizacion' WHERE Sync='0000-00-00 00:00:00' $condition_limit";
+                $obCon->Query($sql);
+                
+            }
+            
+            if($tipo_anexo==3){//Anexo tipo pgp
+                $sql="INSERT INTO $db.auditoria_anexo_aly_pgp 
+                        (departamento_radicacion,radicado,mes_servicio,factura,valor_facturado,retencion_impuestos,glosa_inicial,glosa_favor,notas_copagos,descuento_pgp,valor_pagado,saldo)
+                         
+                        SELECT t1.departamento_radicacion,t1.radicado,t1.mes_servicio,t1.factura,t1.valor_facturado,t1.retencion_impuestos,t1.glosa_inicial,t1.glosa_favor,t1.notas_copagos,t1.descuento_pgp,t1.valor_pagado,t1.saldo
+                        FROM $db.auditoria_anexo_aly_pgp_temp t1
+                       
+                        WHERE t1.Sync='0000-00-00 00:00:00' $condition_limit
+                        
+
+                        ";
+                $obCon->Query($sql);
+                $sql="UPDATE $db.auditoria_anexo_aly_pgp_temp SET Sync='$fecha_actualizacion' WHERE Sync='0000-00-00 00:00:00' $condition_limit";
+                $obCon->Query($sql);
+                
+            }
+            
             $next_page=$page+1;
             if($total_pages<$next_page){
                 exit("OK;Todos los registros fueron copiados");
@@ -181,6 +230,14 @@ if( !empty($_REQUEST["Accion"]) ){
             $db=$DatosCargas["DataBase"];
             if($tipo_anexo==1){//Evento
                 $sql="SELECT COUNT(*) as total_items FROM $db.auditoria_anexo_aly_evento WHERE Sync='0000-00-00 00:00:00' or Sync IS NULL";
+            }
+            
+            if($tipo_anexo==2){//CAPITA
+                $sql="SELECT COUNT(*) as total_items FROM $db.auditoria_anexo_aly_capita WHERE Sync='0000-00-00 00:00:00' or Sync IS NULL";
+            }
+            
+            if($tipo_anexo==3){//PGP
+                $sql="SELECT COUNT(*) as total_items FROM $db.auditoria_anexo_aly_pgp WHERE Sync='0000-00-00 00:00:00' or Sync IS NULL";
             }
             
             $datos_consulta=$obCon->FetchAssoc($obCon->Query($sql));
@@ -204,10 +261,26 @@ if( !empty($_REQUEST["Accion"]) ){
             $condition_limit=" LIMIT $limit ";
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            $sql="CREATE INDEX IF NOT EXISTS NumeroRadicado ON $db.historial_carteracargada_eps(NumeroRadicado );";
-            $obCon->Query($sql);
+            if($page==1){
+                $sql="CREATE INDEX IF NOT EXISTS NumeroRadicado ON $db.historial_carteracargada_eps(NumeroRadicado );";
+                $obCon->Query($sql);
+            }
+            
+            $tabla_anexo="";
             if($tipo_anexo==1){
-                $sql="UPDATE $db.auditoria_anexo_aly_evento t1 
+                $tabla_anexo="auditoria_anexo_aly_evento";
+            }
+            
+            if($tipo_anexo==2){
+                $tabla_anexo="auditoria_anexo_aly_capita";
+            }
+            
+            if($tipo_anexo==3){
+                $tabla_anexo="auditoria_anexo_aly_pgp";
+            }
+            
+            
+            $sql="UPDATE $db.$tabla_anexo t1 
 
                         SET t1.contrato=(select NumeroContrato FROM $db.historial_carteracargada_eps t2 WHERE t2.NumeroFactura=t1.factura AND t2.NumeroRadicado=t1.radicado limit 1),
                         Sync='$fecha_actualizacion'
@@ -215,7 +288,6 @@ if( !empty($_REQUEST["Accion"]) ){
                         $condition_limit  ;";
 
                 $obCon->Query($sql);
-            }
             if($total_pages<=$page){
                 print("OK;Registros Actualizados correctamente");
             }else{
@@ -297,7 +369,12 @@ if( !empty($_REQUEST["Accion"]) ){
             if($tabla==1){// auditoria Hojas de trabajo
                 $obCon->ActualizaRegistro("auditoria_hojas_trabajo",$campo_edit , $nuevo_valor, $table_id, $item_id);
             }
-            
+            if($tabla==2){// auditoria Hojas de trabajo
+                $obCon->ActualizaRegistro("auditoria_hojas_trabajo","estado" , 2, "hoja_trabajo_id", $item_id);
+            }
+            if($tabla==2){
+                exit("OK;Hoja de trabajo cerrada");
+            }
             print("OK;Campo actualizado");
         break;//Fin caso 14  
         
@@ -309,13 +386,21 @@ if( !empty($_REQUEST["Accion"]) ){
             $tipo_anexo=$datos_hoja_trabajo["tipo_negociacion"];
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            if($tipo_anexo==1){//Evento
-                $obCon->BorraReg("$db.auditoria_hoja_de_trabajo_evento", "hoja_trabajo_id", $hoja_trabajo_id);
-                $obCon->update("$db.auditoria_anexo_aly_evento", "copied_work_sheet", '0000-00-00 00:00:00', "");
-                $sql="SELECT COUNT(*) as total_items FROM $db.auditoria_anexo_aly_evento t1 WHERE EXISTS (SELECT 1 FROM auditoria_hojas_trabajo_contrato t2 WHERE t2.contrato like t1.contrato and t2.hoja_trabajo_id='$hoja_trabajo_id')
-                    
-                        AND  t1.copied_work_sheet='0000-00-00 00:00:00' or t1.copied_work_sheet IS NULL";
+            if($tipo_anexo==1){
+                $tabla_hoja_trabajo="auditoria_hoja_de_trabajo_evento";
+                $tabla_anexo="auditoria_anexo_aly_evento";
             }
+            if($tipo_anexo==3){
+                $tabla_hoja_trabajo="auditoria_hoja_de_trabajo_pgp";
+                $tabla_anexo="auditoria_anexo_aly_pgp";
+            }
+            
+            $obCon->BorraReg("$db.$tabla_hoja_trabajo", "hoja_trabajo_id", $hoja_trabajo_id);
+            $obCon->update("$db.$tabla_anexo", "copied_work_sheet", '0000-00-00 00:00:00', "");
+            $sql="SELECT COUNT(*) as total_items FROM $db.$tabla_anexo t1 WHERE EXISTS (SELECT 1 FROM auditoria_hojas_trabajo_contrato t2 WHERE t2.contrato like t1.contrato and t2.hoja_trabajo_id='$hoja_trabajo_id')
+
+                    AND  t1.copied_work_sheet='0000-00-00 00:00:00' or t1.copied_work_sheet IS NULL";
+
             
             $datos_consulta=$obCon->FetchAssoc($obCon->Query($sql));
             $total_items=$datos_consulta["total_items"];
@@ -341,24 +426,13 @@ if( !empty($_REQUEST["Accion"]) ){
             
             if($tipo_anexo==1){//Anexo tipo evento
                 
-                $sql="INSERT INTO $db.auditoria_hoja_de_trabajo_evento 
-                        (hoja_trabajo_id,departamento_radicacion,contrato,radicado,mes_servicio,factura,valor_facturado_aly,retencion_impuestos_aly,devoluciones_aly,glosa_inicial_aly,glosa_favor_aly,glosa_conciliar_aly,notas_copagos_aly,recuperacion_impuestos_aly,otros_descuentos_aly,valor_pagado_aly,saldo_aly)
-                         
-                        SELECT '$hoja_trabajo_id',t1.departamento_radicacion,t1.contrato,t1.radicado,t1.mes_servicio,t1.factura,t1.valor_facturado,t1.retencion_impuestos,t1.devoluciones,t1.glosa_inicial,t1.glosa_favor,(t1.glosa_inicial-t1.glosa_favor),t1.notas_copagos,t1.recuperacion_impuestos,t1.otros_descuentos,t1.valor_pagado,t1.saldo
-                        FROM $db.auditoria_anexo_aly_evento t1
-                       
-                        WHERE EXISTS (SELECT 1 FROM auditoria_hojas_trabajo_contrato t2 WHERE t2.contrato like t1.contrato and t2.hoja_trabajo_id='$hoja_trabajo_id')
-                        AND t1.copied_work_sheet='0000-00-00 00:00:00' or t1.copied_work_sheet IS NULL $condition_limit
-                        
-
-                        ";
-                $obCon->Query($sql);
-                $sql="UPDATE $db.auditoria_anexo_aly_evento t1 SET t1.copied_work_sheet='$fecha_actualizacion' WHERE EXISTS (SELECT 1 FROM auditoria_hojas_trabajo_contrato t2 WHERE t2.contrato like t1.contrato and t2.hoja_trabajo_id='$hoja_trabajo_id')
-        
-                        AND t1.copied_work_sheet='0000-00-00 00:00:00' or t1.copied_work_sheet IS NULL $condition_limit 
-                        
-                        ";
-                $obCon->Query($sql);
+                $obCon->insertar_registros_hoja_trabajo_evento($db, $hoja_trabajo_id, $condition_limit, $fecha_actualizacion);
+                
+            }
+            
+            if($tipo_anexo==3){//Anexo tipo pgp
+                
+                $obCon->insertar_registros_hoja_trabajo_pgp($db, $hoja_trabajo_id, $condition_limit, $fecha_actualizacion);
                 
             }
             
@@ -383,11 +457,19 @@ if( !empty($_REQUEST["Accion"]) ){
             $tipo_anexo=$datos_hoja_trabajo["tipo_negociacion"];
             $DatosCargas=$obCon->DevuelveValores("ips", "NIT", $CmbIPS);
             $db=$DatosCargas["DataBase"];
-            if($tipo_anexo==1){//Evento
+            if($tipo_anexo==1){
+                $tabla_hoja_trabajo="auditoria_hoja_de_trabajo_evento";
                 
-                $obCon->update("$db.auditoria_hoja_de_trabajo_evento", "hoja_trabajo_id", $hoja_trabajo_id, "");
-                $sql="SELECT COUNT(*) as total_items FROM $db.auditoria_hoja_de_trabajo_evento WHERE hoja_trabajo_id='$hoja_trabajo_id' ";
             }
+            if($tipo_anexo==3){
+                $tabla_hoja_trabajo="auditoria_hoja_de_trabajo_pgp";
+                
+            }
+            
+                
+            $obCon->update("$db.$tabla_hoja_trabajo", "hoja_trabajo_id", $hoja_trabajo_id, "");
+            $sql="SELECT COUNT(*) as total_items FROM $db.$tabla_hoja_trabajo WHERE hoja_trabajo_id='$hoja_trabajo_id' ";
+            
             
             $datos_consulta=$obCon->FetchAssoc($obCon->Query($sql));
             $total_items=$datos_consulta["total_items"];
@@ -413,72 +495,15 @@ if( !empty($_REQUEST["Accion"]) ){
             
             if($tipo_anexo==1){//hoja de trabajo tipo evento
                 
-                $sql="UPDATE $db.auditoria_hoja_de_trabajo_evento t1
-                        SET t1.valor_facturado_ts=(SELECT ValorOriginal FROM $db.historial_carteracargada_eps t2 WHERE EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t3.Aplicacion='FACTURA' AND t3.TipoOperacion=t2.TipoOperacion ) AND t2.NumeroFactura=t1.factura AND t2.NumeroRadicado=t1.radicado ORDER BY ID DESC LIMIT 1 ),
-                            t1.valor_facturado_diferencia=t1.valor_facturado_aly-t1.valor_facturado_ts,
-                            
-                            t1.retencion_impuestos_ts=(SELECT (SUM(ValorCredito)-SUM(ValorDebito) ) FROM $db.retenciones t2 WHERE t2.Cuentacontable like '2365%' AND t2.NumeroFactura=t1.factura  ),
-                            t1.retencion_impuestos_diferencia=t1.retencion_impuestos_aly-t1.retencion_impuestos_ts,
-                            
-                            t1.devoluciones_ts=
-                            (SELECT IF (  
-                            (SELECT COUNT(DISTINCT NumeroTransaccion) FROM $db.notas_db_cr_2 t2 WHERE t2.NumeroFactura=t1.factura AND t2.C13<>'N' AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE Estado=1 AND t2.TipoOperacion=t3.TipoOperacion AND t3.Aplicacion='devoluciones') )
-                            >=
-                            (SELECT COUNT(DISTINCT NumeroRadicado) FROM $db.historial_carteracargada_eps t2 WHERE t2.NumeroFactura=t1.factura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t3.Estado=1 AND t2.TipoOperacion=t3.TipoOperacion AND t3.Aplicacion='FACTURA')  )
-                            ,t1.valor_facturado_ts,0 ) ),
-                            t1.devoluciones_diferencia=t1.devoluciones_aly-t1.devoluciones_ts,
-                            
-                            t1.glosa_inicial_ts=(SELECT (ValorTotalGlosa) FROM $db.glosaseps_asmet t2  WHERE t2.NumeroFactura=t1.factura ORDER BY t2.FechaRegistro DESC LIMIT 1),
-                            t1.glosa_inicial_diferencia=t1.glosa_inicial_aly-t1.glosa_inicial_ts,
-                            
-                            t1.glosa_favor_ts=(SELECT (ValorGlosaFavor) FROM $db.glosaseps_asmet t2  WHERE t2.NumeroFactura=t1.factura ORDER BY t2.FechaRegistro DESC LIMIT 1),
-                            t1.glosa_favor_diferencia=t1.glosa_favor_aly-t1.glosa_favor_ts, 
-                            
-                            t1.glosa_conciliar_ts=t1.glosa_inicial_ts-t1.glosa_favor_ts,
-                            t1.glosa_conciliar_diferencia=t1.glosa_conciliar_aly-t1.glosa_conciliar_ts,
-                            
-                            t1.notas_copagos_ts=
-                            (SELECT IF(
-                            (SELECT SUM(ABS(ValorTotal)) as total_copagos_notas FROM $db.notas_db_cr_2 t2 WHERE EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t3.TipoOperacion=t2.TipoOperacion AND t3.Aplicacion='copagos') AND  t2.NumeroFactura=t1.factura)  
-                            >
-                            (SELECT SUM(ValorAnticipado) FROM $db.anticipos2 t2 WHERE t2.NumeroFactura=t1.factura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t3.Estado=1 AND t2.NumeroInterno=t3.TipoOperacion AND t3.Aplicacion='copagos')  )
-                            ,
-                            (SELECT SUM(ABS(ValorTotal)) as total_copagos_notas FROM $db.notas_db_cr_2 t2 WHERE EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t3.TipoOperacion=t2.TipoOperacion AND t3.Aplicacion='copagos') AND  t2.NumeroFactura=t1.factura)
-                            ,
-                            (SELECT SUM(ValorAnticipado) FROM $db.anticipos2 t2 WHERE t2.NumeroFactura=t1.factura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t3.Estado=1 AND t2.NumeroInterno=t3.TipoOperacion AND t3.Aplicacion='copagos')  )
-                            ) ),
-                            t1.notas_copagos_diferencia=t1.notas_copagos_aly-t1.notas_copagos_ts,
-                            
-                            t1.recuperacion_impuestos_ts=(IF(t1.devoluciones_ts>0 AND t1.retencion_impuestos_ts>0,t1.retencion_impuestos_ts,0)),
-                            t1.recuperacion_impuestos_diferencia=t1.recuperacion_impuestos_aly-t1.recuperacion_impuestos_ts,
-                            
-                            t1.otros_descuentos_ts=(SELECT SUM(ValorAnticipado) FROM $db.anticipos2 t2 WHERE t2.NumeroFactura=t1.factura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t3.Estado=1 AND t2.NumeroInterno=t3.TipoOperacion AND t3.Aplicacion='otrosdescuentos') ),
-                            t1.otros_descuentos_diferencia=t1.otros_descuentos_aly-t1.otros_descuentos_ts,
-                            
-                            t1.valor_pagado_ts=
-                            (SELECT IFNULL((SELECT SUM(ValorPago) FROM $db.notas_db_cr_2 t2 WHERE t2.NumeroFactura=t1.factura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t3.Estado=1 AND t2.TipoOperacion2=t3.TipoOperacion AND t3.Aplicacion='TotalPagos')  AND (t2.TipoOperacion!='2103' and t2.TipoOperacion!='2117' and t2.TipoOperacion!='2351' and t2.TipoOperacion!='2122')),0))
-                            +
-                            (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM $db.anticipos2 t2 WHERE t2.NumeroFactura=t1.factura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t3.Estado=1 AND t2.NumeroInterno=t3.TipoOperacion AND t3.Aplicacion='Capitalizacion')),0))
-                            +
-                            (SELECT IFNULL((SELECT SUM(ValorConciliacion) FROM $db.conciliaciones_cruces t2 WHERE t2.NumeroFactura=t1.factura AND t2.ConciliacionAFavorDe=1),0))
-                            +
-                            (SELECT IFNULL((SELECT SUM(ValorAnticipado) FROM $db.anticipos2 t2 WHERE t2.NumeroFactura=t1.factura AND EXISTS (SELECT 1 FROM tipos_operacion t3 WHERE t3.Estado=1 AND t2.NumeroInterno=t3.TipoOperacion AND t3.Aplicacion='anticipos') ),0))
-                            ,
-                            t1.valor_pagado_diferencia=t1.valor_pagado_aly-t1.valor_pagado_ts,
-                            
-                            t1.saldo_ts=(t1.valor_facturado_ts-t1.retencion_impuestos_ts-t1.devoluciones_ts-t1.glosa_favor_ts-t1.glosa_conciliar_ts-t1.notas_copagos_ts-t1.recuperacion_impuestos_ts-t1.otros_descuentos_ts-t1.valor_pagado_ts),
-                            t1.saldo_diferencia=t1.saldo_aly-t1.saldo_ts 
-                            
-                        WHERE hoja_trabajo_id='$hoja_trabajo_id' AND  (t1.updated_ts='0000-00-00 00:00:00' or t1.updated_ts IS NULL) $condition_limit
-                        
-
-                        ";
-                $obCon->Query($sql);
-                $sql="UPDATE $db.auditoria_hoja_de_trabajo_evento SET updated_ts='$fecha_actualizacion' WHERE hoja_trabajo_id='$hoja_trabajo_id' AND  (updated_ts='0000-00-00 00:00:00' or updated_ts IS NULL) $condition_limit";
-                $obCon->Query($sql);
+                $obCon->actualizar_hoja_trabajo_evento($db, $hoja_trabajo_id, $fecha_actualizacion, $condition_limit);
                 
             }
             
+            if($tipo_anexo==3){//hoja de trabajo tipo pgp
+                
+                $obCon->actualizar_hoja_trabajo_pgp($db, $hoja_trabajo_id, $fecha_actualizacion, $condition_limit);
+                
+            }
             $next_page=$page+1;
             if($total_pages<$next_page){
                 exit("OK;Todos los registros fueron copiados a la hoja de trabajo");
